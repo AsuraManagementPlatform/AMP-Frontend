@@ -223,15 +223,14 @@ const AdminPanel: React.FC = () => {
         }
     };
 
-    // Table columns configuration
     const columns: TableColumn<UserMeResponse>[] = [
         {
             key: 'username',
             label: 'User',
-            render: (username: string, user: UserMeResponse) => (
+            render: (email: string, user: UserMeResponse) => (
                 <div>
-                    <div className="font-medium text-gray-900">{username}</div>
-                    <div className="text-sm text-gray-500">{user.fullName}</div>
+                    <div className="font-medium text-gray-900">{email}</div>
+                    <div className="text-sm text-gray-500">{user.full_name}</div>
                 </div>
             )
         },
@@ -345,13 +344,13 @@ const AdminPanel: React.FC = () => {
 
                     <Card title="Admin Users" className="text-center">
                         <div className="text-3xl font-bold text-orange-600">
-                            {users.filter(u => u.userGroups.includes('admin')).length}
+                            {users.filter(u => u.groups.includes('admin')).length}
                         </div>
                     </Card>
 
                     <Card title="Organization Admins" className="text-center">
                         <div className="text-3xl font-bold text-green-600">
-                            {users.filter(u => u.userGroups.includes('organization_admin')).length}
+                            {users.filter(u => u.groups.includes('organization_admin')).length}
                         </div>
                     </Card>
                 </div>

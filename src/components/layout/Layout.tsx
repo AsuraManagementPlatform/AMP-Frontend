@@ -81,6 +81,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
     };
 
     const getUserInitials = (): string => {
+        console.log(user);
         if (!user) return 'U';
 
         if (user.fullName) {

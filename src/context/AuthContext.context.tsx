@@ -20,15 +20,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     const tokenRefreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const fetchUserData = useCallback(async (): Promise<void> => {
-        console.log('[Auth] Fetching user data from backend');
         try {
             const userData = await userService.getCurrentUser();
-            setUser({
+            const newUserData = {
                 id: userData.id,
-                username: userData.username,
-                fullName: userData.fullName,
-                userGroups: userData.userGroups
-            });
+                username: userData.email,
+                fullName: userData.full_name,
+                userGroups: userData.groups
+            };
+
+            console.log('Setting user data:', userData);
+            console.log('Setting user data:', newUserData);
+            setUser(newUserData);
         } catch (apiError) {
             console.error('[Auth] Failed to fetch user data:', apiError);
             throw new Error('Failed to fetch user data from backend');

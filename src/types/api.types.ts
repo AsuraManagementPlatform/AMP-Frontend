@@ -1,8 +1,8 @@
 export interface UserMeResponse {
     id: string,
-    username: string;
-    fullName: string;
-    userGroups: string[];
+    email: string;
+    full_name: string;
+    groups: string[];
 }
 
 export interface ValidationError {
