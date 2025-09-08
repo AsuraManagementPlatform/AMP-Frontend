@@ -1,6 +1,13 @@
 /* ===================================================================
    GLOBAL STYLES FOR ASURA PLATFORM
    ================================================================ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.Modal {
+    @apply fixed inset-0 flex items-center justify-center bg-black/50 z-50;
+}
 
 /* Basic reset and defaults */
 * {
@@ -531,36 +538,80 @@ body {
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
   z-index: 50;
   animation: fadeIn 150ms ease-out;
 }
 
 .modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 100%;
   max-width: 28rem; /* max-w-md */
+  background-color: white;
+  border-radius: 0.5rem; /* rounded-lg */
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 1.5rem; /* p-6 */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
+  z-index: 51;
   animation: zoomIn 150ms ease-out;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
 }
 
 .modal-content-sm {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 100%;
   max-width: 20rem; /* max-w-sm */
+  background-color: white;
+  border-radius: 0.5rem; /* rounded-lg */
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 1.5rem; /* p-6 */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
+  z-index: 51;
   animation: zoomIn 150ms ease-out;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
 }
 
 .modal-content-lg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 100%;
   max-width: 42rem; /* max-w-2xl */
+  background-color: white;
+  border-radius: 0.5rem; /* rounded-lg */
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 1.5rem; /* p-6 */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
+  z-index: 51;
   animation: zoomIn 150ms ease-out;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
 }
 
 .modal-content-xl {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 100%;
   max-width: 56rem; /* max-w-4xl */
+  background-color: white;
+  border-radius: 0.5rem; /* rounded-lg */
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 1.5rem; /* p-6 */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
+  z-index: 51;
   animation: zoomIn 150ms ease-out;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
 }
 
 .modal-header {
@@ -635,7 +686,7 @@ body {
 }
 
 /* Modal Animations */
-@keyframes modalFadeIn {
+@keyframes fadeIn {
   from {
     opacity: 0;
   }
@@ -644,7 +695,7 @@ body {
   }
 }
 
-@keyframes modalZoomIn {
+@keyframes zoomIn {
   from {
     opacity: 0;
     transform: scale(0.95) translateY(-10px);
@@ -665,9 +716,13 @@ body {
   .modal-content-sm,
   .modal-content-lg,
   .modal-content-xl {
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    transform: none;
+    width: calc(100% - 2rem);
     max-width: none;
-    width: 100%;
-    max-height: calc(100vh - 1rem);
+    max-height: calc(100vh - 2rem);
     overflow-y: auto;
   }
   
@@ -679,6 +734,25 @@ body {
   .modal-footer .btn {
     width: 100%;
   }
+}
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Ensure modal portal elements are properly layered */
+[data-radix-focus-guard] {
+  position: fixed !important;
+}
+
+/* Ensure modal content focus styles */
+.modal-content:focus,
+.modal-content-sm:focus,
+.modal-content-lg:focus,
+.modal-content-xl:focus {
+  outline: none;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(249, 115, 22, 0.5);
 }
 
 /* ===================================================================

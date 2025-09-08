@@ -1,188 +1,13 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import Layout from '@/components/layout/Layout';
 import {Card} from "@/components/ui/Card.tsx";
 import {Button} from "@/components/ui/Button.tsx";
 import {AuthState} from "@/types/auth.types.ts";
 import {LoadingSpinner} from "@/components/ui/LoadingSpinner.tsx";
-import {DashboardStats} from "@/types/index.types.ts";
-import {CreateUserRequest, CreateUserModalProps} from "@/types/adminPanel.types.ts";
+import {CreateUserRequest, DashboardStats} from "@/types/index.types.ts";
+import Modal from 'react-modal';
 import userService from "@/services/user.service.ts";
-import showToast from "@/components/ui/Toast.tsx";
-import { SimpleTooltip } from "@/components/ui/Tooltip.tsx";
-import { FormModal } from "@/components/ui/Modal.tsx";
-
-const CreateUserModal: React.FC<CreateUserModalProps> = ({isOpen, onClose, onSuccess}) => {
-    const [formData, setFormData] = useState<CreateUserRequest>({
-        username: '',
-        email: '',
-        full_name: '',
-        phone_number: '',
-        personal_numerical_number: '',
-        company_number: '',
-        company_name: '',
-        group: ''
-    });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
-        event.preventDefault();
-
-        try {
-            setIsSubmitting(true);
-            
-            const loadingToastId = showToast.creatingUser();
-
-            await userService.createUser(formData);
-
-            // Close loading toast and show success
-            showToast.success('', { id: loadingToastId });
-            showToast.userCreated();
-
-            setFormData({
-                username: '',
-                email: '',
-                full_name: '',
-                phone_number: '',
-                personal_numerical_number: '',
-                company_number: '',
-                company_name: '',
-                group: ''
-            });
-
-            onSuccess();
-            onClose();
-        } catch (error) {
-            console.error('Eroare la crearea utilizatorului:', error);
-            const errorMessage = error instanceof Error ? error.message : 'Crearea utilizatorului a eșuat';
-            showToast.userCreationFailed(errorMessage);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    const handleInputChange = (field: keyof CreateUserRequest, value: string): void => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    };
-
-    const handleGroupChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
-        setFormData(prev => ({
-            ...prev,
-            group: event.target.value
-        }));
-    };
-
-    return (
-        <FormModal
-            isOpen={isOpen}
-            onClose={onClose}
-            title="Creează utilizator nou"
-            size="md"
-        >
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <div>
-                        <label className="form-label">
-                            Nume de utilizator
-                        </label>
-                        <input
-                            type="text"
-                            required
-                            value={formData.username}
-                            onChange={(e) => handleInputChange('username', e.target.value)}
-                            className="form-input"
-                            disabled={isSubmitting}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="form-label">
-                            Adresă de email
-                        </label>
-                        <input
-                            type="email"
-                            required
-                            value={formData.email}
-                            onChange={(e) => handleInputChange('email', e.target.value)}
-                            className="form-input"
-                            disabled={isSubmitting}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="form-label">
-                            Nume complet
-                        </label>
-                        <input
-                            type="text"
-                            required
-                            value={formData.full_name}
-                            onChange={(e) => handleInputChange('full_name', e.target.value)}
-                            className="form-input"
-                            disabled={isSubmitting}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="form-label">
-                            Număr de telefon
-                        </label>
-                        <input
-                            type="tel"
-                            required
-                            value={formData.phone_number}
-                            onChange={(e) => handleInputChange('phone_number', e.target.value)}
-                            className="form-input"
-                            disabled={isSubmitting}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="form-label">
-                            Grup utilizator
-                        </label>
-                        <select
-                            value={formData.group}
-                            onChange={handleGroupChange}
-                            className="form-select"
-                            disabled={isSubmitting}
-                            required
-                        >
-                            <option value="">Selectează grupul</option>
-                            <option value="admin">Administrator</option>
-                            <option value="organization_admin">Administrator organizație</option>
-                            <option value="manager">Manager</option>
-                            <option value="employee">Angajat</option>
-                            <option value="member">Membru</option>
-                            <option value="volunteer">Voluntar</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div className="modal-footer">
-                    <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={onClose}
-                        disabled={isSubmitting}
-                    >
-                        Anulează
-                    </Button>
-                    <Button
-                        type="submit"
-                        variant="primary"
-                        isLoading={isSubmitting}
-                    >
-                        Creează utilizator
-                    </Button>
-                </div>
-            </form>
-        </FormModal>
-    );
-};
 
 const LandingPage: React.FC = () => {
     return (
@@ -236,12 +61,72 @@ const LandingPage: React.FC = () => {
 
 const Dashboard: React.FC = () => {
     const { user, checkUserGroup } = useAuth();
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [modalIsOpen, setIsOpen] = React.useState(false);
+
+    const [formData, setFormData] = useState<CreateUserRequest>({
+        username: '',
+        email: '',
+        full_name: '',
+        phone_number: '',
+        personal_numerical_number: '',
+        company_number: '',
+        company_name: '',
+        group: ''
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+        event.preventDefault();
+
+        try {
+            setIsSubmitting(true);
+
+            await userService.createUser(formData);
+
+            setFormData({
+                username: '',
+                email: '',
+                full_name: '',
+                phone_number: '',
+                personal_numerical_number: '',
+                company_number: '',
+                company_name: '',
+                group: ''
+            });
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Crearea utilizatorului a eșuat';
+            console.log(errorMessage);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    function openModal() {
+        setIsOpen(true);
+    }
+
+    function closeModal() {
+        setIsOpen(false);
+    }
 
     const stats: DashboardStats = {
         recentActivities: 0,
         activeProjects: 0,
         totalStats: 0
+    };
+
+    const handleInputChange = (field: keyof CreateUserRequest, value: string): void => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleGroupChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+        setFormData(prev => ({
+            ...prev,
+            group: event.target.value
+        }));
     };
 
     const getUserDisplayName = (): string => {
@@ -250,12 +135,6 @@ const Dashboard: React.FC = () => {
     };
 
     const isAdmin = checkUserGroup('admin');
-
-    const handleCreateUserSuccess = () => {
-        // Opțional reîmprospătează datele sau afișează un mesaj de succes
-        console.log('Utilizatorul a fost creat cu succes');
-        // Toast notification is already shown in the modal
-    };
 
     return (
         <Layout showNavigation={true}>
@@ -273,14 +152,12 @@ const Dashboard: React.FC = () => {
                 {isAdmin && (
                     <Card title="Acțiuni administrator" className="mb-6">
                         <div className="flex flex-wrap gap-4">
-                            <SimpleTooltip tooltip="Deschide formularul pentru a adăuga un utilizator nou în sistem" side="bottom">
-                                <Button 
+                                <Button
                                     variant="primary"
-                                    onClick={() => setIsCreateModalOpen(true)}
+                                    onClick={openModal}
                                 >
                                     Creează utilizator nou
                                 </Button>
-                            </SimpleTooltip>
                         </div>
                     </Card>
                 )}
@@ -325,11 +202,125 @@ const Dashboard: React.FC = () => {
                     </div>
                 </Card>
 
-                <CreateUserModal
-                    isOpen={isCreateModalOpen}
-                    onClose={() => setIsCreateModalOpen(false)}
-                    onSuccess={handleCreateUserSuccess}
-                />
+                <Modal
+                    isOpen={modalIsOpen}
+                    onRequestClose={closeModal}
+                    contentLabel="Example Modal"
+                >
+                    <button onClick={closeModal}>close</button>
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <div>
+                                <label className="form-label">
+                                    Nume de utilizator
+                                </label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={formData.username}
+                                    onChange={(e) => handleInputChange('username', e.target.value)}
+                                    className="form-input"
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="form-label">
+                                    Adresă de email
+                                </label>
+                                <input
+                                    type="email"
+                                    required
+                                    value={formData.email}
+                                    onChange={(e) => handleInputChange('email', e.target.value)}
+                                    className="form-input"
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="form-label">
+                                    Nume complet
+                                </label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={formData.full_name}
+                                    onChange={(e) => handleInputChange('full_name', e.target.value)}
+                                    className="form-input"
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="form-label">
+                                    Număr de telefon
+                                </label>
+                                <input
+                                    type="tel"
+                                    required
+                                    value={formData.phone_number}
+                                    onChange={(e) => handleInputChange('phone_number', e.target.value)}
+                                    className="form-input"
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="form-label">
+                                    CNP
+                                </label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={formData.personal_numerical_number}
+                                    onChange={(e) => handleInputChange('personal_numerical_number', e.target.value)}
+                                    className="form-input"
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="form-label">
+                                    Grup utilizator
+                                </label>
+                                <select
+                                    value={formData.group}
+                                    onChange={handleGroupChange}
+                                    className="form-select"
+                                    disabled={isSubmitting}
+                                    required
+                                >
+                                    <option value="">Selectează grupul</option>
+                                    <option value="admin">Administrator</option>
+                                    <option value="organization_admin">Administrator organizație</option>
+                                    <option value="manager">Manager</option>
+                                    <option value="employee">Angajat</option>
+                                    <option value="member">Membru</option>
+                                    <option value="volunteer">Voluntar</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="modal-footer">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={closeModal}
+                                disabled={isSubmitting}
+                            >
+                                Anulează
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                isLoading={isSubmitting}
+                            >
+                                Creează utilizator
+                            </Button>
+                        </div>
+                    </form>
+                </Modal>
             </div>
         </Layout>
     );
