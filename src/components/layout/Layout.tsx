@@ -3,6 +3,7 @@ import {Link, useLocation} from 'react-router-dom';
 import {BaseComponentProps, UserGroup} from "@/types/index.types.ts";
 import {ROUTES} from "@/utils/constants.utils.ts";
 import {useAuth} from "@/hooks/useAuth.ts";
+import logoImage from '@/assets/img/logo.png';
 
 interface NavigationItem {
     name: string;
@@ -35,7 +36,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
         },
         {
             name: hasAnyUserGroup([UserGroup.ADMIN]) ? 'Organizations' : 'Organization',
-            path: hasAnyUserGroup([UserGroup.ADMIN]) ? ROUTES.ORGANIZATIONS : '/organization-details',
+            path: hasAnyUserGroup([UserGroup.ADMIN]) ? ROUTES.ADMIN_ORGANIZATIONS : ROUTES.ORGANIZATION_DETAILS,
             show: isAuthenticated
         },
         {
@@ -44,17 +45,28 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
             show: isAuthenticated
         },
         {
+            name: 'Activities',
+            path: ROUTES.ACTIVITIES,
+            show: isAuthenticated
+        },
+        {
             name: 'Calendar',
-            path: '/calendar',
+            path: ROUTES.CALENDAR,
             show: isAuthenticated
         },
     ];
 
     const adminItems: NavigationItem[] = [
         {
-            name: 'Admin Panel',
-            path: '/admin',
+            name: 'Admin',
+            path: ROUTES.ADMIN_PANEL,
             show: isAuthenticated && hasAnyUserGroup([UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN]),
+            variant: 'admin'
+        },
+        {
+            name: 'Reports',
+            path: ROUTES.REPORTS,
+            show: isAuthenticated && hasAnyUserGroup([UserGroup.ADMIN]),
             variant: 'admin'
         }
     ];
@@ -90,13 +102,10 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
         <div className={`min-h-screen flex flex-col bg-gray-100 ${className}`}>
             <header className="bg-white text-gray-800 shadow-md w-full">
                 <div className="max-w-7xl mx-auto px-4">
-                    <div className="flex flex-wrap items-center justify-between py-4">
+                    <div className="flex flex-wrap items-center justify-between h-16">
                         <div className="flex items-center">
                             <Link to={ROUTES.HOME} className="flex items-center">
-                                <div className="h-10 w-10 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold">
-                                    A
-                                </div>
-                                <span className="ml-2 text-xl font-bold text-gray-800">Asura</span>
+                                <img src={logoImage} alt="Asura" className="h-10" />
                             </Link>
                         </div>
 
@@ -120,20 +129,22 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                         )
                                     ))}
 
-                                    {adminItems.some(item => item.show) && (
-                                        <li>
-                                            <Link
-                                                to="/admin"
-                                                className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                                                    location.pathname.includes('/admin')
-                                                        ? 'font-bold text-red-600'
-                                                        : 'text-gray-700 hover:text-red-600 hover:font-semibold'
-                                                }`}
-                                            >
-                                                Admin
-                                            </Link>
-                                        </li>
-                                    )}
+                                    {adminItems.map((item, index) => (
+                                        item.show && (
+                                            <li key={`admin-${index}`}>
+                                                <Link
+                                                    to={item.path}
+                                                    className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                                                        isActive(item.path) || (item.path === ROUTES.ADMIN_PANEL && location.pathname.includes('/admin'))
+                                                            ? 'font-bold text-red-600'
+                                                            : 'text-gray-700 hover:text-red-600 hover:font-semibold'
+                                                    }`}
+                                                >
+                                                    {item.name}
+                                                </Link>
+                                            </li>
+                                        )
+                                    ))}
                                 </ul>
                             </nav>
                         )}
@@ -182,6 +193,15 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                                 >
                                                     Profile
                                                 </Link>
+                                                {isAuthenticated && (
+                                                    <Link
+                                                        to={ROUTES.SETTINGS}
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        onClick={() => setDropdownOpen(false)}
+                                                    >
+                                                        Settings
+                                                    </Link>
+                                                )}
                                                 <div className="border-t border-gray-100 my-1"></div>
                                                 <button
                                                     onClick={handleLogout}

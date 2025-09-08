@@ -3,9 +3,9 @@ import { KeycloakConfig, AuthInitOptions } from '@/types/index.types';
 import { KEYCLOAK_INIT_OPTIONS } from '@/utils/constants.utils';
 
 const keycloakConfig: KeycloakConfig = {
-    url: env.VITE_KEYCLOAK_URL,
-    realm: env.VITE_KEYCLOAK_REALM,
-    clientId: env.VITE_KEYCLOAK_CLIENT_ID
+    url: import.meta.env.VITE_KEYCLOAK_URL || 'http://localhost:8080',
+    realm: import.meta.env.VITE_KEYCLOAK_REALM || 'default',
+    clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID || 'default'
 };
 
 const keycloakService = new Keycloak(keycloakConfig);

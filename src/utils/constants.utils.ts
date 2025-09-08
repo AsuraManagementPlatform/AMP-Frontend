@@ -8,8 +8,15 @@ export const ROUTES = {
     PROFILE: '/profile',
     CREATE_ORGANIZATION: '/organizations/create',
     ORGANIZATIONS: '/organizations',
+    ADMIN_ORGANIZATIONS: '/admin/organizations',
+    ORGANIZATION_DETAILS: '/organization-details',
     PROJECTS: '/projects',
+    ACTIVITIES: '/activities',
+    CALENDAR: '/calendar',
+    ADMIN_PANEL: '/admin',
+    SETTINGS: '/settings',
     NOT_FOUND: '/404',
+    REPORTS: '/reports',
 } as const;
 
 export const API_ENDPOINTS = {

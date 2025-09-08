@@ -29,13 +29,14 @@ const LandingPage: React.FC = () => {
                         AsuraPlatform helps organizations manage their structure, projects, and activities efficiently.
                         Please sign in to access your personalized dashboard.
                     </p>
-                    <Button
-                        onClick={() => login()}
-                        size="lg"
-                        className="transform hover:scale-105 transition-transform duration-200 shadow-lg"
-                    >
-                        Connect for More Information
-                    </Button>
+                    <div className="mt-4 p-4 bg-orange-100 rounded-md border border-orange-200 text-gray-700">
+                        <p className="flex items-center">
+                            <svg className="w-5 h-5 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Sign in to access more information and features
+                        </p>
+                    </div>
                 </Card>
 
                 {/* Feature Preview Cards */}
@@ -72,11 +73,16 @@ const Dashboard: React.FC = () => {
     };
 
     return (
-        <Layout>
+        <Layout showNavigation={true}>
             <div className="container mx-auto">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold mb-2">Welcome back, {getUserDisplayName()}!</h1>
                     <p className="text-gray-600">Here's what's happening with your projects and activities.</p>
+                    {import.meta.env.DEV && (
+                        <p className="text-xs text-gray-400 mt-2">
+                            User Groups: {user?.userGroups?.join(', ') || 'None'}
+                        </p>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -124,12 +130,44 @@ const Dashboard: React.FC = () => {
 };
 
 const Home: React.FC = () => {
-    const { authState, isAuthenticated } = useAuth();
+    const { authState, isAuthenticated, user, error } = useAuth();
+
+    // Debug logging for development
+    if (import.meta.env.DEV) {
+        console.log('Auth Debug:', {
+            authState,
+            isAuthenticated,
+            user,
+            error
+        });
+    }
 
     if (authState === AuthState.LOADING) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-gray-100">
                 <LoadingSpinner size="lg" />
+                <div className="ml-4">
+                    <p className="text-gray-600">Initializing authentication...</p>
+                    {import.meta.env.DEV && (
+                        <p className="text-xs text-gray-400 mt-2">
+                            Checking authentication status with backend...
+                        </p>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    if (authState === AuthState.ERROR) {
+        return (
+            <div className="flex justify-center items-center min-h-screen bg-gray-100">
+                <div className="text-center">
+                    <h2 className="text-xl font-bold text-red-600 mb-4">Authentication Error</h2>
+                    <p className="text-gray-600 mb-4">{error || 'Failed to initialize authentication'}</p>
+                    <Button onClick={() => window.location.reload()}>
+                        Retry
+                    </Button>
+                </div>
             </div>
         );
     }
