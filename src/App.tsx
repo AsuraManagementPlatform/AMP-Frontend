@@ -1,14 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 import { AuthProvider } from '@/context/AuthContext.context';
 import Home from '@/pages/Home.page';
 import AdminPanel from '@/pages/AdminPanel.page';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { ROUTES, TOAST_CONFIG } from '@/utils/constants.utils';
+import { ToastConfig } from '@/components/ui/Toast';
+import { ROUTES } from '@/utils/constants.utils';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,7 +35,7 @@ function App() {
                 <Route path={ROUTES.NOT_FOUND} element={<div>Page Not Found</div>} />
                 <Route path="*" element={<Navigate to={ROUTES.NOT_FOUND} replace />} />
               </Routes>
-              <ToastContainer {...TOAST_CONFIG} />
+              <ToastConfig />
             </div>
           </Router>
         </AuthProvider>

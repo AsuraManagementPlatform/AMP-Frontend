@@ -20,6 +20,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     const tokenRefreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const fetchUserData = useCallback(async (): Promise<void> => {
+        console.log('[Auth] Fetching user data from backend');
         try {
             const userData = await userService.getCurrentUser();
             setUser({

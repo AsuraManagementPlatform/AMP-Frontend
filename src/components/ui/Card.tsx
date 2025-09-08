@@ -8,19 +8,18 @@ interface CardProps extends BaseComponentProps {
 }
 
 export const Card: React.FC<CardProps> = ({children, title, subtitle, className = '', padding = 'md'}) => {
-    const paddingClasses = {
-        none: '',
-        sm: 'p-4',
-        md: 'p-6',
-        lg: 'p-8'
-    };
+    const cardClasses = [
+        'card',
+        `card-padding-${padding}`,
+        className
+    ].filter(Boolean).join(' ');
 
     return (
-        <div className={`bg-white rounded-lg shadow-md ${paddingClasses[padding]} ${className}`}>
+        <div className={cardClasses}>
             {(title || subtitle) && (
-                <div className="mb-4">
-                    {title && <h3 className="text-xl font-semibold text-gray-900">{title}</h3>}
-                    {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
+                <div className="card-header">
+                    {title && <h3 className="card-title">{title}</h3>}
+                    {subtitle && <p className="card-subtitle">{subtitle}</p>}
                 </div>
             )}
             {children}

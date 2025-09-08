@@ -191,7 +191,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                                                     onClick={() => setDropdownOpen(false)}
                                                 >
-                                                    Profile
+                                                    Profil
                                                 </Link>
                                                 {isAuthenticated && (
                                                     <Link
@@ -199,7 +199,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                                                         onClick={() => setDropdownOpen(false)}
                                                     >
-                                                        Settings
+                                                        Setări
                                                     </Link>
                                                 )}
                                                 <div className="border-t border-gray-100 my-1"></div>
@@ -207,7 +207,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                                     onClick={handleLogout}
                                                     className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
                                                 >
-                                                    Logout
+                                                    Delogheaza-te
                                                 </button>
                                             </div>
                                         </>
@@ -218,7 +218,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                     onClick={() => login()}
                                     className="px-4 py-2 bg-orange-500 text-white font-medium rounded-full hover:bg-orange-600 transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                                 >
-                                    Sign In
+                                    Logheaza-te
                                 </button>
                             )}
                         </div>
@@ -235,7 +235,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
             <footer className="bg-gray-300 py-4 mt-auto">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="text-center text-gray-600 text-sm">
-                        © Asura 2025. All rights reserved
+                        © Asura 2025. Toate drepturile rezervate.
                     </div>
                 </div>
             </footer>
