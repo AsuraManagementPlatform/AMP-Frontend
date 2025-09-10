@@ -11,11 +11,11 @@ export default defineConfig({
   },
   server: {
     hmr: {
-      overlay: false, // Disable error overlay if needed
+      overlay: false,
     },
     host: 'localhost',
     port: 5173,
-    strictPort: true, // Fail if port is occupied
+    strictPort: true, 
   },
   preview: {
     port: 4173,
