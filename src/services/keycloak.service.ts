@@ -10,36 +10,6 @@ const keycloakConfig: KeycloakConfig = {
 
 const keycloakService = new Keycloak(keycloakConfig);
 
-if (import.meta.env.DEV) {
-    keycloakService.onReady = (authenticated: boolean) => {
-        console.log(`[Keycloak] Ready. Authenticated: ${authenticated}`);
-    };
-
-    keycloakService.onAuthSuccess = () => {
-        console.log('[Keycloak] Authentication successful');
-    };
-
-    keycloakService.onAuthError = (errorData: unknown) => {
-        console.error('[Keycloak] Authentication error:', errorData);
-    };
-
-    keycloakService.onAuthRefreshSuccess = () => {
-        console.log('[Keycloak] Token refresh successful');
-    };
-
-    keycloakService.onAuthRefreshError = () => {
-        console.warn('[Keycloak] Token refresh failed');
-    };
-
-    keycloakService.onTokenExpired = () => {
-        const timeToExpiry = keycloakService.tokenParsed?.exp 
-            ? (keycloakService.tokenParsed.exp * 1000 - Date.now()) / 1000 
-            : 'unknown';
-        console.log(`[KEYCLOAK] Token expires in ${timeToExpiry} s`);
-        console.log('[Keycloak] Token expired, attempting refresh...');
-    };
-}
-
 export const getTokenInfo = () => {
     if (!keycloakService.authenticated || !keycloakService.tokenParsed) {
         return null;
@@ -58,16 +28,8 @@ export const getTokenInfo = () => {
         groups: tokenParsed.groups,
         exp: tokenParsed.exp,
         iat: tokenParsed.iat,
-        // Calculate time until expiry
         expiresIn: tokenParsed.exp ? (tokenParsed.exp * 1000 - Date.now()) / 1000 : null
     };
-};
-
-export const logTokenInfo = () => {
-    if (import.meta.env.DEV && keycloakService.authenticated) {
-        const tokenInfo = getTokenInfo();
-        console.log('[Keycloak] Token info:', tokenInfo);
-    }
 };
 
 export const getAuthHeader = (): Record<string, string> => {
@@ -82,10 +44,6 @@ export const isTokenValid = (): boolean => {
 };
 
 export const getEnvironmentInfo = () => {
-    if (import.meta.env.PROD) {
-        return { environment: 'production' } as const;
-    }
-
     return {
         environment: import.meta.env.MODE,
         keycloakUrl: keycloakConfig.url,
@@ -102,30 +60,22 @@ export const logoutUser = async (accessToken?: string, refreshToken?: string): P
     const realm = keycloakConfig.realm;
     const clientId = keycloakConfig.clientId;
     
-    // Use tokens from keycloak service if not provided
     const tokenToRevoke = accessToken || keycloakService.token;
     const refreshTokenToRevoke = refreshToken || keycloakService.refreshToken;
     
-    if (!keycloakUrl || !realm || !clientId) {
-        console.warn('[Keycloak] Configuration missing, skipping token revocation');
-        return;
-    }
-
-    if (!tokenToRevoke) {
-        console.warn('[Keycloak] No access token available for revocation');
+    if (!keycloakUrl || !realm || !clientId || !tokenToRevoke) {
         return;
     }
 
     const revokeUrl = `${keycloakUrl}/realms/${realm}/protocol/openid-connect/revoke`;
     
     try {
-        // Revoke access token
         const accessFormData = new URLSearchParams();
         accessFormData.append('token', tokenToRevoke);
         accessFormData.append('token_type_hint', 'access_token');
         accessFormData.append('client_id', clientId);
 
-        const accessResponse = await fetch(revokeUrl, {
+        await fetch(revokeUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -133,40 +83,26 @@ export const logoutUser = async (accessToken?: string, refreshToken?: string): P
             body: accessFormData
         });
 
-        if (!accessResponse.ok) {
-            console.warn('[Keycloak] Access token revocation failed:', accessResponse.status, accessResponse.statusText);
-        } else {
-            console.log('[Keycloak] Access token revoked successfully');
-        }
-
-        // Revoke refresh token if available
         if (refreshTokenToRevoke) {
             const refreshFormData = new URLSearchParams();
             refreshFormData.append('token', refreshTokenToRevoke);
             refreshFormData.append('token_type_hint', 'refresh_token');
             refreshFormData.append('client_id', clientId);
 
-            const refreshResponse = await fetch(revokeUrl, {
+            await fetch(revokeUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: refreshFormData
             });
-
-            if (!refreshResponse.ok) {
-                console.warn('[Keycloak] Refresh token revocation failed:', refreshResponse.status, refreshResponse.statusText);
-            } else {
-                console.log('[Keycloak] Refresh token revoked successfully');
-            }
         }
 
-        // Logout from Keycloak service
         if (keycloakService.authenticated) {
             await keycloakService.logout();
         }
     } catch (error) {
-        console.warn('[Keycloak] Token revocation request failed:', error);
+        // Silent fail for logout
     }
 };
 

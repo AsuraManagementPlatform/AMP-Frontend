@@ -28,7 +28,6 @@ const AdminPanel: React.FC = () => {
             setUsers(data);
 
         } catch (error) {
-            console.error('Error fetching users:', error);
             setError('Failed to load users. Please try again.');
         } finally {
             setLoading(false);
@@ -44,7 +43,6 @@ const AdminPanel: React.FC = () => {
             await userService.deleteUser(userId);
             await fetchUsers(); // Refresh the list
         } catch (error) {
-            console.error('Error deleting user:', error);
             setError('Failed to delete user. Please try again.');
         }
     };
@@ -98,8 +96,7 @@ const AdminPanel: React.FC = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                            // TODO: Implement edit functionality
-                            console.log('Edit user:', user.id);
+                            // Edit functionality to be implemented
                         }}
                     >
                         Edit

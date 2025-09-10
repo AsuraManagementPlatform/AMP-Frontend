@@ -1,7 +1,7 @@
 import {createContext, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import {AuthContextType, AuthState, User} from '@/types/index.types';
 import * as React from "react";
-import keycloakService, {keycloakInitOptions, logTokenInfo, logoutUser} from "@/services/keycloak.service";
+import keycloakService, {keycloakInitOptions, logoutUser} from "@/services/keycloak.service";
 import userService from "@/services/user.service.ts";
 
 interface AuthProviderProps {
@@ -20,20 +20,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
 
     const fetchUserData = useCallback(async (): Promise<void> => {
         try {
-            // Log token info for debugging
-            if (import.meta.env.DEV) {
-                console.log('[Auth] Attempting to fetch user data...');
-                console.log('[Auth] Token exists:', !!keycloakService.token);
-                console.log('[Auth] Token expired:', keycloakService.isTokenExpired());
-                console.log('[Auth] Authenticated:', keycloakService.authenticated);
-                logTokenInfo(); // Log detailed token information
-                if (keycloakService.token) {
-                    // Log first and last few characters of token for debugging (without exposing full token)
-                    const token = keycloakService.token;
-                    console.log('[Auth] Token preview:', `${token.substring(0, 20)}...${token.substring(token.length - 20)}`);
-                }
-            }
-
             const userData = await userService.getCurrentUser();
             const newUserData = {
                 id: userData.id,
@@ -42,11 +28,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
                 userGroups: userData.groups
             };
 
-            console.log('Setting user data:', userData);
-            console.log('Setting user data:', newUserData);
             setUser(newUserData);
         } catch (apiError) {
-            console.error('[Auth] Failed to fetch user data:', apiError);
             throw new Error('Failed to fetch user data from backend');
         }
     }, []);
@@ -69,7 +52,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
                 setAuthState(AuthState.UNAUTHENTICATED);
             }
         } catch (initError) {
-            console.error('[Auth] Initialization failed:', initError);
             const errorMessage = initError instanceof Error
                 ? initError.message
                 : 'Authentication initialization failed';
@@ -91,7 +73,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
                 try {
                     await keycloakService.updateToken(30);
                 } catch (refreshError) {
-                    console.error('[Auth] Token refresh failed:', refreshError);
                     logout();
                 }
             }
@@ -118,17 +99,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     }, []);
 
     const logout = useCallback(async (): Promise<void> => {
-        console.log('[Auth] Logout called');
-        
         try {
-            // First, try to revoke the Keycloak access token
             if (keycloakService.authenticated && keycloakService.token) {
-                console.log('[Auth] Revoking Keycloak tokens...');
                 await logoutUser(keycloakService.token, keycloakService.refreshToken);
-                console.log('[Auth] Token revocation completed');
             }
         } catch (error) {
-            console.warn('[Auth] Token revocation failed, continuing with local logout:', error);
             // Continue with local logout even if token revocation fails
         }
 
@@ -157,7 +132,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         // Prevent re-initialization
         initializingRef.current = false;
         
-        console.log('[Auth] Logout completed, redirecting to home...');
         window.location.href = '/';
     }, []);
 
@@ -167,7 +141,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         try {
             return await keycloakService.updateToken(30);
         } catch (error) {
-            console.error('[Auth] Manual token refresh failed:', error);
             return false;
         }
     }, []);

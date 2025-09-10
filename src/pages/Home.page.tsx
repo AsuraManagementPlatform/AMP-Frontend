@@ -97,7 +97,6 @@ const Dashboard: React.FC = () => {
                 status: (formData.get('status') as 'ACTIVE' | 'INACTIVE' | 'PENDING') || 'ACTIVE',
             };
             
-            // Client-side validation (matching backend validation)
             if (!userData.personal_numerical_number && !userData.company_number) {
                 throw new Error('Either personal numerical number or company information must be provided');
             }
@@ -106,23 +105,11 @@ const Dashboard: React.FC = () => {
                 throw new Error('You can\'t have a company number without providing a company name');
             }
             
-            console.log('Creating user with data:', userData);
+            await userService.createUser(userData);
             
-            // Call the backend API
-            const createdUser = await userService.createUser(userData);
-            console.log('User created successfully:', createdUser);
-            
-            // Close modal and show success message
             setIsCreateUserModalOpen(false);
             
-            // TODO: Add success toast notification
-            // showToast('User created successfully!', 'success');
-            
         } catch (error: any) {
-            console.error('Failed to create user:', error);
-            
-            // TODO: Add error toast notification
-            // showToast(error.message || 'Failed to create user', 'error');
             alert(error.message || 'Failed to create user');
             
         } finally {
@@ -131,7 +118,6 @@ const Dashboard: React.FC = () => {
     };
 
     const handleConfirmAction = () => {
-        console.log('Action confirmed!');
         // Add your action logic here
     };
 
@@ -141,11 +127,6 @@ const Dashboard: React.FC = () => {
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold mb-2">Bine ai revenit, {getUserDisplayName()}!</h1>
                     <p className="text-gray-600">Iată ce se întâmplă cu proiectele și activitățile tale.</p>
-                    {import.meta.env.DEV && (
-                        <p className="text-xs text-gray-400 mt-2">
-                            Grupuri utilizator: {user?.userGroups?.join(', ') || 'Niciunul'}
-                        </p>
-                    )}
                 </div>
 
                 {isAdmin && (
@@ -371,17 +352,7 @@ const Dashboard: React.FC = () => {
 };
 
 const Home: React.FC = () => {
-    const { authState, isAuthenticated, user, error } = useAuth();
-
-    // Jurnalizare pentru dezvoltare
-    if (import.meta.env.DEV) {
-        console.log('Debug autentificare:', {
-            authState,
-            isAuthenticated,
-            user,
-            error
-        });
-    }
+    const { authState, isAuthenticated, error } = useAuth();
 
     if (authState === AuthState.LOADING) {
         return (
@@ -389,11 +360,6 @@ const Home: React.FC = () => {
                 <LoadingSpinner size="lg" />
                 <div className="ml-4">
                     <p className="text-gray-600">Se inițializează autentificarea...</p>
-                    {import.meta.env.DEV && (
-                        <p className="text-xs text-gray-400 mt-2">
-                            Se verifică statusul autentificării cu backend-ul...
-                        </p>
-                    )}
                 </div>
             </div>
         );
