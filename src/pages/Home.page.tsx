@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/hooks/useAuth';
 import Layout from '@/components/layout/Layout';
 import {Card} from "@/components/ui/Card.tsx";
 import {Button} from "@/components/ui/Button.tsx";
-import {AuthState} from "@/types/auth.types.ts";
+import {AuthState, UserGroup} from "@/types/auth.types.ts";
 import {LoadingSpinner} from "@/components/ui/LoadingSpinner.tsx";
 import {DashboardStats} from "@/types/index.types.ts";
-import { Modal, ConfirmationModal, FormModal } from '../components/ui/Modal';
+import { FormModal } from '../components/ui/Modal';
 import userService from '@/services/user.service';
+import { createUserSchema } from '@/schemas/user.schema';
 
 const LandingPage: React.FC = () => {
     return (
@@ -61,11 +64,7 @@ const LandingPage: React.FC = () => {
 
 const Dashboard: React.FC = () => {
     const { user, checkUserGroup } = useAuth();
-    const [isTestModalOpen, setIsTestModalOpen] = useState(false);
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
-    const [isCreatingUser, setIsCreatingUser] = useState(false);
-
     const stats: DashboardStats = {
         recentActivities: 0,
         activeProjects: 0,
@@ -77,48 +76,74 @@ const Dashboard: React.FC = () => {
         return user.fullName || user.username;
     };
 
-    const isAdmin = checkUserGroup('admin');
+    const isAdmin = checkUserGroup(UserGroup.ADMIN);
+    const isOrgAdmin = checkUserGroup(UserGroup.ORGANIZATION_ADMIN);
 
-    // Handle form submissions
-    const handleCreateUser = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setIsCreatingUser(true);
-        
-        try {
-            const formData = new FormData(e.currentTarget);
-            const userData = {
-                full_name: formData.get('full_name') as string,
-                email: formData.get('email') as string,
-                personal_numerical_number: formData.get('personal_numerical_number') as string || undefined,
-                company_number: formData.get('company_number') as string || undefined,
-                company_name: formData.get('company_name') as string || undefined,
-                group: formData.get('group') as string,
-                phone_number: formData.get('phone_number') as string || undefined,
-                status: (formData.get('status') as 'ACTIVE' | 'INACTIVE' | 'PENDING') || 'ACTIVE',
-            };
-            
-            if (!userData.personal_numerical_number && !userData.company_number) {
-                throw new Error('Either personal numerical number or company information must be provided');
-            }
-            
-            if (userData.company_number && !userData.company_name) {
-                throw new Error('You can\'t have a company number without providing a company name');
-            }
-            
-            await userService.createUser(userData);
-            
-            setIsCreateUserModalOpen(false);
-            
-        } catch (error: any) {
-            alert(error.message || 'Failed to create user');
-            
-        } finally {
-            setIsCreatingUser(false);
+    const getDefaultGroup = () => {
+        if (isAdmin) return UserGroup.ORGANIZATION_ADMIN;
+        return ''; 
+    };
+
+    const getAvailableGroups = () => {
+        if (isAdmin) {
+            return [
+                { value: UserGroup.ORGANIZATION_ADMIN, label: 'Administrator organizație' }
+            ];
+        } else if (isOrgAdmin) {
+            return [
+                { value: UserGroup.MANAGER, label: 'Manager' },
+                { value: UserGroup.EMPLOYEE, label: 'Angajat' },
+                { value: UserGroup.MEMBER, label: 'Membru' },
+                { value: UserGroup.VOLUNTEER, label: 'Voluntar' }
+            ];
+        } else {
+            return [
+                { value: UserGroup.MEMBER, label: 'Membru' },
+                { value: UserGroup.VOLUNTEER, label: 'Voluntar' }
+            ];
         }
     };
 
-    const handleConfirmAction = () => {
-        // Add your action logic here
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting }
+    } = useForm({
+        resolver: zodResolver(createUserSchema),
+        defaultValues: {
+            status: 'ACTIVE',
+            group: getDefaultGroup()
+        }
+    });
+
+    const onSubmitCreateUser = async (data: any) => {
+        try {
+            await userService.createUser(data);
+            setIsCreateUserModalOpen(false);
+            reset({
+                status: 'ACTIVE',
+                group: getDefaultGroup(),
+                full_name: '',
+                email: '',
+                personal_numerical_number: '',
+                phone_number: ''
+            });
+        } catch (error: any) {
+            alert(error.message || 'Failed to create user');
+        }
+    };
+
+    const handleCloseModal = () => {
+        setIsCreateUserModalOpen(false);
+        reset({
+            status: 'ACTIVE',
+            group: getDefaultGroup(),
+            full_name: '',
+            email: '',
+            personal_numerical_number: '',
+            phone_number: ''
+        });
     };
 
     return (
@@ -137,18 +162,6 @@ const Dashboard: React.FC = () => {
                                     onClick={() => setIsCreateUserModalOpen(true)}
                                 >
                                     Creează utilizator nou
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setIsTestModalOpen(true)}
-                                >
-                                    Test Modal
-                                </Button>
-                                <Button
-                                    variant="primary"
-                                    onClick={() => setIsConfirmModalOpen(true)}
-                                >
-                                    Test Confirmation
                                 </Button>
                         </div>
                     </Card>
@@ -194,73 +207,38 @@ const Dashboard: React.FC = () => {
                     </div>
                 </Card>
 
-                {/* Test Modal */}
-                <Modal
-                    isOpen={isTestModalOpen}
-                    onClose={() => setIsTestModalOpen(false)}
-                    title="Test Modal"
-                    description="Acesta este un modal de test pentru a demonstra funcționalitatea."
-                    size="md"
-                >
-                    <div className="space-y-4">
-                        <p>Acest modal funcționează perfect! Poți adăuga aici orice conținut dorim.</p>
-                        <p>Modalul poate fi închis prin:</p>
-                        <ul className="list-disc list-inside space-y-1">
-                            <li>Apăsarea butonului X din colțul din dreapta sus</li>
-                            <li>Clic pe fundal (overlay)</li>
-                            <li>Apăsarea tastei Escape</li>
-                        </ul>
-                        <div className="pt-4">
-                            <Button 
-                                variant="primary" 
-                                onClick={() => setIsTestModalOpen(false)}
-                            >
-                                Închide Modal
-                            </Button>
-                        </div>
-                    </div>
-                </Modal>
-
-                {/* Confirmation Modal */}
-                <ConfirmationModal
-                    isOpen={isConfirmModalOpen}
-                    onClose={() => setIsConfirmModalOpen(false)}
-                    onConfirm={handleConfirmAction}
-                    title="Confirmă acțiunea"
-                    message="Ești sigur că vrei să execuți această acțiune? Această operațiune nu poate fi anulată."
-                    confirmText="Da, confirmă"
-                    cancelText="Anulează"
-                    variant="warning"
-                />
-
                 {/* Create User Modal */}
                 <FormModal
                     isOpen={isCreateUserModalOpen}
-                    onClose={() => setIsCreateUserModalOpen(false)}
+                    onClose={handleCloseModal}
                     title="Creează utilizator nou"
                     size="lg"
                 >
-                    <form onSubmit={handleCreateUser} className="space-y-4">
+                    <form onSubmit={handleSubmit(onSubmitCreateUser)} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="form-group">
                                 <label className="form-label">Nume complet *</label>
                                 <input 
                                     type="text"
-                                    name="full_name"
-                                    className="form-input" 
+                                    {...register('full_name')}
+                                    className={`form-input ${errors.full_name ? 'border-red-500' : ''}`}
                                     placeholder="Ex: Ion Popescu"
-                                    required
                                 />
+                                {errors.full_name && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.full_name.message}</p>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Email *</label>
                                 <input 
                                     type="email"
-                                    name="email"
-                                    className="form-input" 
+                                    {...register('email')}
+                                    className={`form-input ${errors.email ? 'border-red-500' : ''}`}
                                     placeholder="utilizator@exemplu.com"
-                                    required
                                 />
+                                {errors.email && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                                )}
                             </div>
                         </div>
 
@@ -269,57 +247,54 @@ const Dashboard: React.FC = () => {
                                 <label className="form-label">CNP (Cod Numeric Personal)</label>
                                 <input 
                                     type="text"
-                                    name="personal_numerical_number"
-                                    className="form-input" 
+                                    {...register('personal_numerical_number')}
+                                    className={`form-input ${errors.personal_numerical_number ? 'border-red-500' : ''}`}
                                     placeholder="Ex: 1234567890123"
                                     maxLength={13}
                                 />
+                                {errors.personal_numerical_number && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.personal_numerical_number.message}</p>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Număr telefon</label>
                                 <input 
                                     type="tel"
-                                    name="phone_number"
-                                    className="form-input" 
+                                    {...register('phone_number')}
+                                    className={`form-input ${errors.phone_number ? 'border-red-500' : ''}`}
                                     placeholder="Ex: +40712345678"
                                 />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="form-group">
-                                <label className="form-label">Număr firmă</label>
-                                <input 
-                                    type="text"
-                                    name="company_number"
-                                    className="form-input" 
-                                    placeholder="Ex: J40/1234/2023"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Nume firmă</label>
-                                <input 
-                                    type="text"
-                                    name="company_name"
-                                    className="form-input" 
-                                    placeholder="Ex: SC Exemplu SRL"
-                                />
+                                {errors.phone_number && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.phone_number.message}</p>
+                                )}
                             </div>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="form-group">
                                 <label className="form-label">Grup utilizator *</label>
-                                <select name="group" className="form-select" required>
-                                    <option value="">Selectează grup</option>
-                                    <option value="admin">Administrator</option>
-                                    <option value="user">Utilizator</option>
-                                    <option value="moderator">Moderator</option>
+                                <select 
+                                    {...register('group')} 
+                                    className={`form-select ${errors.group ? 'border-red-500' : ''}`}
+                                    disabled={isAdmin}
+                                >
+                                    {!isAdmin && <option value="">Selectează grup</option>}
+                                    {getAvailableGroups().map(group => (
+                                        <option key={group.value} value={group.value}>
+                                            {group.label}
+                                        </option>
+                                    ))}
                                 </select>
+                                {errors.group && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.group.message}</p>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Status</label>
-                                <select name="status" className="form-select">
+                                <select 
+                                    {...register('status')} 
+                                    className="form-select"
+                                >
                                     <option value="ACTIVE">Activ</option>
                                     <option value="INACTIVE">Inactiv</option>
                                     <option value="PENDING">În așteptare</option>
@@ -331,17 +306,17 @@ const Dashboard: React.FC = () => {
                             <Button
                                 type="button"
                                 variant="secondary"
-                                onClick={() => setIsCreateUserModalOpen(false)}
-                                disabled={isCreatingUser}
+                                onClick={handleCloseModal}
+                                disabled={isSubmitting}
                             >
                                 Anulează
                             </Button>
                             <Button
                                 type="submit"
                                 variant="primary"
-                                disabled={isCreatingUser}
+                                disabled={isSubmitting}
                             >
-                                {isCreatingUser ? 'Se creează...' : 'Creează utilizator'}
+                                {isSubmitting ? 'Se creează...' : 'Creează utilizator'}
                             </Button>
                         </div>
                     </form>

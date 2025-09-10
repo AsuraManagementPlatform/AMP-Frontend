@@ -519,6 +519,9 @@ textarea.form-input {
   background-size: 1.5em 1.5em;
   padding-right: 2.5rem;
   transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
 .form-select:focus {
@@ -563,7 +566,7 @@ textarea.form-input {
   border-radius: 0.5rem; /* rounded-lg */
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
   transform: translate(-50%, -50%);
-  animation: zoomIn 150ms ease-out;
+  cursor: move;
 }
 
 /* Modal size variants */
@@ -580,7 +583,7 @@ textarea.form-input {
   border-radius: 0.5rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   transform: translate(-50%, -50%);
-  animation: zoomIn 150ms ease-out;
+  cursor: move;
 }
 
 .modal-content-lg {
@@ -596,7 +599,7 @@ textarea.form-input {
   border-radius: 0.5rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   transform: translate(-50%, -50%);
-  animation: zoomIn 150ms ease-out;
+  cursor: move;
 }
 
 .modal-content-xl {
@@ -612,7 +615,7 @@ textarea.form-input {
   border-radius: 0.5rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   transform: translate(-50%, -50%);
-  animation: zoomIn 150ms ease-out;
+  cursor: move;
 }
 
 /* Modal header */
@@ -662,7 +665,13 @@ textarea.form-input {
 
 .modal-close:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.5);
+  box-shadow: none;
+  background-color: #f3f4f6; /* bg-gray-100 */
+}
+
+.modal-close:focus-visible {
+  outline: 2px solid #f97316;
+  outline-offset: 2px;
 }
 
 /* Modal body */

@@ -41,7 +41,7 @@ const AdminPanel: React.FC = () => {
 
         try {
             await userService.deleteUser(userId);
-            await fetchUsers(); // Refresh the list
+            await fetchUsers(); 
         } catch (error) {
             setError('Failed to delete user. Please try again.');
         }
