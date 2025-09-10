@@ -1,15 +1,14 @@
 import {createContext, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import {AuthContextType, AuthState, User} from '@/types/index.types';
 import * as React from "react";
-import keycloakService, {keycloakInitOptions} from "@/services/keycloak.service";
+import keycloakService, {keycloakInitOptions, logTokenInfo, logoutUser} from "@/services/keycloak.service";
 import userService from "@/services/user.service.ts";
 
 interface AuthProviderProps {
     children: ReactNode;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const AuthContextContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthProviderProps) => {
     const [authState, setAuthState] = useState<AuthState>(AuthState.LOADING);
@@ -21,6 +20,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
 
     const fetchUserData = useCallback(async (): Promise<void> => {
         try {
+            // Log token info for debugging
+            if (import.meta.env.DEV) {
+                console.log('[Auth] Attempting to fetch user data...');
+                console.log('[Auth] Token exists:', !!keycloakService.token);
+                console.log('[Auth] Token expired:', keycloakService.isTokenExpired());
+                console.log('[Auth] Authenticated:', keycloakService.authenticated);
+                logTokenInfo(); // Log detailed token information
+                if (keycloakService.token) {
+                    // Log first and last few characters of token for debugging (without exposing full token)
+                    const token = keycloakService.token;
+                    console.log('[Auth] Token preview:', `${token.substring(0, 20)}...${token.substring(token.length - 20)}`);
+                }
+            }
+
             const userData = await userService.getCurrentUser();
             const newUserData = {
                 id: userData.id,
@@ -104,18 +117,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         await keycloakService.login({ redirectUri: finalRedirectUri });
     }, []);
 
-    const logout = useCallback(async (redirectUri?: string): Promise<void> => {
+    const logout = useCallback(async (): Promise<void> => {
+        console.log('[Auth] Logout called');
+        
+        try {
+            // First, try to revoke the Keycloak access token
+            if (keycloakService.authenticated && keycloakService.token) {
+                console.log('[Auth] Revoking Keycloak tokens...');
+                await logoutUser(keycloakService.token, keycloakService.refreshToken);
+                console.log('[Auth] Token revocation completed');
+            }
+        } catch (error) {
+            console.warn('[Auth] Token revocation failed, continuing with local logout:', error);
+            // Continue with local logout even if token revocation fails
+        }
+
         if (tokenRefreshIntervalRef.current) {
             clearInterval(tokenRefreshIntervalRef.current);
             tokenRefreshIntervalRef.current = null;
         }
 
+        // Clear Keycloak tokens completely
+        keycloakService.token = undefined;
+        keycloakService.refreshToken = undefined;
+        keycloakService.idToken = undefined;
+        keycloakService.authenticated = false;
+        keycloakService.tokenParsed = undefined;
+        keycloakService.refreshTokenParsed = undefined;
+        keycloakService.idTokenParsed = undefined;
+
+        // Clear browser storage
+        localStorage.clear();
+        sessionStorage.clear();
+
         setUser(null);
         setAuthState(AuthState.UNAUTHENTICATED);
         setError(null);
-
-        const finalRedirectUri = redirectUri || window.location.origin;
-        await keycloakService.logout({ redirectUri: finalRedirectUri });
+        
+        // Prevent re-initialization
+        initializingRef.current = false;
+        
+        console.log('[Auth] Logout completed, redirecting to home...');
+        window.location.href = '/';
     }, []);
 
     const refreshToken = useCallback(async (): Promise<boolean> => {
@@ -174,5 +217,5 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         getAccessToken
     };
 
-    return <AuthContextContext.Provider value={contextValue}>{children}</AuthContextContext.Provider>;
+    return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };

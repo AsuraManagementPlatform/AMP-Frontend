@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import {ApiError, ApiConfig} from '@/types/index.types';
 import {getAuthHeader} from "@/services/keycloak.service";
+import env from '@/env';
 
 
 export const API_CONFIG: ApiConfig = {
@@ -22,6 +23,19 @@ apiClient.interceptors.request.use(
         const authHeader = getAuthHeader();
         if (authHeader.Authorization) {
             config.headers.Authorization = authHeader.Authorization;
+            
+            // Debug logging for development
+            if (import.meta.env.DEV) {
+                console.log('[API] Request details:', {
+                    url: `${config.baseURL}${config.url}`,
+                    method: config.method?.toUpperCase(),
+                    hasAuthHeader: !!authHeader.Authorization,
+                    authHeaderPreview: authHeader.Authorization ? 
+                        `${authHeader.Authorization.substring(0, 20)}...` : 'none'
+                });
+            }
+        } else if (import.meta.env.DEV) {
+            console.warn('[API] No authorization header available for request to:', config.url);
         }
         return config;
     },
@@ -29,10 +43,36 @@ apiClient.interceptors.request.use(
 );
 
 apiClient.interceptors.response.use(
-    (response: AxiosResponse) => response,
+    (response: AxiosResponse) => {
+        // Log successful responses in development
+        if (import.meta.env.DEV) {
+            console.log('[API] Success response:', {
+                url: response.config.url,
+                status: response.status,
+                method: response.config.method?.toUpperCase()
+            });
+        }
+        return response;
+    },
     (error) => {
+        // Enhanced error logging
+        if (import.meta.env.DEV) {
+            console.error('[API] Error response:', {
+                url: error.config?.url,
+                method: error.config?.method?.toUpperCase(),
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                responseData: error.response?.data,
+                message: error.message
+            });
+        }
+
         if (error.response?.status === 401) {
             console.warn('[API] Unauthorized - token may be expired');
+        }
+
+        if (error.response?.status === 403) {
+            console.warn('[API] Forbidden - user may not have required permissions');
         }
 
         const apiError: ApiError = {

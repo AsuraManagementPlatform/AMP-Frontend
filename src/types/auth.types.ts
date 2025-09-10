@@ -31,7 +31,7 @@ export interface AuthContextType {
     error: string | null;
 
     login: (redirectUri?: string) => void;
-    logout: (redirectUri?: string) => void;
+    logout: () => Promise<void>;
     refreshToken: () => Promise<boolean>;
     fetchUserData: () => Promise<void>;
 

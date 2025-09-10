@@ -75,9 +75,13 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
         return location.pathname === path;
     };
 
-    const handleLogout = (): void => {
+    const handleLogout = async (): Promise<void> => {
         setDropdownOpen(false);
-        logout();
+        try {
+            await logout();
+        } catch (error) {
+            console.error('[Layout] Logout failed:', error);
+        }
     };
 
     const getUserInitials = (): string => {

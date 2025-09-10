@@ -1,13 +1,13 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import Layout from '@/components/layout/Layout';
 import {Card} from "@/components/ui/Card.tsx";
 import {Button} from "@/components/ui/Button.tsx";
 import {AuthState} from "@/types/auth.types.ts";
 import {LoadingSpinner} from "@/components/ui/LoadingSpinner.tsx";
-import {CreateUserRequest, DashboardStats} from "@/types/index.types.ts";
-import Modal from 'react-modal';
-import userService from "@/services/user.service.ts";
+import {DashboardStats} from "@/types/index.types.ts";
+import { Modal, ConfirmationModal, FormModal } from '../components/ui/Modal';
+import userService from '@/services/user.service';
 
 const LandingPage: React.FC = () => {
     return (
@@ -61,72 +61,15 @@ const LandingPage: React.FC = () => {
 
 const Dashboard: React.FC = () => {
     const { user, checkUserGroup } = useAuth();
-    const [modalIsOpen, setIsOpen] = React.useState(false);
-
-    const [formData, setFormData] = useState<CreateUserRequest>({
-        username: '',
-        email: '',
-        full_name: '',
-        phone_number: '',
-        personal_numerical_number: '',
-        company_number: '',
-        company_name: '',
-        group: ''
-    });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
-        event.preventDefault();
-
-        try {
-            setIsSubmitting(true);
-
-            await userService.createUser(formData);
-
-            setFormData({
-                username: '',
-                email: '',
-                full_name: '',
-                phone_number: '',
-                personal_numerical_number: '',
-                company_number: '',
-                company_name: '',
-                group: ''
-            });
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Crearea utilizatorului a eșuat';
-            console.log(errorMessage);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    function openModal() {
-        setIsOpen(true);
-    }
-
-    function closeModal() {
-        setIsOpen(false);
-    }
+    const [isTestModalOpen, setIsTestModalOpen] = useState(false);
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
+    const [isCreatingUser, setIsCreatingUser] = useState(false);
 
     const stats: DashboardStats = {
         recentActivities: 0,
         activeProjects: 0,
         totalStats: 0
-    };
-
-    const handleInputChange = (field: keyof CreateUserRequest, value: string): void => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    };
-
-    const handleGroupChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
-        setFormData(prev => ({
-            ...prev,
-            group: event.target.value
-        }));
     };
 
     const getUserDisplayName = (): string => {
@@ -135,6 +78,62 @@ const Dashboard: React.FC = () => {
     };
 
     const isAdmin = checkUserGroup('admin');
+
+    // Handle form submissions
+    const handleCreateUser = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setIsCreatingUser(true);
+        
+        try {
+            const formData = new FormData(e.currentTarget);
+            const userData = {
+                full_name: formData.get('full_name') as string,
+                email: formData.get('email') as string,
+                personal_numerical_number: formData.get('personal_numerical_number') as string || undefined,
+                company_number: formData.get('company_number') as string || undefined,
+                company_name: formData.get('company_name') as string || undefined,
+                group: formData.get('group') as string,
+                phone_number: formData.get('phone_number') as string || undefined,
+                status: (formData.get('status') as 'ACTIVE' | 'INACTIVE' | 'PENDING') || 'ACTIVE',
+            };
+            
+            // Client-side validation (matching backend validation)
+            if (!userData.personal_numerical_number && !userData.company_number) {
+                throw new Error('Either personal numerical number or company information must be provided');
+            }
+            
+            if (userData.company_number && !userData.company_name) {
+                throw new Error('You can\'t have a company number without providing a company name');
+            }
+            
+            console.log('Creating user with data:', userData);
+            
+            // Call the backend API
+            const createdUser = await userService.createUser(userData);
+            console.log('User created successfully:', createdUser);
+            
+            // Close modal and show success message
+            setIsCreateUserModalOpen(false);
+            
+            // TODO: Add success toast notification
+            // showToast('User created successfully!', 'success');
+            
+        } catch (error: any) {
+            console.error('Failed to create user:', error);
+            
+            // TODO: Add error toast notification
+            // showToast(error.message || 'Failed to create user', 'error');
+            alert(error.message || 'Failed to create user');
+            
+        } finally {
+            setIsCreatingUser(false);
+        }
+    };
+
+    const handleConfirmAction = () => {
+        console.log('Action confirmed!');
+        // Add your action logic here
+    };
 
     return (
         <Layout showNavigation={true}>
@@ -154,9 +153,21 @@ const Dashboard: React.FC = () => {
                         <div className="flex flex-wrap gap-4">
                                 <Button
                                     variant="primary"
-                                    onClick={openModal}
+                                    onClick={() => setIsCreateUserModalOpen(true)}
                                 >
                                     Creează utilizator nou
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setIsTestModalOpen(true)}
+                                >
+                                    Test Modal
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    onClick={() => setIsConfirmModalOpen(true)}
+                                >
+                                    Test Confirmation
                                 </Button>
                         </div>
                     </Card>
@@ -202,102 +213,135 @@ const Dashboard: React.FC = () => {
                     </div>
                 </Card>
 
+                {/* Test Modal */}
                 <Modal
-                    isOpen={modalIsOpen}
-                    onRequestClose={closeModal}
-                    contentLabel="Example Modal"
+                    isOpen={isTestModalOpen}
+                    onClose={() => setIsTestModalOpen(false)}
+                    title="Test Modal"
+                    description="Acesta este un modal de test pentru a demonstra funcționalitatea."
+                    size="md"
                 >
-                    <button onClick={closeModal}>close</button>
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <div>
-                                <label className="form-label">
-                                    Nume de utilizator
-                                </label>
-                                <input
+                    <div className="space-y-4">
+                        <p>Acest modal funcționează perfect! Poți adăuga aici orice conținut dorim.</p>
+                        <p>Modalul poate fi închis prin:</p>
+                        <ul className="list-disc list-inside space-y-1">
+                            <li>Apăsarea butonului X din colțul din dreapta sus</li>
+                            <li>Clic pe fundal (overlay)</li>
+                            <li>Apăsarea tastei Escape</li>
+                        </ul>
+                        <div className="pt-4">
+                            <Button 
+                                variant="primary" 
+                                onClick={() => setIsTestModalOpen(false)}
+                            >
+                                Închide Modal
+                            </Button>
+                        </div>
+                    </div>
+                </Modal>
+
+                {/* Confirmation Modal */}
+                <ConfirmationModal
+                    isOpen={isConfirmModalOpen}
+                    onClose={() => setIsConfirmModalOpen(false)}
+                    onConfirm={handleConfirmAction}
+                    title="Confirmă acțiunea"
+                    message="Ești sigur că vrei să execuți această acțiune? Această operațiune nu poate fi anulată."
+                    confirmText="Da, confirmă"
+                    cancelText="Anulează"
+                    variant="warning"
+                />
+
+                {/* Create User Modal */}
+                <FormModal
+                    isOpen={isCreateUserModalOpen}
+                    onClose={() => setIsCreateUserModalOpen(false)}
+                    title="Creează utilizator nou"
+                    size="lg"
+                >
+                    <form onSubmit={handleCreateUser} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="form-group">
+                                <label className="form-label">Nume complet *</label>
+                                <input 
                                     type="text"
+                                    name="full_name"
+                                    className="form-input" 
+                                    placeholder="Ex: Ion Popescu"
                                     required
-                                    value={formData.username}
-                                    onChange={(e) => handleInputChange('username', e.target.value)}
-                                    className="form-input"
-                                    disabled={isSubmitting}
                                 />
                             </div>
-
-                            <div>
-                                <label className="form-label">
-                                    Adresă de email
-                                </label>
-                                <input
+                            <div className="form-group">
+                                <label className="form-label">Email *</label>
+                                <input 
                                     type="email"
+                                    name="email"
+                                    className="form-input" 
+                                    placeholder="utilizator@exemplu.com"
                                     required
-                                    value={formData.email}
-                                    onChange={(e) => handleInputChange('email', e.target.value)}
-                                    className="form-input"
-                                    disabled={isSubmitting}
                                 />
                             </div>
+                        </div>
 
-                            <div>
-                                <label className="form-label">
-                                    Nume complet
-                                </label>
-                                <input
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="form-group">
+                                <label className="form-label">CNP (Cod Numeric Personal)</label>
+                                <input 
                                     type="text"
-                                    required
-                                    value={formData.full_name}
-                                    onChange={(e) => handleInputChange('full_name', e.target.value)}
-                                    className="form-input"
-                                    disabled={isSubmitting}
+                                    name="personal_numerical_number"
+                                    className="form-input" 
+                                    placeholder="Ex: 1234567890123"
+                                    maxLength={13}
                                 />
                             </div>
-
-                            <div>
-                                <label className="form-label">
-                                    Număr de telefon
-                                </label>
-                                <input
+                            <div className="form-group">
+                                <label className="form-label">Număr telefon</label>
+                                <input 
                                     type="tel"
-                                    required
-                                    value={formData.phone_number}
-                                    onChange={(e) => handleInputChange('phone_number', e.target.value)}
-                                    className="form-input"
-                                    disabled={isSubmitting}
+                                    name="phone_number"
+                                    className="form-input" 
+                                    placeholder="Ex: +40712345678"
                                 />
                             </div>
+                        </div>
 
-                            <div>
-                                <label className="form-label">
-                                    CNP
-                                </label>
-                                <input
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="form-group">
+                                <label className="form-label">Număr firmă</label>
+                                <input 
                                     type="text"
-                                    required
-                                    value={formData.personal_numerical_number}
-                                    onChange={(e) => handleInputChange('personal_numerical_number', e.target.value)}
-                                    className="form-input"
-                                    disabled={isSubmitting}
+                                    name="company_number"
+                                    className="form-input" 
+                                    placeholder="Ex: J40/1234/2023"
                                 />
                             </div>
-
-                            <div>
-                                <label className="form-label">
-                                    Grup utilizator
-                                </label>
-                                <select
-                                    value={formData.group}
-                                    onChange={handleGroupChange}
-                                    className="form-select"
-                                    disabled={isSubmitting}
-                                    required
-                                >
-                                    <option value="">Selectează grupul</option>
+                            <div className="form-group">
+                                <label className="form-label">Nume firmă</label>
+                                <input 
+                                    type="text"
+                                    name="company_name"
+                                    className="form-input" 
+                                    placeholder="Ex: SC Exemplu SRL"
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="form-group">
+                                <label className="form-label">Grup utilizator *</label>
+                                <select name="group" className="form-select" required>
+                                    <option value="">Selectează grup</option>
                                     <option value="admin">Administrator</option>
-                                    <option value="organization_admin">Administrator organizație</option>
-                                    <option value="manager">Manager</option>
-                                    <option value="employee">Angajat</option>
-                                    <option value="member">Membru</option>
-                                    <option value="volunteer">Voluntar</option>
+                                    <option value="user">Utilizator</option>
+                                    <option value="moderator">Moderator</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Status</label>
+                                <select name="status" className="form-select">
+                                    <option value="ACTIVE">Activ</option>
+                                    <option value="INACTIVE">Inactiv</option>
+                                    <option value="PENDING">În așteptare</option>
                                 </select>
                             </div>
                         </div>
@@ -306,21 +350,21 @@ const Dashboard: React.FC = () => {
                             <Button
                                 type="button"
                                 variant="secondary"
-                                onClick={closeModal}
-                                disabled={isSubmitting}
+                                onClick={() => setIsCreateUserModalOpen(false)}
+                                disabled={isCreatingUser}
                             >
                                 Anulează
                             </Button>
                             <Button
                                 type="submit"
                                 variant="primary"
-                                isLoading={isSubmitting}
+                                disabled={isCreatingUser}
                             >
-                                Creează utilizator
+                                {isCreatingUser ? 'Se creează...' : 'Creează utilizator'}
                             </Button>
                         </div>
                     </form>
-                </Modal>
+                </FormModal>
             </div>
         </Layout>
     );

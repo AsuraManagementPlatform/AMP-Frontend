@@ -5,6 +5,31 @@ export interface UserMeResponse {
     groups: string[];
 }
 
+export interface UserCreateRequest {
+    full_name: string;
+    email: string;
+    personal_numerical_number?: string;
+    company_number?: string;
+    company_name?: string;
+    group: string;
+    phone_number?: string;
+    status?: 'ACTIVE' | 'INACTIVE' | 'PENDING';
+}
+
+export interface UserCreateResponse {
+    id: string;
+    full_name: string;
+    email: string;
+    personal_numerical_number?: string;
+    company_number?: string;
+    company_name?: string;
+    groups: string[];
+    phone_number?: string;
+    status: string;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface ValidationError {
     field: string;
     message: string;
@@ -20,13 +45,6 @@ export interface ApiResponse<T> {
     success: boolean;
     data: T;
     message?: string;
-}
-
-export interface PaginatedResponse<T> {
-    results: T[];
-    count: number;
-    next: string | null;
-    previous: string | null;
 }
 
 export interface ApiConfig {

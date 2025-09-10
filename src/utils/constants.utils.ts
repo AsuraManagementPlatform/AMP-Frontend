@@ -46,12 +46,3 @@ export const REQUIRED_ENV_VARS = [
     'VITE_KEYCLOAK_CLIENT_ID',
     'VITE_API_BASE_URL'
 ] as const;
-
-export const TOAST_CONFIG = {
-    position: 'top-right' as const,
-    autoClose: 5000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-};
