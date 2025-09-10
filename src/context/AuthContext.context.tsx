@@ -94,7 +94,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     }, [initializeAuth]);
 
     const login = useCallback(async (redirectUri?: string): Promise<void> => {
-        const finalRedirectUri = redirectUri || `${window.location.origin}/dashboard`;
+        const finalRedirectUri = redirectUri || `${window.location.origin}/`;
         await keycloakService.login({ redirectUri: finalRedirectUri });
     }, []);
 

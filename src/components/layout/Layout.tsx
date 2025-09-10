@@ -80,7 +80,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
         try {
             await logout();
         } catch (error) {
-            // Silent logout failure
+            console.error('[Layout] Logout failed:', error);
         }
     };
 
