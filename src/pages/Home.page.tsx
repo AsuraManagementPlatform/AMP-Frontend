@@ -8,9 +8,10 @@ import {Button} from "@/components/ui/Button.tsx";
 import {AuthState, UserGroup} from "@/types/auth.types.ts";
 import {LoadingSpinner} from "@/components/ui/LoadingSpinner.tsx";
 import {DashboardStats} from "@/types/index.types.ts";
-import { FormModal } from '../components/ui/Modal';
+import { FormModal, ConfirmationModal } from '../components/ui/Modal';
 import userService from '@/services/user.service';
 import { createUserSchema } from '@/schemas/user.schema';
+import { showToast } from '@/components/ui/Toast';
 
 const LandingPage: React.FC = () => {
     return (
@@ -43,7 +44,6 @@ const LandingPage: React.FC = () => {
                     </div>
                 </Card>
 
-                {/* Carduri previzualizare funcționalități */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
                     <Card className="opacity-75" title="Proiecte active">
                         <p className="text-gray-400">Autentifică-te pentru a vedea proiectele tale</p>
@@ -65,6 +65,8 @@ const LandingPage: React.FC = () => {
 const Dashboard: React.FC = () => {
     const { user, checkUserGroup } = useAuth();
     const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
+    const [isCreateOrgModalOpen, setIsCreateOrgModalOpen] = useState(false);
+    const [createdUserData, setCreatedUserData] = useState<any>(null);
     const stats: DashboardStats = {
         recentActivities: 0,
         activeProjects: 0,
@@ -82,6 +84,14 @@ const Dashboard: React.FC = () => {
     const getDefaultGroup = () => {
         if (isAdmin) return UserGroup.ORGANIZATION_ADMIN;
         return ''; 
+    };
+
+    const getDefaultStatus = (group?: string) => {
+        // If admin is creating an organization admin, default to PENDING
+        if (isAdmin && group === UserGroup.ORGANIZATION_ADMIN) {
+            return 'PENDING';
+        }
+        return 'ACTIVE';
     };
 
     const getAvailableGroups = () => {
@@ -108,42 +118,77 @@ const Dashboard: React.FC = () => {
         register,
         handleSubmit,
         reset,
+        watch,
+        setValue,
         formState: { errors, isSubmitting }
     } = useForm({
         resolver: zodResolver(createUserSchema),
         defaultValues: {
-            status: 'ACTIVE',
+            status: getDefaultStatus(getDefaultGroup()),
             group: getDefaultGroup()
         }
     });
 
+    // Watch for group changes to update status accordingly
+    const selectedGroup = watch('group');
+    
+    React.useEffect(() => {
+        if (selectedGroup) {
+            const newStatus = getDefaultStatus(selectedGroup);
+            setValue('status', newStatus);
+        }
+    }, [selectedGroup, setValue]);
+
     const onSubmitCreateUser = async (data: any) => {
         try {
-            await userService.createUser(data);
+            const createdUser = await userService.createUser(data);
             setIsCreateUserModalOpen(false);
-            reset({
-                status: 'ACTIVE',
-                group: getDefaultGroup(),
-                full_name: '',
-                email: '',
-                personal_numerical_number: '',
-                phone_number: ''
-            });
+            setCreatedUserData({ ...data, ...createdUser });
+            
+            // If admin, ask if they want to create an organization for the user
+            if (isAdmin) {
+                setIsCreateOrgModalOpen(true);
+            } else {
+                // Show success message for non-admin users
+                showToast.userCreated();
+                resetForm();
+            }
         } catch (error: any) {
-            alert(error.message || 'Failed to create user');
+            showToast.userCreationFailed(error.message);
         }
     };
 
-    const handleCloseModal = () => {
-        setIsCreateUserModalOpen(false);
+    const resetForm = () => {
         reset({
-            status: 'ACTIVE',
+            status: getDefaultStatus(getDefaultGroup()),
             group: getDefaultGroup(),
             full_name: '',
             email: '',
             personal_numerical_number: '',
-            phone_number: ''
+            phone_number: '',
+            company_number: '',
+            company_name: ''
         });
+    };
+
+    const handleCreateOrganization = () => {
+        setIsCreateOrgModalOpen(false);
+        // TODO: Open organization creation modal
+        showToast.info("Organisation creation modal starts here");
+        resetForm();
+        setCreatedUserData(null);
+    };
+
+    const handleSkipOrganization = () => {
+        setIsCreateOrgModalOpen(false);
+        showToast.userCreated();
+        resetForm();
+        setCreatedUserData(null);
+    };
+
+    const handleCloseModal = () => {
+        setIsCreateUserModalOpen(false);
+        resetForm();
     };
 
     return (
@@ -154,7 +199,7 @@ const Dashboard: React.FC = () => {
                     <p className="text-gray-600">Iată ce se întâmplă cu proiectele și activitățile tale.</p>
                 </div>
 
-                {isAdmin && (
+                {(isAdmin || isOrgAdmin) && (
                     <Card title="Acțiuni administrator" className="mb-6">
                         <div className="flex flex-wrap gap-4">
                                 <Button
@@ -244,7 +289,7 @@ const Dashboard: React.FC = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="form-group">
-                                <label className="form-label">CNP (Cod Numeric Personal)</label>
+                                <label className="form-label">CNP (Cod Numeric Personal) *</label>
                                 <input 
                                     type="text"
                                     {...register('personal_numerical_number')}
@@ -266,6 +311,33 @@ const Dashboard: React.FC = () => {
                                 />
                                 {errors.phone_number && (
                                     <p className="text-red-500 text-sm mt-1">{errors.phone_number.message}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="form-group">
+                                <label className="form-label">Număr înregistrare companie</label>
+                                <input 
+                                    type="text"
+                                    {...register('company_number')}
+                                    className={`form-input ${errors.company_number ? 'border-red-500' : ''}`}
+                                    placeholder="Ex: RO12345678 sau 12345678"
+                                />
+                                {errors.company_number && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.company_number.message}</p>
+                                )}
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Numele companiei</label>
+                                <input 
+                                    type="text"
+                                    {...register('company_name')}
+                                    className={`form-input ${errors.company_name ? 'border-red-500' : ''}`}
+                                    placeholder="Ex: SC Exemplu SRL"
+                                />
+                                {errors.company_name && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.company_name.message}</p>
                                 )}
                             </div>
                         </div>
@@ -294,11 +366,17 @@ const Dashboard: React.FC = () => {
                                 <select 
                                     {...register('status')} 
                                     className="form-select"
+                                    disabled={isAdmin && selectedGroup === UserGroup.ORGANIZATION_ADMIN}
                                 >
                                     <option value="ACTIVE">Activ</option>
                                     <option value="INACTIVE">Inactiv</option>
                                     <option value="PENDING">În așteptare</option>
                                 </select>
+                                {isAdmin && selectedGroup === UserGroup.ORGANIZATION_ADMIN && (
+                                    <p className="text-blue-600 text-sm mt-1">
+                                        Administratorii de organizație sunt creați cu statusul "În așteptare" în mod automat.
+                                    </p>
+                                )}
                             </div>
                         </div>
 
@@ -321,6 +399,18 @@ const Dashboard: React.FC = () => {
                         </div>
                     </form>
                 </FormModal>
+
+                {/* Create Organization Confirmation Modal */}
+                <ConfirmationModal
+                    isOpen={isCreateOrgModalOpen}
+                    onClose={handleSkipOrganization}
+                    onConfirm={handleCreateOrganization}
+                    title="Creează organizație"
+                    message={`Utilizatorul ${createdUserData?.full_name || ''} a fost creat cu succes! Doriți să creați o organizație pentru acest utilizator?`}
+                    confirmText="Da, creează organizație"
+                    cancelText="Nu, doar utilizator"
+                    variant="info"
+                />
             </div>
         </Layout>
     );

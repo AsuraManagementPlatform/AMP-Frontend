@@ -227,7 +227,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             isOpen={isOpen}
             onClose={onClose}
             title={title}
-            size="sm"
+            size="md"
             closeOnBackdropClick={!isLoading}
             showCloseButton={!isLoading}
         >
@@ -236,18 +236,18 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 
                 <div className="modal-footer">
                     <button
-                        onClick={onClose}
-                        className="btn btn-secondary"
-                        disabled={isLoading}
-                    >
-                        {cancelText}
-                    </button>
-                    <button
                         onClick={handleConfirm}
                         className={`btn ${variant === 'danger' ? 'btn-danger' : variant === 'warning' ? 'btn-warning' : 'btn-primary'} ${isLoading ? 'btn-loading' : ''}`}
                         disabled={isLoading}
                     >
                         {confirmText}
+                    </button>
+                    <button
+                        onClick={onClose}
+                        className="btn btn-secondary"
+                        disabled={isLoading}
+                    >
+                        {cancelText}
                     </button>
                 </div>
             </div>

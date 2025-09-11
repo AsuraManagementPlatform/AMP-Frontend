@@ -64,6 +64,35 @@ export const createUserSchema = z.object({
             },
             'CNP-ul introdus nu este valid conform standardelor românești'
         ),
+
+    company_number: z.string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => {
+                if (!value) return true;
+                
+                // Romanian company registration number validation (CUI/CIF)
+                const cleanNumber = value.replace(/[\s\-\.]/g, '');
+                
+                // Should be between 2 and 10 digits
+                if (!/^\d{2,10}$/.test(cleanNumber)) return false;
+                
+                return true;
+            },
+            'Numărul de înregistrare al companiei nu este valid (ex: RO12345678, 12345678)'
+        ),
+    
+    company_name: z.string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => {
+                if (!value) return true;
+                return value.length >= 2 && value.length <= 200;
+            },
+            'Numele companiei trebuie să aibă între 2 și 200 de caractere'
+        ),
     
     group: z.string()
         .min(1, 'Vă rugăm să selectați un grup de utilizator'),

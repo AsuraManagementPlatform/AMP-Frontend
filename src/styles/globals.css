@@ -682,11 +682,11 @@ textarea.form-input {
 /* Modal footer */
 .modal-footer {
   display: flex;
-  gap: 0.75rem; /* gap-3 */
-  justify-content: flex-end;
-  padding-top: 1rem; /* pt-4 */
+  gap: 1rem; /* gap-4 */
+  justify-content: center; /* Center the buttons */
+  padding-top: 1.5rem; /* pt-6 */
   border-top: 1px solid #e5e7eb; /* border-gray-200 */
-  margin-top: 1rem; /* mt-4 */
+  margin-top: 1.5rem; /* mt-6 */
 }
 
 /* Confirmation modal specific styles */
@@ -695,10 +695,53 @@ textarea.form-input {
 }
 
 .confirmation-message {
-  font-size: 0.875rem; /* text-sm */
+  font-size: 1rem; /* text-base */
   color: #374151; /* text-gray-700 */
-  margin-bottom: 1.5rem; /* mb-6 */
-  line-height: 1.5;
+  margin-bottom: 2rem; /* mb-8 */
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* Enhanced button styles for confirmation modals */
+.confirmation-modal .btn {
+  padding: 0.75rem 1.5rem; /* py-3 px-6 */
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 600; /* font-semibold */
+  border-radius: 0.5rem; /* rounded-lg */
+  min-width: 140px;
+  transition: all 150ms ease-in-out;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.confirmation-modal .btn-secondary {
+  background-color: #f3f4f6; /* bg-gray-100 */
+  color: #374151; /* text-gray-700 */
+  border: 1px solid #d1d5db; /* border-gray-300 */
+}
+
+.confirmation-modal .btn-secondary:hover:not(:disabled) {
+  background-color: #e5e7eb; /* bg-gray-200 */
+  border-color: #9ca3af; /* border-gray-400 */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.confirmation-modal .btn-primary {
+  background-color: #f97316; /* bg-orange-500 */
+  color: white;
+  border: 1px solid #f97316;
+}
+
+.confirmation-modal .btn-primary:hover:not(:disabled) {
+  background-color: #ea580c; /* bg-orange-600 */
+  border-color: #ea580c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px 0 rgba(249, 115, 22, 0.24), 0 2px 4px 0 rgba(249, 115, 22, 0.16);
+}
+
+.confirmation-modal .btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
 }
 
 /* Modal responsive adjustments */
