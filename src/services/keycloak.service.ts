@@ -52,9 +52,7 @@ export const getEnvironmentInfo = () => {
     } as const;
 };
 
-/**
- * Logout user - revoke Keycloak access token and refresh token
- */
+
 export const logoutUser = async (accessToken?: string, refreshToken?: string): Promise<void> => {
     const keycloakUrl = keycloakConfig.url;
     const realm = keycloakConfig.realm;
@@ -102,7 +100,7 @@ export const logoutUser = async (accessToken?: string, refreshToken?: string): P
             await keycloakService.logout();
         }
     } catch (error) {
-        // Silent fail for logout
+        console.warn('[Keycloak] Token revocation failed:', error);
     }
 };
 

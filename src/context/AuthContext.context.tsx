@@ -104,7 +104,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
                 await logoutUser(keycloakService.token, keycloakService.refreshToken);
             }
         } catch (error) {
-            // Continue with local logout even if token revocation fails
+            console.warn('[Auth] Token revocation failed, continuing with local logout:', error);
         }
 
         if (tokenRefreshIntervalRef.current) {
@@ -112,7 +112,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             tokenRefreshIntervalRef.current = null;
         }
 
-        // Clear Keycloak tokens completely
         keycloakService.token = undefined;
         keycloakService.refreshToken = undefined;
         keycloakService.idToken = undefined;
@@ -121,7 +120,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         keycloakService.refreshTokenParsed = undefined;
         keycloakService.idTokenParsed = undefined;
 
-        // Clear browser storage
         localStorage.clear();
         sessionStorage.clear();
 
@@ -129,7 +127,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         setAuthState(AuthState.UNAUTHENTICATED);
         setError(null);
         
-        // Prevent re-initialization
         initializingRef.current = false;
         
         window.location.href = '/';

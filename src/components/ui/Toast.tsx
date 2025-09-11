@@ -1,6 +1,5 @@
 import toast, { Toaster, ToastOptions } from 'react-hot-toast';
 
-// Romanian toast messages
 export const toastMessages = {
     success: {
         userCreated: 'Utilizatorul a fost creat cu succes!',
@@ -32,7 +31,6 @@ export const toastMessages = {
     }
 };
 
-// Custom toast functions with Romanian messages
 export const showToast = {
     success: (message: string, options?: ToastOptions) => {
         return toast.success(message, {
@@ -90,7 +88,6 @@ export const showToast = {
         });
     },
 
-    // Convenience methods using predefined messages
     userCreated: () => showToast.success(toastMessages.success.userCreated),
     userUpdated: () => showToast.success(toastMessages.success.userUpdated),
     userDeleted: () => showToast.success(toastMessages.success.userDeleted),
@@ -108,8 +105,6 @@ export const showToast = {
     savingChanges: () => showToast.loading(toastMessages.loading.savingChanges),
     creatingUser: () => showToast.loading(toastMessages.loading.creatingUser),
 };
-
-// Toast configuration component
 export const ToastConfig: React.FC = () => (
     <Toaster
         position="top-right"
@@ -118,7 +113,6 @@ export const ToastConfig: React.FC = () => (
         containerClassName=""
         containerStyle={{}}
         toastOptions={{
-            // Default options for all toasts
             className: '',
             duration: 4000,
             style: {
@@ -131,7 +125,6 @@ export const ToastConfig: React.FC = () => (
                 padding: '12px 16px',
                 boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
             },
-            // Default options for specific types
             success: {
                 duration: 4000,
                 iconTheme: {

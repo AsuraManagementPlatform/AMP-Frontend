@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
+import logoImg from '@/assets/img/logo.png';
 
 interface ModalProps {
     isOpen: boolean;
@@ -24,6 +25,11 @@ export const Modal: React.FC<ModalProps> = ({
     showCloseButton = true,
     className = ''
 }) => {
+    const modalRef = useRef<HTMLDivElement>(null);
+    const isDragging = useRef(false);
+    const dragOffset = useRef({ x: 0, y: 0 });
+    const [isDraggable, setIsDraggable] = React.useState(true);
+
     const sizeClasses = {
         sm: 'modal-content-sm',
         md: 'modal-content',
@@ -31,28 +37,148 @@ export const Modal: React.FC<ModalProps> = ({
         xl: 'modal-content-xl'
     };
 
+    const isInteractiveElement = (element: HTMLElement | null): boolean => {
+        if (!element || element === modalRef.current) return false;
+
+        const interactiveElements = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'A'];
+        
+        let currentElement: HTMLElement | null = element;
+        while (currentElement && currentElement !== modalRef.current) {
+            if (interactiveElements.includes(currentElement.tagName)) {
+                return true;
+            }
+            
+            if (
+                currentElement.hasAttribute('role') && 
+                ['button', 'link', 'tab', 'menuitem'].includes(currentElement.getAttribute('role') || '')
+            ) {
+                return true;
+            }
+            
+            if (currentElement.contentEditable === 'true') {
+                return true;
+            }
+            
+            if (
+                currentElement.classList.contains('clickable') ||
+                currentElement.classList.contains('btn') ||
+                currentElement.hasAttribute('data-clickable') ||
+                currentElement.style.cursor === 'pointer'
+            ) {
+                return true;
+            }
+            
+            currentElement = currentElement.parentElement;
+        }
+        
+        return false;
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+        if (!isDragging.current || !modalRef.current) return;
+        
+        e.preventDefault();
+        const modal = modalRef.current;
+        const newX = e.clientX - dragOffset.current.x;
+        const newY = e.clientY - dragOffset.current.y;
+
+        modal.style.left = `${newX}px`;
+        modal.style.top = `${newY}px`;
+        modal.style.transform = 'none';
+    };
+
+    const handleMouseUp = () => {
+        isDragging.current = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+    };
+
+    const handleMouseOver = (e: React.MouseEvent) => {
+        const target = e.target as HTMLElement;
+        const isInteractive = isInteractiveElement(target);
+        setIsDraggable(!isInteractive);
+        
+        if (modalRef.current) {
+            modalRef.current.style.cursor = isInteractive ? 'default' : 'move';
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, []);
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        const target = e.target as HTMLElement;
+        
+        if (isInteractiveElement(target)) {
+            return;
+        }
+
+        if (!modalRef.current) return;
+
+        e.preventDefault();
+        const modal = modalRef.current;
+        const rect = modal.getBoundingClientRect();
+        
+        isDragging.current = true;
+        dragOffset.current = {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        };
+        
+        document.body.style.cursor = 'move';
+        document.body.style.userSelect = 'none';
+    };
+
     return (
         <Dialog.Root open={isOpen} onOpenChange={closeOnBackdropClick ? onClose : undefined}>
             <Dialog.Portal>
                 <Dialog.Overlay className="modal-overlay" />
-                <Dialog.Content className={`${sizeClasses[size]} ${className}`}>
+                <Dialog.Content 
+                    ref={modalRef}
+                    className={`${sizeClasses[size]} ${className}`}
+                    onMouseDown={handleMouseDown}
+                    onMouseOver={handleMouseOver}
+                    style={{ cursor: isDraggable ? 'move' : 'default' }}
+                >
                     {(title || showCloseButton) && (
                         <div className="modal-header">
-                            <div>
-                                {title && (
-                                    <Dialog.Title className="modal-title">
-                                        {title}
-                                    </Dialog.Title>
-                                )}
-                                {/* Always provide a description for accessibility */}
-                                <Dialog.Description className={description ? "modal-description" : "sr-only"}>
-                                    {description || `${title} dialog`}
-                                </Dialog.Description>
+                            <div className="flex items-center gap-3">
+                                <img 
+                                    src={logoImg} 
+                                    alt="Asura Logo" 
+                                    className="w-12 h-12 object-contain flex-shrink-0"
+                                    style={{ transform: 'scale(2)' }}
+                                />
+                                <div>
+                                    {title && (
+                                        <Dialog.Title className="modal-title">
+                                            {title}
+                                        </Dialog.Title>
+                                    )}
+
+                                    <Dialog.Description className={description ? "modal-description" : "sr-only"}>
+                                        {description || `${title} dialog`}
+                                    </Dialog.Description>
+                                </div>
                             </div>
                             {showCloseButton && (
-                                <Dialog.Close className="modal-close" aria-label="Închide">
+                                <button 
+                                    type="button"
+                                    className="modal-close" 
+                                    aria-label="Închide"
+                                    onClick={onClose}
+                                    tabIndex={-1}
+                                    style={{ cursor: 'pointer' }}
+                                >
                                     ×
-                                </Dialog.Close>
+                                </button>
                             )}
                         </div>
                     )}
@@ -66,7 +192,6 @@ export const Modal: React.FC<ModalProps> = ({
     );
 };
 
-// Specialized components for common use cases
 interface ConfirmationModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -102,7 +227,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             isOpen={isOpen}
             onClose={onClose}
             title={title}
-            size="sm"
+            size="md"
             closeOnBackdropClick={!isLoading}
             showCloseButton={!isLoading}
         >
@@ -111,18 +236,18 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 
                 <div className="modal-footer">
                     <button
-                        onClick={onClose}
-                        className="btn btn-secondary"
-                        disabled={isLoading}
-                    >
-                        {cancelText}
-                    </button>
-                    <button
                         onClick={handleConfirm}
                         className={`btn ${variant === 'danger' ? 'btn-danger' : variant === 'warning' ? 'btn-warning' : 'btn-primary'} ${isLoading ? 'btn-loading' : ''}`}
                         disabled={isLoading}
                     >
                         {confirmText}
+                    </button>
+                    <button
+                        onClick={onClose}
+                        className="btn btn-secondary"
+                        disabled={isLoading}
+                    >
+                        {cancelText}
                     </button>
                 </div>
             </div>
@@ -130,7 +255,6 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     );
 };
 
-// Form Modal wrapper
 interface FormModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -155,7 +279,7 @@ export const FormModal: React.FC<FormModalProps> = ({
             title={title}
             size={size}
             className={className}
-            closeOnBackdropClick={false} // Don't close on backdrop click for forms
+            closeOnBackdropClick={false}
         >
             {children}
         </Modal>
