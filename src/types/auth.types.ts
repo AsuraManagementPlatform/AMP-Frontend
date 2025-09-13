@@ -35,7 +35,6 @@ export interface AuthContextType {
     refreshToken: () => Promise<boolean>;
     fetchUserData: () => Promise<void>;
 
-    checkUserGroup: (userGroup: UserGroup) => boolean;
     hasAnyUserGroup: (userGroup: string[]) => boolean;
     hasAllUserGroups: (userGroup: string[]) => boolean;
 

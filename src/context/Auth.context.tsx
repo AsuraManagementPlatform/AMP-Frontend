@@ -19,19 +19,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     const tokenRefreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const fetchUserData = useCallback(async (): Promise<void> => {
-        try {
-            const userData = await userService.getCurrentUser();
-            const newUserData = {
-                id: userData.id,
-                username: userData.email,
-                fullName: userData.full_name,
-                userGroups: userData.groups
-            };
+        const userData = await userService.getCurrentUser();
+        const newUserData = {
+            id: userData.id,
+            username: userData.email,
+            fullName: userData.full_name,
+            userGroups: userData.groups
+        };
 
-            setUser(newUserData);
-        } catch (apiError) {
-            throw new Error('Failed to fetch user data from backend');
-        }
+        setUser(newUserData);
     }, []);
 
     const initializeAuth = useCallback(async (): Promise<void> => {
@@ -73,6 +69,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
                 try {
                     await keycloakService.updateToken(30);
                 } catch (refreshError) {
+                    console.error(refreshError);
                     logout();
                 }
             }
@@ -138,6 +135,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         try {
             return await keycloakService.updateToken(30);
         } catch (error) {
+            console.error(error);
             return false;
         }
     }, []);
@@ -145,14 +143,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     const getAccessToken = useCallback((): string | null => {
         return keycloakService.authenticated ? keycloakService.token || null : null;
     }, []);
-
-    const checkUserGroup = useCallback((userGroup: string): boolean => {
-        if (authState !== AuthState.AUTHENTICATED || !user?.userGroups) {
-            return false;
-        }
-
-        return user.userGroups.includes(userGroup);
-    }, [authState, user]);
 
     const hasAnyUserGroup = useCallback((userGroups: string[]): boolean => {
         if (authState !== AuthState.AUTHENTICATED || !user?.userGroups) {
@@ -178,7 +168,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         logout,
         refreshToken,
         fetchUserData,
-        checkUserGroup,
         hasAnyUserGroup,
         hasAllUserGroups,
         isAuthenticated: authState === AuthState.AUTHENTICATED,
