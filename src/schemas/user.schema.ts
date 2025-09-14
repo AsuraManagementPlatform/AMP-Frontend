@@ -1,118 +1,121 @@
 import { z } from 'zod';
+import { UserStatus } from "@/types/user.types.ts";
+import {UserGroup} from "@/types/auth.types.ts";
+
+const ROMANIAN_PHONE_REGEX = /^(\+40|0)[0-9]{9}$/;
+// const ROMANIAN_COMPANY_REGEX = /^(RO)?[0-9]{8,10}$/;
+const NAME_REGEX = /^[a-zA-ZăâîțșĂÂÎȚȘ\s-'\.]+$/;
+
+const validateCNP = (cnp: string): boolean => {
+    if (!/^\d{13}$/.test(cnp)) return false;
+
+    const firstDigit = parseInt(cnp[0], 10);
+    if (firstDigit < 1 || firstDigit > 9) return false;
+
+    const year = parseInt(cnp.substring(1, 3), 10);
+    const month = parseInt(cnp.substring(3, 5), 10);
+    const day = parseInt(cnp.substring(5, 7), 10);
+    const countyCode = parseInt(cnp.substring(7, 9), 10);
+
+    if (month < 1 || month > 12) return false;
+    if (countyCode < 1 || countyCode > 52) return false;
+
+    let fullYear: number;
+    if (firstDigit === 1 || firstDigit === 2) {
+        fullYear = 1900 + year;
+    } else if (firstDigit === 3 || firstDigit === 4) {
+        fullYear = 1800 + year;
+    } else if (firstDigit === 5 || firstDigit === 6) {
+        fullYear = 2000 + year;
+    } else {
+        fullYear = 1900 + year;
+    }
+
+    const daysInMonth = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    if ((fullYear % 4 === 0 && fullYear % 100 !== 0) || fullYear % 400 === 0) {
+        daysInMonth[2] = 29;
+    }
+
+    if (day < 1 || day > daysInMonth[month]) return false;
+
+    const weights = [2, 7, 9, 1, 4, 6, 3, 5, 8, 2, 7, 9];
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+        sum += parseInt(cnp[i], 10) * weights[i];
+    }
+
+    let controlDigit = sum % 11;
+    if (controlDigit === 10) controlDigit = 1;
+
+    return controlDigit === parseInt(cnp[12], 10);
+};
 
 export const createUserSchema = z.object({
-    full_name: z.string()
+    full_name: z
+        .string()
+        .min(1, 'Numele complet este obligatoriu')
         .min(2, 'Numele complet trebuie să aibă cel puțin 2 caractere')
-        .max(100, 'Numele complet nu poate avea mai mult de 100 caractere'),
-    
-    email: z.string()
+        .max(100, 'Numele complet nu poate avea mai mult de 100 caractere')
+        .regex(NAME_REGEX, 'Numele poate conține doar litere, spații, apostrofuri și cratime'),
+
+    email: z
+        .string()
         .min(1, 'Email-ul este obligatoriu')
-        .refine(
-            (email) => email.includes('@') && email.split('@')[1].includes('.'),
-            'Email-ul trebuie să conțină simbolul @ și un domeniu valid'
-        )
-        .email('Adresa de email nu este validă'),
-    
-    personal_numerical_number: z.string()
+        .email('Adresa de email nu este validă')
+        .max(255, 'Email-ul nu poate avea mai mult de 255 caractere'),
+
+    personal_numerical_number: z
+        .string()
         .min(1, 'CNP-ul este obligatoriu')
-        .refine(
-            (value) => {
-                if (!value) return false;
-                
-                if (!/^\d{13}$/.test(value)) return false;
-                
-                const firstDigit = parseInt(value[0], 10);
-                const year = parseInt(value.substring(1, 3), 10);
-                const month = parseInt(value.substring(3, 5), 10);
-                const day = parseInt(value.substring(5, 7), 10);
-                const countyCode = parseInt(value.substring(7, 9), 10);
+        .length(13, 'CNP-ul trebuie să aibă exact 13 cifre')
+        .regex(/^\d+$/, 'CNP-ul poate conține doar cifre')
+        .refine(validateCNP, {
+            message: 'CNP-ul introdus nu este valid conform standardelor românești'
+        }),
 
-                if (firstDigit < 1 || firstDigit > 9) return false;
-                
-                if (month < 1 || month > 12) return false;
-                
-                if (countyCode < 1 || countyCode > 52) return false;
-                
-                let fullYear;
-                if (firstDigit === 1 || firstDigit === 2) {
-                    fullYear = 1900 + year;
-                } else if (firstDigit === 3 || firstDigit === 4) {
-                    fullYear = 1800 + year;
-                } else if (firstDigit === 5 || firstDigit === 6) {
-                    fullYear = 2000 + year;
-                } else {
-                    fullYear = 1900 + year;
-                }
-                
-                const daysInMonth = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-                if ((fullYear % 4 === 0 && fullYear % 100 !== 0) || fullYear % 400 === 0) {
-                    daysInMonth[2] = 29;
-                }
-                
-                if (day < 1 || day > daysInMonth[month]) return false;
-                
-                const weights = [2, 7, 9, 1, 4, 6, 3, 5, 8, 2, 7, 9];
-                let sum = 0;
-                for (let i = 0; i < 12; i++) {
-                    sum += parseInt(value[i], 10) * weights[i];
-                }
-                
-                let controlDigit = sum % 11;
-                if (controlDigit === 10) controlDigit = 1;
-                
-                return controlDigit === parseInt(value[12], 10);
-            },
-            'CNP-ul introdus nu este valid conform standardelor românești'
-        ),
-
-    company_number: z.string()
+    phone_number: z
+        .string()
         .optional()
         .or(z.literal(''))
         .refine(
             (value) => {
-                if (!value) return true;
-                
-                // Romanian company registration number validation (CUI/CIF)
-                const cleanNumber = value.replace(/[\s\-\.]/g, '');
-                
-                // Should be between 2 and 10 digits
-                if (!/^\d{2,10}$/.test(cleanNumber)) return false;
-                
-                return true;
+                if (!value || value.trim() === '') return true;
+                return ROMANIAN_PHONE_REGEX.test(value.replace(/[\s\-\(\)]/g, ''));
             },
-            'Numărul de înregistrare al companiei nu este valid (ex: RO12345678, 12345678)'
+            {
+                message: 'Numărul de telefon trebuie să fie în format românesc (ex: +40712345678, 0712345678)'
+            }
         ),
-    
-    company_name: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => {
-                if (!value) return true;
-                return value.length >= 2 && value.length <= 200;
-            },
-            'Numele companiei trebuie să aibă între 2 și 200 de caractere'
-        ),
-    
-    group: z.string()
-        .min(1, 'Vă rugăm să selectați un grup de utilizator'),
-    
-    phone_number: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => {
-                if (!value) return true;
-                
-                const cleanNumber = value.replace(/[\s\-\(\)]/g, '');
 
-                return /^(\+\d{1,4}|00\d{1,4}|\d{1,4}|0)\d{6,15}$/.test(cleanNumber);
-            },
-            'Numărul de telefon nu este valid (ex: +4071111111, +1555123456, 0729669208)'
-        ),
-    
-    status: z.enum(['ACTIVE', 'INACTIVE', 'PENDING'])
-        .default('ACTIVE'),
+    isLegalEntity: z.boolean().default(false),
+
+    company_number: z
+        .string()
+        .optional()
+        .or(z.literal('')),
+
+    company_name: z
+        .string()
+        .optional()
+        .or(z.literal('')),
+
+    group: z.string().min(1, 'Grupul utilizator este obligatoriu'),
+
+    status: z.string().min(1, 'Statusul este obligatoriu')
 });
 
 export type CreateUserFormData = z.infer<typeof createUserSchema>;
+
+export const getCreateUserDefaultValues = (isAdmin: boolean): Partial<CreateUserFormData> => {
+    return {
+        full_name: '',
+        email: '',
+        personal_numerical_number: '',
+        phone_number: '',
+        isLegalEntity: false,
+        company_number: '',
+        company_name: '',
+        group: isAdmin ? UserGroup.ORGANIZATION_ADMIN : '',
+        status: UserStatus.DRAFT
+    };
+};

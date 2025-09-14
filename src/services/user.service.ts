@@ -1,6 +1,6 @@
-import {UserMeResponse, UserCreateRequest, UserCreateResponse} from "@/types/api.types.ts";
 import apiClient from "@/services/api.service.ts";
 import {UpdateUserRequest} from "@/types/adminPanel.types.ts";
+import {CreateUserFormData, UserCreateResponse, UserMeResponse} from "@/types/user.types.ts";
 
 export const userService = {
     /**
@@ -30,7 +30,7 @@ export const userService = {
     /**
      * Create new user
      */
-    createUser: async (userData: UserCreateRequest): Promise<UserCreateResponse> => {
+    createUser: async (userData: CreateUserFormData): Promise<UserCreateResponse> => {
         const response = await apiClient.post<UserCreateResponse>('/api/user/create', userData);
         return response.data;
     },

@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { AuthContextType, User, UserGroup } from '@/types/index.types';
-import {AuthContext} from "@/context/AuthContext.context.tsx";
+import {AuthContext} from "@/context/Auth.context.tsx";
 
 /**
  * Custom hook for accessing authentication context
@@ -18,16 +18,6 @@ export const useAuth = (): AuthContextType => {
     }
 
     return context;
-};
-
-/**
- * Hook for checking if user has specific group
- * @param userGroup - Required user group
- * @returns Whether user has the specified group
- */
-export const useRequiredUserGroup = (userGroup: UserGroup): boolean => {
-    const { checkUserGroup } = useAuth();
-    return checkUserGroup(userGroup);
 };
 
 /**
