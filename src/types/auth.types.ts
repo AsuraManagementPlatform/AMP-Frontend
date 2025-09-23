@@ -1,3 +1,5 @@
+import {User} from "@/types/index.types.ts";
+
 export const UserGroup = {
     ADMIN: 'admin',
     ORGANIZATION_ADMIN: 'organization_admin',
@@ -17,13 +19,6 @@ export const AuthState = {
 }
 
 export type AuthState = typeof AuthState[keyof typeof AuthState];
-
-export interface User {
-    id: string;
-    username: string;
-    fullName: string;
-    userGroups: UserGroup[];
-}
 
 export interface AuthContextType {
     authState: AuthState;

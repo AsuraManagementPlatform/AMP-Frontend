@@ -8,6 +8,7 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthProviderProps) => {
@@ -22,9 +23,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         const userData = await userService.getCurrentUser();
         const newUserData = {
             id: userData.id,
-            username: userData.email,
-            fullName: userData.full_name,
-            userGroups: userData.groups
+            email: userData.email,
+            full_name: userData.full_name,
+            groups: userData.groups,
+            status: userData.status,
         };
 
         setUser(newUserData);
@@ -145,19 +147,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     }, []);
 
     const hasAnyUserGroup = useCallback((userGroups: string[]): boolean => {
-        if (authState !== AuthState.AUTHENTICATED || !user?.userGroups) {
+        if (authState !== AuthState.AUTHENTICATED || !user?.groups) {
             return false;
         }
 
-        return userGroups.some(userGroup => user.userGroups.includes(userGroup));
+        return userGroups.some(userGroup => user.groups.includes(userGroup));
     }, [authState, user]);
 
     const hasAllUserGroups = useCallback((userGroups: string[]): boolean => {
-        if (authState !== AuthState.AUTHENTICATED || !user?.userGroups) {
+        if (authState !== AuthState.AUTHENTICATED || !user?.groups) {
             return false;
         }
 
-        return userGroups.every(userGroup => user.userGroups.includes(userGroup));
+        return userGroups.every(userGroup => user.groups.includes(userGroup));
     }, [authState, user]);
 
     const contextValue: AuthContextType = {

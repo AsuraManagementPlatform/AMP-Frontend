@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { Table, TableColumn } from '@/components/ui/Table';
 import Layout from '@/components/layout/Layout';
 import {Card} from "@/components/ui/Card.tsx";
 import {Alert} from "@/components/ui/Alert.tsx";
 import {Button} from "@/components/ui/Button.tsx";
-import {UserMeResponse} from "@/types/api.types.ts";
 import userService from "@/services/user.service.ts";
+import {User, UserMeResponse} from "@/types/user.types.ts";
+import {PaginatedResponse, TableColumn} from "@/types/index.types.ts";
+import Table from "@/components/ui/Table.tsx";
 
-// Main Admin Panel Component
 const AdminPanel: React.FC = () => {
     const { user } = useAuth();
-    const [users, setUsers] = useState<UserMeResponse[]>([]);
+    const [users, setUsers] = useState<PaginatedResponse<User>>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -24,7 +24,7 @@ const AdminPanel: React.FC = () => {
             setLoading(true);
             setError(null);
 
-            const data = await userService.getAllUsers();
+            const data = await userService.getList();
             setUsers(data);
 
         } catch (error) {
@@ -40,7 +40,7 @@ const AdminPanel: React.FC = () => {
         }
 
         try {
-            await userService.deleteUser(userId);
+            await userService.delete(userId);
             await fetchUsers(); 
         } catch (error) {
             setError('Failed to delete user. Please try again.');
@@ -119,7 +119,7 @@ const AdminPanel: React.FC = () => {
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold">Admin Panel</h1>
                     <p className="text-gray-600 mt-2">
-                        Welcome, {user?.fullName || user?.username}
+                        Welcome, {user?.full_name || user?.email}
                     </p>
                 </div>
 
@@ -161,19 +161,7 @@ const AdminPanel: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                     <Card title="Total Users" className="text-center">
-                        <div className="text-3xl font-bold text-blue-600">{users.length}</div>
-                    </Card>
-
-                    <Card title="Admin Users" className="text-center">
-                        <div className="text-3xl font-bold text-orange-600">
-                            {users.filter(u => u.groups.includes('admin')).length}
-                        </div>
-                    </Card>
-
-                    <Card title="Organization Admins" className="text-center">
-                        <div className="text-3xl font-bold text-green-600">
-                            {users.filter(u => u.groups.includes('organization_admin')).length}
-                        </div>
+                        <div className="text-3xl font-bold text-blue-600">{users?.count}</div>
                     </Card>
                 </div>
 

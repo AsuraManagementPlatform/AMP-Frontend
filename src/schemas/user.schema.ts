@@ -104,9 +104,9 @@ export const createUserSchema = z.object({
     status: z.string().min(1, 'Statusul este obligatoriu')
 });
 
-export type CreateUserFormData = z.infer<typeof createUserSchema>;
+export type UserCreateRequest = z.infer<typeof createUserSchema>;
 
-export const getCreateUserDefaultValues = (isAdmin: boolean): Partial<CreateUserFormData> => {
+export const getCreateUserDefaultValues = (isAdmin: boolean): Partial<UserCreateRequest> => {
     return {
         full_name: '',
         email: '',

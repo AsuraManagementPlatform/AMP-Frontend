@@ -1,54 +1,56 @@
-import apiClient from "@/services/api.service.ts";
-import {UpdateUserRequest} from "@/types/adminPanel.types.ts";
-import {CreateUserFormData, UserCreateResponse, UserMeResponse} from "@/types/user.types.ts";
+import {PaginatedResponse, User, UserMeResponse} from "@/types/index.types.ts";
+import {apiService} from "@/services/api.service.ts";
 
 export const userService = {
-    /**
-     * Get all users (admin only)
-     */
-    getAllUsers: async (): Promise<UserMeResponse[]> => {
-        const response = await apiClient.get<UserMeResponse[]>('/api/user/list');
-        return response.data;
+    getList: async (params?: any): Promise<PaginatedResponse<User>> => {
+        return apiService.getPaginatedList<User>('/api/user/list', params);
     },
 
-    /**
-     * Get current user information
-     */
+    getById: async (id: string): Promise<User> => {
+        return apiService.get<User>(`/api/user/${id}`);
+    },
+
     getCurrentUser: async (): Promise<UserMeResponse> => {
-        const response = await apiClient.get<UserMeResponse>('/api/user/me');
-        return response.data;
+        return apiService.get<UserMeResponse>('/api/user/me');
     },
 
-    /**
-     * Get specific user by ID
-     */
-    getUserById: async (userId: string): Promise<UserMeResponse> => {
-        const response = await apiClient.get<UserMeResponse>(`/api/user/${userId}`);
-        return response.data;
+    create: async (data: Partial<User>): Promise<User> => {
+        return apiService.post<User>('/api/user/create', data);
     },
 
-    /**
-     * Create new user
-     */
-    createUser: async (userData: CreateUserFormData): Promise<UserCreateResponse> => {
-        const response = await apiClient.post<UserCreateResponse>('/api/user/create', userData);
-        return response.data;
+    update: async (id: string, data: Partial<User>): Promise<User> => {
+        return apiService.put<User>(`/api/user/update/${id}`, data);
     },
 
-    /**
-     * Update user information
-     */
-    updateUser: async (userId: string, userData: UpdateUserRequest): Promise<UserMeResponse> => {
-        const response = await apiClient.put<UserMeResponse>(`/api/user/update/${userId}`, userData);
-        return response.data;
+    delete: async (id: string): Promise<void> => {
+        return apiService.delete<void>(`/api/user/delete/${id}`);
     },
+};
 
-    /**
-     * Delete user
-     */
-    deleteUser: async (userId: string): Promise<void> => {
-        await apiClient.delete(`/api/user/delete/${userId}`);
-    }
+export const createEntityService = <T extends { id: number }>(endpoint: string) => {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+
+    return {
+        getList: async (params?: any): Promise<PaginatedResponse<T>> => {
+            return apiService.getPaginatedList<T>(`/${cleanEndpoint}`, params);
+        },
+
+        getById: async (id: number): Promise<T> => {
+            return apiService.get<T>(`/${cleanEndpoint}/${id}`);
+        },
+
+        create: async (data: Partial<T>): Promise<T> => {
+            return apiService.post<T>(`/${cleanEndpoint}`, data);
+        },
+
+        update: async (id: number, data: Partial<T>): Promise<T> => {
+            return apiService.put<T>(`/${cleanEndpoint}/${id}`, data);
+        },
+
+        delete: async (id: number): Promise<void> => {
+            return apiService.delete<void>(`/${cleanEndpoint}/${id}`);
+        },
+    };
 };
 
 export default userService;

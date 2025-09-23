@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { FormModal } from '@/components/ui/Modal';
-import { DynamicForm } from '@/components/forms/DynamicForm';
-import { createUserFormConfig } from '@/config/user.form.config';
-import { createUserSchema, CreateUserFormData, getCreateUserDefaultValues } from '@/schemas/user.schema';
-import showToast from '@/components/ui/Toast';
+import { FormModal } from '@/components/ui/Modal.tsx';
+import { DynamicForm } from '@/components/forms/DynamicForm.tsx';
+import { createUserFormConfig } from '@/config/user.form.config.ts';
+import { createUserSchema, UserCreateRequest, getCreateUserDefaultValues } from '@/schemas/user.schema.ts';
+import showToast from '@/components/ui/Toast.tsx';
 import {UserGroup} from "@/types/auth.types.ts";
 import {UserStatus} from "@/types/user.types.ts";
 
 interface CreateUserModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: CreateUserFormData) => Promise<void>;
+    onSubmit: (data: UserCreateRequest) => Promise<void>;
     isAdmin?: boolean;
 }
 
@@ -25,7 +25,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
     const formConfig = createUserFormConfig(isAdmin);
     const defaultValues = getCreateUserDefaultValues(isAdmin);
 
-    const handleSubmit = async (data: CreateUserFormData) => {
+    const handleSubmit = async (data: UserCreateRequest) => {
         try {
             setIsSubmitting(true);
 
@@ -61,7 +61,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
             title="Creează utilizator nou"
             size="lg"
         >
-            <DynamicForm<CreateUserFormData>
+            <DynamicForm<UserCreateRequest>
                 config={formConfig}
                 schema={createUserSchema}
                 onSubmit={handleSubmit}

@@ -1,21 +1,26 @@
-import React, { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { DashboardStats } from "@/types/dashboard.types";
-import { UserGroup } from "@/types/auth.types";
-import { CreateUserFormData } from "@/schemas/user.schema";
+import React, {useState} from "react";
+import {useAuth} from "@/hooks/useAuth";
+import {UserCreateRequest} from "@/schemas/user.schema";
 import userService from "@/services/user.service";
 import Layout from "@/components/layout/Layout";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { ConfirmationModal } from "@/components/ui/Modal";
+import {Card} from "@/components/ui/Card";
+import {Button} from "@/components/ui/Button";
+import {ConfirmationModal} from "@/components/ui/Modal";
 import showToast from "@/components/ui/Toast";
-import {CreateUserModal} from "@/components/user/CreateUserModal.tsx";
+import {CreateUserModal} from "@/components/modals/user/CreateUserModal.tsx";
+import {DashboardStats, User, UserGroup, UserStatus} from "@/types/index.types.ts";
+import UserList from "@/components/tables/UserList.tsx";
+import {useTranslation} from "react-i18next";
 
 const DashboardPage: React.FC = () => {
-    const { user, hasAnyUserGroup } = useAuth();
+    const { t } = useTranslation();
+    const { user,hasAnyUserGroup, hasAllUserGroups } = useAuth();
     const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
     const [isCreateOrgModalOpen, setIsCreateOrgModalOpen] = useState(false);
-    const [createdUserData, setCreatedUserData] = useState<CreateUserFormData | null>(null);
+    const [createdUserData, setCreatedUserData] = useState<UserCreateRequest | null>(null);
+
+    const [refreshUserTable, setRefreshUserTable] = useState(0);
+    //const [setSelectedUser] = useState<User | null>(null);
 
     const stats: DashboardStats = {
         recentActivities: 0,
@@ -25,17 +30,19 @@ const DashboardPage: React.FC = () => {
 
     const getUserDisplayName = (): string => {
         if (!user) return 'Utilizator';
-        return user.fullName || user.username;
+        return user.full_name || user.email;
     };
 
     const isAdmin = hasAnyUserGroup([UserGroup.ADMIN]);
     const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
-    const handleCreateUser = async (data: CreateUserFormData) => {
+    const handleCreateUser = async (data: UserCreateRequest) => {
         try {
-            const createdUser = await userService.createUser(data);
+            const createdUser = await userService.create(data);
             setIsCreateUserModalOpen(false);
             setCreatedUserData({ ...data, ...createdUser });
+
+            setRefreshUserTable(prev => prev + 1);
 
             if (isAdmin && data.group === UserGroup.ORGANIZATION_ADMIN) {
                 setIsCreateOrgModalOpen(true);
@@ -67,6 +74,38 @@ const DashboardPage: React.FC = () => {
         setCreatedUserData(null);
     };
 
+    const handleEditUser = (user: User) => {
+        //setSelectedUser(user);
+        // TODO: Open edit modal or navigate to edit page
+        showToast.info(`Edit user: ${user.full_name}`);
+    };
+
+    const handleViewUser = (user: User) => {
+        //setSelectedUser(user);
+        // TODO: Open view modal or navigate to view page
+        showToast.info(`View user: ${user.full_name}`);
+    };
+
+    const handleDeleteUser = async (user: User) => {
+        try {
+            await userService.delete(user.id);
+            showToast.success(`User ${user.full_name} deleted successfully`);
+            setRefreshUserTable(prev => prev + 1);
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            showToast.error('Failed to delete user');
+        }
+    };
+
+    const handleUserRowClick = (/*user: User*/) => {
+        // Could navigate to user details page
+        // router.push(`/users/${user.id}`);
+    };
+
+    const canDeleteUser = (user: User): boolean => {
+        return hasAllUserGroups([UserGroup.ADMIN]) && user.status === UserStatus.INACTIVE && !user.groups.includes(UserGroup.ORGANIZATION_ADMIN);
+    };
+
     const handleOpenCreateUser = () => {
         setIsCreateUserModalOpen(true);
     };
@@ -84,23 +123,37 @@ const DashboardPage: React.FC = () => {
                 </div>
 
                 {(isAdmin || isOrgAdmin) && (
-                    <Card title="Acțiuni administrator" className="mb-6">
-                        <div className="flex flex-wrap gap-4">
-                            <Button
-                                variant="primary"
-                                onClick={handleOpenCreateUser}
-                            >
-                                Creează utilizator nou
-                            </Button>
-                            {isAdmin && (
-                                <Button
-                                    variant="outline"
-                                    onClick={() => showToast.info("Funcționalitate în dezvoltare")}
-                                >
-                                    Gestionează organizații
-                                </Button>
-                            )}
-                        </div>
+                    <Card
+                        title="Acțiuni administrator"
+                        className="mb-6 space-y-4"
+                        headerActions={
+                            <>
+                                <div className="flex gap-4">
+                                    <Button className="bg-orange-500 text-white" onClick={handleOpenCreateUser} size={'sm'} variant={'primary'} px={3} py={1.5}>
+                                        {t('label.user_create')}
+                                    </Button>
+                                </div>
+                            </>
+                        }
+                    >
+
+                        <UserList
+                            onEdit={handleEditUser}
+                            onView={handleViewUser}
+                            onDelete={handleDeleteUser}
+                            onRowClick={handleUserRowClick}
+                            refreshTrigger={refreshUserTable}
+                            canDeleteUser={canDeleteUser}
+                            showActions={{
+                                edit: true,
+                                delete: true,
+                                view: true
+                            }}
+                            showSearch={false}
+                            showFilters={false}
+                            className="flex gap-4 flex-col"
+                            pageSize={20}
+                        />
                     </Card>
                 )}
 

@@ -1,9 +1,9 @@
-import {DynamicFormConfig} from "@/types/form.types.ts";
 import {z} from "zod";
 import {DefaultValues, FieldValues, SubmitHandler, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {DynamicFormField} from "@/components/forms/DynamicFormField.tsx";
 import {Button} from "@/components/ui/Button.tsx";
+import {DynamicFormConfig} from "@/types/form.types.ts";
 
 
 interface DynamicFormProps<TFormData extends object> {
