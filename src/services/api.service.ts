@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import {ApiError, ApiConfig} from '@/types/index.types';
+import {ApiError, ApiConfig, PaginatedResponse} from '@/types/index.types';
 import {getAuthHeader} from "@/services/keycloak.service";
 
 
@@ -43,14 +43,71 @@ apiClient.interceptors.response.use(
     }
 );
 
-export const organizationApi = {
-    /**
-     * Get all organizations user has access to
-     */
-    getOrganizations: async () => {
-        const response = await apiClient.get('/api/organizations');
+export class ApiService {
+    async get<T>(url: string): Promise<T> {
+        const response: AxiosResponse<T> = await apiClient.get(url);
         return response.data;
-    },
-};
+    }
 
-export default apiClient;
+    async post<T>(url: string, data?: any): Promise<T> {
+        const response: AxiosResponse<T> = await apiClient.post(url, data);
+        return response.data;
+    }
+
+    async put<T>(url: string, data?: any): Promise<T> {
+        const response: AxiosResponse<T> = await apiClient.put(url, data);
+        return response.data;
+    }
+
+    async delete<T>(url: string): Promise<T> {
+        const response: AxiosResponse<T> = await apiClient.delete(url);
+        return response.data;
+    }
+
+    async getPaginatedList<T>(
+        endpoint: string,
+        params?: {
+            page?: number;
+            pageSize?: number;
+            search?: string;
+            sortBy?: string;
+            sortDirection?: 'asc' | 'desc';
+            filters?: Record<string, any>;
+        }
+    ): Promise<PaginatedResponse<T>> {
+        const searchParams = new URLSearchParams();
+
+        if (params?.page && params.page > 0) {
+            searchParams.append('page', params.page.toString());
+        }
+        if (params?.pageSize && params.pageSize > 0) {
+            searchParams.append('page_size', params.pageSize.toString());
+        }
+        if (params?.search?.trim()) {
+            searchParams.append('search', params.search.trim());
+        }
+        if (params?.sortBy?.trim()) {
+            searchParams.append('sort_by', params.sortBy.trim());
+        }
+        if (params?.sortDirection) {
+            searchParams.append('sort_direction', params.sortDirection);
+        }
+
+        if (params?.filters) {
+            Object.entries(params.filters).forEach(([key, value]) => {
+                if (value !== null && value !== undefined && value !== '') {
+                    // Convert boolean values to strings
+                    const stringValue = typeof value === 'boolean' ? value.toString() : value.toString();
+                    searchParams.append(key, stringValue);
+                }
+            });
+        }
+
+        const queryString = searchParams.toString();
+        const url = queryString ? `${endpoint}?${queryString}` : endpoint;
+
+        return this.get<PaginatedResponse<T>>(url);
+    }
+}
+
+export const apiService = new ApiService();

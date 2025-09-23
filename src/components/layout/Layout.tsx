@@ -87,19 +87,19 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
     const getUserInitials = (): string => {
         if (!user) return 'U';
 
-        if (user.fullName) {
-            const names = user.fullName.split(' ');
+        if (user.full_name) {
+            const names = user.full_name.split(' ');
             return names.length > 1
                 ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
                 : names[0][0].toUpperCase();
         }
 
-        return user.username[0].toUpperCase();
+        return user.email[0].toUpperCase();
     };
 
     const getUserDisplayName = (): string => {
         if (!user) return '';
-        return user.fullName || user.username;
+        return user.full_name || user.email;
     };
 
     return (
@@ -167,8 +167,8 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                         </div>
                                         <div className="hidden md:block text-left">
                                             <div className="text-sm font-medium">{getUserDisplayName()}</div>
-                                            {user?.username && (
-                                                <div className="text-xs text-gray-500">@{user.username}</div>
+                                            {user?.email && (
+                                                <div className="text-xs text-gray-500">@{user.email}</div>
                                             )}
                                         </div>
                                         <svg
