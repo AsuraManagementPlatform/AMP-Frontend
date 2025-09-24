@@ -1,16 +1,20 @@
 import React from 'react';
-import { FormModal } from '@/components/ui/Modal';
-import { DynamicForm } from '@/components/forms/DynamicForm';
-import { createOrganizationFormConfig } from '@/config/organization.form.config';
-import { createOrganizationSchema, CreateOrganizationData, getCreateOrganizationDefaultValues } from '@/schemas/organization.schema';
-import { UserMeResponse } from '@/types/user.types';
+import {FormModal} from '@/components/ui/Modal';
+import {DynamicForm} from '@/components/forms/DynamicForm';
+import {createOrganizationFormConfig} from '@/config/organization.form.config';
+import {
+    CreateOrganizationData,
+    createOrganizationSchema,
+    getCreateOrganizationDefaultValues
+} from '@/schemas/organization.schema';
+import {User, UserMeResponse} from '@/types/user.types';
 
 interface OrganizationCreationModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: (data: CreateOrganizationData) => void;
     isSubmitting: boolean;
-    pendingAdminUsers: UserMeResponse[];
+    pendingAdminUsers: User[];
     loadingPendingUsers: boolean;
     preselectedUser?: UserMeResponse | null;
 }

@@ -193,12 +193,16 @@ const DashboardPage: React.FC = () => {
                         headerActions={
                             <>
                                 <div className="flex gap-4">
-                                    <Button className="bg-orange-500 text-white" onClick={handleOpenCreateUser} size={'sm'} variant={'primary'} px={3} py={1.5}>
+                                    <Button className="bg-orange-500 text-white" onClick={handleOpenCreateUser} size={'md'} variant={'primary'} px={3} py={1.5}>
                                         {t('label.user_create')}
                                     </Button>
                                     {isAdmin && (
                                         <Button
-                                            variant="outline"
+                                            size={'md'}
+                                            className="bg-transparent border-orange-500 hover:bg-orange-500 hover:text-white"
+                                            variant="primary"
+                                            px={3}
+                                            py={1.5}
                                             onClick={organization.openCreateOrganizationModal}
                                         >
                                             {t('label.organisation_create')}

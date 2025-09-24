@@ -1,6 +1,6 @@
-import { DynamicFormConfig, FieldType, SelectOption } from "@/types/form.types.ts";
-import { OrganizationStatus } from "@/types/organization.types.ts";
-import { UserMeResponse } from "@/types/user.types.ts";
+import {DynamicFormConfig, FieldType, SelectOption} from "@/types/form.types.ts";
+import {OrganizationStatus} from "@/types/organization.types.ts";
+import {User, UserMeResponse} from "@/types/user.types.ts";
 
 const getOrganizationStatusOptions = (): SelectOption[] => [
     { value: OrganizationStatus.ACTIVE, label: 'Activ' },
@@ -9,7 +9,7 @@ const getOrganizationStatusOptions = (): SelectOption[] => [
 ];
 
 export const createOrganizationFormConfig = (
-    pendingAdminUsers: UserMeResponse[] = [],
+    pendingAdminUsers: User[] = [],
     loadingPendingUsers: boolean = false,
     preselectedUser?: UserMeResponse | null
 ): DynamicFormConfig => ({

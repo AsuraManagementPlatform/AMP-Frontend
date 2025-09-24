@@ -5,13 +5,20 @@ import showToast from '@/components/ui/Toast';
 import {toast} from 'react-hot-toast';
 import {User, UserMeResponse, UserStatus} from '@/types/user.types';
 import {CreateOrganizationData} from '@/schemas/organization.schema';
+import {useTableData} from "@/hooks/useTableData.ts";
 
 export const useOrganizationCreation = () => {
     const [isCreateOrganizationModalOpen, setIsCreateOrganizationModalOpen] = useState(false);
     const [pendingAdminUsers, setPendingAdminUsers] = useState<User[]>([]);
     const [loadingPendingUsers, setLoadingPendingUsers] = useState(false);
     const [preselectedUser, setPreselectedUser] = useState<UserMeResponse | null>(null);
-
+    const {refresh} = useTableData({
+        endpoint:"/api/user/list",
+        initialPageSize: 20,
+        initialFilters:[{field: 'status', operator: 'exact', value: UserStatus.DRAFT}],
+        initialSort:{ field: 'email', direction: 'asc' },
+        autoFetch: true,
+    })
     const [isSubmittingOrg, setIsSubmittingOrg] = useState(false);
 
     const loadPendingAdminUsers = async () => {
@@ -82,7 +89,6 @@ export const useOrganizationCreation = () => {
             
             setIsCreateOrganizationModalOpen(false);
             setPreselectedUser(null);
-            
         } catch (error: any) {
             if (loadingToast) {
                 toast.dismiss(loadingToast);
@@ -105,6 +111,7 @@ export const useOrganizationCreation = () => {
             }
         } finally {
             setIsSubmittingOrg(false);
+            await refresh()
         }
     };
 

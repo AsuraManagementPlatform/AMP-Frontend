@@ -1,4 +1,4 @@
-import {Organization} from "@/types/organization.types";
+import {Organization, OrganizationStatsResponse} from "@/types/organization.types";
 import {apiService} from "@/services/api.service.ts";
 import {ListParams, PaginatedResponse} from "@/types/index.types.ts";
 
@@ -11,8 +11,8 @@ export const organizationService = {
         return apiService.get<Organization>(`/api/organization/${id}`);
     },
 
-    getOrganizationStats: async (organizationId: string): Promise<Organization> => {
-        return  await apiService.get<Organization>(`/api/organization/stats/${organizationId}`);
+    getOrganizationStats: async (organizationId: string): Promise<OrganizationStatsResponse> => {
+        return  await apiService.get<OrganizationStatsResponse>(`/api/organization/stats/${organizationId}`);
     },
 
     create: async (data: Partial<Organization>): Promise<Organization> => {
