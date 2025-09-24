@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import {useState} from 'react';
 import organizationService from '@/services/organization.service';
 import userService from '@/services/user.service';
 import showToast from '@/components/ui/Toast';
-import { toast } from 'react-hot-toast';
-import { UserMeResponse } from '@/types/user.types';
-import { CreateOrganizationData } from '@/schemas/organization.schema';
+import {toast} from 'react-hot-toast';
+import {User, UserMeResponse, UserStatus} from '@/types/user.types';
+import {CreateOrganizationData} from '@/schemas/organization.schema';
 
 export const useOrganizationCreation = () => {
     const [isCreateOrganizationModalOpen, setIsCreateOrganizationModalOpen] = useState(false);
-    const [pendingAdminUsers, setPendingAdminUsers] = useState<UserMeResponse[]>([]);
+    const [pendingAdminUsers, setPendingAdminUsers] = useState<User[]>([]);
     const [loadingPendingUsers, setLoadingPendingUsers] = useState(false);
     const [preselectedUser, setPreselectedUser] = useState<UserMeResponse | null>(null);
 
@@ -17,12 +17,11 @@ export const useOrganizationCreation = () => {
     const loadPendingAdminUsers = async () => {
         try {
             setLoadingPendingUsers(true);
-            const users = await userService.getPendingAdminUsers();
+            const users = await userService.getList({filters:{status: UserStatus.DRAFT}});
             
-            const userArray = Array.isArray(users) ? users : [];
-            setPendingAdminUsers(userArray);
+            setPendingAdminUsers(users.results);
             
-            return userArray.length > 0;
+            return users.count > 0;
         } catch (error) {
             setPendingAdminUsers([]);
             return false;
@@ -74,15 +73,7 @@ export const useOrganizationCreation = () => {
                 admin_user: data.admin_user
             };
             
-            await organizationService.createOrganization(organizationData);
-            
-            if (data.admin_user) {
-                try {
-                    await userService.updateUserStatus(data.admin_user, 'ACTIVE');
-                } catch (statusError) {
-                    showToast.organizationCreatedUserUpdateFailed();
-                }
-            }
+            await organizationService.create(organizationData);
             
             if (loadingToast) {
                 toast.dismiss(loadingToast);

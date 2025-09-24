@@ -27,3 +27,12 @@ export interface ApiConfig {
     readonly timeout: number;
     readonly headers: Record<string, string>;
 }
+
+export interface ListParams {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    sortBy?: string;
+    sortDirection?: 'asc' | 'desc';
+    filters?: Record<string, any>;
+}

@@ -1,53 +1,31 @@
-import { OrganizationCreateRequest, OrganizationCreateResponse, OrganizationStatsResponse } from "@/types/organization.types";
-import apiClient from "@/services/api.service";
+import {Organization} from "@/types/organization.types";
+import {apiService} from "@/services/api.service.ts";
+import {ListParams, PaginatedResponse} from "@/types/index.types.ts";
 
 export const organizationService = {
-    /**
-     * Get all organizations (admin only)
-     */
-    getAllOrganizations: async (): Promise<OrganizationCreateResponse[]> => {
-        const response = await apiClient.get('/api/organization/list');
-        return response.data.organizations || [];
+    getList: async (params?: ListParams): Promise<PaginatedResponse<Organization>> => {
+        return apiService.getPaginatedList<Organization>('/api/organization/list', params);
     },
 
-    /**
-     * Get specific organization by ID
-     */
-    getOrganizationById: async (organizationId: string): Promise<OrganizationCreateResponse> => {
-        const response = await apiClient.get<OrganizationCreateResponse>(`/api/organization/${organizationId}`);
-        return response.data;
+    getById: async (id: string): Promise<Organization> => {
+        return apiService.get<Organization>(`/api/organization/${id}`);
     },
 
-    /**
-     * Get organization statistics (organization admin only)
-     */
-    getOrganizationStats: async (organizationId: string): Promise<OrganizationStatsResponse> => {
-        const response = await apiClient.get<OrganizationStatsResponse>(`/api/organization/stats/${organizationId}`);
-        return response.data;
+    getOrganizationStats: async (organizationId: string): Promise<Organization> => {
+        return  await apiService.get<Organization>(`/api/organization/stats/${organizationId}`);
     },
 
-    /**
-     * Create new organization
-     */
-    createOrganization: async (organizationData: OrganizationCreateRequest): Promise<OrganizationCreateResponse> => {
-        const response = await apiClient.post('/api/organization/create', organizationData);
-        return response.data.organization || response.data;
+    create: async (data: Partial<Organization>): Promise<Organization> => {
+        return apiService.post<Organization>('/api/organization/create', data);
     },
 
-    /**
-     * Update organization information
-     */
-    updateOrganization: async (organizationId: string, organizationData: Partial<OrganizationCreateRequest>): Promise<OrganizationCreateResponse> => {
-        const response = await apiClient.put<OrganizationCreateResponse>(`/api/organization/update/${organizationId}`, organizationData);
-        return response.data;
+    update: async (id: string, data: Partial<Organization>): Promise<Organization> => {
+        return apiService.put<Organization>(`/api/organization/update/${id}`, data);
     },
 
-    /**
-     * Delete organization
-     */
-    deleteOrganization: async (organizationId: string): Promise<void> => {
-        await apiClient.delete(`/api/organization/delete/${organizationId}`);
-    }
+    delete: async (id: string): Promise<void> => {
+        return apiService.delete<void>(`/api/organization/delete/${id}`);
+    },
 };
 
 export default organizationService;

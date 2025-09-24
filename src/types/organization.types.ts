@@ -17,6 +17,20 @@ export interface OrganizationCreateRequest {
     admin_user?: string;
 }
 
+export interface Organization {
+    id: string;
+    name: string;
+    email: string;
+    phone_number?: string;
+    unique_code: string;
+    address: string;
+    address2?: string;
+    status: string;
+    admin_user: string;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface OrganizationCreateResponse {
     id: string;
     name: string;
