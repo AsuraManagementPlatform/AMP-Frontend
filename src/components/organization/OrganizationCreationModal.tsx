@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { FormModal } from '@/components/ui/Modal';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import React, { useState, useEffect } from 'react';
+import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { UserMeResponse } from '@/types/user.types';
+import { useWatch } from 'react-hook-form';
 
 interface OrganizationCreationModalProps {
     isOpen: boolean;
@@ -14,6 +15,8 @@ interface OrganizationCreationModalProps {
     isSubmitting: boolean;
     pendingAdminUsers: UserMeResponse[];
     loadingPendingUsers: boolean;
+    control: any;
+    preselectedUser?: UserMeResponse | null;
 }
 
 export const OrganizationCreationModal: React.FC<OrganizationCreationModalProps> = ({
@@ -25,9 +28,41 @@ export const OrganizationCreationModal: React.FC<OrganizationCreationModalProps>
     errors,
     isSubmitting,
     pendingAdminUsers,
-    loadingPendingUsers
+    loadingPendingUsers,
+    control,
+    preselectedUser
 }) => {
     const [formKey, setFormKey] = useState(0);
+    const [isFormValid, setIsFormValid] = useState(false);
+
+    const watchedFields = useWatch({
+        control,
+        name: ['name', 'email', 'unique_code', 'address', 'status', 'admin_user']
+    });
+
+    const [name, email, unique_code, address, status, admin_user] = watchedFields || [];
+
+    useEffect(() => {
+        const requiredFieldsFilled = !!(
+            name && 
+            email && 
+            unique_code && 
+            address && 
+            status && 
+            admin_user
+        );
+
+        const noRequiredFieldErrors = !(
+            errors.name || 
+            errors.email || 
+            errors.unique_code || 
+            errors.address || 
+            errors.status || 
+            errors.admin_user
+        );
+
+        setIsFormValid(requiredFieldsFilled && noRequiredFieldErrors);
+    }, [name, email, unique_code, address, status, admin_user, errors]);
 
     const handleReset = () => {
         if (onReset) {
@@ -36,14 +71,17 @@ export const OrganizationCreationModal: React.FC<OrganizationCreationModalProps>
         setFormKey(prev => prev + 1);
     };
     return (
-        <FormModal 
+        <Modal 
             isOpen={isOpen} 
             onClose={onClose} 
             title="Înregistrează organizație"
+            size="md"
+            showResetButton={true}
             onReset={handleReset}
         >
-            <form key={formKey} onSubmit={onSubmit} className="space-y-4">
-                <div className="form-group">
+            <form key={formKey} onSubmit={onSubmit} className="space-y-6">
+                <div className="space-y-4">
+                    <div className="form-group">
                     <label className="form-label">Nume organizație *</label>
                     <input 
                         {...register('name')} 
@@ -135,34 +173,52 @@ export const OrganizationCreationModal: React.FC<OrganizationCreationModalProps>
 
                 <div className="form-group">
                     <label className="form-label">Administrator organizație *</label>
-                    <select 
-                        {...register('admin_user')} 
-                        className={`form-select ${errors.admin_user ? 'border-red-500' : ''}`}
-                        disabled={loadingPendingUsers}
-                    >
-                        <option value="">
-                            {loadingPendingUsers ? 'Se încarcă...' : 'Selectează administrator'}
-                        </option>
-                        {Array.isArray(pendingAdminUsers) && pendingAdminUsers.map((admin) => (
-                            <option key={admin.id} value={admin.id}>
-                                {admin.full_name} ({admin.email})
+                    {preselectedUser ? (
+                        <div>
+                            <input 
+                                type="text"
+                                value={`${preselectedUser.full_name} (${preselectedUser.email})`}
+                                className="form-input bg-gray-100 cursor-not-allowed"
+                                disabled={true}
+                                readOnly={true}
+                            />
+                            <input 
+                                type="hidden"
+                                {...register('admin_user')}
+                                value={preselectedUser.id}
+                            />
+                        </div>
+                    ) : (
+                        <select 
+                            {...register('admin_user')} 
+                            className={`form-select ${errors.admin_user ? 'border-red-500' : ''}`}
+                            disabled={loadingPendingUsers}
+                        >
+                            <option value="">
+                                {loadingPendingUsers ? 'Se încarcă...' : 'Selectează administrator'}
                             </option>
-                        ))}
-                    </select>
+                            {Array.isArray(pendingAdminUsers) && pendingAdminUsers.map((admin) => (
+                                <option key={admin.id} value={admin.id}>
+                                    {admin.full_name} ({admin.email})
+                                </option>
+                            ))}
+                        </select>
+                    )}
                     {errors.admin_user && (
                         <p className="text-red-500 text-sm mt-1">{errors.admin_user.message}</p>
                     )}
+                </div>
                 </div>
 
                 <div className="modal-footer">
                     <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
                         Anulează
                     </Button>
-                    <Button type="submit" disabled={isSubmitting}>
+                    <Button type="submit" disabled={isSubmitting || !isFormValid}>
                         {isSubmitting ? <LoadingSpinner size="sm" /> : 'Creează organizație'}
                     </Button>
                 </div>
             </form>
-        </FormModal>
+        </Modal>
     );
 };

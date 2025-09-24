@@ -13,7 +13,7 @@ export interface UserMeResponse {
     id: string,
     full_name: string;
     email: string;
-    personal_numerical_number: string;
+    personal_numerical_number?: string;
     phone_number?: string;
     isLegalEntity: boolean;
     company_number?: string;

@@ -88,12 +88,3 @@ export interface DynamicFormConfig {
     submitButtonText?: string;
     cancelButtonText?: string;
 }
-
-export interface FormModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    title: string;
-    size?: 'sm' | 'md' | 'lg' | 'xl';
-    className?: string;
-    children: React.ReactNode;
-}

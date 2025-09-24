@@ -11,10 +11,10 @@ interface DynamicFormProps<TFormData extends object> {
     schema: z.ZodSchema<TFormData>;
     onSubmit: SubmitHandler<TFormData>;
     onCancel?: () => void;
-    onReset?: () => void;
     defaultValues?: Partial<TFormData>;
     isSubmitting?: boolean;
     className?: string;
+    hideFooter?: boolean;
 }
 
 export function DynamicForm<TFormData extends FieldValues>({
@@ -22,16 +22,15 @@ export function DynamicForm<TFormData extends FieldValues>({
                                                                schema,
                                                                onSubmit,
                                                                onCancel,
-                                                               onReset,
                                                                defaultValues,
                                                                isSubmitting = false,
-                                                               className = ''
+                                                               className = '',
+                                                               hideFooter = false
                                                            }: DynamicFormProps<TFormData>) {
     const {
         control,
         handleSubmit,
         formState: { errors, isValid },
-        reset,
         watch
     } = useForm<TFormData>({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -55,13 +54,6 @@ export function DynamicForm<TFormData extends FieldValues>({
 
     const handleFormSubmit = (data: TFormData) => {
         onSubmit(data);
-    };
-
-    const handleReset = () => {
-        reset(defaultValues as DefaultValues<TFormData>);
-        if (onReset) {
-            onReset();
-        }
     };
 
     const shouldShowField = (field: any): boolean => {
@@ -112,33 +104,35 @@ export function DynamicForm<TFormData extends FieldValues>({
                 );
             })}
 
-            <div className="modal-footer flex justify-between items-center pt-6">
-                <div className="flex gap-2">
-                    {onCancel && (
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            onClick={onCancel}
-                            disabled={isSubmitting}
-                        >
-                            {config.cancelButtonText || 'Anulează'}
-                        </Button>
-                    )}
-                </div>
+            {!hideFooter && (
+                <div className="modal-footer flex justify-between items-center pt-6">
+                    <div className="flex gap-2">
+                        {onCancel && (
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={onCancel}
+                                disabled={isSubmitting}
+                            >
+                                {config.cancelButtonText || 'Anulează'}
+                            </Button>
+                        )}
+                    </div>
 
-                <div className="flex gap-2">
-                    <Button
-                        type="submit"
-                        variant="primary"
-                        disabled={isSubmitting || !isValid}
-                    >
-                        {isSubmitting
-                            ? 'Se procesează...'
-                            : config.submitButtonText || 'Salvează'
-                        }
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            disabled={isSubmitting || !isValid}
+                        >
+                            {isSubmitting
+                                ? 'Se procesează...'
+                                : config.submitButtonText || 'Salvează'
+                            }
+                        </Button>
+                    </div>
                 </div>
-            </div>
+            )}
         </form>
     );
 }

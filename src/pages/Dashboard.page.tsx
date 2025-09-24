@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {useAuth} from "@/hooks/useAuth";
 import {UserCreateRequest} from "@/schemas/user.schema";
+import { UserMeResponse } from "@/types/user.types";
 import userService from "@/services/user.service";
 import organizationService from "@/services/organization.service";
 import Layout from "@/components/layout/Layout";
@@ -20,7 +21,7 @@ const DashboardPage: React.FC = () => {
     const { user,hasAnyUserGroup, hasAllUserGroups } = useAuth();
     const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
     const [isCreateOrgModalOpen, setIsCreateOrgModalOpen] = useState(false);
-    const [createdUserData, setCreatedUserData] = useState<UserCreateRequest | null>(null);
+    const [createdUserData, setCreatedUserData] = useState<User | null>(null);
 
     const [refreshUserTable, setRefreshUserTable] = useState(0);
     //const [setSelectedUser] = useState<User | null>(null);
@@ -67,20 +68,17 @@ const DashboardPage: React.FC = () => {
         try {
             const createdUser = await userService.create(data);
             setIsCreateUserModalOpen(false);
+            
+            setCreatedUserData(createdUser);
 
-            const userDataForOrg = {
-                ...data,
-                id: createdUser.id,
-                groups: createdUser.groups
-            };
-            setCreatedUserData(userDataForOrg);
+            // Always show success toast first
+            showToast.success('Utilizator creat cu succes!');
 
             setRefreshUserTable(prev => prev + 1);
 
             if (isAdmin && data.group === UserGroup.ORGANIZATION_ADMIN) {
                 setIsCreateOrgModalOpen(true);
             } else {
-                showToast.success('Utilizator creat cu succes!');
                 setCreatedUserData(null);
             }
         } catch (error) {
@@ -110,13 +108,34 @@ const DashboardPage: React.FC = () => {
 
     const handleCreateOrganization = () => {
         setIsCreateOrgModalOpen(false);
-        organization.openCreateOrganizationModal();
+
+        if (createdUserData) {
+            const userForOrg: UserMeResponse = {
+                isLegalEntity: createdUserData.company_number ? true : false,
+                personal_numerical_number: createdUserData.personal_numerical_number,
+                status: createdUserData.status,
+                id: createdUserData.id,
+                email: createdUserData.email,
+                full_name: createdUserData.full_name,
+                groups: createdUserData.groups || [],
+                organization_id: undefined
+            };
+
+            const companyData = createdUserData.company_number && createdUserData.company_name ? {
+                company_name: createdUserData.company_name,
+                company_number: createdUserData.company_number
+            } : undefined;
+
+            organization.openCreateOrganizationModalWithUser(userForOrg, companyData);
+        } else {
+            organization.openCreateOrganizationModal();
+        }
+
         setCreatedUserData(null);
     };
 
     const handleSkipOrganization = () => {
         setIsCreateOrgModalOpen(false);
-        showToast.success('Utilizator creat cu succes!');
         setCreatedUserData(null);
     };
 
@@ -303,11 +322,14 @@ const DashboardPage: React.FC = () => {
                     isOpen={organization.isCreateOrganizationModalOpen}
                     onClose={() => organization.setIsCreateOrganizationModalOpen(false)}
                     onSubmit={organization.handleSubmitOrg}
+                    onReset={organization.resetOrgForm}
                     register={organization.registerOrg}
+                    control={organization.controlOrg}
                     errors={organization.errorsOrg}
                     isSubmitting={organization.isSubmittingOrg}
                     pendingAdminUsers={organization.pendingAdminUsers}
                     loadingPendingUsers={organization.loadingPendingUsers}
+                    preselectedUser={organization.preselectedUser}
                 />
             </div>
         </Layout>

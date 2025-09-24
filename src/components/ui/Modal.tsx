@@ -1,20 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { ModalProps, ConfirmationModalProps, FormModalProps } from '@/types/modal.types';
 import logoImg from '@/assets/img/logo.png';
-
-interface ModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    title?: string;
-    description?: string;
-    children: React.ReactNode;
-    size?: 'sm' | 'md' | 'lg' | 'xl';
-    closeOnBackdropClick?: boolean;
-    showCloseButton?: boolean;
-    showResetButton?: boolean;
-    onReset?: () => void;
-    className?: string;
-}
 
 export const Modal: React.FC<ModalProps> = ({
     isOpen,
@@ -83,12 +70,14 @@ export const Modal: React.FC<ModalProps> = ({
         
         e.preventDefault();
         const modal = modalRef.current;
-        const newX = e.clientX - dragOffset.current.x;
-        const newY = e.clientY - dragOffset.current.y;
+        
+        const newCenterX = e.clientX - dragOffset.current.x;
+        const newCenterY = e.clientY - dragOffset.current.y;
 
-        modal.style.left = `${newX}px`;
-        modal.style.top = `${newY}px`;
-        modal.style.transform = 'none';
+        modal.style.animation = 'none';
+        modal.style.left = `${newCenterX}px`;
+        modal.style.top = `${newCenterY}px`;
+        modal.style.transform = 'translate(-50%, -50%)';
     };
 
     const handleMouseUp = () => {
@@ -128,12 +117,17 @@ export const Modal: React.FC<ModalProps> = ({
 
         e.preventDefault();
         const modal = modalRef.current;
+        
+        modal.style.animation = 'none';
+        
         const rect = modal.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
         
         isDragging.current = true;
         dragOffset.current = {
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top
+            x: e.clientX - centerX,
+            y: e.clientY - centerY
         };
         
         document.body.style.cursor = 'move';
@@ -218,18 +212,6 @@ export const Modal: React.FC<ModalProps> = ({
     );
 };
 
-interface ConfirmationModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-    title: string;
-    message: string;
-    confirmText?: string;
-    cancelText?: string;
-    variant?: 'danger' | 'warning' | 'info';
-    isLoading?: boolean;
-}
-
 export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     isOpen,
     onClose,
@@ -280,16 +262,6 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         </Modal>
     );
 };
-
-interface FormModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    title: string;
-    children: React.ReactNode;
-    size?: 'sm' | 'md' | 'lg' | 'xl';
-    className?: string;
-    onReset?: () => void;
-}
 
 export const FormModal: React.FC<FormModalProps> = ({
     isOpen,
