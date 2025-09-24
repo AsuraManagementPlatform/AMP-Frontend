@@ -11,6 +11,8 @@ interface ModalProps {
     size?: 'sm' | 'md' | 'lg' | 'xl';
     closeOnBackdropClick?: boolean;
     showCloseButton?: boolean;
+    showResetButton?: boolean;
+    onReset?: () => void;
     className?: string;
 }
 
@@ -23,6 +25,8 @@ export const Modal: React.FC<ModalProps> = ({
     size = 'md',
     closeOnBackdropClick = true,
     showCloseButton = true,
+    showResetButton = false,
+    onReset,
     className = ''
 }) => {
     const modalRef = useRef<HTMLDivElement>(null);
@@ -149,37 +153,59 @@ export const Modal: React.FC<ModalProps> = ({
                 >
                     {(title || showCloseButton) && (
                         <div className="modal-header">
-                            <div className="flex items-center gap-3">
-                                <img 
-                                    src={logoImg} 
-                                    alt="Asura Logo" 
-                                    className="w-12 h-12 object-contain flex-shrink-0"
-                                    style={{ transform: 'scale(2)' }}
-                                />
-                                <div>
+                            <div className="flex items-center justify-between w-full">
+                                <div className="flex items-center gap-3">
+                                    <img 
+                                        src={logoImg} 
+                                        alt="Asura Logo" 
+                                        className="w-12 h-12 object-contain flex-shrink-0"
+                                        style={{ transform: 'scale(2)' }}
+                                    />
+                                </div>
+                                
+                                <div className="flex-1 text-center">
                                     {title && (
                                         <Dialog.Title className="modal-title">
                                             {title}
                                         </Dialog.Title>
                                     )}
-
                                     <Dialog.Description className={description ? "modal-description" : "sr-only"}>
                                         {description || `${title} dialog`}
                                     </Dialog.Description>
                                 </div>
+
+                                <div className="flex items-center justify-end gap-2">
+                                    {showResetButton && onReset && (
+                                        <button 
+                                            type="button"
+                                            className="modal-reset" 
+                                            aria-label="Resetează"
+                                            onClick={onReset}
+                                            tabIndex={-1}
+                                            title="Resetează formularul"
+                                        >
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                                <path d="M3 3v5h5"/>
+                                            </svg>
+                                        </button>
+                                    )}
+                                    {showCloseButton && (
+                                        <button 
+                                            type="button"
+                                            className="modal-close" 
+                                            aria-label="Închide"
+                                            onClick={onClose}
+                                            tabIndex={-1}
+                                        >
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                                <line x1="6" y1="6" x2="18" y2="18"/>
+                                            </svg>
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                            {showCloseButton && (
-                                <button 
-                                    type="button"
-                                    className="modal-close" 
-                                    aria-label="Închide"
-                                    onClick={onClose}
-                                    tabIndex={-1}
-                                    style={{ cursor: 'pointer' }}
-                                >
-                                    ×
-                                </button>
-                            )}
                         </div>
                     )}
                     
@@ -262,6 +288,7 @@ interface FormModalProps {
     children: React.ReactNode;
     size?: 'sm' | 'md' | 'lg' | 'xl';
     className?: string;
+    onReset?: () => void;
 }
 
 export const FormModal: React.FC<FormModalProps> = ({
@@ -270,7 +297,8 @@ export const FormModal: React.FC<FormModalProps> = ({
     title,
     children,
     size = 'md',
-    className = ''
+    className = '',
+    onReset
 }) => {
     return (
         <Modal
@@ -280,6 +308,8 @@ export const FormModal: React.FC<FormModalProps> = ({
             size={size}
             className={className}
             closeOnBackdropClick={false}
+            showResetButton={!!onReset}
+            onReset={onReset}
         >
             {children}
         </Modal>

@@ -21,9 +21,14 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                                                                     isAdmin = false
                                                                 }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [key, setKey] = useState(0);
 
     const formConfig = createUserFormConfig(isAdmin);
     const defaultValues = getCreateUserDefaultValues(isAdmin);
+
+    const handleReset = () => {
+        setKey(prev => prev + 1);
+    };
 
     const handleSubmit = async (data: UserCreateRequest) => {
         try {
@@ -34,15 +39,34 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 data.status = UserStatus.DRAFT;
             }
 
+            if (!data.group || !data.status) {
+                showToast.error('Câmpurile grup și status sunt obligatorii');
+            }
+
             await onSubmit(data);
             onClose();
-            showToast.success('Utilizator creat cu succes!');
         } catch (error) {
+            let errorMessage = 'A apărut o eroare necunoscută la crearea utilizatorului.';
+
             if (error instanceof Error) {
-                showToast.error(`Eroare la crearea utilizatorului: ${error.message}`);
-            } else {
-                showToast.error('A apărut o eroare necunoscută la crearea utilizatorului.');
+                errorMessage = `Eroare la crearea utilizatorului: ${error.message}`;
+            } else if (typeof error === 'object' && error !== null) {
+                const apiError = error as any;
+                if (apiError.message) {
+                    errorMessage = `Eroare la crearea utilizatorului: ${apiError.message}`;
+                }
+                if (apiError.details && Array.isArray(apiError.details) && apiError.details.length > 0) {
+                    const detailMessages = apiError.details.map((detail: any) =>
+                        typeof detail === 'string' ? detail : detail.message || JSON.stringify(detail)
+                    ).join(', ');
+                    errorMessage += ` Detalii: ${detailMessages}`;
+                }
+                if (apiError.status) {
+                    errorMessage += ` (Status: ${apiError.status})`;
+                }
             }
+
+            showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
@@ -60,8 +84,10 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
             onClose={handleClose}
             title="Creează utilizator nou"
             size="lg"
+            onReset={handleReset}
         >
             <DynamicForm<UserCreateRequest>
+                key={key}
                 config={formConfig}
                 schema={createUserSchema}
                 onSubmit={handleSubmit}

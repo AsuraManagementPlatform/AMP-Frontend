@@ -1,12 +1,15 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useAuth} from "@/hooks/useAuth";
 import {UserCreateRequest} from "@/schemas/user.schema";
 import userService from "@/services/user.service";
+import organizationService from "@/services/organization.service";
 import Layout from "@/components/layout/Layout";
 import {Card} from "@/components/ui/Card";
 import {Button} from "@/components/ui/Button";
 import {ConfirmationModal} from "@/components/ui/Modal";
 import showToast from "@/components/ui/Toast";
+import {OrganizationCreationModal} from "@/components/organization/OrganizationCreationModal";
+import {useOrganizationCreation} from "@/hooks/useOrganizationCreation";
 import {CreateUserModal} from "@/components/modals/user/CreateUserModal.tsx";
 import {DashboardStats, User, UserGroup, UserStatus} from "@/types/index.types.ts";
 import UserList from "@/components/tables/UserList.tsx";
@@ -22,25 +25,55 @@ const DashboardPage: React.FC = () => {
     const [refreshUserTable, setRefreshUserTable] = useState(0);
     //const [setSelectedUser] = useState<User | null>(null);
 
-    const stats: DashboardStats = {
+    const [stats, setStats] = useState<DashboardStats>({
         recentActivities: 0,
         activeProjects: 0,
         totalStats: 0
-    };
+    });
+    const [loading, setLoading] = useState(true);
+
+    const organization = useOrganizationCreation();
+
+    const isAdmin = hasAnyUserGroup([UserGroup.ADMIN]);
+    const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
+    const hasOrganization = user?.organization_id;
+
+    useEffect(() => {
+        const loadStats = async () => {
+            if (isOrgAdmin && hasOrganization) {
+                try {
+                    const orgStats = await organizationService.getOrganizationStats(user!.organization_id!);
+                    setStats({
+                        activeProjects: orgStats.active_projects,
+                        recentActivities: orgStats.ongoing_activities,
+                        totalStats: orgStats.active_projects + orgStats.ongoing_activities + orgStats.active_members
+                    });
+                } catch (error) {
+                    console.error('Error loading organization stats:', error);
+                }
+            }
+            setLoading(false);
+        };
+
+        loadStats();
+    }, [isOrgAdmin, hasOrganization, user?.organization_id]);
 
     const getUserDisplayName = (): string => {
         if (!user) return 'Utilizator';
         return user.full_name || user.email;
     };
 
-    const isAdmin = hasAnyUserGroup([UserGroup.ADMIN]);
-    const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
-
     const handleCreateUser = async (data: UserCreateRequest) => {
         try {
             const createdUser = await userService.create(data);
             setIsCreateUserModalOpen(false);
-            setCreatedUserData({ ...data, ...createdUser });
+
+            const userDataForOrg = {
+                ...data,
+                id: createdUser.id,
+                groups: createdUser.groups
+            };
+            setCreatedUserData(userDataForOrg);
 
             setRefreshUserTable(prev => prev + 1);
 
@@ -51,20 +84,33 @@ const DashboardPage: React.FC = () => {
                 setCreatedUserData(null);
             }
         } catch (error) {
-            console.error('Error creating user:', error);
+            let errorMessage = 'A apărut o eroare necunoscută.';
 
             if (error instanceof Error) {
-                showToast.error(`Eroare la crearea utilizatorului: ${error.message}`);
-            } else {
-                showToast.error('A apărut o eroare necunoscută.');
+                errorMessage = `Eroare la crearea utilizatorului: ${error.message}`;
+            } else if (typeof error === 'object' && error !== null) {
+                const apiError = error as any;
+                if (apiError.message) {
+                    errorMessage = `Eroare la crearea utilizatorului: ${apiError.message}`;
+                }
+                if (apiError.details && Array.isArray(apiError.details) && apiError.details.length > 0) {
+                    const detailMessages = apiError.details.map((detail: any) =>
+                        typeof detail === 'string' ? detail : detail.message || JSON.stringify(detail)
+                    ).join(', ');
+                    errorMessage += ` Detalii: ${detailMessages}`;
+                }
+                if (apiError.status) {
+                    errorMessage += ` (Status: ${apiError.status})`;
+                }
             }
+
+            showToast.error(errorMessage);
         }
     };
 
     const handleCreateOrganization = () => {
         setIsCreateOrgModalOpen(false);
-        // TODO: Implement organization creation modal
-        showToast.info("Modalul pentru crearea organizației va fi implementat aici");
+        organization.openCreateOrganizationModal();
         setCreatedUserData(null);
     };
 
@@ -132,6 +178,14 @@ const DashboardPage: React.FC = () => {
                                     <Button className="bg-orange-500 text-white" onClick={handleOpenCreateUser} size={'sm'} variant={'primary'} px={3} py={1.5}>
                                         {t('label.user_create')}
                                     </Button>
+                                    {isAdmin && (
+                                        <Button
+                                            variant="outline"
+                                            onClick={organization.openCreateOrganizationModal}
+                                        >
+                                            {t('label.organisation_create')}
+                                        </Button>
+                                    )}
                                 </div>
                             </>
                         }
@@ -159,7 +213,12 @@ const DashboardPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <Card title="Activități recente" subtitle="Ultimele noutăți din proiectele tale">
-                        {stats.recentActivities > 0 ? (
+                        {loading ? (
+                            <div className="animate-pulse">
+                                <div className="h-8 bg-gray-200 rounded mb-2"></div>
+                                <div className="h-4 bg-gray-200 rounded"></div>
+                            </div>
+                        ) : stats.recentActivities > 0 ? (
                             <div className="text-2xl font-semibold text-orange-600">
                                 {stats.recentActivities}
                             </div>
@@ -169,7 +228,12 @@ const DashboardPage: React.FC = () => {
                     </Card>
 
                     <Card title="Proiecte active" subtitle="Proiecte la care lucrezi în prezent">
-                        {stats.activeProjects > 0 ? (
+                        {loading ? (
+                            <div className="animate-pulse">
+                                <div className="h-8 bg-gray-200 rounded mb-2"></div>
+                                <div className="h-4 bg-gray-200 rounded"></div>
+                            </div>
+                        ) : stats.activeProjects > 0 ? (
                             <div className="text-2xl font-semibold text-blue-600">
                                 {stats.activeProjects}
                             </div>
@@ -179,7 +243,12 @@ const DashboardPage: React.FC = () => {
                     </Card>
 
                     <Card title="Statistici" subtitle="Prezentare generală a performanței tale">
-                        {stats.totalStats > 0 ? (
+                        {loading ? (
+                            <div className="animate-pulse">
+                                <div className="h-8 bg-gray-200 rounded mb-2"></div>
+                                <div className="h-4 bg-gray-200 rounded"></div>
+                            </div>
+                        ) : stats.totalStats > 0 ? (
                             <div className="text-2xl font-semibold text-green-600">
                                 {stats.totalStats}
                             </div>
@@ -228,6 +297,17 @@ const DashboardPage: React.FC = () => {
                     confirmText="Da, creează organizație"
                     cancelText="Nu, doar utilizator"
                     variant="info"
+                />
+
+                <OrganizationCreationModal
+                    isOpen={organization.isCreateOrganizationModalOpen}
+                    onClose={() => organization.setIsCreateOrganizationModalOpen(false)}
+                    onSubmit={organization.handleSubmitOrg}
+                    register={organization.registerOrg}
+                    errors={organization.errorsOrg}
+                    isSubmitting={organization.isSubmittingOrg}
+                    pendingAdminUsers={organization.pendingAdminUsers}
+                    loadingPendingUsers={organization.loadingPendingUsers}
                 />
             </div>
         </Layout>

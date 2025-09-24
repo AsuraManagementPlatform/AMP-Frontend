@@ -11,6 +11,7 @@ interface DynamicFormProps<TFormData extends object> {
     schema: z.ZodSchema<TFormData>;
     onSubmit: SubmitHandler<TFormData>;
     onCancel?: () => void;
+    onReset?: () => void;
     defaultValues?: Partial<TFormData>;
     isSubmitting?: boolean;
     className?: string;
@@ -21,6 +22,7 @@ export function DynamicForm<TFormData extends FieldValues>({
                                                                schema,
                                                                onSubmit,
                                                                onCancel,
+                                                               onReset,
                                                                defaultValues,
                                                                isSubmitting = false,
                                                                className = ''
@@ -57,6 +59,9 @@ export function DynamicForm<TFormData extends FieldValues>({
 
     const handleReset = () => {
         reset(defaultValues as DefaultValues<TFormData>);
+        if (onReset) {
+            onReset();
+        }
     };
 
     const shouldShowField = (field: any): boolean => {
@@ -107,37 +112,32 @@ export function DynamicForm<TFormData extends FieldValues>({
                 );
             })}
 
-            <div className="modal-footer">
-                {onCancel && (
+            <div className="modal-footer flex justify-between items-center pt-6">
+                <div className="flex gap-2">
+                    {onCancel && (
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={onCancel}
+                            disabled={isSubmitting}
+                        >
+                            {config.cancelButtonText || 'Anulează'}
+                        </Button>
+                    )}
+                </div>
+
+                <div className="flex gap-2">
                     <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={onCancel}
-                        disabled={isSubmitting}
+                        type="submit"
+                        variant="primary"
+                        disabled={isSubmitting || !isValid}
                     >
-                        {config.cancelButtonText || 'Anulează'}
+                        {isSubmitting
+                            ? 'Se procesează...'
+                            : config.submitButtonText || 'Salvează'
+                        }
                     </Button>
-                )}
-
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleReset}
-                    disabled={isSubmitting}
-                >
-                    Resetează
-                </Button>
-
-                <Button
-                    type="submit"
-                    variant="primary"
-                    disabled={isSubmitting || !isValid}
-                >
-                    {isSubmitting
-                        ? 'Se procesează...'
-                        : config.submitButtonText || 'Salvează'
-                    }
-                </Button>
+                </div>
             </div>
         </form>
     );

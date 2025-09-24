@@ -1,4 +1,4 @@
-import {PaginatedResponse} from "@/types/index.types.ts";
+import {PaginatedResponse, UserGroup} from "@/types/index.types.ts";
 import {UserCreateRequest} from "@/schemas/user.schema.ts";
 
 export const UserStatus = {
@@ -11,10 +11,16 @@ export type UserStatus = typeof UserStatus[keyof typeof UserStatus];
 
 export interface UserMeResponse {
     id: string,
-    email: string;
     full_name: string;
-    groups: string[];
-    status: string;
+    email: string;
+    personal_numerical_number: string;
+    phone_number?: string;
+    isLegalEntity: boolean;
+    company_number?: string;
+    company_name?: string;
+    groups: UserGroup[];
+    status: UserStatus;
+    organization_id?: string;
 }
 
 export interface User {
@@ -27,6 +33,7 @@ export interface User {
     company_name?: string;
     groups: string[];
     status: string;
+    organization_id?: string;
 }
 
 export interface UserFilter {
