@@ -14,7 +14,7 @@ export interface OrganizationCreateRequest {
     address: string;
     address2?: string;
     status: OrganizationStatus;
-    admin_user?: string; // Will be set automatically from context
+    admin_user?: string;
 }
 
 export interface OrganizationCreateResponse {

@@ -80,7 +80,6 @@ showToast.creatingUser();
 ### Advanced Usage
 
 ```tsx
-// Toast cu opțiuni personalizate
 showToast.success('Mesaj personalizat', {
     duration: 6000,
     style: {
@@ -88,9 +87,7 @@ showToast.success('Mesaj personalizat', {
     },
 });
 
-// Loading toast cu actualizare
 const loadingId = showToast.loading('Se procesează...');
-// După finalizare
 showToast.success('Finalizat!', { id: loadingId });
 ```
 
@@ -167,8 +164,8 @@ const handleSubmit = async (data) => {
     try {
         const loadingId = showToast.creatingUser();
         await apiCall(data);
-        showToast.success('', { id: loadingId }); // Close loading
-        showToast.userCreated(); // Show success
+        showToast.success('', { id: loadingId }); 
+        showToast.userCreated(); 
     } catch (error) {
         showToast.userCreationFailed(error.message);
     }

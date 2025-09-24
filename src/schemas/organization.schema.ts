@@ -17,7 +17,6 @@ export const createOrganizationSchema = z.object({
             (value) => {
                 if (!value) return true;
                 
-                // Romanian phone number validation - matches user schema pattern
                 const cleanNumber = value.replace(/[\s\-\(\)\.]/g, '');
                 return /^(\+\d{1,4}|00\d{1,4}|\d{1,4}|0)\d{6,15}$/.test(cleanNumber);
             },
@@ -59,3 +58,14 @@ export const createOrganizationSchema = z.object({
 });
 
 export type CreateOrganizationData = z.infer<typeof createOrganizationSchema>;
+
+export const getCreateOrganizationDefaultValues = (preselectedUser?: { id: string } | null): CreateOrganizationData => ({
+    name: '',
+    email: '',
+    phone_number: '',
+    unique_code: '',
+    address: '',
+    address2: '',
+    status: OrganizationStatus.ACTIVE,
+    admin_user: preselectedUser?.id || ''
+});

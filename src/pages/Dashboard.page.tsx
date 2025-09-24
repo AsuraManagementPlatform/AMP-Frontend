@@ -70,9 +70,8 @@ const DashboardPage: React.FC = () => {
             setIsCreateUserModalOpen(false);
             
             setCreatedUserData(createdUser);
-
-            // Always show success toast first
-            showToast.success('Utilizator creat cu succes!');
+            
+            showToast.userCreated();
 
             setRefreshUserTable(prev => prev + 1);
 
@@ -281,19 +280,19 @@ const DashboardPage: React.FC = () => {
                     <div className="flex flex-wrap gap-4">
                         <Button
                             variant="outline"
-                            onClick={() => showToast.info("Funcționalitate în dezvoltare")}
+                            onClick={() => showToast.featureInDevelopment()}
                         >
                             Creează proiect nou
                         </Button>
                         <Button
                             variant="outline"
-                            onClick={() => showToast.info("Funcționalitate în dezvoltare")}
+                            onClick={() => showToast.featureInDevelopment()}
                         >
                             Vezi calendarul
                         </Button>
                         <Button
                             variant="outline"
-                            onClick={() => showToast.info("Funcționalitate în dezvoltare")}
+                            onClick={() => showToast.featureInDevelopment()}
                         >
                             Generează raport
                         </Button>
@@ -322,10 +321,6 @@ const DashboardPage: React.FC = () => {
                     isOpen={organization.isCreateOrganizationModalOpen}
                     onClose={() => organization.setIsCreateOrganizationModalOpen(false)}
                     onSubmit={organization.handleSubmitOrg}
-                    onReset={organization.resetOrgForm}
-                    register={organization.registerOrg}
-                    control={organization.controlOrg}
-                    errors={organization.errorsOrg}
                     isSubmitting={organization.isSubmittingOrg}
                     pendingAdminUsers={organization.pendingAdminUsers}
                     loadingPendingUsers={organization.loadingPendingUsers}

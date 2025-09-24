@@ -31,6 +31,8 @@ export const toastMessages = {
         validationError: 'Verificați datele introduse și încercați din nou',
         duplicateEntry: 'Datele introduse există deja în sistem',
         requiredFieldsMissing: 'Câmpurile obligatorii nu sunt completate',
+        noPendingAdminUsers: 'Nu există utilizatori administratori în așteptare pentru a crea o organizație.',
+        organizationCreatedUserUpdateFailed: 'Organizația a fost creată, dar actualizarea statusului utilizatorului a eșuat.',
     },
     loading: {
         savingChanges: 'Se salvează modificările...',
@@ -45,6 +47,7 @@ export const toastMessages = {
     },
     info: {
         formReset: 'Formularul a fost resetat',
+        featureInDevelopment: 'Funcționalitate în dezvoltare',
     }
 };
 
@@ -136,6 +139,9 @@ export const showToast = {
     submittingForm: () => showToast.loading(toastMessages.loading.submittingForm),
     processing: () => showToast.loading(toastMessages.loading.processing),
     formReset: () => showToast.info(toastMessages.info.formReset),
+    featureInDevelopment: () => showToast.info(toastMessages.info.featureInDevelopment),
+    noPendingAdminUsers: () => showToast.error(toastMessages.error.noPendingAdminUsers),
+    organizationCreatedUserUpdateFailed: () => showToast.error(toastMessages.error.organizationCreatedUserUpdateFailed),
 };
 
 export const ToastConfig: React.FC = () => (

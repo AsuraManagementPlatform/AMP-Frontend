@@ -7,7 +7,6 @@ export const organizationService = {
      */
     getAllOrganizations: async (): Promise<OrganizationCreateResponse[]> => {
         const response = await apiClient.get('/api/organization/list');
-        // Backend returns: { count: number, organizations: [...] }
         return response.data.organizations || [];
     },
 
@@ -32,7 +31,6 @@ export const organizationService = {
      */
     createOrganization: async (organizationData: OrganizationCreateRequest): Promise<OrganizationCreateResponse> => {
         const response = await apiClient.post('/api/organization/create', organizationData);
-        // Backend returns: { message: "...", organization: {...} }
         return response.data.organization || response.data;
     },
 

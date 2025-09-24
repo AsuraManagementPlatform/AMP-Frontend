@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { createOrganizationSchema } from '@/schemas/organization.schema';
 import organizationService from '@/services/organization.service';
 import userService from '@/services/user.service';
 import showToast from '@/components/ui/Toast';
 import { toast } from 'react-hot-toast';
 import { UserMeResponse } from '@/types/user.types';
+import { CreateOrganizationData } from '@/schemas/organization.schema';
 
 export const useOrganizationCreation = () => {
     const [isCreateOrganizationModalOpen, setIsCreateOrganizationModalOpen] = useState(false);
@@ -14,35 +12,7 @@ export const useOrganizationCreation = () => {
     const [loadingPendingUsers, setLoadingPendingUsers] = useState(false);
     const [preselectedUser, setPreselectedUser] = useState<UserMeResponse | null>(null);
 
-    const {
-        register: registerOrg,
-        handleSubmit: handleSubmitOrg,
-        reset: resetOrg,
-        control: controlOrg,
-        formState: { errors: errorsOrg, isSubmitting: isSubmittingOrg }
-    } = useForm({
-        resolver: zodResolver(createOrganizationSchema),
-        mode: 'onChange',
-        defaultValues: {
-            status: 'ACTIVE' as const,
-            admin_user: preselectedUser?.id || ''
-        }
-    });
-
-    const resetOrgForm = () => {
-        resetOrg({
-            status: 'ACTIVE' as const,
-            admin_user: ''
-        });
-        showToast.formReset();
-    };
-
-    const resetOrgFormSilent = () => {
-        resetOrg({
-            status: 'ACTIVE' as const,
-            admin_user: ''
-        });
-    };
+    const [isSubmittingOrg, setIsSubmittingOrg] = useState(false);
 
     const loadPendingAdminUsers = async () => {
         try {
@@ -65,7 +35,7 @@ export const useOrganizationCreation = () => {
         const hasUsers = await loadPendingAdminUsers();
         
         if (!hasUsers && !preselectedUser) {
-            showToast.error('Nu există utilizatori administratori în așteptare pentru a crea o organizație.');
+            showToast.noPendingAdminUsers();
             return;
         }
         
@@ -89,15 +59,14 @@ export const useOrganizationCreation = () => {
             formData.unique_code = companyData.company_number;
         }
         
-        resetOrg(formData);
-        
         setIsCreateOrganizationModalOpen(true);
     };
 
-    const onSubmitCreateOrganization = async (data: any) => {
+    const onSubmitCreateOrganization = async (data: CreateOrganizationData) => {
         let loadingToast: string | undefined;
         
         try {
+            setIsSubmittingOrg(true);
             loadingToast = showToast.creatingOrganization();
             
             const organizationData = {
@@ -111,7 +80,7 @@ export const useOrganizationCreation = () => {
                 try {
                     await userService.updateUserStatus(data.admin_user, 'ACTIVE');
                 } catch (statusError) {
-                    showToast.error('Organizația a fost creată, dar actualizarea statusului utilizatorului a eșuat.');
+                    showToast.organizationCreatedUserUpdateFailed();
                 }
             }
             
@@ -122,7 +91,6 @@ export const useOrganizationCreation = () => {
             
             setIsCreateOrganizationModalOpen(false);
             setPreselectedUser(null);
-            resetOrgFormSilent();
             
         } catch (error: any) {
             if (loadingToast) {
@@ -144,6 +112,8 @@ export const useOrganizationCreation = () => {
             } else {
                 showToast.organizationCreationFailed(errorMessage);
             }
+        } finally {
+            setIsSubmittingOrg(false);
         }
     };
 
@@ -153,13 +123,8 @@ export const useOrganizationCreation = () => {
         pendingAdminUsers,
         loadingPendingUsers,
         preselectedUser,
-        registerOrg,
-        controlOrg,
-        handleSubmitOrg: handleSubmitOrg(onSubmitCreateOrganization),
-        errorsOrg,
+        handleSubmitOrg: onSubmitCreateOrganization,
         isSubmittingOrg,
-        resetOrgForm,
-        resetOrgFormSilent,
         openCreateOrganizationModal,
         openCreateOrganizationModalWithUser,
         loadPendingAdminUsers
