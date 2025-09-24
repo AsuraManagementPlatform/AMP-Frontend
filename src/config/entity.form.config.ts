@@ -15,7 +15,7 @@ const getEntityStatusOptions = (): SelectOption[] => [
 ];
 
 export const createEntityFormConfig = (
-    organizationId?: string,
+    _organizationId?: string,
     availableUsers: { id: string; name: string }[] = []
 ): DynamicFormConfig => ({
     sections: [
@@ -123,9 +123,9 @@ export const createEntityFormConfig = (
 });
 
 export const updateEntityFormConfig = (
-    organizationId?: string,
+    _organizationId?: string,
     availableUsers: { id: string; name: string }[] = []
 ): DynamicFormConfig => ({
-    ...createEntityFormConfig(organizationId, availableUsers),
+    ...createEntityFormConfig(_organizationId, availableUsers),
     submitButtonText: 'Actualizează entitate'
 });
