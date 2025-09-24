@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import Home from '@/pages/Home.page';
 import AdminPanel from '@/pages/AdminPanel.page';
+import Projects from '@/pages/Projects.page';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastConfig } from '@/components/ui/Toast';
 import { ROUTES } from '@/utils/constants.utils';
@@ -31,7 +32,7 @@ function App() {
                 <Route path={ROUTES.PROFILE} element={<Home />} />
                 <Route path={ROUTES.ORGANIZATIONS} element={<AdminPanel />} />
                 <Route path={ROUTES.CREATE_ORGANIZATION} element={<AdminPanel />} />
-                <Route path={ROUTES.PROJECTS} element={<AdminPanel />} />
+                <Route path={ROUTES.PROJECTS} element={<Projects />} />
                 <Route path={ROUTES.NOT_FOUND} element={<div>Page Not Found</div>} />
                 <Route path="*" element={<Navigate to={ROUTES.NOT_FOUND} replace />} />
               </Routes>
