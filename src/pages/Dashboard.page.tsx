@@ -12,6 +12,7 @@ import showToast from "@/components/ui/Toast";
 import {OrganizationCreationModal} from "@/components/organization/OrganizationCreationModal";
 import {useOrganizationCreation} from "@/hooks/useOrganizationCreation";
 import {CreateUserModal} from "@/components/modals/user/CreateUserModal.tsx";
+import {CreateProjectModal} from "@/components/modals/project/CreateProjectModal.tsx";
 import {DashboardStats, User, UserGroup, UserStatus} from "@/types/index.types.ts";
 import UserList from "@/components/tables/UserList.tsx";
 import {useTranslation} from "react-i18next";
@@ -21,6 +22,7 @@ const DashboardPage: React.FC = () => {
     const { user,hasAnyUserGroup, hasAllUserGroups } = useAuth();
     const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
     const [isCreateOrgModalOpen, setIsCreateOrgModalOpen] = useState(false);
+    const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
     const [createdUserData, setCreatedUserData] = useState<User | null>(null);
 
     const [refreshUserTable, setRefreshUserTable] = useState(0);
@@ -178,6 +180,19 @@ const DashboardPage: React.FC = () => {
         setIsCreateUserModalOpen(false);
     };
 
+    const handleOpenCreateProject = () => {
+        setIsCreateProjectModalOpen(true);
+    };
+
+    const handleCloseCreateProject = () => {
+        setIsCreateProjectModalOpen(false);
+    };
+
+    const handleProjectCreated = () => {
+        // Refresh dashboard stats or projects list
+        setRefreshUserTable(prev => prev + 1);
+    };
+
     return (
         <Layout showNavigation={true}>
             <div className="container mx-auto">
@@ -284,7 +299,7 @@ const DashboardPage: React.FC = () => {
                     <div className="flex flex-wrap gap-4">
                         <Button
                             variant="outline"
-                            onClick={() => showToast.featureInDevelopment()}
+                            onClick={handleOpenCreateProject}
                         >
                             Creează proiect nou
                         </Button>
@@ -329,6 +344,13 @@ const DashboardPage: React.FC = () => {
                     pendingAdminUsers={organization.pendingAdminUsers}
                     loadingPendingUsers={organization.loadingPendingUsers}
                     preselectedUser={organization.preselectedUser}
+                />
+
+                <CreateProjectModal
+                    isOpen={isCreateProjectModalOpen}
+                    onClose={handleCloseCreateProject}
+                    onSuccess={handleProjectCreated}
+                    organizationId={user?.organization_id}
                 />
             </div>
         </Layout>
