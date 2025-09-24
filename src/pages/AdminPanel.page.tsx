@@ -163,6 +163,18 @@ const AdminPanel: React.FC = () => {
                     <Card title="Total Users" className="text-center">
                         <div className="text-3xl font-bold text-blue-600">{users?.count}</div>
                     </Card>
+
+                    <Card title="Admin Users" className="text-center">
+                        <div className="text-3xl font-bold text-orange-600">
+                            {users?.results.filter(u => u.groups.includes('admin')).length}
+                        </div>
+                    </Card>
+
+                    <Card title="Organization Admins" className="text-center">
+                        <div className="text-3xl font-bold text-green-600">
+                            {users?.results.filter(u => u.groups.includes('organization_admin')).length}
+                        </div>
+                    </Card>
                 </div>
 
             </div>

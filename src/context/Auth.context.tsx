@@ -2,7 +2,7 @@ import {createContext, ReactNode, useCallback, useEffect, useRef, useState} from
 import {AuthContextType, AuthState, User} from '@/types/index.types';
 import * as React from "react";
 import keycloakService, {keycloakInitOptions, logoutUser} from "@/services/keycloak.service";
-import userService from "@/services/user.service.ts";
+import userService from "@/services/user.service";
 
 interface AuthProviderProps {
     children: ReactNode;
@@ -27,6 +27,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             full_name: userData.full_name,
             groups: userData.groups,
             status: userData.status,
+            organization_id: userData.organization_id
         };
 
         setUser(newUserData);

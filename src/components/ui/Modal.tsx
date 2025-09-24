@@ -1,18 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { ModalProps, ConfirmationModalProps, FormModalProps } from '@/types/modal.types';
+import { Button } from '@/components/ui/Button';
 import logoImg from '@/assets/img/logo.png';
-
-interface ModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    title?: string;
-    description?: string;
-    children: React.ReactNode;
-    size?: 'sm' | 'md' | 'lg' | 'xl';
-    closeOnBackdropClick?: boolean;
-    showCloseButton?: boolean;
-    className?: string;
-}
 
 export const Modal: React.FC<ModalProps> = ({
     isOpen,
@@ -23,6 +13,8 @@ export const Modal: React.FC<ModalProps> = ({
     size = 'md',
     closeOnBackdropClick = true,
     showCloseButton = true,
+    showResetButton = false,
+    onReset,
     className = ''
 }) => {
     const modalRef = useRef<HTMLDivElement>(null);
@@ -79,12 +71,14 @@ export const Modal: React.FC<ModalProps> = ({
         
         e.preventDefault();
         const modal = modalRef.current;
-        const newX = e.clientX - dragOffset.current.x;
-        const newY = e.clientY - dragOffset.current.y;
+        
+        const newCenterX = e.clientX - dragOffset.current.x;
+        const newCenterY = e.clientY - dragOffset.current.y;
 
-        modal.style.left = `${newX}px`;
-        modal.style.top = `${newY}px`;
-        modal.style.transform = 'none';
+        modal.style.animation = 'none';
+        modal.style.left = `${newCenterX}px`;
+        modal.style.top = `${newCenterY}px`;
+        modal.style.transform = 'translate(-50%, -50%)';
     };
 
     const handleMouseUp = () => {
@@ -124,12 +118,17 @@ export const Modal: React.FC<ModalProps> = ({
 
         e.preventDefault();
         const modal = modalRef.current;
+        
+        modal.style.animation = 'none';
+        
         const rect = modal.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
         
         isDragging.current = true;
         dragOffset.current = {
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top
+            x: e.clientX - centerX,
+            y: e.clientY - centerY
         };
         
         document.body.style.cursor = 'move';
@@ -149,37 +148,59 @@ export const Modal: React.FC<ModalProps> = ({
                 >
                     {(title || showCloseButton) && (
                         <div className="modal-header">
-                            <div className="flex items-center gap-3">
-                                <img 
-                                    src={logoImg} 
-                                    alt="Asura Logo" 
-                                    className="w-12 h-12 object-contain flex-shrink-0"
-                                    style={{ transform: 'scale(2)' }}
-                                />
-                                <div>
+                            <div className="flex items-center justify-between w-full">
+                                <div className="flex items-center gap-3">
+                                    <img 
+                                        src={logoImg} 
+                                        alt="Asura Logo" 
+                                        className="w-12 h-12 object-contain flex-shrink-0"
+                                        style={{ transform: 'scale(2)' }}
+                                    />
+                                </div>
+                                
+                                <div className="flex-1 text-center">
                                     {title && (
                                         <Dialog.Title className="modal-title">
                                             {title}
                                         </Dialog.Title>
                                     )}
-
                                     <Dialog.Description className={description ? "modal-description" : "sr-only"}>
                                         {description || `${title} dialog`}
                                     </Dialog.Description>
                                 </div>
+
+                                <div className="flex items-center justify-end gap-2">
+                                    {showResetButton && onReset && (
+                                        <button 
+                                            type="button"
+                                            className="modal-reset" 
+                                            aria-label="Resetează"
+                                            onClick={onReset}
+                                            tabIndex={-1}
+                                            title="Resetează formularul"
+                                        >
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                                <path d="M3 3v5h5"/>
+                                            </svg>
+                                        </button>
+                                    )}
+                                    {showCloseButton && (
+                                        <button 
+                                            type="button"
+                                            className="modal-close" 
+                                            aria-label="Închide"
+                                            onClick={onClose}
+                                            tabIndex={-1}
+                                        >
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                                <line x1="6" y1="6" x2="18" y2="18"/>
+                                            </svg>
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                            {showCloseButton && (
-                                <button 
-                                    type="button"
-                                    className="modal-close" 
-                                    aria-label="Închide"
-                                    onClick={onClose}
-                                    tabIndex={-1}
-                                    style={{ cursor: 'pointer' }}
-                                >
-                                    ×
-                                </button>
-                            )}
                         </div>
                     )}
                     
@@ -191,18 +212,6 @@ export const Modal: React.FC<ModalProps> = ({
         </Dialog.Root>
     );
 };
-
-interface ConfirmationModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-    title: string;
-    message: string;
-    confirmText?: string;
-    cancelText?: string;
-    variant?: 'danger' | 'warning' | 'info';
-    isLoading?: boolean;
-}
 
 export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     isOpen,
@@ -235,34 +244,26 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 <p className="confirmation-message">{message}</p>
                 
                 <div className="modal-footer">
-                    <button
+                    <Button
                         onClick={handleConfirm}
-                        className={`btn ${variant === 'danger' ? 'btn-danger' : variant === 'warning' ? 'btn-warning' : 'btn-primary'} ${isLoading ? 'btn-loading' : ''}`}
+                        variant={variant === 'danger' ? 'danger' : 'primary'}
                         disabled={isLoading}
+                        isLoading={isLoading}
                     >
                         {confirmText}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         onClick={onClose}
-                        className="btn btn-secondary"
+                        variant="secondary"
                         disabled={isLoading}
                     >
                         {cancelText}
-                    </button>
+                    </Button>
                 </div>
             </div>
         </Modal>
     );
 };
-
-interface FormModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    title: string;
-    children: React.ReactNode;
-    size?: 'sm' | 'md' | 'lg' | 'xl';
-    className?: string;
-}
 
 export const FormModal: React.FC<FormModalProps> = ({
     isOpen,
@@ -270,7 +271,8 @@ export const FormModal: React.FC<FormModalProps> = ({
     title,
     children,
     size = 'md',
-    className = ''
+    className = '',
+    onReset
 }) => {
     return (
         <Modal
@@ -280,6 +282,8 @@ export const FormModal: React.FC<FormModalProps> = ({
             size={size}
             className={className}
             closeOnBackdropClick={false}
+            showResetButton={!!onReset}
+            onReset={onReset}
         >
             {children}
         </Modal>

@@ -5,14 +5,16 @@ const resources = {
     en: {
         translation: {
             label: {
-                user_create: "Create User"
+                user_create: "Create User",
+                organisation_create: "Create Organisation"
             }
         }
     },
     ro: {
         translation: {
             label: {
-                user_create: "Creează utilizator nou"
+                user_create: "Creează utilizator nou",
+                organisation_create: "Creează organizație nouă",
             }
         }
     }

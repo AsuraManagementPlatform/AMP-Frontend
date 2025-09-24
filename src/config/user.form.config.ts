@@ -38,8 +38,8 @@ export const createUserFormConfig = (
 ): DynamicFormConfig => ({
     sections: [
         {
-            title: "Informații personale",
-            columns: 2,
+            title: "Informații utilizator",
+            columns: 1,
             fields: [
                 {
                     name: 'full_name',
@@ -69,50 +69,30 @@ export const createUserFormConfig = (
                     label: 'Număr telefon',
                     type: FieldType.TEL,
                     placeholder: 'Ex: +40712345678',
-                }
-            ]
-        },
-        {
-            title: "Tip utilizator",
-            description: "Selectați tipul de utilizator",
-            columns: 1,
-            fields: [
+                },
                 {
                     name: 'isLegalEntity',
                     label: 'Entitate juridică (companie)',
                     type: FieldType.CHECKBOX,
                     helperText: 'Bifați această opțiune dacă utilizatorul reprezintă o companie sau organizație'
-                }
-            ]
-        },
-        {
-            title: "Informații companie",
-            description: "Completați informațiile companiei",
-            columns: 2,
-            condition: (formValues) => formValues?.isLegalEntity === true,
-            fields: [
+                },
                 {
                     name: 'company_number',
                     label: 'Număr înregistrare companie',
                     type: FieldType.TEXT,
                     placeholder: 'Ex: RO12345678 sau 12345678',
                     required: true,
-                    helperText: 'Codul de Identificare Fiscală (CIF/CUI)'
+                    helperText: 'Codul de Identificare Fiscală (CIF/CUI)',
+                    condition: (formValues: any) => formValues?.isLegalEntity === true,
                 },
                 {
                     name: 'company_name',
                     label: 'Numele companiei',
                     type: FieldType.TEXT,
                     placeholder: 'Ex: SC Asura SRL',
-                    required: true
-                }
-            ]
-        },
-        {
-            title: "Configurări cont",
-            hidden: isAdmin,
-            columns: 2,
-            fields: [
+                    required: true,
+                    condition: (formValues: any) => formValues?.isLegalEntity === true,
+                },
                 {
                     name: 'group',
                     label: 'Grup utilizator',
@@ -120,6 +100,7 @@ export const createUserFormConfig = (
                     required: true,
                     disabled: isAdmin,
                     options: getUserGroupOptions(isAdmin),
+                    condition: () => !isAdmin,
                 },
                 {
                     name: 'status',
@@ -127,6 +108,7 @@ export const createUserFormConfig = (
                     type: FieldType.SELECT,
                     required: true,
                     options: getUserStatusOptions,
+                    condition: () => !isAdmin,
                 }
             ]
         }

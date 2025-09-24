@@ -1,6 +1,6 @@
 import { useContext } from 'react';
-import { AuthContextType, User, UserGroup } from '@/types/index.types';
-import {AuthContext} from "@/context/Auth.context.tsx";
+import { AuthContextType, UserGroup, User } from '@/types/index.types';
+import {AuthContext} from "@/context/Auth.context";
 
 /**
  * Custom hook for accessing authentication context

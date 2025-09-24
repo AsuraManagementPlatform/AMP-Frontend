@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import {ApiError, ApiConfig, PaginatedResponse} from '@/types/index.types';
+import {ApiError, ApiConfig, PaginatedResponse, ListParams} from '@/types/index.types';
 import {getAuthHeader} from "@/services/keycloak.service";
 
 
@@ -36,7 +36,7 @@ apiClient.interceptors.response.use(
         const apiError: ApiError = {
             message: error.response?.data?.message || error.message || 'An error occurred',
             status: error.response?.status || 0,
-            details: error.response?.data?.details || []
+            details: error.response?.data?.details || error.response?.data?.errors || []
         };
 
         return Promise.reject(apiError);
@@ -66,14 +66,7 @@ export class ApiService {
 
     async getPaginatedList<T>(
         endpoint: string,
-        params?: {
-            page?: number;
-            pageSize?: number;
-            search?: string;
-            sortBy?: string;
-            sortDirection?: 'asc' | 'desc';
-            filters?: Record<string, any>;
-        }
+        params?: ListParams
     ): Promise<PaginatedResponse<T>> {
         const searchParams = new URLSearchParams();
 

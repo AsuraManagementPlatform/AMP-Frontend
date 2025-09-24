@@ -1,8 +1,8 @@
-import {PaginatedResponse, User, UserMeResponse} from "@/types/index.types.ts";
+import {ListParams, PaginatedResponse, User, UserMeResponse} from "@/types/index.types.ts";
 import {apiService} from "@/services/api.service.ts";
 
 export const userService = {
-    getList: async (params?: any): Promise<PaginatedResponse<User>> => {
+    getList: async (params?: ListParams): Promise<PaginatedResponse<User>> => {
         return apiService.getPaginatedList<User>('/api/user/list', params);
     },
 
@@ -25,32 +25,6 @@ export const userService = {
     delete: async (id: string): Promise<void> => {
         return apiService.delete<void>(`/api/user/delete/${id}`);
     },
-};
-
-export const createEntityService = <T extends { id: number }>(endpoint: string) => {
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-
-    return {
-        getList: async (params?: any): Promise<PaginatedResponse<T>> => {
-            return apiService.getPaginatedList<T>(`/${cleanEndpoint}`, params);
-        },
-
-        getById: async (id: number): Promise<T> => {
-            return apiService.get<T>(`/${cleanEndpoint}/${id}`);
-        },
-
-        create: async (data: Partial<T>): Promise<T> => {
-            return apiService.post<T>(`/${cleanEndpoint}`, data);
-        },
-
-        update: async (id: number, data: Partial<T>): Promise<T> => {
-            return apiService.put<T>(`/${cleanEndpoint}/${id}`, data);
-        },
-
-        delete: async (id: number): Promise<void> => {
-            return apiService.delete<void>(`/${cleanEndpoint}/${id}`);
-        },
-    };
 };
 
 export default userService;

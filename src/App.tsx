@@ -2,12 +2,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-import { AuthProvider } from '@/context/Auth.context.tsx';
 import Home from '@/pages/Home.page';
 import AdminPanel from '@/pages/AdminPanel.page';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastConfig } from '@/components/ui/Toast';
 import { ROUTES } from '@/utils/constants.utils';
+import {AuthProvider} from "@/context/Auth.context.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {

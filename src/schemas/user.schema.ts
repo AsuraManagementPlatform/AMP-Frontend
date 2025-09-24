@@ -3,7 +3,6 @@ import { UserStatus } from "@/types/user.types.ts";
 import {UserGroup} from "@/types/auth.types.ts";
 
 const ROMANIAN_PHONE_REGEX = /^(\+40|0)[0-9]{9}$/;
-// const ROMANIAN_COMPANY_REGEX = /^(RO)?[0-9]{8,10}$/;
 const NAME_REGEX = /^[a-zA-ZăâîțșĂÂÎȚȘ\s-'\.]+$/;
 
 const validateCNP = (cnp: string): boolean => {
