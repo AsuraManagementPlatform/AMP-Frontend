@@ -52,7 +52,6 @@ export const getEnvironmentInfo = () => {
     } as const;
 };
 
-
 export const logoutUser = async (accessToken?: string, refreshToken?: string): Promise<void> => {
     const keycloakUrl = keycloakConfig.url;
     const realm = keycloakConfig.realm;
@@ -62,6 +61,12 @@ export const logoutUser = async (accessToken?: string, refreshToken?: string): P
     const refreshTokenToRevoke = refreshToken || keycloakService.refreshToken;
     
     if (!keycloakUrl || !realm || !clientId || !tokenToRevoke) {
+        console.warn('[Keycloak] Missing required configuration or token:', {
+            keycloakUrl: !!keycloakUrl,
+            realm: !!realm,
+            clientId: !!clientId,
+            tokenToRevoke: !!tokenToRevoke
+        });
         return;
     }
 
@@ -97,10 +102,18 @@ export const logoutUser = async (accessToken?: string, refreshToken?: string): P
         }
 
         if (keycloakService.authenticated) {
-            await keycloakService.logout();
+            try {
+                await keycloakService.logout({
+                    redirectUri: window.location.origin + '/'
+                });
+            } catch (logoutError) {
+                console.error('[Keycloak] Keycloak logout failed:', logoutError);
+                throw logoutError;
+            }
         }
     } catch (error) {
         console.warn('[Keycloak] Token revocation failed:', error);
+        throw error;
     }
 };
 

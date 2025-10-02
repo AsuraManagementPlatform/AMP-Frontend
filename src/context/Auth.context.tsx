@@ -1,14 +1,12 @@
 import {createContext, ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import {AuthContextType, AuthState, User} from '@/types/index.types';
 import * as React from "react";
-import keycloakService, {keycloakInitOptions, logoutUser} from "@/services/keycloak.service";
+import keycloakService, {keycloakInitOptions} from "@/services/keycloak.service";
 import userService from "@/services/user.service";
 
 interface AuthProviderProps {
     children: ReactNode;
 }
-
-// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthProviderProps) => {
@@ -27,7 +25,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             full_name: userData.full_name,
             groups: userData.groups,
             status: userData.status,
-            organization_id: userData.organization_id
+            organization_id: userData.organization_id,
+            is_active: userData.is_active || true
         };
 
         setUser(newUserData);
@@ -100,36 +99,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
 
     const logout = useCallback(async (): Promise<void> => {
         try {
-            if (keycloakService.authenticated && keycloakService.token) {
-                await logoutUser(keycloakService.token, keycloakService.refreshToken);
+            if (tokenRefreshIntervalRef.current) {
+                clearInterval(tokenRefreshIntervalRef.current);
+                tokenRefreshIntervalRef.current = null;
+            }
+            if (keycloakService.authenticated) {
+                await keycloakService.logout({ 
+                    redirectUri: window.location.origin + '/' 
+                });
+            } else {
+                setUser(null);
+                setAuthState(AuthState.UNAUTHENTICATED);
+                setError(null);
+                initializingRef.current = false;
             }
         } catch (error) {
-            console.warn('[Auth] Token revocation failed, continuing with local logout:', error);
+            console.error('[Auth] Logout error:', error);
+            setUser(null);
+            setAuthState(AuthState.UNAUTHENTICATED);
+            setError(null);
+            initializingRef.current = false;
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '/';
         }
-
-        if (tokenRefreshIntervalRef.current) {
-            clearInterval(tokenRefreshIntervalRef.current);
-            tokenRefreshIntervalRef.current = null;
-        }
-
-        keycloakService.token = undefined;
-        keycloakService.refreshToken = undefined;
-        keycloakService.idToken = undefined;
-        keycloakService.authenticated = false;
-        keycloakService.tokenParsed = undefined;
-        keycloakService.refreshTokenParsed = undefined;
-        keycloakService.idTokenParsed = undefined;
-
-        localStorage.clear();
-        sessionStorage.clear();
-
-        setUser(null);
-        setAuthState(AuthState.UNAUTHENTICATED);
-        setError(null);
-        
-        initializingRef.current = false;
-        
-        window.location.href = '/';
     }, []);
 
     const refreshToken = useCallback(async (): Promise<boolean> => {
@@ -181,3 +174,4 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };
+

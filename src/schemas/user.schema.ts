@@ -4,6 +4,8 @@ import {UserGroup} from "@/types/auth.types.ts";
 
 const ROMANIAN_PHONE_REGEX = /^(\+40|0)[0-9]{9}$/;
 const NAME_REGEX = /^[a-zA-ZăâîțșĂÂÎȚȘ\s-'\.]+$/;
+const CUI_REGEX = /^(RO)?[0-9]{2,10}$/;
+const POSTAL_CODE_REGEX = /^[0-9]{6}$/;
 
 const validateCNP = (cnp: string): boolean => {
     if (!/^\d{13}$/.test(cnp)) return false;
@@ -48,20 +50,48 @@ const validateCNP = (cnp: string): boolean => {
 
     return controlDigit === parseInt(cnp[12], 10);
 };
-
 export const createUserSchema = z.object({
     full_name: z
         .string()
         .min(1, 'Numele complet este obligatoriu')
         .min(2, 'Numele complet trebuie să aibă cel puțin 2 caractere')
-        .max(100, 'Numele complet nu poate avea mai mult de 100 caractere')
+        .max(255, 'Numele complet nu poate avea mai mult de 255 caractere')
         .regex(NAME_REGEX, 'Numele poate conține doar litere, spații, apostrofuri și cratime'),
+
+    first_name: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => !value || value.length <= 100,
+            { message: 'Prenumele nu poate avea mai mult de 100 caractere' }
+        ),
+
+    last_name: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => !value || value.length <= 100,
+            { message: 'Numele de familie nu poate avea mai mult de 100 caractere' }
+        ),
 
     email: z
         .string()
         .min(1, 'Email-ul este obligatoriu')
         .email('Adresa de email nu este validă')
         .max(255, 'Email-ul nu poate avea mai mult de 255 caractere'),
+    cnp: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => {
+                if (!value || value.trim() === '') return true;
+                return validateCNP(value);
+            },
+            { message: 'CNP-ul introdus nu este valid conform standardelor românești' }
+        ),
 
     personal_numerical_number: z
         .string()
@@ -71,7 +101,6 @@ export const createUserSchema = z.object({
         .refine(validateCNP, {
             message: 'CNP-ul introdus nu este valid conform standardelor românești'
         }),
-
     phone_number: z
         .string()
         .optional()
@@ -86,6 +115,61 @@ export const createUserSchema = z.object({
             }
         ),
 
+    secondary_phone: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => {
+                if (!value || value.trim() === '') return true;
+                return ROMANIAN_PHONE_REGEX.test(value.replace(/[\s\-\(\)]/g, ''));
+            },
+            { message: 'Numărul secundar de telefon trebuie să fie în format românesc' }
+        ),
+    address: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => !value || value.length <= 500,
+            { message: 'Adresa nu poate avea mai mult de 500 caractere' }
+        ),
+
+    city: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => !value || value.length <= 100,
+            { message: 'Orașul nu poate avea mai mult de 100 caractere' }
+        ),
+
+    county: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => !value || value.length <= 100,
+            { message: 'Județul nu poate avea mai mult de 100 caractere' }
+        ),
+
+    postal_code: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => {
+                if (!value || value.trim() === '') return true;
+                return POSTAL_CODE_REGEX.test(value);
+            },
+            { message: 'Codul poștal trebuie să fie format din 6 cifre' }
+        ),
+
+    country: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .default('Romania'),
     isLegalEntity: z.boolean().default(false),
 
     company_number: z
@@ -98,14 +182,49 @@ export const createUserSchema = z.object({
         .optional()
         .or(z.literal('')),
 
-    group: z.string().min(1, 'Grupul utilizator este obligatoriu'),
+    cui: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => {
+                if (!value || value.trim() === '') return true;
+                return CUI_REGEX.test(value);
+            },
+            { message: 'CUI-ul trebuie să fie în format valid (ex: RO12345678 sau 12345678)' }
+        ),
+    profession: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => !value || value.length <= 200,
+            { message: 'Profesia nu poate avea mai mult de 200 caractere' }
+        ),
 
-    status: z.string().min(1, 'Statusul este obligatoriu')
+    bio: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => !value || value.length <= 1000,
+            { message: 'Biografia nu poate avea mai mult de 1000 caractere' }
+        ),
+    group: z.string().min(1, 'Grupul utilizator este obligatoriu'),
+    status: z.string().min(1, 'Statusul este obligatoriu'),
+    is_active: z.boolean().default(true),
 });
 
 export type UserCreateRequest = z.infer<typeof createUserSchema>;
 
-export const getCreateUserDefaultValues = (isAdmin: boolean): Partial<UserCreateRequest> => {
+export const getCreateUserDefaultValues = (isAdmin: boolean, isOrgAdmin: boolean = false): Partial<UserCreateRequest> => {
+    let defaultGroup = '';
+    if (isAdmin) {
+        defaultGroup = UserGroup.ORGANIZATION_ADMIN;
+    } else if (isOrgAdmin) {
+        defaultGroup = UserGroup.EMPLOYEE;
+    }
+    
     return {
         full_name: '',
         email: '',
@@ -114,7 +233,7 @@ export const getCreateUserDefaultValues = (isAdmin: boolean): Partial<UserCreate
         isLegalEntity: false,
         company_number: '',
         company_name: '',
-        group: isAdmin ? UserGroup.ORGANIZATION_ADMIN : '',
+        group: defaultGroup,
         status: UserStatus.DRAFT
     };
 };

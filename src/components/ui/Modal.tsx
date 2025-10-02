@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { ModalProps, ConfirmationModalProps, FormModalProps } from '@/types/modal.types';
-import { Button } from '@/components/ui/Button';
+import { ModalButton } from '@/components/ui/ModalButton';
 import logoImg from '@/assets/img/logo.png';
 
 export const Modal: React.FC<ModalProps> = ({
@@ -243,22 +243,22 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             <div className="confirmation-modal">
                 <p className="confirmation-message">{message}</p>
                 
-                <div className="modal-footer">
-                    <Button
+                <div className="flex justify-between items-center pt-6 border-t border-gray-200 mt-6">
+                    <ModalButton
+                        onClick={onClose}
+                        variant="cancel"
+                        disabled={isLoading}
+                    >
+                        {cancelText}
+                    </ModalButton>
+                    <ModalButton
                         onClick={handleConfirm}
                         variant={variant === 'danger' ? 'danger' : 'primary'}
                         disabled={isLoading}
                         isLoading={isLoading}
                     >
                         {confirmText}
-                    </Button>
-                    <Button
-                        onClick={onClose}
-                        variant="secondary"
-                        disabled={isLoading}
-                    >
-                        {cancelText}
-                    </Button>
+                    </ModalButton>
                 </div>
             </div>
         </Modal>
