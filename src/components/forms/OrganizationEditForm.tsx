@@ -71,11 +71,14 @@ export const OrganizationEditForm: React.FC<OrganizationEditFormProps> = ({
         type: 'text' | 'email' | 'tel' | 'url' | 'date' | 'number' | 'textarea' | 'select' | 'checkbox' = 'text',
         options?: Array<{ value: string; label: string }>,
         placeholder?: string,
-        required?: boolean
+        required?: boolean,
+        disabled?: boolean,
+        helperText?: string
     ) => {
         const error = errors[name] as FieldError | undefined;
         const baseClassName = "w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
         const errorClassName = error ? "border-red-300" : "border-gray-300";
+        const disabledClassName = disabled ? "bg-gray-100 cursor-not-allowed" : "";
         
         return (
             <div className="space-y-1">
@@ -87,14 +90,16 @@ export const OrganizationEditForm: React.FC<OrganizationEditFormProps> = ({
                 {type === 'textarea' ? (
                     <textarea
                         {...register(name)}
-                        className={`${baseClassName} ${errorClassName} resize-y`}
+                        className={`${baseClassName} ${errorClassName} ${disabledClassName} resize-y`}
                         placeholder={placeholder}
                         rows={3}
+                        disabled={disabled}
                     />
                 ) : type === 'select' && options ? (
                     <select
                         {...register(name)}
-                        className={`${baseClassName} ${errorClassName}`}
+                        className={`${baseClassName} ${errorClassName} ${disabledClassName}`}
+                        disabled={disabled}
                     >
                         {options.map(option => (
                             <option key={option.value} value={option.value}>
@@ -108,6 +113,7 @@ export const OrganizationEditForm: React.FC<OrganizationEditFormProps> = ({
                             type="checkbox"
                             {...register(name)}
                             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            disabled={disabled}
                         />
                         <span className="ml-2 text-sm text-gray-700">{placeholder}</span>
                     </div>
@@ -115,18 +121,26 @@ export const OrganizationEditForm: React.FC<OrganizationEditFormProps> = ({
                     <input
                         type="number"
                         {...register(name, { valueAsNumber: true })}
-                        className={`${baseClassName} ${errorClassName}`}
+                        className={`${baseClassName} ${errorClassName} ${disabledClassName}`}
                         placeholder={placeholder}
                         min="0"
                         step={name === 'budget' ? '0.01' : '1'}
+                        disabled={disabled}
                     />
                 ) : (
                     <input
                         type={type}
                         {...register(name)}
-                        className={`${baseClassName} ${errorClassName}`}
+                        className={`${baseClassName} ${errorClassName} ${disabledClassName}`}
                         placeholder={placeholder}
+                        disabled={disabled}
                     />
+                )}
+                
+                {helperText && (
+                    <p className="text-gray-500 text-xs">
+                        {helperText}
+                    </p>
                 )}
                 
                 {error && (
@@ -207,9 +221,9 @@ export const OrganizationEditForm: React.FC<OrganizationEditFormProps> = ({
 
                 <Card title="Statistici organizație">
                     <div className="space-y-4">
-                        {renderFormField('member_count', 'Nr. membri', 'number', undefined, '0')}
-                        {renderFormField('employee_count', 'Nr. angajați', 'number', undefined, '0')}
-                        {renderFormField('volunteer_count', 'Nr. voluntari', 'number', undefined, '0')}
+                        {renderFormField('member_count', 'Nr. membri', 'number', undefined, '0', false, true, 'Calculat automat din numărul utilizatorilor cu rol de membru')}
+                        {renderFormField('employee_count', 'Nr. angajați', 'number', undefined, '0', false, true, 'Calculat automat din numărul utilizatorilor cu rol de angajat')}
+                        {renderFormField('volunteer_count', 'Nr. voluntari', 'number', undefined, '0', false, true, 'Calculat automat din numărul utilizatorilor cu rol de voluntar')}
                         {renderFormField('budget', 'Buget anual (RON)', 'number', undefined, '0')}
                     </div>
                 </Card>

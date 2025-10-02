@@ -368,29 +368,29 @@ export const organizationDetailsFormConfig: DynamicFormConfig = {
             ]
         },
         {
-            title: "Informații operaționale",
+            title: "Statistici organizație",
             columns: 3,
             fields: [
                 {
                     name: 'employee_count',
-                    label: 'Număr angajați',
-                    type: FieldType.NUMBER,
-                    placeholder: '0',
-                    min: 0
+                    label: 'Nr. angajați',
+                    type: FieldType.TEXT,
+                    disabled: true,
+                    helperText: 'Calculat automat din numărul utilizatorilor cu rol de angajat'
                 },
                 {
                     name: 'volunteer_count',
-                    label: 'Număr voluntari',
-                    type: FieldType.NUMBER,
-                    placeholder: '0',
-                    min: 0
+                    label: 'Nr. voluntari', 
+                    type: FieldType.TEXT,
+                    disabled: true,
+                    helperText: 'Calculat automat din numărul utilizatorilor cu rol de voluntar'
                 },
                 {
                     name: 'member_count',
-                    label: 'Număr membri',
-                    type: FieldType.NUMBER,
-                    placeholder: '0',
-                    min: 0
+                    label: 'Nr. membri',
+                    type: FieldType.TEXT,
+                    disabled: true,
+                    helperText: 'Calculat automat din numărul utilizatorilor cu rol de membru'
                 }
             ]
         }
