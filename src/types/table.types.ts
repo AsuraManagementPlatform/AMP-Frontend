@@ -28,6 +28,7 @@ export interface TableAction<T> {
     icon?: React.ReactNode;
     variant?: 'primary' | 'secondary' | 'danger';
     show?: (item: T) => boolean;
+    tooltip?: string;
 }
 
 export interface TableState {

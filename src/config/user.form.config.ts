@@ -2,7 +2,7 @@ import { DynamicFormConfig, FieldType, SelectOption } from "@/types/form.types.t
 import { UserGroup } from "@/types/auth.types.ts";
 import { UserStatus } from "@/types/user.types.ts";
 
-const getUserGroupOptions = (isAdmin: boolean): SelectOption[] => {
+const getUserGroupOptions = (isAdmin: boolean, isOrgAdmin: boolean): SelectOption[] => {
     const allGroups = [
         { value: UserGroup.ORGANIZATION_ADMIN, label: 'Administrator Organizație' },
         { value: UserGroup.MANAGER, label: 'Manager' },
@@ -11,9 +11,13 @@ const getUserGroupOptions = (isAdmin: boolean): SelectOption[] => {
         { value: UserGroup.VOLUNTEER, label: 'Voluntar' }
     ];
 
-    return isAdmin
-        ? allGroups.filter((group) => group.value === UserGroup.ORGANIZATION_ADMIN)
-        : allGroups.filter(group => [UserGroup.MANAGER, UserGroup.EMPLOYEE, UserGroup.MEMBER, UserGroup.VOLUNTEER].includes(group.value));
+    if (isAdmin) {
+        return allGroups.filter((group) => group.value === UserGroup.ORGANIZATION_ADMIN);
+    } else if (isOrgAdmin) {
+        return allGroups.filter(group => [UserGroup.MANAGER, UserGroup.EMPLOYEE, UserGroup.MEMBER, UserGroup.VOLUNTEER].includes(group.value));
+    } else {
+        return allGroups.filter(group => [UserGroup.MANAGER, UserGroup.EMPLOYEE, UserGroup.MEMBER, UserGroup.VOLUNTEER].includes(group.value));
+    }
 };
 
 const getUserStatusOptions = (formValues?: any): SelectOption[] => {
@@ -34,7 +38,8 @@ const getUserStatusOptions = (formValues?: any): SelectOption[] => {
 };
 
 export const createUserFormConfig = (
-    isAdmin: boolean = false
+    isAdmin: boolean = false,
+    isOrgAdmin: boolean = false
 ): DynamicFormConfig => ({
     sections: [
         {
@@ -99,7 +104,7 @@ export const createUserFormConfig = (
                     type: FieldType.SELECT,
                     required: true,
                     disabled: isAdmin,
-                    options: getUserGroupOptions(isAdmin),
+                    options: getUserGroupOptions(isAdmin, isOrgAdmin),
                     condition: () => !isAdmin,
                 },
                 {

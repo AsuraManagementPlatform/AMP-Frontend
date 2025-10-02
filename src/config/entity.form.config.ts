@@ -69,7 +69,7 @@ export const createEntityFormConfig = (
                     name: 'website',
                     label: 'Website',
                     type: FieldType.TEXT,
-                    placeholder: 'https://www.entitate.ro'
+                    placeholder: 'https://entitatea.ro'
                 },
                 {
                     name: 'address',

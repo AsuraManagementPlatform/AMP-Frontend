@@ -37,8 +37,7 @@ export const createBudgetItemSchema = z.object({
     
     currency: z.string()
         .min(3, 'Moneda trebuie să aibă cel puțin 3 caractere')
-        .max(3, 'Moneda trebuie să aibă exact 3 caractere')
-        .default('RON'),
+        .max(3, 'Moneda trebuie să aibă exact 3 caractere'),
     
     notes: z.string()
         .optional()
@@ -58,8 +57,7 @@ export const createProjectBudgetSchema = z.object({
     
     currency: z.string()
         .min(3, 'Moneda trebuie să aibă cel puțin 3 caractere')
-        .max(3, 'Moneda trebuie să aibă exact 3 caractere')
-        .default('RON'),
+        .max(3, 'Moneda trebuie să aibă exact 3 caractere'),
     
     status: z.enum([
         BudgetStatus.DRAFT,

@@ -96,7 +96,6 @@ const AdminPanel: React.FC = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                            // Edit functionality to be implemented
                         }}
                     >
                         Edit

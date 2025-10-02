@@ -21,8 +21,6 @@ export const CreateEntityModal: React.FC<CreateEntityModalProps> = ({
     organizationId
 }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Reset form when modal opens/closes
     useEffect(() => {
         if (!isOpen) {
             setIsSubmitting(false);
@@ -56,7 +54,6 @@ export const CreateEntityModal: React.FC<CreateEntityModalProps> = ({
             onSuccess?.(entity);
             onClose();
         } catch (error: any) {
-            console.error('Error creating entity:', error);
             showToast.error('Crearea entității a eșuat');
         } finally {
             setIsSubmitting(false);
@@ -65,8 +62,6 @@ export const CreateEntityModal: React.FC<CreateEntityModalProps> = ({
 
     const formConfig = createEntityFormConfig(organizationId, []);
     const defaultValues = getCreateEntityDefaultValues();
-
-    // Set organizationId if provided
     if (organizationId) {
         defaultValues.organizationId = organizationId;
     }

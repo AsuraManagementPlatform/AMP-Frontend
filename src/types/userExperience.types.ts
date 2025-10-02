@@ -73,8 +73,6 @@ export interface UserCv {
     languages?: { language: string; proficiency: string }[];
     lastUpdated: string;
 }
-
-// Create/Update requests
 export interface UserSkillCreateRequest {
     skillName: string;
     level: SkillLevel;

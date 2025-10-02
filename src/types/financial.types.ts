@@ -76,8 +76,6 @@ export interface ProjectIncome extends BaseEntity {
     contractReference?: string;
     notes?: string;
 }
-
-// Create/Update requests
 export interface ProjectExpenseCreateRequest {
     projectId: string;
     category: ExpenseCategory;

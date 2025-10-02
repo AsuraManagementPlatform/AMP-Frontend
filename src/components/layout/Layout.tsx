@@ -30,45 +30,25 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
 
     const navItems: NavigationItem[] = [
         {
-            name: 'Dashboard',
+            name: 'Pagina Principală',
             path: ROUTES.DASHBOARD,
             show: isAuthenticated
         },
         {
-            name: hasAnyUserGroup([UserGroup.ADMIN]) ? 'Organizations' : 'Organization',
-            path: hasAnyUserGroup([UserGroup.ADMIN]) ? ROUTES.ADMIN_ORGANIZATIONS : ROUTES.ORGANIZATION_DETAILS,
-            show: isAuthenticated
+            name: 'Organization',
+            path: ROUTES.ORGANIZATION_DETAILS,
+            show: isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN])
         },
         {
             name: 'Projects',
             path: ROUTES.PROJECTS,
-            show: isAuthenticated
+            show: isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN])
         },
         {
             name: 'Activities',
             path: ROUTES.ACTIVITIES,
-            show: isAuthenticated
+            show: isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN])
         },
-        {
-            name: 'Calendar',
-            path: ROUTES.CALENDAR,
-            show: isAuthenticated
-        },
-    ];
-
-    const adminItems: NavigationItem[] = [
-        {
-            name: 'Admin',
-            path: ROUTES.ADMIN_PANEL,
-            show: isAuthenticated && hasAnyUserGroup([UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN]),
-            variant: 'admin'
-        },
-        {
-            name: 'Reports',
-            path: ROUTES.REPORTS,
-            show: isAuthenticated && hasAnyUserGroup([UserGroup.ADMIN]),
-            variant: 'admin'
-        }
     ];
 
     const isActive = (path: string): boolean => {
@@ -80,7 +60,6 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
         try {
             await logout();
         } catch (error) {
-            console.error('[Layout] Logout failed:', error);
         }
     };
 
@@ -125,23 +104,6 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                                         isActive(item.path)
                                                             ? 'font-bold text-orange-500'
                                                             : 'text-gray-700 hover:text-orange-500 hover:font-semibold'
-                                                    }`}
-                                                >
-                                                    {item.name}
-                                                </Link>
-                                            </li>
-                                        )
-                                    ))}
-
-                                    {adminItems.map((item, index) => (
-                                        item.show && (
-                                            <li key={`admin-${index}`}>
-                                                <Link
-                                                    to={item.path}
-                                                    className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                                                        isActive(item.path) || (item.path === ROUTES.ADMIN_PANEL && location.pathname.includes('/admin'))
-                                                            ? 'font-bold text-red-600'
-                                                            : 'text-gray-700 hover:text-red-600 hover:font-semibold'
                                                     }`}
                                                 >
                                                     {item.name}
