@@ -23,8 +23,6 @@ export const CreateIncomeModal: React.FC<CreateIncomeModalProps> = ({
     availableProjects = []
 }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Reset form when modal opens/closes
     useEffect(() => {
         if (!isOpen) {
             setIsSubmitting(false);
@@ -54,7 +52,6 @@ export const CreateIncomeModal: React.FC<CreateIncomeModalProps> = ({
             onSuccess?.(income);
             onClose();
         } catch (error: any) {
-            console.error('Error creating income:', error);
             showToast.error('Înregistrarea venitului a eșuat');
         } finally {
             setIsSubmitting(false);
@@ -63,8 +60,6 @@ export const CreateIncomeModal: React.FC<CreateIncomeModalProps> = ({
 
     const formConfig = createIncomeFormConfig(projectId, availableProjects);
     const defaultValues = getCreateIncomeDefaultValues();
-
-    // Set projectId if provided
     if (projectId) {
         defaultValues.projectId = projectId;
     }

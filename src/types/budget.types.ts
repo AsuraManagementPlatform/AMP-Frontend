@@ -55,8 +55,6 @@ export interface BudgetProjectIncome extends BaseEntity {
     expectedDate?: string;
     notes?: string;
 }
-
-// Create/Update requests
 export interface BudgetItemCreateRequest {
     category: BudgetCategory;
     description: string;

@@ -13,19 +13,21 @@ interface CreateUserModalProps {
     onClose: () => void;
     onSubmit: (data: UserCreateRequest) => Promise<void>;
     isAdmin?: boolean;
+    isOrgAdmin?: boolean;
 }
 
 export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                                                                     isOpen,
                                                                     onClose,
                                                                     onSubmit,
-                                                                    isAdmin = false
+                                                                    isAdmin = false,
+                                                                    isOrgAdmin = false
                                                                 }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [key, setKey] = useState(0);
 
-    const formConfig = createUserFormConfig(isAdmin);
-    const defaultValues = getCreateUserDefaultValues(isAdmin);
+    const formConfig = createUserFormConfig(isAdmin, isOrgAdmin);
+    const defaultValues = getCreateUserDefaultValues(isAdmin, isOrgAdmin);
 
     const handleReset = () => {
         setKey(prev => prev + 1);

@@ -23,8 +23,6 @@ export const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({
     availableProjects = []
 }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Reset form when modal opens/closes
     useEffect(() => {
         if (!isOpen) {
             setIsSubmitting(false);
@@ -52,7 +50,6 @@ export const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({
             onSuccess?.(expense);
             onClose();
         } catch (error: any) {
-            console.error('Error creating expense:', error);
             showToast.error('Înregistrarea cheltuielii a eșuat');
         } finally {
             setIsSubmitting(false);
@@ -61,8 +58,6 @@ export const CreateExpenseModal: React.FC<CreateExpenseModalProps> = ({
 
     const formConfig = createExpenseFormConfig(projectId, availableProjects);
     const defaultValues = getCreateExpenseDefaultValues();
-
-    // Set projectId if provided
     if (projectId) {
         defaultValues.projectId = projectId;
     }

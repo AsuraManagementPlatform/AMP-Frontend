@@ -2,7 +2,6 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import {ApiError, ApiConfig, PaginatedResponse, ListParams} from '@/types/index.types';
 import {getAuthHeader} from "@/services/keycloak.service";
 
-
 export const API_CONFIG: ApiConfig = {
     baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
     timeout: 10000,
@@ -89,7 +88,6 @@ export class ApiService {
         if (params?.filters) {
             Object.entries(params.filters).forEach(([key, value]) => {
                 if (value !== null && value !== undefined && value !== '') {
-                    // Convert boolean values to strings
                     const stringValue = typeof value === 'boolean' ? value.toString() : value.toString();
                     searchParams.append(key, stringValue);
                 }

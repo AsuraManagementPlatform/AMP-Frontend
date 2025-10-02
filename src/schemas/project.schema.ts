@@ -17,6 +17,13 @@ export const createProjectSchema = z.object({
             'Descrierea nu poate depăși 1000 de caractere'
         ),
     
+    category: z.string()
+        .min(1, 'Categoria este obligatorie'),
+    
+    location: z.string()
+        .min(1, 'Locația este obligatorie')
+        .max(255, 'Locația nu poate depăși 255 de caractere'),
+    
     status: z.enum([
         ProjectStatus.DRAFT,
         ProjectStatus.ACTIVE,
@@ -37,17 +44,41 @@ export const createProjectSchema = z.object({
     }),
     
     startDate: z.string()
-        .optional()
-        .or(z.literal(''))
+        .min(1, 'Data de început este obligatorie')
         .refine(
-            (value) => {
-                if (!value) return true;
-                return !isNaN(Date.parse(value));
-            },
+            (value) => !isNaN(Date.parse(value)),
             'Data de început nu este validă'
         ),
     
     endDate: z.string()
+        .min(1, 'Data de sfârșit este obligatorie')
+        .refine(
+            (value) => !isNaN(Date.parse(value)),
+            'Data de sfârșit nu este validă'
+        ),
+    
+    budget: z.union([
+        z.number(),
+        z.string()
+    ]).transform((value) => {
+        if (typeof value === 'string') {
+            const num = parseFloat(value);
+            if (isNaN(num)) {
+                throw new Error('Bugetul trebuie să fie un număr valid');
+            }
+            return num;
+        }
+        return value;
+    }).refine(
+        (value) => value >= 0,
+        'Bugetul trebuie să fie un număr pozitiv'
+    ),
+    
+    currency: z.enum(['RON', 'EUR', 'USD'], {
+        message: 'Moneda selectată nu este validă'
+    }),
+    
+    budgetPlanningDate: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
@@ -55,31 +86,37 @@ export const createProjectSchema = z.object({
                 if (!value) return true;
                 return !isNaN(Date.parse(value));
             },
-            'Data de sfârșit nu este validă'
-        ),
-    
-    budget: z.number()
-        .optional()
-        .refine(
-            (value) => {
-                if (value === undefined) return true;
-                return value >= 0;
-            },
-            'Bugetul trebuie să fie un număr pozitiv'
+            'Data planificare buget nu este validă'
         ),
     
     organizationId: z.string()
         .min(1, 'ID-ul organizației este obligatoriu'),
     
     managerId: z.string()
+        .min(1, 'Managerul proiectului este obligatoriu'),
+    
+    budgetNotes: z.string()
         .optional()
-        .or(z.literal('')),
+        .or(z.literal(''))
+        .refine(
+            (value) => {
+                if (!value) return true;
+                return value.length <= 500;
+            },
+            'Notele buget nu pot depăși 500 de caractere'
+        ),
     
     tags: z.array(z.string())
         .optional()
 }).refine((data) => {
     if (data.startDate && data.endDate) {
-        return new Date(data.startDate) <= new Date(data.endDate);
+        const startDate = new Date(data.startDate);
+        const endDate = new Date(data.endDate);
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            return false;
+        }
+        
+        return startDate <= endDate;
     }
     return true;
 }, {
@@ -92,12 +129,17 @@ export type CreateProjectData = z.infer<typeof createProjectSchema>;
 export const getCreateProjectDefaultValues = (): CreateProjectData => ({
     name: '',
     description: '',
+    category: '',
+    location: '',
     status: ProjectStatus.DRAFT,
     priority: ProjectPriority.MEDIUM,
     startDate: '',
     endDate: '',
-    budget: undefined,
+    budget: 0,
+    currency: 'RON',
+    budgetPlanningDate: '',
     organizationId: '',
     managerId: '',
+    budgetNotes: '',
     tags: []
 });

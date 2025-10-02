@@ -23,7 +23,7 @@ export const createProjectFormConfig = (
     sections: [
         {
             title: "Informații proiect",
-            columns: 2,
+            columns: 1,
             fields: [
                 {
                     name: 'name',
@@ -31,8 +31,7 @@ export const createProjectFormConfig = (
                     type: FieldType.TEXT,
                     placeholder: 'ex: Implementare sistem management',
                     required: true,
-                    maxLength: 255,
-                    gridColumn: 'full'
+                    maxLength: 255
                 },
                 {
                     name: 'description',
@@ -40,8 +39,30 @@ export const createProjectFormConfig = (
                     type: FieldType.TEXTAREA,
                     placeholder: 'Descriere detaliată a proiectului...',
                     maxLength: 1000,
-                    rows: 3,
-                    gridColumn: 'full'
+                    rows: 3
+                },
+                {
+                    name: 'category',
+                    label: 'Categorie',
+                    type: FieldType.SELECT,
+                    required: true,
+                    options: [
+                        { value: 'educatie', label: 'Educație' },
+                        { value: 'mediu', label: 'Mediu' },
+                        { value: 'social', label: 'Social' },
+                        { value: 'cultura', label: 'Cultură' },
+                        { value: 'sanatate', label: 'Sănătate' },
+                        { value: 'tehnologie', label: 'Tehnologie' },
+                        { value: 'altele', label: 'Altele' }
+                    ]
+                },
+                {
+                    name: 'location',
+                    label: 'Locație',
+                    type: FieldType.TEXT,
+                    placeholder: 'ex: București, România',
+                    required: true,
+                    maxLength: 255
                 },
                 {
                     name: 'status',
@@ -61,32 +82,73 @@ export const createProjectFormConfig = (
                     name: 'startDate',
                     label: 'Data de început',
                     type: FieldType.DATE,
-                    placeholder: 'Selectează data de început'
+                    placeholder: 'Selectează data de început',
+                    required: true
                 },
                 {
                     name: 'endDate',
                     label: 'Data de sfârșit',
                     type: FieldType.DATE,
-                    placeholder: 'Selectează data de sfârșit'
-                },
+                    placeholder: 'Selectează data de sfârșit',
+                    required: true
+                }
+            ]
+        },
+        {
+            title: "Buget proiect",
+            columns: 2,
+            fields: [
                 {
                     name: 'budget',
-                    label: 'Buget (RON)',
+                    label: 'Buget',
                     type: FieldType.NUMBER,
                     placeholder: 'ex: 50000',
-                    min: 0
+                    min: 0,
+                    required: true
+                },
+                {
+                    name: 'currency',
+                    label: 'Moneda',
+                    type: FieldType.SELECT,
+                    required: true,
+                    options: [
+                        { value: 'RON', label: 'Lei Românești (RON)' },
+                        { value: 'EUR', label: 'Euro (EUR)' },
+                        { value: 'USD', label: 'Dolari Americani (USD)' }
+                    ]
+                }
+            ]
+        },
+        {
+            title: "Planificare și management",
+            columns: 1,
+            fields: [
+                {
+                    name: 'organizationId',
+                    label: 'Organizație',
+                    type: FieldType.HIDDEN,
+                    required: true
                 },
                 {
                     name: 'managerId',
                     label: 'Manager proiect',
                     type: FieldType.SELECT,
+                    required: true,
                     options: [
-                        { value: '', label: 'Selectează manager' },
+                        { value: '', label: 'Selectează managerul...' },
                         ...availableManagers.map(manager => ({
                             value: manager.id,
                             label: manager.name
                         }))
                     ]
+                },
+                {
+                    name: 'budgetNotes',
+                    label: 'Note buget',
+                    type: FieldType.TEXTAREA,
+                    placeholder: 'Note despre managementul bugetului...',
+                    maxLength: 500,
+                    rows: 2
                 }
             ]
         }

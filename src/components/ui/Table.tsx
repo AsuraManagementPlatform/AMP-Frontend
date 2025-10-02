@@ -3,6 +3,7 @@ import {LoadingSpinner} from '@/components/ui/LoadingSpinner';
 import {FilterConfig, SortConfig, TableAction, TableColumn} from '@/types/index.types';
 import {useTableData} from '@/hooks/useTableData';
 import {Button} from "@/components/ui/Button.tsx";
+import {SecondaryButton} from "@/components/ui/SecondaryButton.tsx";
 import RefreshIcon from '@/assets/icons/iconmonstr-refresh-3.svg?react';
 import ArrowUp from '@/assets/icons/iconmonstr-arrow-up.svg?react';
 import ArrowDown from '@/assets/icons/iconmonstr-arrow-down.svg?react';
@@ -110,15 +111,18 @@ const ActionButton = <T,>({ action, item, index }: ActionButtonProps<T>) => {
     }
 
     return (
-        <Button
+        <SecondaryButton
             onClick={(e) => {
                 e.stopPropagation();
                 action.onClick(item, index);
             }}
-            className={`${action.className || ''}`}
+            variant="ghost"
+            size="sm"
+            className={`${action.className || ''} !p-1.5 !min-w-0`}
+            title={action.tooltip || action.label}
         >
             {action.icon !== undefined ? (action.icon) : (action.label)}
-        </Button>
+        </SecondaryButton>
     );
 };
 
@@ -184,9 +188,9 @@ export function Table<T extends Record<string, any>>({
         allColumns.push({
             key: 'actions',
             label: 'Actions',
-            className: 'w-32',
+            className: 'w-40',
             render: (_, item: T, index: number) => (
-                <div className="flex space-x-5">
+                <div className="flex space-x-2 justify-center">
                     {actions.map((action, actionIndex) => (
                         <ActionButton
                             key={actionIndex}
@@ -301,12 +305,14 @@ export function Table<T extends Record<string, any>>({
             <div className="overflow-hidden border border-gray-200 rounded-lg shadow">
                 <div className="overflow-x-auto">
                     <div className="flex gap-4 justify-between p-2">
-                        <Button
+                        <SecondaryButton
                             onClick={refresh}
                             disabled={loading}
+                            variant="ghost"
+                            size="sm"
                         >
-                            {loading ? <RefreshIcon className="w-4 h-4 animate-spin ml-4" /> : <RefreshIcon className="w-4 h-4 ml-4" />}
-                        </Button>
+                            {loading ? <RefreshIcon className="w-4 h-4 animate-spin" /> : <RefreshIcon className="w-4 h-4" />}
+                        </SecondaryButton>
                         {(
                             <input
                                 type="text"
@@ -329,12 +335,14 @@ export function Table<T extends Record<string, any>>({
                                         <div className="flex items-center">
                                             <span>{column.label}</span>
                                             {column.sortable && (
-                                                <Button
+                                                <SecondaryButton
                                                     onClick={() => handleSort(String(column.key))}
-                                                    className="ml-2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="!p-1 !min-w-0"
                                                 >
                                                     {getSortIcon(String(column.key))}
-                                                </Button>
+                                                </SecondaryButton>
                                             )}
                                         </div>
                                     </th>
@@ -343,13 +351,13 @@ export function Table<T extends Record<string, any>>({
                         </thead>
 
                         <tbody className="bg-white divide-y divide-gray-200">
-                        {loading && data.length === 0 ? (
+                        {loading && (!data || data.length === 0) ? (
                             <tr>
                                 <td colSpan={allColumns.length} className="text-center py-8">
                                     <LoadingSpinner />
                                 </td>
                             </tr>
-                        ) : data.length === 0 ? (
+                        ) : (!data || data.length === 0) ? (
                             <tr>
                                 <td colSpan={allColumns.length} className="text-center py-8 text-gray-500">
                                     {emptyMessage}
@@ -386,20 +394,22 @@ export function Table<T extends Record<string, any>>({
             {showPagination && totalPages > 1 && (
                 <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
                     <div className="flex justify-between flex-1 sm:hidden">
-                        <Button
+                        <SecondaryButton
                             onClick={() => setPage(currentPage - 1)}
                             disabled={!hasPrevious || loading}
-                            className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            variant="outline"
+                            size="sm"
                         >
                             Previous
-                        </Button>
-                        <Button
+                        </SecondaryButton>
+                        <SecondaryButton
                             onClick={() => setPage(currentPage + 1)}
                             disabled={!hasNext || loading}
-                            className="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            variant="outline"
+                            size="sm"
                         >
                             Next
-                        </Button>
+                        </SecondaryButton>
                     </div>
 
                     <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
@@ -412,39 +422,43 @@ export function Table<T extends Record<string, any>>({
                         </div>
 
                         <div className="flex items-center space-x-2">
-                            <Button
+                            <SecondaryButton
                                 onClick={() => setPage(1)}
                                 disabled={currentPage === 1 || loading}
-                                className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                variant="outline"
+                                size="sm"
                             >
                                 First
-                            </Button>
-                            <Button
+                            </SecondaryButton>
+                            <SecondaryButton
                                 onClick={() => setPage(currentPage - 1)}
                                 disabled={!hasPrevious || loading}
-                                className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                variant="outline"
+                                size="sm"
                             >
                                 Previous
-                            </Button>
+                            </SecondaryButton>
 
                             <span className="px-3 py-1 text-sm bg-gray-100 border border-gray-300 rounded">
                                 Page {currentPage} of {totalPages}
                             </span>
 
-                            <Button
+                            <SecondaryButton
                                 onClick={() => setPage(currentPage + 1)}
                                 disabled={!hasNext || loading}
-                                className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                variant="outline"
+                                size="sm"
                             >
                                 Next
-                            </Button>
-                            <Button
+                            </SecondaryButton>
+                            <SecondaryButton
                                 onClick={() => setPage(totalPages)}
                                 disabled={currentPage === totalPages || loading}
-                                className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                variant="outline"
+                                size="sm"
                             >
                                 Last
-                            </Button>
+                            </SecondaryButton>
                         </div>
                     </div>
                 </div>

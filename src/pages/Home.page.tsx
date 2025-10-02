@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {useAuth} from '@/hooks/useAuth';
 import {Button} from "@/components/ui/Button.tsx";
 import {AuthState} from "@/types/auth.types.ts";
@@ -8,6 +8,15 @@ import DashboardPage from "@/pages/Dashboard.page.tsx";
 
 const Home: React.FC = () => {
     const { authState, isAuthenticated, error } = useAuth();
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('password_reset') === 'success') {
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+
+        }
+    }, []);
 
     if (authState === AuthState.LOADING) {
         return (

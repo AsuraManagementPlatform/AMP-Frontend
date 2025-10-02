@@ -7,11 +7,12 @@ import {User, UserMeResponse, UserStatus} from '@/types/user.types';
 import {CreateOrganizationData} from '@/schemas/organization.schema';
 import {useTableData} from "@/hooks/useTableData.ts";
 
-export const useOrganizationCreation = () => {
+export const useOrganizationCreation = (onOrganizationCreated?: () => void) => {
     const [isCreateOrganizationModalOpen, setIsCreateOrganizationModalOpen] = useState(false);
     const [pendingAdminUsers, setPendingAdminUsers] = useState<User[]>([]);
     const [loadingPendingUsers, setLoadingPendingUsers] = useState(false);
     const [preselectedUser, setPreselectedUser] = useState<UserMeResponse | null>(null);
+    const [companyData, setCompanyData] = useState<{ company_name: string; company_number: string } | null>(null);
     const {refresh} = useTableData({
         endpoint:"/api/user/list",
         initialPageSize: 20,
@@ -53,18 +54,8 @@ export const useOrganizationCreation = () => {
         companyData?: { company_name: string; company_number: string }
     ) => {
         setPreselectedUser(user);
+        setCompanyData(companyData || null);
         await loadPendingAdminUsers();
-        
-        const formData: any = {
-            status: 'ACTIVE' as const,
-            admin_user: user.id
-        };
-        
-        if (companyData) {
-            formData.name = companyData.company_name;
-            formData.unique_code = companyData.company_number;
-        }
-        
         setIsCreateOrganizationModalOpen(true);
     };
 
@@ -81,6 +72,14 @@ export const useOrganizationCreation = () => {
             };
             
             await organizationService.create(organizationData);
+            if (preselectedUser && preselectedUser.status === UserStatus.DRAFT) {
+                try {
+                    await userService.update(preselectedUser.id, { 
+                        status: UserStatus.ACTIVE 
+                    });
+                } catch (userUpdateError) {
+                }
+            }
             
             if (loadingToast) {
                 toast.dismiss(loadingToast);
@@ -89,6 +88,10 @@ export const useOrganizationCreation = () => {
             
             setIsCreateOrganizationModalOpen(false);
             setPreselectedUser(null);
+            setCompanyData(null);
+            if (onOrganizationCreated) {
+                onOrganizationCreated();
+            }
         } catch (error: any) {
             if (loadingToast) {
                 toast.dismiss(loadingToast);
@@ -121,6 +124,7 @@ export const useOrganizationCreation = () => {
         pendingAdminUsers,
         loadingPendingUsers,
         preselectedUser,
+        companyData,
         handleSubmitOrg: onSubmitCreateOrganization,
         isSubmittingOrg,
         openCreateOrganizationModal,

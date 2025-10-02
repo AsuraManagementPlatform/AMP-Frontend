@@ -16,8 +16,7 @@ export const DynamicFormField: React.FC<DynamicFormFieldProps> = ({
                                                                   }) => {
     const { field: fieldProps } = useController({
         name: field.name,
-        control,
-        defaultValue: field.type === FieldType.CHECKBOX ? false : ''
+        control
     });
 
     const baseInputClasses = `form-input ${error ? 'border-red-500' : ''}`;
@@ -25,11 +24,29 @@ export const DynamicFormField: React.FC<DynamicFormFieldProps> = ({
 
     const renderField = () => {
         switch (field.type) {
+            case FieldType.DATE:
+                return (
+                    <div className="relative">
+                        <input
+                            {...fieldProps}
+                            type="date"
+                            placeholder={field.placeholder}
+                            disabled={field.disabled}
+                            className={`${baseInputClasses} ${field.className || ''} cursor-pointer`}
+                            onClick={(e) => {
+                                if (!e.currentTarget.disabled) {
+                                    e.currentTarget.focus();
+                                    e.currentTarget.showPicker?.();
+                                }
+                            }}
+                        />
+                    </div>
+                );
+
             case FieldType.TEXT:
             case FieldType.EMAIL:
             case FieldType.TEL:
             case FieldType.NUMBER:
-            case FieldType.DATE:
                 return (
                     <input
                         {...fieldProps}
@@ -57,9 +74,6 @@ export const DynamicFormField: React.FC<DynamicFormFieldProps> = ({
                         multiple={selectField.multiple}
                         className={`${baseSelectClasses} ${field.className || ''}`}
                     >
-                        {!selectField.multiple && !field.required && (
-                            <option value="">Selectează o opțiune</option>
-                        )}
                         {options.map((option) => (
                             <option
                                 key={option.value}
@@ -102,7 +116,6 @@ export const DynamicFormField: React.FC<DynamicFormFieldProps> = ({
                 );
 
             case FieldType.RADIO:
-                // TODO Radio implementation would need options similar to select
                 return null;
 
             case FieldType.FILE:
@@ -117,12 +130,25 @@ export const DynamicFormField: React.FC<DynamicFormFieldProps> = ({
                     />
                 );
 
+            case FieldType.HIDDEN:
+                return (
+                    <input
+                        {...fieldProps}
+                        type="hidden"
+                    />
+                );
+
             default:
                 return null;
         }
     };
 
-    const shouldShowLabel = field.type !== FieldType.CHECKBOX;
+    const shouldShowLabel = field.type !== FieldType.CHECKBOX && field.type !== FieldType.HIDDEN;
+    const shouldShowContainer = field.type !== FieldType.HIDDEN;
+
+    if (!shouldShowContainer) {
+        return renderField();
+    }
 
     return (
         <div className={`form-group ${field.gridColumn === 'full' ? 'col-span-full' : ''}`}>

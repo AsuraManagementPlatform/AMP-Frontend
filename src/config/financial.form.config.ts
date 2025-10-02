@@ -123,7 +123,7 @@ export const createExpenseFormConfig = (
                     name: 'receiptUrl',
                     label: 'URL bon/factură',
                     type: FieldType.TEXT,
-                    placeholder: 'https://...'
+                    placeholder: 'https://example.com/receipt.pdf'
                 },
                 {
                     name: 'notes',

@@ -23,8 +23,7 @@ export const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
     availableProjects = []
 }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Reset form when modal opens/closes
+    const [formKey, setFormKey] = useState(0);
     useEffect(() => {
         if (!isOpen) {
             setIsSubmitting(false);
@@ -54,17 +53,18 @@ export const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
             onSuccess?.(activity);
             onClose();
         } catch (error: any) {
-            console.error('Error creating activity:', error);
             showToast.error('Crearea activității a eșuat');
         } finally {
             setIsSubmitting(false);
         }
     };
 
+    const handleReset = () => {
+        setFormKey(prev => prev + 1);
+    };
+
     const formConfig = createActivityFormConfig(projectId, availableProjects, []);
     const defaultValues = getCreateActivityDefaultValues();
-
-    // Set projectId if provided
     if (projectId) {
         defaultValues.projectId = projectId;
     }
@@ -75,8 +75,11 @@ export const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
             onClose={onClose}
             title="Creează activitate nouă"
             size="lg"
+            showResetButton={true}
+            onReset={handleReset}
         >
             <DynamicForm
+                key={formKey}
                 config={formConfig}
                 schema={createActivitySchema}
                 defaultValues={defaultValues}

@@ -13,7 +13,6 @@ import {
 import {apiService} from "@/services/api.service.ts";
 
 export const entityService = {
-    // Entity Management
     getList: async (params?: ListParams): Promise<PaginatedResponse<Entity>> => {
         return apiService.getPaginatedList<Entity>('/api/entity/list', params);
     },
@@ -37,8 +36,6 @@ export const entityService = {
     delete: async (id: string): Promise<void> => {
         return apiService.delete<void>(`/api/entity/delete/${id}`);
     },
-
-    // Entity Contributions Management
     getContributions: async (entityId: string, params?: ListParams): Promise<PaginatedResponse<EntityContribution>> => {
         return apiService.getPaginatedList<EntityContribution>(`/api/entity/${entityId}/contributions`, params);
     },
@@ -54,8 +51,6 @@ export const entityService = {
     deleteContribution: async (contributionId: string): Promise<void> => {
         return apiService.delete<void>(`/api/entity/contribution/delete/${contributionId}`);
     },
-
-    // Entity Relationships Management
     getRelationships: async (entityId: string, params?: ListParams): Promise<PaginatedResponse<EntityRelationship>> => {
         return apiService.getPaginatedList<EntityRelationship>(`/api/entity/${entityId}/relationships`, params);
     },
@@ -71,19 +66,13 @@ export const entityService = {
     deleteRelationship: async (relationshipId: string): Promise<void> => {
         return apiService.delete<void>(`/api/entity/relationship/delete/${relationshipId}`);
     },
-
-    // Entity Statistics
     getEntityStats: async (organizationId?: string): Promise<EntityStats> => {
         const endpoint = organizationId ? `/api/entity/stats/${organizationId}` : '/api/entity/stats';
         return apiService.get<EntityStats>(endpoint);
     },
-
-    // Associate entity with user account
     associateWithUser: async (entityId: string, userId: string): Promise<Entity> => {
         return apiService.post<Entity>(`/api/entity/${entityId}/associate-user`, { userId });
     },
-
-    // Dissociate entity from user account
     dissociateFromUser: async (entityId: string): Promise<Entity> => {
         return apiService.post<Entity>(`/api/entity/${entityId}/dissociate-user`, {});
     },

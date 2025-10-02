@@ -2,11 +2,10 @@ import {z} from "zod";
 import {DefaultValues, FieldValues, SubmitHandler, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {DynamicFormField} from "@/components/forms/DynamicFormField.tsx";
-import {Button} from "@/components/ui/Button.tsx";
+import {ModalButton} from "@/components/ui/ModalButton";
 import {DynamicFormConfig} from "@/types/form.types.ts";
 
-
-interface DynamicFormProps<TFormData extends object> {
+interface DynamicFormProps<TFormData extends FieldValues> {
     config: DynamicFormConfig;
     schema: z.ZodSchema<TFormData>;
     onSubmit: SubmitHandler<TFormData>;
@@ -33,9 +32,7 @@ export function DynamicForm<TFormData extends FieldValues>({
         formState: { errors, isValid },
         watch
     } = useForm<TFormData>({
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        resolver: zodResolver(schema),
+        resolver: zodResolver(schema as any),
         defaultValues: defaultValues as DefaultValues<TFormData>,
         mode: 'onChange'
     });
@@ -67,8 +64,6 @@ export function DynamicForm<TFormData extends FieldValues>({
     };
 
     return (
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         <form onSubmit={handleSubmit(handleFormSubmit)} className={`space-y-6 ${className}`}>
             {config.sections.map((section, sectionIndex) => {
                 const shouldShowSection = !section.hidden && (!section.condition || section.condition(formValues));
@@ -105,32 +100,27 @@ export function DynamicForm<TFormData extends FieldValues>({
             })}
 
             {!hideFooter && (
-                <div className="modal-footer flex justify-between items-center pt-6">
-                    <div className="flex gap-2">
-                        {onCancel && (
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                onClick={onCancel}
-                                disabled={isSubmitting}
-                            >
-                                {config.cancelButtonText || 'Anulează'}
-                            </Button>
-                        )}
-                    </div>
-
-                    <div className="flex gap-2">
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            disabled={isSubmitting || !isValid}
+                <div className="flex justify-between items-center pt-6 border-t border-gray-200 mt-6">
+                    {onCancel && (
+                        <ModalButton
+                            type="button"
+                            variant="cancel"
+                            onClick={onCancel}
+                            disabled={isSubmitting}
                         >
-                            {isSubmitting
-                                ? 'Se procesează...'
-                                : config.submitButtonText || 'Salvează'
-                            }
-                        </Button>
-                    </div>
+                            {config.cancelButtonText || 'Anulează'}
+                        </ModalButton>
+                    )}
+                    <ModalButton
+                        type="submit"
+                        variant="primary"
+                        disabled={isSubmitting || !isValid}
+                    >
+                        {isSubmitting
+                            ? 'Se procesează...'
+                            : config.submitButtonText || 'Salvează'
+                        }
+                    </ModalButton>
                 </div>
             )}
         </form>

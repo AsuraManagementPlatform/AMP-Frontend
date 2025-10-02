@@ -38,7 +38,7 @@ export interface Entity extends BaseEntity {
     website?: string;
     description?: string;
     organizationId: string;
-    userId?: string; // Optional - if entity has associated user account
+    userId?: string;
     taxId?: string;
     registrationNumber?: string;
 }
@@ -64,8 +64,6 @@ export interface EntityRelationship extends BaseEntity {
     terms?: string;
     notes?: string;
 }
-
-// Create/Update requests
 export interface EntityCreateRequest {
     name: string;
     type: EntityType;
