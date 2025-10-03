@@ -62,6 +62,9 @@ export const createProjectSchema = z.object({
         z.string()
     ]).transform((value) => {
         if (typeof value === 'string') {
+            if (value === '' || value === null || value === undefined) {
+                return 0;
+            }
             const num = parseFloat(value);
             if (isNaN(num)) {
                 throw new Error('Bugetul trebuie să fie un număr valid');

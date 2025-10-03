@@ -22,6 +22,7 @@ interface UserListProps {
     showSearch?: boolean;
     showFilters?: boolean;
     showPagination?: boolean;
+    showAllMembers?: boolean;
 }
 
 export const UserList: React.FC<UserListProps> = ({
@@ -36,7 +37,8 @@ export const UserList: React.FC<UserListProps> = ({
                                                       pageSize = 20,
                                                       showSearch = true,
                                                       showFilters = true,
-                                                      showPagination = true
+                                                      showPagination = true,
+                                                      showAllMembers = false
                                                   }) => {
 
     const getColumns = (): TableColumn<User>[] => [
@@ -118,7 +120,11 @@ export const UserList: React.FC<UserListProps> = ({
             onRowClick={onRowClick}
             pageSize={pageSize}
             initialSort={{ field: 'email', direction: 'asc' }}
-            initialFilters={[{field: 'status', operator: 'exact', value: UserStatus.DRAFT}]}
+            initialFilters={showAllMembers ? [
+                { field: 'status', operator: 'in', value: [UserStatus.DRAFT, UserStatus.ACTIVE] }
+            ] : [
+                { field: 'status', operator: 'exact', value: UserStatus.DRAFT }
+            ]}
             showSearch={showSearch}
             showFilters={showFilters}
             showPagination={showPagination}

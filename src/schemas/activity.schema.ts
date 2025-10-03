@@ -75,15 +75,27 @@ export const createActivitySchema = z.object({
     assignedTo: z.array(z.string())
         .optional(),
     
-    estimatedHours: z.number()
-        .optional()
-        .refine(
-            (value) => {
-                if (value === undefined) return true;
-                return value > 0;
-            },
-            'Orele estimate trebuie să fie un număr pozitiv'
-        ),
+    estimatedHours: z.union([
+        z.number(),
+        z.string()
+    ]).optional().transform((value) => {
+        if (value === undefined || value === null || value === '') {
+            return undefined;
+        }
+        if (typeof value === 'string') {
+            const num = parseFloat(value);
+            if (isNaN(num)) {
+                return 0;
+            }
+            return num;
+        }
+        return value;
+    }).refine(
+        (value) => {
+            return value !== undefined && value >= 0;
+        },
+        'Orele estimate trebuie să fie un număr pozitiv sau zero'
+    ),
     
     notes: z.string()
         .optional()
@@ -117,6 +129,6 @@ export const getCreateActivityDefaultValues = (): CreateActivityData => ({
     location: '',
     projectId: '',
     assignedTo: [],
-    estimatedHours: undefined,
+    estimatedHours: 0,
     notes: ''
 });

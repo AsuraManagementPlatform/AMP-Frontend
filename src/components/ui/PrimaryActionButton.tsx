@@ -3,7 +3,7 @@ import { BaseButton, BaseButtonProps } from './BaseButton';
 
 interface PrimaryActionButtonProps extends Omit<BaseButtonProps, 'size'> {
     variant?: 'create' | 'action' | 'important';
-    size?: 'md' | 'lg' | 'xl';
+    size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 /**
@@ -14,7 +14,7 @@ interface PrimaryActionButtonProps extends Omit<BaseButtonProps, 'size'> {
  */
 export const PrimaryActionButton: React.FC<PrimaryActionButtonProps> = ({
     variant = 'action',
-    size = 'lg',
+    size = 'md',
     className = '',
     ...props
 }) => {

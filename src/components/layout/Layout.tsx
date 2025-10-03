@@ -5,13 +5,6 @@ import {ROUTES} from "@/utils/constants.utils.ts";
 import {useAuth} from "@/hooks/useAuth.ts";
 import logoImage from '@/assets/img/logo.png';
 
-interface NavigationItem {
-    name: string;
-    path: string;
-    show: boolean;
-    variant?: 'default' | 'admin';
-}
-
 interface LayoutProps extends BaseComponentProps {
     showNavigation?: boolean;
 }
@@ -27,33 +20,8 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
 
     const location = useLocation();
     const [dropdownOpen, setDropdownOpen] = useState(false);
-
-    const navItems: NavigationItem[] = [
-        {
-            name: 'Pagina Principală',
-            path: ROUTES.DASHBOARD,
-            show: isAuthenticated
-        },
-        {
-            name: 'Organization',
-            path: ROUTES.ORGANIZATION_DETAILS,
-            show: isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN])
-        },
-        {
-            name: 'Projects',
-            path: ROUTES.PROJECTS,
-            show: isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN])
-        },
-        {
-            name: 'Activities',
-            path: ROUTES.ACTIVITIES,
-            show: isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN])
-        },
-    ];
-
-    const isActive = (path: string): boolean => {
-        return location.pathname === path;
-    };
+    const [erpDropdownOpen, setErpDropdownOpen] = useState(false);
+    const [crmDropdownOpen, setCrmDropdownOpen] = useState(false);
 
     const handleLogout = async (): Promise<void> => {
         setDropdownOpen(false);
@@ -94,23 +62,119 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
 
                         {showNavigation && isAuthenticated && (
                             <nav className="flex items-center">
-                                <ul className="flex space-x-1 md:space-x-4">
-                                    {navItems.map((item, index) => (
-                                        item.show && (
-                                            <li key={index}>
-                                                <Link
-                                                    to={item.path}
-                                                    className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                                                        isActive(item.path)
-                                                            ? 'font-bold text-orange-500'
-                                                            : 'text-gray-700 hover:text-orange-500 hover:font-semibold'
-                                                    }`}
-                                                >
-                                                    {item.name}
-                                                </Link>
-                                            </li>
-                                        )
-                                    ))}
+                                <ul className="flex items-center space-x-1 md:space-x-4">
+                                    <li className="flex items-center">
+                                        <Link
+                                            to={ROUTES.DASHBOARD}
+                                            className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                                                location.pathname === ROUTES.DASHBOARD
+                                                    ? 'font-bold text-orange-500'
+                                                    : 'text-gray-700 hover:text-orange-500 hover:font-semibold'
+                                            }`}
+                                        >
+                                            Pagina Principală
+                                        </Link>
+                                    </li>
+
+                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN, UserGroup.ADMIN]) && (
+                                        <li className="relative flex items-center">
+                                            <button
+                                                className={`px-3 py-2 rounded-md text-sm transition-colors flex items-center ${
+                                                    location.pathname.startsWith('/erp')
+                                                        ? 'font-bold text-orange-500'
+                                                        : 'text-gray-700 hover:text-orange-500 hover:font-semibold'
+                                                }`}
+                                                onClick={() => setErpDropdownOpen(!erpDropdownOpen)}
+                                                onBlur={() => setTimeout(() => setErpDropdownOpen(false), 150)}
+                                            >
+                                                ERP
+                                                <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+                                            {erpDropdownOpen && (
+                                                <div className="absolute left-0 top-full w-48 bg-white rounded-md shadow-lg py-1 z-20 border">
+                                                    <Link
+                                                        to={ROUTES.ERP_PROJECTS}
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        onClick={() => setErpDropdownOpen(false)}
+                                                    >
+                                                        Proiecte
+                                                    </Link>
+                                                    <Link
+                                                        to={ROUTES.ERP_ACTIVITIES}
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        onClick={() => setErpDropdownOpen(false)}
+                                                    >
+                                                        Activități
+                                                    </Link>
+                                                </div>
+                                            )}
+                                        </li>
+                                    )}
+
+                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN, UserGroup.ADMIN]) && (
+                                        <li className="relative flex items-center">
+                                            <button
+                                                className={`px-3 py-2 rounded-md text-sm transition-colors flex items-center ${
+                                                    location.pathname.startsWith('/crm')
+                                                        ? 'font-bold text-orange-500'
+                                                        : 'text-gray-700 hover:text-orange-500 hover:font-semibold'
+                                                }`}
+                                                onClick={() => setCrmDropdownOpen(!crmDropdownOpen)}
+                                                onBlur={() => setTimeout(() => setCrmDropdownOpen(false), 150)}
+                                            >
+                                                CRM
+                                                <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+                                            {crmDropdownOpen && (
+                                                <div className="absolute left-0 top-full w-48 bg-white rounded-md shadow-lg py-1 z-20 border">
+                                                    {hasAnyUserGroup([UserGroup.ADMIN]) && (
+                                                        <>
+                                                            <Link
+                                                                to={ROUTES.CRM_ADMIN_PANEL}
+                                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                                onClick={() => setCrmDropdownOpen(false)}
+                                                            >
+                                                                Utilizatori
+                                                            </Link>
+                                                            <Link
+                                                                to={ROUTES.CRM_ORGANIZATIONS}
+                                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                                onClick={() => setCrmDropdownOpen(false)}
+                                                            >
+                                                                Organizații
+                                                            </Link>
+                                                        </>
+                                                    )}
+                                                    {hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && (
+                                                        <Link
+                                                            to={ROUTES.CRM_ORGANIZATION_DETAILS}
+                                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                            onClick={() => setCrmDropdownOpen(false)}
+                                                        >
+                                                            Organizația Mea
+                                                        </Link>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </li>
+                                    )}
+
+                                    <li className="flex items-center">
+                                        <Link
+                                            to={ROUTES.CALENDAR}
+                                            className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                                                location.pathname === ROUTES.CALENDAR
+                                                    ? 'font-bold text-orange-500'
+                                                    : 'text-gray-700 hover:text-orange-500 hover:font-semibold'
+                                            }`}
+                                        >
+                                            Calendar
+                                        </Link>
+                                    </li>
                                 </ul>
                             </nav>
                         )}

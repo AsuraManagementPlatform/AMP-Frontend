@@ -3,7 +3,7 @@ import { Activity } from "@/types/index.types";
 import showToast from "@/components/ui/Toast";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
-import IconView from "@/assets/icons/iconmonstr-view.svg?react";
+import IconEye from "@/assets/icons/iconmonstr-eye.svg?react";
 import IconActivity from "@/assets/icons/iconmonstr-activity.svg?react";
 import IconGroup from "@/assets/icons/iconmonstr-group.svg?react";
 import IconChart from "@/assets/icons/iconmonstr-chart.svg?react";
@@ -220,7 +220,7 @@ const ActivityList: React.FC<ActivityListProps> = ({
                                     className="p-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
                                     title="Vezi detalii activitate"
                                 >
-                                    <IconView className="w-4 h-4" />
+                                    <IconEye className="w-4 h-4" />
                                 </button>
                             )}
                             <button

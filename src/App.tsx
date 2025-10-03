@@ -37,7 +37,7 @@ function App() {
                 <Route path={ROUTES.PROFILE} element={<Home />} />
                 
                 <Route 
-                  path={ROUTES.ORGANIZATIONS} 
+                  path={ROUTES.CRM_ORGANIZATIONS} 
                   element={
                     <ProtectedRoute allowedRoles={[UserGroup.ADMIN]}>
                       <AdminPanel />
@@ -45,7 +45,15 @@ function App() {
                   } 
                 />
                 <Route 
-                  path={ROUTES.CREATE_ORGANIZATION} 
+                  path={ROUTES.CRM_CREATE_ORGANIZATION} 
+                  element={
+                    <ProtectedRoute allowedRoles={[UserGroup.ADMIN]}>
+                      <AdminPanel />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path={ROUTES.CRM_ADMIN_PANEL} 
                   element={
                     <ProtectedRoute allowedRoles={[UserGroup.ADMIN]}>
                       <AdminPanel />
@@ -54,7 +62,7 @@ function App() {
                 />
                 
                 <Route 
-                  path={ROUTES.PROJECTS} 
+                  path={ROUTES.ERP_PROJECTS} 
                   element={
                     <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN]}>
                       <Projects />
@@ -62,7 +70,7 @@ function App() {
                   } 
                 />
                 <Route 
-                  path={ROUTES.ACTIVITIES} 
+                  path={ROUTES.ERP_ACTIVITIES} 
                   element={
                     <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN]}>
                       <Activities />
@@ -78,13 +86,20 @@ function App() {
                   } 
                 />
                 <Route 
-                  path={ROUTES.ORGANIZATION_DETAILS} 
+                  path={ROUTES.CRM_ORGANIZATION_DETAILS} 
                   element={
                     <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]}>
                       <OrganizationDetails />
                     </ProtectedRoute>
                   } 
                 />
+                
+                <Route path={ROUTES.PROJECTS} element={<Navigate to={ROUTES.ERP_PROJECTS} replace />} />
+                <Route path={ROUTES.ACTIVITIES} element={<Navigate to={ROUTES.ERP_ACTIVITIES} replace />} />
+                <Route path={ROUTES.ORGANIZATIONS} element={<Navigate to={ROUTES.CRM_ORGANIZATIONS} replace />} />
+                <Route path={ROUTES.CREATE_ORGANIZATION} element={<Navigate to={ROUTES.CRM_CREATE_ORGANIZATION} replace />} />
+                <Route path={ROUTES.ADMIN_PANEL} element={<Navigate to={ROUTES.CRM_ADMIN_PANEL} replace />} />
+                <Route path={ROUTES.ORGANIZATION_DETAILS} element={<Navigate to={ROUTES.CRM_ORGANIZATION_DETAILS} replace />} />
                 
                 <Route path={ROUTES.NOT_FOUND} element={<div>Page Not Found</div>} />
                 <Route path="*" element={<Navigate to={ROUTES.NOT_FOUND} replace />} />

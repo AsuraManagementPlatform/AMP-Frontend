@@ -62,6 +62,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
 
     const handleSubmit = async (data: CreateProjectData) => {
         if (isSubmitting) return;
+        
         const projectData: any = {
             name: data.name,
             description: data.description || '',
@@ -71,11 +72,11 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             status: data.status,
             organization: organizationId || data.organizationId,
             location: data.location,
-            budget: data.budget,
+            budget: Math.round(data.budget),
             currency: data.currency,
             budget_planning_date: data.budgetPlanningDate || data.startDate,
             budget_responsible: data.managerId,
-            budget_notes: data.budgetNotes || '',
+            budget_notes: data.budgetNotes || ''
         };
 
         let loadingToastId: string | undefined;
@@ -96,7 +97,15 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             if (loadingToastId) {
                 toast.dismiss(loadingToastId);
             }
-            showToast.error('Crearea proiectului a eșuat');
+            
+            let errorMessage = 'Crearea proiectului a eșuat';
+            if (error?.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error?.message) {
+                errorMessage = error.message;
+            }
+            
+            showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

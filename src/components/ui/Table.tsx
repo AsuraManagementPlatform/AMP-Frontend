@@ -16,7 +16,12 @@ interface FilterInputProps {
 }
 
 const FilterInput: React.FC<FilterInputProps> = ({ column, currentFilter, onFilterChange }) => {
-    const [value, setValue] = useState(currentFilter?.value || '');
+    const [value, setValue] = useState(() => {
+        if (Array.isArray(currentFilter?.value)) {
+            return currentFilter.value[0] || '';
+        }
+        return currentFilter?.value || '';
+    });
     const [operator, setOperator] = useState(currentFilter?.operator || 'icontains');
 
     if (!column.filterable) return null;
@@ -77,7 +82,7 @@ const FilterInput: React.FC<FilterInputProps> = ({ column, currentFilter, onFilt
 
             {column.filterType === 'select' && column.filterOptions ? (
                 <select
-                    value={value}
+                    value={Array.isArray(value) ? value[0] || '' : value}
                     onChange={(e) => handleChange(e.target.value)}
                     className="px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
@@ -270,13 +275,17 @@ export function Table<T extends Record<string, any>>({
                                         ))}
                                         <th className={'w-auto text-right'}>
                                             <div className="flex justify-end">
-                                                <Button
-                                                    onClick={clearAllFilters}
-                                                    className="px-2 py-1 mr-2 bg-red-100 hover:bg-red-200 text-red-800 rounded-md text-sm font-medium"
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        clearAllFilters();
+                                                    }}
+                                                    className="px-3 py-1 text-xs text-gray-600 hover:text-gray-800 border border-gray-300 hover:border-gray-400 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     disabled={tableState.filters.length === 0 && !tableState.search}
                                                 >
                                                     Clear All
-                                                </Button>
+                                                </button>
                                             </div>
                                         </th>
                                     </tr>
@@ -286,11 +295,18 @@ export function Table<T extends Record<string, any>>({
                                 <tr>
                                     <td>
                                         {tableState.filters.length > 0 && (
-                                            <div className="flex flex-wrap gap-2">
+                                            <div className="flex flex-wrap gap-1 items-center">
                                                 {tableState.filters.map((filter, index) => (
-                                                    <span key={index} className="inline-flex items-center px-2 py-1 m-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                                                    {filter.field} {filter.operator} "{filter.value}"
-                                                        <Button onClick={() => removeFilter(filter.field)}>×</Button>
+                                                    <span key={index} className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-md border">
+                                                        <span className="font-medium">{filter.field}</span>
+                                                        <span className="mx-1 text-gray-500">{filter.operator}</span>
+                                                        <span className="font-semibold">"{filter.value}"</span>
+                                                        <button 
+                                                            onClick={() => removeFilter(filter.field)}
+                                                            className="ml-2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                                        >
+                                                            ×
+                                                        </button>
                                                     </span>
                                                 ))}
                                             </div>
@@ -319,7 +335,7 @@ export function Table<T extends Record<string, any>>({
                                 value={tableState.search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search..."
-                                className="px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 max-w-md"
+                                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent flex-1 max-w-lg text-sm"
                             />
                         )}
                     </div>

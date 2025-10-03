@@ -71,7 +71,14 @@ export function useTableData<T>({
                 const paramKey = filter.operator === 'exact'
                     ? filter.field
                     : `${filter.field}__${filter.operator}`;
-                params.append(paramKey, filter.value.toString());
+                
+                if (Array.isArray(filter.value)) {
+                    filter.value.forEach(val => {
+                        params.append(paramKey, val.toString());
+                    });
+                } else {
+                    params.append(paramKey, filter.value.toString());
+                }
             }
         });
 

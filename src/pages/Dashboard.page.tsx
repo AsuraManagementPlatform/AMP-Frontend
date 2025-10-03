@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from "react";
 import {useAuth} from "@/hooks/useAuth";
-import {useNavigate} from "react-router-dom";
 import {UserCreateRequest} from "@/schemas/user.schema";
 import { UserMeResponse } from "@/types/user.types";
 import userService from "@/services/user.service";
 import organizationService from "@/services/organization.service";
 import projectService from "@/services/project.service";
+import activityService from "@/services/activity.service";
+import {apiService} from "@/services/api.service.ts";
 import Layout from "@/components/layout/Layout";
 import {Card} from "@/components/ui/Card";
 import {PrimaryActionButton} from "@/components/ui/PrimaryActionButton";
-import {SecondaryButton} from "@/components/ui/SecondaryButton";
 import {ConfirmationModal} from "@/components/ui/Modal";
 import showToast from "@/components/ui/Toast";
 import {OrganizationCreationModal} from "@/components/organization/OrganizationCreationModal";
@@ -19,9 +19,10 @@ import {CreateUserModal} from "@/components/modals/user/CreateUserModal.tsx";
 import {CreateProjectModal} from "@/components/modals/project/CreateProjectModal.tsx";
 import {CreateActivityModal} from "@/components/modals/activity/CreateActivityModal.tsx";
 import {DashboardStats, User, UserGroup, UserStatus} from "@/types/index.types.ts";
+import {Project} from "@/types/project.types.ts";
+import {Activity} from "@/types/activity.types.ts";
 import UserList from "@/components/tables/UserList.tsx";
 import {useTranslation} from "react-i18next";
-import {ROUTES} from "@/utils/constants.utils.ts";
 
 const DashboardPage: React.FC = () => {
     const { t } = useTranslation();
@@ -31,7 +32,6 @@ const DashboardPage: React.FC = () => {
     const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
     const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
     const [isOrgDetailsModalOpen, setIsOrgDetailsModalOpen] = useState(false);
-    const [testOrgId, setTestOrgId] = useState<string>('');
     const [availableProjects, setAvailableProjects] = useState<{ id: string; name: string }[]>([]);
     const [createdUserData, setCreatedUserData] = useState<User | null>(null);
     const [tempCompanyData, setTempCompanyData] = useState<{ company_name: string; company_number: string } | null>(null);
@@ -44,18 +44,196 @@ const DashboardPage: React.FC = () => {
         totalStats: 0
     });
     const [loading, setLoading] = useState(true);
+    const [activeManagementView, setActiveManagementView] = useState<'membri' | 'proiecte'>('membri');
+    const [organizationMembers, setOrganizationMembers] = useState<User[]>([]);
+    const [membersLoading, setMembersLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [sortField, setSortField] = useState<string>('full_name');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    const [selectedProject, setSelectedProject] = useState<string | null>(null);
+    const [projects, setProjects] = useState<Project[]>([]);
+    const [activities, setActivities] = useState<Activity[]>([]);
+    const [projectsLoading, setProjectsLoading] = useState(false);
+    const [activitiesLoading, setActivitiesLoading] = useState(false);
+
+    const filteredMembers = organizationMembers.filter(member => {
+        if (!searchTerm) return true;
+        const searchLower = searchTerm.toLowerCase();
+        return (
+            (member.full_name || '').toLowerCase().includes(searchLower) ||
+            member.email.toLowerCase().includes(searchLower) ||
+            member.status.toLowerCase().includes(searchLower) ||
+            (member.groups || []).some(group => group.toLowerCase().includes(searchLower))
+        );
+    });
+
+    const handleProjectClick = (projectId: string) => {
+        setSelectedProject(projectId);
+    };
+
+    const getProjectStatusColor = (status: string) => {
+        switch (status) {
+            case 'ACTIVE': return 'green';
+            case 'COMPLETED': return 'green';
+            case 'ON_HOLD': return 'yellow';
+            case 'CANCELLED': return 'red';
+            default: return 'blue';
+        }
+    };
+
+    const getActivityStatusColor = (status: string) => {
+        switch (status) {
+            case 'COMPLETED': return 'green';
+            case 'IN_PROGRESS': return 'yellow';
+            case 'PLANNED': return 'blue';
+            case 'CANCELLED': return 'red';
+            default: return 'gray';
+        }
+    };
+
+    const getProjectStatusText = (status: string) => {
+        switch (status) {
+            case 'ACTIVE': return 'Activ';
+            case 'COMPLETED': return 'Finalizat';
+            case 'ON_HOLD': return 'În așteptare';
+            case 'CANCELLED': return 'Anulat';
+            case 'DRAFT': return 'Proiect';
+            default: return status;
+        }
+    };
+
+    const getActivityStatusText = (status: string) => {
+        switch (status) {
+            case 'COMPLETED': return 'Finalizat';
+            case 'IN_PROGRESS': return 'În progres';
+            case 'PLANNED': return 'Planificat';
+            case 'CANCELLED': return 'Anulat';
+            case 'POSTPONED': return 'Amânat';
+            default: return status;
+        }
+    };
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' });
+    };
 
     const handleOrganizationCreated = () => {
         setRefreshUserTable(prev => prev + 1);
     };
 
     const organization = useOrganizationCreation(handleOrganizationCreated);
-    const navigate = useNavigate();
 
-    const isAdmin = hasAnyUserGroup([UserGroup.ADMIN]);
+    const handleSort = (field: string) => {
+        const newDirection = sortField === field && sortDirection === 'asc' ? 'desc' : 'asc';
+        setSortField(field);
+        setSortDirection(newDirection);
+        
+        const sorted = [...organizationMembers].sort((a, b) => {
+            let aValue, bValue;
+            
+            if (field === 'groups') {
+                aValue = (a.groups && a.groups.length > 0) ? a.groups[0] : 'Member';
+                bValue = (b.groups && b.groups.length > 0) ? b.groups[0] : 'Member';
+            } else {
+                aValue = (a as any)[field] || '';
+                bValue = (b as any)[field] || '';
+            }
+            
+            if (newDirection === 'asc') {
+                return aValue.localeCompare(bValue);
+            } else {
+                return bValue.localeCompare(aValue);
+            }
+        });
+        
+        setOrganizationMembers(sorted);
+    };
+
+    const SortButton = ({ field, label }: { field: string; label: string }) => (
+        <button
+            onClick={() => handleSort(field)}
+            className="flex items-center gap-2 text-left w-full hover:text-blue-600 transition-colors"
+        >
+            <span className="font-medium">{label}</span>
+            <span className="text-base text-gray-400">
+                {sortField === field ? (
+                    sortDirection === 'asc' ? 
+                        <span className="text-blue-600">▲</span> : 
+                        <span className="text-blue-600">▼</span>
+                ) : (
+                    <span className="hover:text-gray-600">⬍</span>
+                )}
+            </span>
+        </button>
+    );
+
     const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
+    const isAdmin = hasAnyUserGroup([UserGroup.ADMIN]);
     const isMember = !isAdmin && !isOrgAdmin;
     const hasOrganization = user?.organization_id;
+
+    useEffect(() => {
+        const loadProjectsAndActivities = async () => {
+            if (activeManagementView === 'proiecte' && (isAdmin || (isOrgAdmin && hasOrganization))) {
+                setProjectsLoading(true);
+                setActivitiesLoading(true);
+
+                try {
+                    const projectsResponse = await projectService.getList({ pageSize: 100 });
+                    const projectsList = projectsResponse.results || [];
+                    setProjects(projectsList);
+
+                    let currentSelectedProject = selectedProject;
+                    if (!selectedProject && projectsList.length > 0) {
+                        currentSelectedProject = projectsList[0].id;
+                        setSelectedProject(currentSelectedProject);
+                    }
+
+                    const activitiesResponse = currentSelectedProject 
+                        ? await activityService.getByProjectId(currentSelectedProject, { pageSize: 100 })
+                        : await activityService.getList({ pageSize: 100 });
+                    setActivities(activitiesResponse.results || []);
+
+                } catch (error) {
+                    console.error('Error loading projects and activities:', error);
+                    showToast.error('Eroare la încărcarea datelor');
+                } finally {
+                    setProjectsLoading(false);
+                    setActivitiesLoading(false);
+                }
+            }
+        };
+
+        loadProjectsAndActivities();
+    }, [activeManagementView, isAdmin, isOrgAdmin, hasOrganization, selectedProject]);
+
+    useEffect(() => {
+        const loadOrganizationMembers = async () => {
+            if (activeManagementView === 'membri' && (isAdmin || (isOrgAdmin && hasOrganization))) {
+                setMembersLoading(true);
+                try {
+                    
+                    const response = await apiService.get('/api/user/organization/members') as any;
+                    
+                    setOrganizationMembers(response.results || []);
+
+                            console.log(`�`);
+
+
+
+
+                } catch (error) {
+                    console.error('❌ Error loading organization members:', error);
+                    showToast.error('Eroare la încărcarea membrilor organizației');
+                } finally {
+                    setMembersLoading(false);
+                }
+            }
+        };
+
+        loadOrganizationMembers();
+    }, [activeManagementView, isAdmin, isOrgAdmin, hasOrganization]);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -251,8 +429,20 @@ const DashboardPage: React.FC = () => {
         setIsCreateActivityModalOpen(false);
     };
 
-    const handleActivityCreated = () => {
+    const handleActivityCreated = async () => {
         setRefreshUserTable(prev => prev + 1);
+        
+        if (selectedProject) {
+            try {
+                setActivitiesLoading(true);
+                const activitiesResponse = await activityService.getByProjectId(selectedProject, { pageSize: 100 });
+                setActivities(activitiesResponse.results || []);
+            } catch (error) {
+                console.error('Error reloading activities:', error);
+            } finally {
+                setActivitiesLoading(false);
+            }
+        }
     };
 
     const loadAvailableProjects = async () => {
@@ -285,60 +475,305 @@ const DashboardPage: React.FC = () => {
 
                 {(isAdmin || (isOrgAdmin && hasOrganization)) && (
                     <Card
-                        title="Acțiuni administrator"
+                        title="Management administrativ"
                         className="mb-6 space-y-4"
                         headerActions={
                             <>
-                                <div className="flex gap-4">
-                                    <PrimaryActionButton onClick={handleOpenCreateUser} variant="create">
-                                        {t('label.user_create')}
+                                <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+                                    <PrimaryActionButton
+                                        onClick={() => setActiveManagementView('membri')}
+                                        variant={activeManagementView === 'membri' ? 'primary' : 'secondary'}
+                                        size="sm"
+                                        className={`${
+                                            activeManagementView === 'membri'
+                                                ? 'bg-blue-600 text-white'
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        } transition-colors`}
+                                    >
+                                        Sumar Membri (CRM)
                                     </PrimaryActionButton>
-                                    {isAdmin && (
-                                        <PrimaryActionButton
-                                            variant="create"
-                                            onClick={organization.openCreateOrganizationModal}
+                                    <PrimaryActionButton
+                                        onClick={() => setActiveManagementView('proiecte')}
+                                        variant={activeManagementView === 'proiecte' ? 'primary' : 'secondary'}
+                                        size="sm"
+                                        className={`${
+                                            activeManagementView === 'proiecte'
+                                                ? 'bg-blue-600 text-white'
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        } transition-colors`}
+                                    >
+                                        Sumar Proiecte (ERP)
+                                    </PrimaryActionButton>
+                                </div>
+                            </>
+                        }
+                    >
+                        {activeManagementView === 'membri' ? (
+                            <div className="space-y-4">
+                                <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-4">
+                                    <div className="flex-1 max-w-md">
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder="Search members..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                            />
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <PrimaryActionButton 
+                                            onClick={handleOpenCreateUser}
+                                            size="sm"
                                         >
-                                            {t('label.organisation_create')}
+                                            {t('label.user_create')}
                                         </PrimaryActionButton>
-                                    )}
+                                        {isAdmin && (
+                                            <button
+                                                onClick={organization.openCreateOrganizationModal}
+                                                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                                            >
+                                                {t('label.organisation_create')}
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                {membersLoading ? (
+                                    <div className="text-center py-8">Loading members...</div>
+                                ) : (
+                                    <div className="border rounded-lg overflow-hidden">
+                                        <table className="w-full">
+                                            <thead className="bg-gray-50 border-b">
+                                                <tr>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        <SortButton field="full_name" label="Name" />
+                                                    </th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        <SortButton field="email" label="Email" />
+                                                    </th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        <SortButton field="status" label="Status" />
+                                                    </th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        <SortButton field="groups" label="Role" />
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {filteredMembers.length > 0 ? (
+                                                    filteredMembers.map((member) => (
+                                                        <tr key={member.id}>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.full_name || 'N/A'}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{member.email}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                                                    member.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+                                                                    member.status === 'DRAFT' ? 'bg-yellow-100 text-yellow-800' :
+                                                                    'bg-gray-100 text-gray-800'
+                                                                }`}>
+                                                                    {member.status}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                                {member.groups && member.groups.length > 0 ? (
+                                                                    <div className="flex flex-wrap gap-1">
+                                                                        {member.groups.map((group, index) => (
+                                                                            <span key={index} className={`px-2 py-1 text-xs font-medium rounded ${
+                                                                                group === 'ADMIN' ? 'bg-red-100 text-red-800' :
+                                                                                group === 'ORGANIZATION_ADMIN' ? 'bg-blue-100 text-blue-800' :
+                                                                                'bg-gray-100 text-gray-800'
+                                                                            }`}>
+                                                                                {group.replace('_', ' ')}
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-gray-400">Member</span>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan={4} className="px-6 py-4 text-center text-gray-500">No members found</td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="flex gap-2 justify-end mb-4">
                                     {isOrgAdmin && hasOrganization && (
                                         <>
                                             <PrimaryActionButton
-                                                variant="create"
                                                 onClick={handleOpenCreateProject}
+                                                size="sm"
                                             >
                                                 Creează proiect
                                             </PrimaryActionButton>
                                             <PrimaryActionButton
-                                                variant="create"
                                                 onClick={handleOpenCreateActivity}
+                                                size="sm"
                                             >
                                                 Creează activitate
                                             </PrimaryActionButton>
                                         </>
                                     )}
                                 </div>
-                            </>
-                        }
-                    >
-
-                        <UserList
-                            onEdit={handleEditUser}
-                            onView={handleViewUser}
-                            onDelete={handleDeleteUser}
-                            onRowClick={handleUserRowClick}
-                            refreshTrigger={refreshUserTable}
-                            canDeleteUser={canDeleteUser}
-                            showActions={{
-                                edit: true,
-                                delete: true,
-                                view: true
-                            }}
-                            showSearch={false}
-                            showFilters={false}
-                            className="flex gap-4 flex-col"
-                            pageSize={20}
-                        />
+                                
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <div className="space-y-4">
+                                        <h3 className="text-lg font-semibold text-gray-900">Proiecte Active</h3>
+                                        <div className="border rounded-lg overflow-hidden">
+                                            <div className="bg-gray-50 px-4 py-3 border-b">
+                                                <div className="grid grid-cols-4 gap-4 text-sm font-medium text-gray-600">
+                                                    <div>Nume Proiect</div>
+                                                    <div>Status</div>
+                                                    <div>Progres</div>
+                                                    <div>Deadline</div>
+                                                </div>
+                                            </div>
+                                            <div className="divide-y divide-gray-200">
+                                                {projectsLoading ? (
+                                                    <div className="px-4 py-8 text-center">
+                                                        <div className="animate-pulse">Încărcare proiecte...</div>
+                                                    </div>
+                                                ) : projects.length > 0 ? (
+                                                    projects.map((project) => (
+                                                        <div 
+                                                            key={project.id}
+                                                            className={`px-4 py-3 cursor-pointer transition-colors ${
+                                                                selectedProject === project.id 
+                                                                    ? 'bg-blue-50 border-l-4 border-blue-500' 
+                                                                    : 'hover:bg-gray-50'
+                                                            }`}
+                                                            onClick={() => handleProjectClick(project.id)}
+                                                        >
+                                                            <div className="grid grid-cols-4 gap-4 text-sm">
+                                                                <div className="font-medium">{project.name}</div>
+                                                                <div>
+                                                                    <span className={`px-2 py-1 rounded text-xs ${
+                                                                        getProjectStatusColor(project.status) === 'green' ? 'bg-green-100 text-green-800' :
+                                                                        getProjectStatusColor(project.status) === 'blue' ? 'bg-blue-100 text-blue-800' :
+                                                                        getProjectStatusColor(project.status) === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
+                                                                        getProjectStatusColor(project.status) === 'red' ? 'bg-red-100 text-red-800' :
+                                                                        'bg-gray-100 text-gray-800'
+                                                                    }`}>
+                                                                        {getProjectStatusText(project.status)}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="w-full bg-gray-200 rounded-full h-2">
+                                                                        <div 
+                                                                            className={`h-2 rounded-full ${
+                                                                                getProjectStatusColor(project.status) === 'green' ? 'bg-green-500' :
+                                                                                getProjectStatusColor(project.status) === 'blue' ? 'bg-blue-500' :
+                                                                                getProjectStatusColor(project.status) === 'yellow' ? 'bg-yellow-500' :
+                                                                                getProjectStatusColor(project.status) === 'red' ? 'bg-red-500' :
+                                                                                'bg-gray-500'
+                                                                            }`}
+                                                                            style={{ 
+                                                                                width: `${project.status === 'COMPLETED' ? 100 : 
+                                                                                        project.status === 'ACTIVE' ? 60 : 
+                                                                                        project.status === 'ON_HOLD' ? 30 : 10}%` 
+                                                                            }}
+                                                                        ></div>
+                                                                    </div>
+                                                                    <span className="text-xs text-gray-500 mt-1">
+                                                                        {project.status === 'COMPLETED' ? '100' : 
+                                                                         project.status === 'ACTIVE' ? '60' : 
+                                                                         project.status === 'ON_HOLD' ? '30' : '10'}%
+                                                                    </span>
+                                                                </div>
+                                                                <div className="text-gray-600">
+                                                                    {project.endDate ? formatDate(project.endDate) : 'Nedefinit'}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div className="px-4 py-8 text-center text-gray-500">
+                                                        Nu există proiecte disponibile.
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="space-y-4">
+                                        <h3 className="text-lg font-semibold text-gray-900">
+                                            {selectedProject ? `Activități - ${projects.find(p => p.id === selectedProject)?.name}` : 'Activități Recente'}
+                                        </h3>
+                                        <div className="border rounded-lg overflow-hidden">
+                                            <div className="bg-gray-50 px-4 py-3 border-b">
+                                                <div className="grid grid-cols-4 gap-4 text-sm font-medium text-gray-600">
+                                                    <div>Nume Activitate</div>
+                                                    <div>Proiect</div>
+                                                    <div>Status</div>
+                                                    <div>Data</div>
+                                                </div>
+                                            </div>
+                                            <div className="divide-y divide-gray-200">
+                                                {activitiesLoading ? (
+                                                    <div className="px-4 py-8 text-center">
+                                                        <div className="animate-pulse">Încărcare activități...</div>
+                                                    </div>
+                                                ) : activities.length > 0 ? (
+                                                    activities.map((activity) => (
+                                                        <div key={activity.id} className="px-4 py-3 hover:bg-gray-50">
+                                                            <div className="grid grid-cols-4 gap-4 text-sm">
+                                                                <div className="font-medium">{activity.title}</div>
+                                                                <div className="text-gray-600">
+                                                                    {projects.find(p => p.id === activity.projectId)?.name || 'Necunoscut'}
+                                                                </div>
+                                                                <div>
+                                                                    <span className={`px-2 py-1 rounded text-xs ${
+                                                                        getActivityStatusColor(activity.status) === 'green' ? 'bg-green-100 text-green-800' :
+                                                                        getActivityStatusColor(activity.status) === 'blue' ? 'bg-blue-100 text-blue-800' :
+                                                                        getActivityStatusColor(activity.status) === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
+                                                                        getActivityStatusColor(activity.status) === 'red' ? 'bg-red-100 text-red-800' :
+                                                                        'bg-gray-100 text-gray-800'
+                                                                    }`}>
+                                                                        {getActivityStatusText(activity.status)}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="text-gray-600">
+                                                                    {formatDate(activity.startDate)}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div className="px-4 py-8 text-center text-gray-500">
+                                                        {selectedProject ? 'Nu există activități pentru acest proiect.' : 'Nu există activități recente.'}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        {selectedProject && (
+                                            <div className="text-center">
+                                                <button
+                                                    onClick={() => setSelectedProject(null)}
+                                                    className="text-blue-600 hover:text-blue-800 text-sm underline"
+                                                >
+                                                    Afișează toate activitățile
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </Card>
                 )}
 
@@ -515,13 +950,8 @@ const DashboardPage: React.FC = () => {
                                 </div>
                             </div>
                             
-                            <div className="mt-4">
-                                <button 
-                                    className="w-full bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition-colors font-medium"
-                                    onClick={() => navigate(ROUTES.CALENDAR)}
-                                >
-                                    📅 Vezi calendarul
-                                </button>
+                            <div className="text-center mt-4 py-2 text-sm text-gray-600">
+                                Notificări calendar()
                             </div>
 
                             <div className="text-xs text-gray-500 text-center mt-3 border-t pt-2">
@@ -722,34 +1152,6 @@ const DashboardPage: React.FC = () => {
                     )}
                 </div>
 
-                <Card title="Acțiuni rapide" className="mt-8">
-                    <div className="flex flex-wrap gap-4">
-                        <SecondaryButton
-                            variant="outline"
-                            onClick={() => navigate(ROUTES.CALENDAR)}
-                        >
-                            Vezi calendarul
-                        </SecondaryButton>
-                        <SecondaryButton
-                            variant="outline"
-                            onClick={() => showToast.featureInDevelopment()}
-                        >
-                            Generează raport
-                        </SecondaryButton>
-                        {(isAdmin || isOrgAdmin) && user?.organization_id && (
-                            <SecondaryButton
-                                variant="outline"
-                                onClick={() => {
-                                    setTestOrgId(user.organization_id!);
-                                    setIsOrgDetailsModalOpen(true);
-                                }}
-                            >
-                                Test Detalii Organizație
-                            </SecondaryButton>
-                        )}
-                    </div>
-                </Card>
-
                 <CreateUserModal
                     isOpen={isCreateUserModalOpen}
                     onClose={handleCloseCreateUser}
@@ -796,7 +1198,7 @@ const DashboardPage: React.FC = () => {
                 <OrganizationDetailsModal
                     isOpen={isOrgDetailsModalOpen}
                     onClose={() => setIsOrgDetailsModalOpen(false)}
-                    organizationId={testOrgId}
+                    organizationId=""
                     onUpdate={() => {
                         showToast.success('Organizația a fost actualizată cu succes!');
                     }}

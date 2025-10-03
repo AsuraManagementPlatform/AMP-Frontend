@@ -5,6 +5,7 @@ import { createActivityFormConfig } from '@/config/activity.form.config';
 import { createActivitySchema, CreateActivityData, getCreateActivityDefaultValues } from '@/schemas/activity.schema';
 import showToast from '@/components/ui/Toast';
 import activityService from '@/services/activity.service';
+import toast from 'react-hot-toast';
 import { ActivityCreateRequest } from '@/types/activity.types';
 
 interface CreateActivityModalProps {
@@ -33,27 +34,48 @@ export const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
     const handleSubmit = async (data: CreateActivityData) => {
         if (isSubmitting) return;
 
+        let loadingToastId: string | undefined;
+        
         try {
             setIsSubmitting(true);
-            showToast.loading('Se creează activitatea...');
+            loadingToastId = showToast.loading('Se creează activitatea...');
 
-            const activityData: ActivityCreateRequest = {
-                ...data,
-                projectId: projectId || data.projectId,
-                endDate: data.endDate || undefined,
-                location: data.location || undefined,
-                assignedTo: data.assignedTo || [],
-                estimatedHours: data.estimatedHours || undefined,
-                notes: data.notes || undefined
+            const activityData: any = {
+                project: projectId || data.projectId,
+                title: data.title,
+                description: data.description || '',
+                starting_date: data.startDate,
+                estimated_ending_date: data.endDate || data.startDate,
+                ending_date: data.endDate || null,
+                status: data.status,
+                type: data.type,
+                location: data.location || '',
+                observation: data.notes || ''
             };
 
             const activity = await activityService.create(activityData);
             
+            if (loadingToastId) {
+                toast.dismiss(loadingToastId);
+            }
             showToast.success('Activitatea a fost creată cu succes!');
             onSuccess?.(activity);
             onClose();
         } catch (error: any) {
-            showToast.error('Crearea activității a eșuat');
+            if (loadingToastId) {
+                toast.dismiss(loadingToastId);
+            }
+            
+            let errorMessage = 'Crearea activității a eșuat';
+            if (error?.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error?.response?.data?.details) {
+                errorMessage = `Eroare: ${JSON.stringify(error.response.data.details)}`;
+            } else if (error?.message) {
+                errorMessage = error.message;
+            }
+            
+            showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
