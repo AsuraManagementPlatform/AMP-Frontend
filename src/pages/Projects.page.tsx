@@ -13,13 +13,12 @@ const ProjectsPage: React.FC = () => {
     const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
     const [refreshProjectTable, setRefreshProjectTable] = useState(0);
 
-    const isAdmin = hasAnyUserGroup([UserGroup.ADMIN]);
     const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
     const hasOrganization = user?.organization_id;
 
-    const canCreateProject = isAdmin || (isOrgAdmin && hasOrganization);
+    const canCreateProject = isOrgAdmin && hasOrganization;
     const canDeleteProject = (project: Project): boolean => {
-        return isAdmin || (isOrgAdmin && project.organizationId === user?.organization_id);
+        return isOrgAdmin && project.organizationId === user?.organization_id;
     };
 
     const handleOpenCreateProject = () => {
@@ -79,9 +78,6 @@ const ProjectsPage: React.FC = () => {
                             </div>
                         }
                     >
-                        <div className="text-sm text-gray-600">
-                            Folosește butoanele de mai sus pentru a crea proiecte noi și activități asociate.
-                        </div>
                     </Card>
                 )}
 

@@ -4,32 +4,32 @@ import {apiService} from "@/services/api.service.ts";
 
 export const activityService = {
     getList: async (params?: ListParams): Promise<PaginatedResponse<Activity>> => {
-        return apiService.getPaginatedList<Activity>('/api/activity/list', params);
+        return apiService.getPaginatedList<Activity>('activity/list', params);
     },
 
     getById: async (id: string): Promise<Activity> => {
-        return apiService.get<Activity>(`/api/activity/${id}`);
+        return apiService.get<Activity>(`activity/${id}`);
     },
 
     getByProjectId: async (projectId: string, params?: ListParams): Promise<PaginatedResponse<Activity>> => {
-        return apiService.getPaginatedList<Activity>(`/api/activity/project/${projectId}`, params);
+        return apiService.getPaginatedList<Activity>(`activity/project/${projectId}`, params);
     },
 
     getActivityStats: async (projectId?: string): Promise<ActivityStats> => {
-        const endpoint = projectId ? `/api/activity/stats/${projectId}` : '/api/activity/stats';
+        const endpoint = projectId ? `activity/stats/${projectId}` : 'activity/stats';
         return await apiService.get<ActivityStats>(endpoint);
     },
 
     create: async (data: ActivityCreateRequest): Promise<Activity> => {
-        return apiService.post<Activity>('/api/activity/create', data);
+        return apiService.post<Activity>('activity/create', data);
     },
 
     update: async (id: string, data: ActivityUpdateRequest): Promise<Activity> => {
-        return apiService.put<Activity>(`/api/activity/update/${id}`, data);
+        return apiService.put<Activity>(`activity/update/${id}`, data);
     },
 
     delete: async (id: string): Promise<void> => {
-        return apiService.delete<void>(`/api/activity/delete/${id}`);
+        return apiService.delete<void>(`activity/delete/${id}`);
     },
 };
 

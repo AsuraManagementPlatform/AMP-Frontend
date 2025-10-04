@@ -34,7 +34,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
     const [reportsModalOpen, setReportsModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const { data: projects = [], loading, error } = useTableData<Project>({
-        endpoint: "/api/project/list",
+        endpoint: "project/list",
         initialPageSize: 20
     });
 
