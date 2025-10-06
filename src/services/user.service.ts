@@ -29,6 +29,14 @@ export const userService = {
     delete: async (id: string): Promise<void> => {
         return apiService.delete<void>(`user/delete/${id}`);
     },
+
+    deactivateUser: async (id: string): Promise<void> => {
+        return apiService.post<void>(`user/deactivate/${id}`, {});
+    },
+
+    reactivateUser: async (id: string): Promise<void> => {
+        return apiService.post<void>(`user/reactivate/${id}`, {});
+    },
 };
 
 export default userService;

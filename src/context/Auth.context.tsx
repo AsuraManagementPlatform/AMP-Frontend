@@ -18,18 +18,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     const tokenRefreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const fetchUserData = useCallback(async (): Promise<void> => {
-        const userData = await userService.getCurrentUser();
-        const newUserData = {
-            id: userData.id,
-            email: userData.email,
-            full_name: userData.full_name,
-            groups: userData.groups,
-            status: userData.status,
-            organization_id: userData.organization_id,
-            is_active: userData.is_active || true
-        };
+        try {
+            const userData = await userService.getCurrentUser();
+            const newUserData = {
+                id: userData.id,
+                email: userData.email,
+                full_name: userData.full_name,
+                groups: userData.groups,
+                status: userData.status,
+                organization_id: userData.organization_id,
+                is_active: userData.is_active || true
+            };
 
-        setUser(newUserData);
+            setUser(newUserData);
+        } catch (error: any) {
+            if (error?.response?.status === 401 || 
+                (error?.message && error.message.includes('Utilizatorul este dezactivat'))) {
+                setError('Contul dvs. a fost dezactivat. Contactați administratorul pentru mai multe informații.');
+                setAuthState(AuthState.ERROR);
+                setUser(null);
+                if (keycloakService.authenticated) {
+                    await keycloakService.logout({ 
+                        redirectUri: window.location.origin + '/' 
+                    });
+                }
+                throw error;
+            }
+            throw error;
+        }
     }, []);
 
     const initializeAuth = useCallback(async (): Promise<void> => {

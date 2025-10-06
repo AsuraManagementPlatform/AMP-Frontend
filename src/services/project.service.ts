@@ -7,6 +7,14 @@ export const projectService = {
         return apiService.getPaginatedList<Project>('project/list', params);
     },
 
+    getMyProjects: async (params?: ListParams): Promise<PaginatedResponse<any>> => {
+        return apiService.getPaginatedList<any>('/api/project/member/list', params);
+    },
+
+    getMyActivities: async (params?: ListParams): Promise<PaginatedResponse<any>> => {
+        return apiService.getPaginatedList<any>('/api/activity-member/list', params);
+    },
+
     getById: async (id: string): Promise<Project> => {
         return apiService.get<Project>(`project/${id}`);
     },

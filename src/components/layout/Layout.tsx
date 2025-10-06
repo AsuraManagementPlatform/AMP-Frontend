@@ -76,7 +76,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                         </Link>
                                     </li>
 
-                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN, UserGroup.ADMIN]) && (
+                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && (
                                         <li className="relative flex items-center">
                                             <button
                                                 className={`px-3 py-2 rounded-md text-sm transition-colors flex items-center ${
@@ -113,7 +113,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                         </li>
                                     )}
 
-                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN, UserGroup.ADMIN]) && (
+                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && (
                                         <li className="relative flex items-center">
                                             <button
                                                 className={`px-3 py-2 rounded-md text-sm transition-colors flex items-center ${

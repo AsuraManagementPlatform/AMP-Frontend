@@ -8,12 +8,16 @@ import userService from "@/services/user.service.ts";
 import {User, UserMeResponse} from "@/types/user.types.ts";
 import {PaginatedResponse, TableColumn} from "@/types/index.types.ts";
 import Table from "@/components/ui/Table.tsx";
+import { CreateUserModal } from "@/components/modals/user/CreateUserModal.tsx";
+import { UserCreateRequest } from "@/schemas/user.schema.ts";
+import showToast from "@/components/ui/Toast.tsx";
 
 const AdminPanel: React.FC = () => {
     const { user } = useAuth();
     const [users, setUsers] = useState<PaginatedResponse<User>>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
 
     useEffect(() => {
         fetchUsers();
@@ -45,6 +49,29 @@ const AdminPanel: React.FC = () => {
         } catch (error) {
             setError('Failed to delete user. Please try again.');
         }
+    };
+
+    const handleOpenCreateUser = () => {
+        setIsCreateUserModalOpen(true);
+    };
+
+    const handleCloseCreateUser = () => {
+        setIsCreateUserModalOpen(false);
+    };
+
+    const handleCreateUser = async (data: UserCreateRequest): Promise<void> => {
+        try {
+            await userService.create(data);
+            showToast.success('Utilizator creat cu succes!');
+            await fetchUsers();
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const handleEditUser = (user: UserMeResponse) => {
+        console.log('Edit user:', user);
+        showToast.info('Funcționalitatea de editare va fi implementată în curând');
     };
 
     const columns: TableColumn<UserMeResponse>[] = [
@@ -95,8 +122,7 @@ const AdminPanel: React.FC = () => {
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                        }}
+                        onClick={() => handleEditUser(user)}
                     >
                         Edit
                     </Button>
@@ -145,6 +171,7 @@ const AdminPanel: React.FC = () => {
                         <Button
                             variant="primary"
                             disabled={loading}
+                            onClick={handleOpenCreateUser}
                         >
                             Create User
                         </Button>
@@ -154,7 +181,7 @@ const AdminPanel: React.FC = () => {
                         data={users}
                         columns={columns}
                         loading={loading}
-                        emptyMessage="No users found. Create your first user to get started."
+                        emptyMessage="Nu au fost găsiți utilizatori. Creează primul utilizator pentru a începe."
                     />
                 </Card>
 
@@ -175,6 +202,13 @@ const AdminPanel: React.FC = () => {
                         </div>
                     </Card>
                 </div>
+
+                <CreateUserModal
+                    isOpen={isCreateUserModalOpen}
+                    onClose={handleCloseCreateUser}
+                    onSubmit={handleCreateUser}
+                    isAdmin={true}
+                />
 
             </div>
         </Layout>
