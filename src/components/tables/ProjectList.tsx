@@ -70,52 +70,6 @@ const ProjectList: React.FC<ProjectListProps> = ({
                                 <span>Buget: {project.budget?.toLocaleString()} RON</span>
                             </div>
                         </div>
-                        <div className="flex gap-2 flex-wrap">
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedProject(project);
-                                    setBudgetModalOpen(true);
-                                }}
-                                className="p-2 bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
-                                title="Gestionează buget"
-                            >
-                                <IconWallet className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedProject(project);
-                                    setActivitiesModalOpen(true);
-                                }}
-                                className="p-2 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors"
-                                title="Vezi activități"
-                            >
-                                <IconActivity className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedProject(project);
-                                    setTeamModalOpen(true);
-                                }}
-                                className="p-2 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition-colors"
-                                title="Gestionează echipa"
-                            >
-                                <IconGroup className="w-4 h-4" />
-                            </button>
-                            {/*<button*/}
-                            {/*    onClick={(e) => {*/}
-                            {/*        e.stopPropagation();*/}
-                            {/*        setSelectedProject(project);*/}
-                            {/*        setReportsModalOpen(true);*/}
-                            {/*    }}*/}
-                            {/*    className="p-2 bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors"*/}
-                            {/*    title="Generează rapoarte"*/}
-                            {/*>*/}
-                            {/*    <IconChart className="w-4 h-4" />*/}
-                            {/*</button>*/}
-                        </div>
                     </div>
                 </div>
             ))}{budgetModalOpen && selectedProject && (
