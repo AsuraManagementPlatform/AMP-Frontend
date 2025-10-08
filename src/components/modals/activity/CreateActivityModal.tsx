@@ -1,95 +1,60 @@
-import React, { useState, useEffect } from 'react';
-import { Modal } from '@/components/ui/Modal';
-import { DynamicForm } from '@/components/forms/DynamicForm';
-import { createActivityFormConfig } from '@/config/activity.form.config';
-import { createActivitySchema, CreateActivityData, getCreateActivityDefaultValues } from '@/schemas/activity.schema';
-import showToast from '@/components/ui/Toast';
+import React, {useState} from 'react';
+import {Modal} from '@/components/ui/Modal';
+import {DynamicForm} from '@/components/forms/DynamicForm';
+import {createActivityFormConfig} from '@/config/activity.form.config';
+import {CreateActivityData, createActivitySchema, getCreateActivityDefaultValues} from '@/schemas/activity.schema';
 import activityService from '@/services/activity.service';
-import toast from 'react-hot-toast';
-import { ActivityCreateRequest } from '@/types/activity.types';
+import showToast from '@/components/ui/Toast';
+import {ActivityCreateRequest} from "@/types/activity.types.ts";
 
 interface CreateActivityModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSuccess?: (activity: any) => void;
-    projectId?: string;
-    availableProjects?: { id: string; name: string }[];
+    onSuccess: () => void;
+    projectId: string;
 }
 
 export const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
-    isOpen,
-    onClose,
-    onSuccess,
-    projectId,
-    availableProjects = []
-}) => {
+                                                                            isOpen,
+                                                                            onClose,
+                                                                            onSuccess,
+                                                                            projectId
+                                                                        }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formKey, setFormKey] = useState(0);
-    useEffect(() => {
-        if (!isOpen) {
-            setIsSubmitting(false);
-        }
-    }, [isOpen]);
 
     const handleSubmit = async (data: CreateActivityData) => {
-        if (isSubmitting) return;
-
-        let loadingToastId: string | undefined;
-        
         try {
             setIsSubmitting(true);
-            loadingToastId = showToast.loading('Se creează activitatea...');
-
-            const activityData: any = {
-                project: projectId || data.projectId,
+            const activityCreateRequest: ActivityCreateRequest = {
+                project: data.project,
+                project_objective: data.project_objective,
                 title: data.title,
-                description: data.description || '',
-                starting_date: data.startDate,
-                estimated_ending_date: data.endDate || data.startDate,
-                ending_date: data.endDate || null,
+                description: data.description,
+                starting_date: data.starting_date,
+                estimated_ending_date: data.estimated_ending_date,
+                ending_date: data.ending_date,
                 status: data.status,
                 type: data.type,
-                location: data.location || '',
-                observation: data.notes || ''
+                location: data.location,
+                observation: data.observation,
+                results: data.results,
+                indicators: data.indicators
             };
 
-            const activity = await activityService.create(activityData);
-            
-            if (loadingToastId) {
-                toast.dismiss(loadingToastId);
-            }
+            await activityService.create(activityCreateRequest);
             showToast.success('Activitatea a fost creată cu succes!');
-            onSuccess?.(activity);
+            onSuccess();
             onClose();
         } catch (error: any) {
-            if (loadingToastId) {
-                toast.dismiss(loadingToastId);
-            }
-            
-            let errorMessage = 'Crearea activității a eșuat';
-            if (error?.response?.data?.message) {
-                errorMessage = error.response.data.message;
-            } else if (error?.response?.data?.details) {
-                errorMessage = `Eroare: ${JSON.stringify(error.response.data.details)}`;
-            } else if (error?.message) {
-                errorMessage = error.message;
-            }
-            
+            const errorMessage = error?.message || 'Eroare la crearea activității';
             showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const handleReset = () => {
-        setFormKey(prev => prev + 1);
-    };
-
-    const formConfig = createActivityFormConfig(projectId, availableProjects, []);
-    const defaultValues = getCreateActivityDefaultValues();
-    if (projectId) {
-        defaultValues.projectId = projectId;
-    }
+    const formConfig = createActivityFormConfig();
+    const defaultValues = getCreateActivityDefaultValues(projectId);
 
     return (
         <Modal
@@ -97,16 +62,13 @@ export const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
             onClose={onClose}
             title="Creează activitate nouă"
             size="lg"
-            showResetButton={true}
-            onReset={handleReset}
         >
-            <DynamicForm
-                key={formKey}
+            <DynamicForm<CreateActivityData>
                 config={formConfig}
                 schema={createActivitySchema}
-                defaultValues={defaultValues}
                 onSubmit={handleSubmit}
                 onCancel={onClose}
+                defaultValues={defaultValues}
                 isSubmitting={isSubmitting}
             />
         </Modal>

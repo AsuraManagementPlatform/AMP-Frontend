@@ -1,5 +1,5 @@
 import {DynamicFormConfig, FieldType, SelectOption} from "@/types/form.types.ts";
-import {ProjectStatus, ProjectPriority} from "@/types/project.types.ts";
+import {ProjectStatus, PROJECT_CATEGORY_OPTIONS, ProjectPriority} from "@/types/project.types.ts";
 
 const getProjectStatusOptions = (): SelectOption[] => [
     { value: ProjectStatus.DRAFT, label: 'Draft' },
@@ -7,13 +7,6 @@ const getProjectStatusOptions = (): SelectOption[] => [
     { value: ProjectStatus.COMPLETED, label: 'Finalizat' },
     { value: ProjectStatus.CANCELLED, label: 'Anulat' },
     { value: ProjectStatus.ON_HOLD, label: 'Suspendat' }
-];
-
-const getProjectPriorityOptions = (): SelectOption[] => [
-    { value: ProjectPriority.LOW, label: 'Scăzută' },
-    { value: ProjectPriority.MEDIUM, label: 'Medie' },
-    { value: ProjectPriority.HIGH, label: 'Înaltă' },
-    { value: ProjectPriority.URGENT, label: 'Urgentă' }
 ];
 
 export const createProjectFormConfig = (
@@ -42,19 +35,18 @@ export const createProjectFormConfig = (
                     rows: 3
                 },
                 {
+                    name: 'sustainability',
+                    label: 'Sustenabilitate',
+                    type: FieldType.TEXT,
+                    placeholder: 'ex: Proiect sustenabil prin...',
+                    maxLength: 255
+                },
+                {
                     name: 'category',
                     label: 'Categorie',
                     type: FieldType.SELECT,
                     required: true,
-                    options: [
-                        { value: 'educatie', label: 'Educație' },
-                        { value: 'mediu', label: 'Mediu' },
-                        { value: 'social', label: 'Social' },
-                        { value: 'cultura', label: 'Cultură' },
-                        { value: 'sanatate', label: 'Sănătate' },
-                        { value: 'tehnologie', label: 'Tehnologie' },
-                        { value: 'altele', label: 'Altele' }
-                    ]
+                    options: PROJECT_CATEGORY_OPTIONS
                 },
                 {
                     name: 'location',
@@ -76,17 +68,22 @@ export const createProjectFormConfig = (
                     label: 'Prioritate',
                     type: FieldType.SELECT,
                     required: true,
-                    options: getProjectPriorityOptions()
+                    options: [
+                        { value: ProjectPriority.LOW, label: 'Scăzută' },
+                        { value: ProjectPriority.MEDIUM, label: 'Medie' },
+                        { value: ProjectPriority.HIGH, label: 'Înaltă' },
+                        { value: ProjectPriority.URGENT, label: 'Urgentă' }
+                    ]
                 },
                 {
-                    name: 'startDate',
+                    name: 'starting_date',
                     label: 'Data de început',
                     type: FieldType.DATE,
                     placeholder: 'Selectează data de început',
                     required: true
                 },
                 {
-                    name: 'endDate',
+                    name: 'ending_date',
                     label: 'Data de sfârșit',
                     type: FieldType.DATE,
                     placeholder: 'Selectează data de sfârșit',
@@ -124,13 +121,13 @@ export const createProjectFormConfig = (
             columns: 1,
             fields: [
                 {
-                    name: 'organizationId',
+                    name: 'organization',
                     label: 'Organizație',
                     type: FieldType.HIDDEN,
                     required: true
                 },
                 {
-                    name: 'managerId',
+                    name: 'budget_responsible',
                     label: 'Manager proiect',
                     type: FieldType.SELECT,
                     required: true,
@@ -143,7 +140,7 @@ export const createProjectFormConfig = (
                     ]
                 },
                 {
-                    name: 'budgetNotes',
+                    name: 'budget_notes',
                     label: 'Note buget',
                     type: FieldType.TEXTAREA,
                     placeholder: 'Note despre managementul bugetului...',

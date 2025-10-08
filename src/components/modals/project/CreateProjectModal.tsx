@@ -7,6 +7,7 @@ import showToast from '@/components/ui/Toast';
 import projectService from '@/services/project.service';
 import userService from '@/services/user.service';
 import toast from 'react-hot-toast';
+import {ProjectCreateRequest} from "@/types/project.types.ts";
 
 interface CreateProjectModalProps {
     isOpen: boolean;
@@ -35,16 +36,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     const loadAvailableManagers = async () => {
         try {
             if (organizationId) {
-                let response;
-                try {
-                    response = await userService.getManagers({
-                        pageSize: 100
-                    });
-                } catch (managersError) {
-                    response = await userService.getList({
-                        pageSize: 100
-                    });
-                }
+                const response = await userService.getManagers({
+                    pageSize: 100
+                });
                 
                 const managers = response.results?.map(user => ({
                     id: user.id,
@@ -62,21 +56,23 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
 
     const handleSubmit = async (data: CreateProjectData) => {
         if (isSubmitting) return;
-        
-        const projectData: any = {
+
+        const projectData: ProjectCreateRequest = {
             name: data.name,
             description: data.description || '',
             category: data.category,
-            starting_date: data.startDate,
-            ending_date: data.endDate,
+            starting_date: data.starting_date,
+            ending_date: data.ending_date,
             status: data.status,
-            organization: organizationId || data.organizationId,
+            priority: data.priority,
+            organization: organizationId || data.organization,
             location: data.location,
             budget: Math.round(data.budget),
             currency: data.currency,
-            budget_planning_date: data.budgetPlanningDate || data.startDate,
-            budget_responsible: data.managerId,
-            budget_notes: data.budgetNotes || ''
+            budget_planning_date: data.budget_planning_date || data.starting_date,
+            budget_responsible: data.budget_responsible,
+            budget_notes: data.budget_notes || '',
+            sustainability: data.sustainability || ''
         };
 
         let loadingToastId: string | undefined;
@@ -119,7 +115,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     const formConfig = createProjectFormConfig(organizationId, availableManagers);
     const defaultValues = getCreateProjectDefaultValues();
     if (organizationId) {
-        defaultValues.organizationId = organizationId;
+        defaultValues.organization = organizationId;
     }
 
     return (

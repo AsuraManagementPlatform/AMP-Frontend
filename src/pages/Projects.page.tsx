@@ -7,6 +7,8 @@ import { CreateProjectModal } from "@/components/modals/project/CreateProjectMod
 import ProjectList from "@/components/tables/ProjectList";
 import showToast from "@/components/ui/Toast";
 import { Project, UserGroup } from "@/types/index.types";
+import {useNavigate} from "react-router-dom";
+import {ROUTES} from "@/utils/constants.utils.ts";
 
 const ProjectsPage: React.FC = () => {
     const { user, hasAnyUserGroup } = useAuth();
@@ -17,9 +19,8 @@ const ProjectsPage: React.FC = () => {
     const hasOrganization = user?.organization_id;
 
     const canCreateProject = isOrgAdmin && hasOrganization;
-    const canDeleteProject = (project: Project): boolean => {
-        return isOrgAdmin && project.organizationId === user?.organization_id;
-    };
+
+    const navigate = useNavigate();
 
     const handleOpenCreateProject = () => {
         setIsCreateProjectModalOpen(true);
@@ -33,25 +34,12 @@ const ProjectsPage: React.FC = () => {
         setRefreshProjectTable(prev => prev + 1);
     };
 
-    const handleEditProject = (project: Project) => {
-        showToast.info(`Editează proiectul: ${project.name}`);
-    };
-
     const handleViewProject = (project: Project) => {
         showToast.info(`Vizualizează proiectul: ${project.name}`);
     };
 
-    const handleDeleteProject = async (project: Project) => {
-        try {
-            showToast.success(`Proiectul ${project.name} a fost șters cu succes`);
-            setRefreshProjectTable(prev => prev + 1);
-        } catch (error) {
-            showToast.error('Ștergerea proiectului a eșuat');
-        }
-    };
-
     const handleProjectRowClick = (project: Project) => {
-        showToast.info(`Proiect selectat: ${project.name}`);
+        navigate(ROUTES.ERP_PROJECT_DETAILS.replace(':project_id', project.id));
     };
 
     return (
@@ -83,14 +71,10 @@ const ProjectsPage: React.FC = () => {
 
                 <Card title="Lista proiecte" className="mb-6">
                     <ProjectList
-                        onEdit={handleEditProject}
+                        key={refreshProjectTable}
                         onView={handleViewProject}
-                        onDelete={handleDeleteProject}
                         onRowClick={handleProjectRowClick}
-                        refreshTrigger={refreshProjectTable}
-                        canDeleteProject={canDeleteProject}
                         className="flex gap-4 flex-col"
-                        pageSize={20}
                     />
                 </Card>
 

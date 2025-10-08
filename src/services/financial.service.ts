@@ -1,40 +1,13 @@
 import {ListParams, PaginatedResponse} from "@/types/index.types.ts";
 import {
-    ProjectExpense,
+    FinancialSummary,
     ProjectIncome,
-    ProjectExpenseCreateRequest,
-    ProjectExpenseUpdateRequest,
     ProjectIncomeCreateRequest,
-    ProjectIncomeUpdateRequest,
-    FinancialSummary
-} from "@/types/financial.types.ts";
+    ProjectIncomeUpdateRequest
+} from "@/types/transaction.types.ts";
 import {apiService} from "@/services/api.service.ts";
 
 export const financialService = {
-    getExpenses: async (params?: ListParams): Promise<PaginatedResponse<ProjectExpense>> => {
-        return apiService.getPaginatedList<ProjectExpense>('expense/project/list', params);
-    },
-
-    getExpensesByProject: async (projectId: string, params?: ListParams): Promise<PaginatedResponse<ProjectExpense>> => {
-        return apiService.getPaginatedList<ProjectExpense>('expense/project/list', { ...params, filters: { ...params?.filters, project_id: projectId } });
-    },
-
-    getExpenseById: async (expenseId: string): Promise<ProjectExpense> => {
-        return apiService.get<ProjectExpense>(`expense/project/${expenseId}`);
-    },
-
-    createExpense: async (data: ProjectExpenseCreateRequest): Promise<ProjectExpense> => {
-        return apiService.post<ProjectExpense>('expense/project/create', data);
-    },
-
-    updateExpense: async (expenseId: string, data: ProjectExpenseUpdateRequest): Promise<ProjectExpense> => {
-        return apiService.put<ProjectExpense>(`expense/project/update/${expenseId}`, data);
-    },
-
-    deleteExpense: async (expenseId: string): Promise<void> => {
-        return apiService.delete<void>(`expense/project/delete/${expenseId}`);
-    },
-
     getIncomes: async (params?: ListParams): Promise<PaginatedResponse<ProjectIncome>> => {
         return apiService.getPaginatedList<ProjectIncome>('income/project/list', params);
     },
