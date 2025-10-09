@@ -114,7 +114,7 @@ export const UserList: React.FC<UserListProps> = ({
 
     return (
         <Table<User>
-            endpoint="/api/user/list"
+            endpoint="user/list"
             columns={getColumns()}
             actions={getActions()}
             onRowClick={onRowClick}

@@ -21,7 +21,6 @@ import {CreateActivityModal} from "@/components/modals/activity/CreateActivityMo
 import {DashboardStats, User, UserGroup, UserStatus} from "@/types/index.types.ts";
 import {Project} from "@/types/project.types.ts";
 import {Activity} from "@/types/activity.types.ts";
-import UserList from "@/components/tables/UserList.tsx";
 import {useTranslation} from "react-i18next";
 
 const DashboardPage: React.FC = () => {
@@ -196,7 +195,6 @@ const DashboardPage: React.FC = () => {
                     setActivities(activitiesResponse.results || []);
 
                 } catch (error) {
-                    console.error('Error loading projects and activities:', error);
                     showToast.error('Eroare la încărcarea datelor');
                 } finally {
                     setProjectsLoading(false);
@@ -213,18 +211,10 @@ const DashboardPage: React.FC = () => {
             if (activeManagementView === 'membri' && (isAdmin || (isOrgAdmin && hasOrganization))) {
                 setMembersLoading(true);
                 try {
-                    
-                    const response = await apiService.get('/api/user/organization/members') as any;
+                    const response = await apiService.get('user/organization/members') as any;
                     
                     setOrganizationMembers(response.results || []);
-
-                            console.log(`�`);
-
-
-
-
                 } catch (error) {
-                    console.error('❌ Error loading organization members:', error);
                     showToast.error('Eroare la încărcarea membrilor organizației');
                 } finally {
                     setMembersLoading(false);

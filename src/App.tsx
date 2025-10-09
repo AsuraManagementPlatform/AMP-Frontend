@@ -14,6 +14,7 @@ import { ROUTES } from '@/utils/constants.utils';
 import { AuthProvider } from "@/context/Auth.context.tsx";
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { UserGroup } from '@/types/index.types';
+import ProjectPage from "@/pages/project/Project.page.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -68,6 +69,14 @@ function App() {
                       <Projects />
                     </ProtectedRoute>
                   } 
+                />
+                <Route
+                  path={ROUTES.ERP_PROJECT_DETAILS}
+                  element={
+                      <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN]}>
+                          <ProjectPage />
+                      </ProtectedRoute>
+                  }
                 />
                 <Route 
                   path={ROUTES.ERP_ACTIVITIES} 

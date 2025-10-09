@@ -194,7 +194,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                         <div className="hidden md:block text-left">
                                             <div className="text-sm font-medium">{getUserDisplayName()}</div>
                                             {user?.email && (
-                                                <div className="text-xs text-gray-500">@{user.email}</div>
+                                                <div className="text-xs text-gray-500">{user.email}</div>
                                             )}
                                         </div>
                                         <svg

@@ -5,7 +5,8 @@ import {createOrganizationFormConfig} from '@/config/organization.form.config';
 import {
     CreateOrganizationData,
     createOrganizationSchema,
-    getCreateOrganizationDefaultValues
+    getCreateOrganizationDefaultValues,
+    prepareOrganizationDataForAPI
 } from '@/schemas/organization.schema';
 import {User, UserMeResponse} from '@/types/user.types';
 
@@ -20,16 +21,21 @@ interface OrganizationCreationModalProps {
 }
 
 export const OrganizationCreationModal: React.FC<OrganizationCreationModalProps> = ({
-    isOpen,
-    onClose,
-    onSubmit,
-    isSubmitting,
-    pendingAdminUsers,
-    loadingPendingUsers,
-    preselectedUser
-}) => {
+                                                                                        isOpen,
+                                                                                        onClose,
+                                                                                        onSubmit,
+                                                                                        isSubmitting,
+                                                                                        pendingAdminUsers,
+                                                                                        loadingPendingUsers,
+                                                                                        preselectedUser
+                                                                                    }) => {
     const formConfig = createOrganizationFormConfig(pendingAdminUsers, loadingPendingUsers, preselectedUser);
     const defaultValues = getCreateOrganizationDefaultValues(preselectedUser);
+
+    const handleSubmit = (data: CreateOrganizationData) => {
+        const apiData = prepareOrganizationDataForAPI(data);
+        onSubmit(apiData as CreateOrganizationData);
+    };
 
     return (
         <FormModal
@@ -41,7 +47,7 @@ export const OrganizationCreationModal: React.FC<OrganizationCreationModalProps>
             <DynamicForm<CreateOrganizationData>
                 config={formConfig}
                 schema={createOrganizationSchema}
-                onSubmit={onSubmit}
+                onSubmit={handleSubmit}
                 onCancel={onClose}
                 defaultValues={defaultValues}
                 isSubmitting={isSubmitting}

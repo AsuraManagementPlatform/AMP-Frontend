@@ -1,14 +1,10 @@
-import React, { useState } from 'react';
-import { Project } from '@/types/index.types';
+import React, {useState} from 'react';
+import {Project} from '@/types/index.types';
 import showToast from '@/components/ui/Toast';
-import { useTableData } from "@/hooks/useTableData";
-import IconEye from "@/assets/icons/iconmonstr-eye.svg?react";
-import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
-import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
-import IconWallet from "@/assets/icons/iconmonstr-wallet.svg?react";
+import {useTableData} from "@/hooks/useTableData";
 import IconActivity from "@/assets/icons/iconmonstr-activity.svg?react";
 import IconGroup from "@/assets/icons/iconmonstr-group.svg?react";
-import IconChart from "@/assets/icons/iconmonstr-chart.svg?react";
+import IconWallet from "@/assets/icons/iconmonstr-wallet.svg?react";
 
 interface ProjectListProps {
     onEdit?: (project: Project) => void;
@@ -22,9 +18,6 @@ interface ProjectListProps {
 }
 
 const ProjectList: React.FC<ProjectListProps> = ({
-    onEdit,
-    onView,
-    onDelete,
     onRowClick,
     className = ''
 }) => {
@@ -34,44 +27,9 @@ const ProjectList: React.FC<ProjectListProps> = ({
     const [reportsModalOpen, setReportsModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const { data: projects = [], loading, error } = useTableData<Project>({
-        endpoint: "/api/project/list",
+        endpoint: "project/list",
         initialPageSize: 20
     });
-
-    const safeProjects = projects || [];
-    const mockProjects: Project[] = [
-        {
-            id: "1",
-            name: "Modernizare Școala Verde",
-            description: "Proiect de modernizare și eficientizare energetică",
-            status: "ACTIVE",
-            priority: "HIGH",
-            startDate: "2025-09-01",
-            endDate: "2025-12-31",
-            budget: 75000,
-            organizationId: "org1",
-            managerId: "manager1",
-            tags: ["educație", "mediu"],
-            createdAt: "2025-08-15T10:00:00Z",
-            updatedAt: "2025-09-30T14:20:00Z"
-        },
-        {
-            id: "2",
-            name: "Program Ajutor Alimentar",
-            description: "Distribuire pachete alimentare",
-            status: "ACTIVE", 
-            priority: "URGENT",
-            startDate: "2025-08-01",
-            endDate: "2025-11-30",
-            budget: 45000,
-            organizationId: "org1",
-            managerId: "manager2",
-            tags: ["social", "alimentație"],
-            createdAt: "2025-07-20T09:00:00Z",
-            updatedAt: "2025-10-01T11:45:00Z"
-        }
-    ];
-    const displayProjects = safeProjects.length > 0 ? safeProjects : mockProjects;
 
     if (loading) {
         return (
@@ -97,7 +55,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
 
     return (
         <div className={`space-y-4 ${className}`}>
-            {displayProjects.map((project) => (
+            {projects.map((project) => (
                 <div
                     key={project.id}
                     className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
@@ -109,91 +67,8 @@ const ProjectList: React.FC<ProjectListProps> = ({
                             <p className="text-gray-600 text-sm mt-1">{project.description}</p>
                             <div className="flex gap-4 mt-2 text-sm text-gray-500">
                                 <span>Status: {project.status}</span>
-                                <span>Prioritate: {project.priority}</span>
                                 <span>Buget: {project.budget?.toLocaleString()} RON</span>
                             </div>
-                        </div>
-                        <div className="flex gap-2 flex-wrap">
-                            {onView && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onView(project);
-                                    }}
-                                    className="p-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                                    title="Vezi detalii proiect"
-                                >
-                                    <IconEye className="w-4 h-4" />
-                                </button>
-                            )}
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedProject(project);
-                                    setBudgetModalOpen(true);
-                                }}
-                                className="p-2 bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
-                                title="Gestionează buget"
-                            >
-                                <IconWallet className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedProject(project);
-                                    setActivitiesModalOpen(true);
-                                }}
-                                className="p-2 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors"
-                                title="Vezi activități"
-                            >
-                                <IconActivity className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedProject(project);
-                                    setTeamModalOpen(true);
-                                }}
-                                className="p-2 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition-colors"
-                                title="Gestionează echipa"
-                            >
-                                <IconGroup className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedProject(project);
-                                    setReportsModalOpen(true);
-                                }}
-                                className="p-2 bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors"
-                                title="Generează rapoarte"
-                            >
-                                <IconChart className="w-4 h-4" />
-                            </button>
-                            {onEdit && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onEdit(project);
-                                    }}
-                                    className="p-2 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 transition-colors"
-                                    title="Editează proiect"
-                                >
-                                    <IconEdit className="w-4 h-4" />
-                                </button>
-                            )}
-                            {onDelete && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onDelete(project);
-                                    }}
-                                    className="p-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
-                                    title="Șterge proiect"
-                                >
-                                    <IconDelete className="w-4 h-4" />
-                                </button>
-                            )}
                         </div>
                     </div>
                 </div>
@@ -346,38 +221,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
                         </button>
                     </div>
                     
-                    <div className="space-y-3">
-                        <div className="border border-gray-200 rounded-lg p-3">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h4 className="font-semibold">Evaluare necesități comunitate</h4>
-                                    <p className="text-sm text-gray-600">Status: În progres</p>
-                                    <p className="text-sm text-gray-500">Data: 01.09.2025 - 15.09.2025</p>
-                                </div>
-                                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">În progres</span>
-                            </div>
-                        </div>
-                        <div className="border border-gray-200 rounded-lg p-3">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h4 className="font-semibold">Implementare soluții IT</h4>
-                                    <p className="text-sm text-gray-600">Status: Planificat</p>
-                                    <p className="text-sm text-gray-500">Data: 16.09.2025 - 30.11.2025</p>
-                                </div>
-                                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">Planificat</span>
-                            </div>
-                        </div>
-                        <div className="border border-gray-200 rounded-lg p-3">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h4 className="font-semibold">Raportare finală și evaluare</h4>
-                                    <p className="text-sm text-gray-600">Status: Planificat</p>
-                                    <p className="text-sm text-gray-500">Data: 01.12.2025 - 31.12.2025</p>
-                                </div>
-                                <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">Planificat</span>
-                            </div>
-                        </div>
-                    </div>
+                    {/* @TODO List activitati */}
 
                     <div className="flex justify-end mt-4">
                         <button 
@@ -406,47 +250,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
                         <button className="px-3 py-1 bg-blue-500 text-white rounded text-sm">+ Adaugă membru</button>
                     </div>
 
-                    <div className="space-y-3">
-                        <div className="border border-gray-200 rounded-lg p-3">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h4 className="font-semibold">Ana Popescu</h4>
-                                    <p className="text-sm text-gray-600">Manager proiect</p>
-                                    <p className="text-sm text-gray-500">ana.popescu@email.com</p>
-                                </div>
-                                <div className="flex gap-2">
-                                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">Activ</span>
-                                    <button className="text-red-500 hover:text-red-700">🗑️</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="border border-gray-200 rounded-lg p-3">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h4 className="font-semibold">Ion Marinescu</h4>
-                                    <p className="text-sm text-gray-600">Dezvoltator</p>
-                                    <p className="text-sm text-gray-500">ion.marinescu@email.com</p>
-                                </div>
-                                <div className="flex gap-2">
-                                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">Activ</span>
-                                    <button className="text-red-500 hover:text-red-700">🗑️</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="border border-gray-200 rounded-lg p-3">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h4 className="font-semibold">Maria Stanescu</h4>
-                                    <p className="text-sm text-gray-600">Designer</p>
-                                    <p className="text-sm text-gray-500">maria.stanescu@email.com</p>
-                                </div>
-                                <div className="flex gap-2">
-                                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">Inactiv</span>
-                                    <button className="text-red-500 hover:text-red-700">🗑️</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {/* @TODO Lista membri deja adaugati */}
 
                     <div className="flex justify-end mt-4">
                         <button 
