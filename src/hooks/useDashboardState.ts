@@ -43,8 +43,13 @@ export const useDashboardState = () => {
         user?.groups?.some(group => group.toLowerCase() === 'admin') || false, [user]);
     const isOrgAdmin = useMemo(() => 
         user?.groups?.some(group => group.toLowerCase() === 'organization_admin') || false, [user]);
-    const isMember = useMemo(() => 
-        user?.groups?.some(group => group.toLowerCase() === 'member') || false, [user]);
+    const isMember = useMemo(() => {
+        if (!user?.groups || user.groups.length === 0) return false;
+        const hasAdminRole = user.groups.some(group => 
+            group.toLowerCase() === 'admin' || group.toLowerCase() === 'organization_admin'
+        );
+        return !hasAdminRole;
+    }, [user]);
     const hasOrganization = useMemo(() => !!user?.organization_id, [user?.organization_id]);
 
     const filteredMembers = members.filter(member => 

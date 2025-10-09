@@ -10,6 +10,11 @@ export interface GlobalDashboardStats {
     activeProjects: number;
     completedActivities: number;
     activeOrganizations: number;
+    totalMembers?: number;
+    organizationAdmins?: number;
+    employees?: number;
+    members?: number;
+    volunteers?: number;
 }
 
 export const dashboardService = {

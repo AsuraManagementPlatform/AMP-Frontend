@@ -11,6 +11,9 @@ import { Organization } from "@/types/organization.types";
 import { UpdateOrganizationData } from "@/schemas/organization.schema";
 import { organizationService } from "@/services/organization.service";
 import { OrganizationEditForm } from "@/components/forms/OrganizationEditForm";
+import { Table } from "@/components/ui/Table";
+import { CreateUserModal } from "@/components/modals/user/CreateUserModal";
+import { userService } from "@/services/user.service";
 
 const OrganizationDetailsPage: React.FC = () => {
     const { user, hasAnyUserGroup } = useAuth();
@@ -18,6 +21,8 @@ const OrganizationDetailsPage: React.FC = () => {
     const [selectedTab, setSelectedTab] = useState('profile');
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState<Organization | null>(null);
+    const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
@@ -282,16 +287,20 @@ const OrganizationDetailsPage: React.FC = () => {
                     <Card title="Statistici organizație">
                         <div className="space-y-4">
                             <div className="flex justify-between">
-                                <span className="text-gray-500 text-sm">Membri:</span>
-                                <span className="font-bold text-blue-600">{organization?.member_count || 0}</span>
+                                <span className="text-gray-500 text-sm">Total membri:</span>
+                                <span className="font-bold text-blue-600">{organization?.member_statistics?.total_people || organization?.member_count || 0}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500 text-sm">Angajați:</span>
-                                <span className="font-bold text-green-600">{organization?.employee_count || 0}</span>
+                                <span className="font-bold text-green-600">{organization?.member_statistics?.employee_count || organization?.employee_count || 0}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500 text-sm">Voluntari:</span>
-                                <span className="font-bold text-orange-600">{organization?.volunteer_count || 0}</span>
+                                <span className="font-bold text-orange-600">{organization?.member_statistics?.volunteer_count || organization?.volunteer_count || 0}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-500 text-sm">Membri (exclusiv angajați/voluntari):</span>
+                                <span className="font-bold text-indigo-600">{organization?.member_statistics?.member_count || 0}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500 text-sm">Buget anual:</span>
@@ -331,21 +340,113 @@ const OrganizationDetailsPage: React.FC = () => {
         );
     };
 
-    const renderTeamContent = () => (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Membri organizație</h3>
-                <PrimaryActionButton variant="create" onClick={() => showToast.info("Funcționalitate în dezvoltare")}>
-                    Adaugă membru
-                </PrimaryActionButton>
-            </div>
-            <Card>
-                <div className="text-center py-8 text-gray-500">
-                    <p>Managementul echipei va fi implementat în versiunea următoare.</p>
+    const handleOpenCreateUser = () => {
+        setIsCreateUserModalOpen(true);
+    };
+
+    const handleCloseCreateUser = () => {
+        setIsCreateUserModalOpen(false);
+    };
+
+    const handleCreateUser = async (data: any): Promise<void> => {
+        try {
+            await userService.create(data);
+            showToast.success('Utilizator creat cu succes!');
+            setRefreshTrigger(prev => prev + 1);
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const handleDeleteUser = async (userId: string) => {
+        if (!window.confirm("Ești sigur că vrei să ștergi acest utilizator?")) return;
+        
+        try {
+            await userService.delete(userId);
+            showToast.success("Utilizatorul a fost șters cu succes!");
+            setRefreshTrigger(prev => prev + 1);
+        } catch (error) {
+            showToast.error("Nu s-a putut șterge utilizatorul.");
+        }
+    };
+
+    const renderTeamContent = () => {
+        const columns = [
+            {
+                key: 'username' as const,
+                label: 'Username',
+                sortable: true,
+                filterable: true,
+                filterType: 'text' as const,
+            },
+            {
+                key: 'id' as const,
+                label: 'User ID',
+                sortable: true,
+                filterable: true,
+                filterType: 'text' as const,
+            },
+            {
+                key: 'groups' as const,
+                label: 'Groups',
+                sortable: false,
+                filterable: true,
+                filterType: 'text' as const,
+                render: (groups: string) => {
+                    if (!groups) return '-';
+                    const groupList = groups.split(',').map(g => g.trim());
+                    return (
+                        <div className="flex flex-wrap gap-1">
+                            {groupList.map((group, index) => (
+                                <span
+                                    key={index}
+                                    className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
+                                >
+                                    {group}
+                                </span>
+                            ))}
+                        </div>
+                    );
+                },
+            },
+        ];
+
+        return (
+            <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h3 className="text-lg font-semibold">Membri organizație</h3>
+                        <p className="text-sm text-gray-600">Gestionează utilizatorii din organizația ta</p>
+                    </div>
+                    <PrimaryActionButton variant="create" onClick={handleOpenCreateUser}>
+                        Creează utilizator
+                    </PrimaryActionButton>
                 </div>
-            </Card>
-        </div>
-    );
+                
+                <Table
+                    endpoint="/api/user/list"
+                    columns={columns}
+                    emptyMessage="Nu au fost găsiți utilizatori. Creează primul utilizator pentru a începe."
+                    refreshTrigger={refreshTrigger}
+                    pageSize={20}
+                    actions={[
+                        {
+                            label: 'Delete',
+                            onClick: (item) => handleDeleteUser(item.id),
+                            className: 'text-red-600 hover:text-red-800',
+                        },
+                    ]}
+                />
+
+                <CreateUserModal
+                    isOpen={isCreateUserModalOpen}
+                    onClose={handleCloseCreateUser}
+                    onSubmit={handleCreateUser}
+                    isOrgAdmin={true}
+                />
+            </div>
+        );
+    };
 
     const renderCalendarContent = () => {
         const sampleEvents = [

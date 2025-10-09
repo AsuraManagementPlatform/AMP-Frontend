@@ -87,6 +87,9 @@ const DashboardPage: React.FC = () => {
                         getProjectStatusText={getProjectStatusText}
                         getActivityStatusText={getActivityStatusText}
                         SortButton={SortButton}
+                        handleOpenCreateUser={handlers.handleOpenCreateUser}
+                        handleOpenCreateProject={() => state.setIsCreateProjectModalOpen(true)}
+                        handleOpenCreateActivity={() => state.setIsCreateActivityModalOpen(true)}
                     />
                 )}
 

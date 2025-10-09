@@ -49,9 +49,7 @@ export class ApiService {
     }
 
     async post<T>(url: string, data?: any): Promise<T> {
-        console.log('🌐 ApiService.post called:', { url, data });
         const response: AxiosResponse<T> = await apiClient.post(url, data);
-        console.log('✅ ApiService.post response:', response.data);
         return response.data;
     }
 

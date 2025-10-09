@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { dashboardService, GlobalDashboardStats } from "@/services/dashboard.service";
 import { userService } from "@/services/user.service";
 import { organizationService } from "@/services/organization.service";
+import { projectService } from "@/services/project.service";
+import { activityService } from "@/services/activity.service";
 import { User } from "@/types/index.types";
 import { Organization } from "@/types/organization.types";
 
@@ -89,6 +91,71 @@ export const useDashboardData = ({
                         setMembersLoading(false);
                         setOrganizationsLoading(false);
                     }
+                } else if (isOrgAdmin) {
+                    try {
+                        setMembersLoading(true);
+                        
+                        const usersResponse = await userService.getList({ page: 1, pageSize: 100 });
+                        const allMembers = usersResponse.results || [];
+                        
+                        const countByGroup = (groupName: string) => {
+                            return allMembers.filter(user => {
+                                if (!user.groups) return false;
+                                if (Array.isArray(user.groups)) {
+                                    return user.groups.some(g => g.toLowerCase() === groupName.toLowerCase());
+                                }
+                                if (typeof user.groups === 'string') {
+                                    const groupsStr = user.groups as string;
+                                    return groupsStr.toLowerCase().includes(groupName.toLowerCase());
+                                }
+                                return false;
+                            }).length;
+                        };
+                        
+                        const orgAdmins = countByGroup('organization_admin');
+                        const employees = countByGroup('employee');
+                        const volunteers = countByGroup('volunteer');
+                        const regularMembers = countByGroup('member');
+                        
+                        setMembers(allMembers);
+                        
+                        setStats({
+                            ...dashboardStats,
+                            totalMembers: allMembers.length,
+                            organizationAdmins: orgAdmins,
+                            employees: employees,
+                            members: regularMembers,
+                            volunteers: volunteers
+                        });
+                    } catch (error) {
+                        console.error('Error fetching org admin data:', error);
+                        setMembers([]);
+                    } finally {
+                        setMembersLoading(false);
+                    }
+                } else if (isMember) {
+                    try {
+                        setProjectsLoading(true);
+                        setActivitiesLoading(true);
+                        
+                        const [projectsResponse, activitiesResponse] = await Promise.all([
+                            projectService.getList({ page: 1, pageSize: 50 }),
+                            activityService.getList({ page: 1, pageSize: 50 })
+                        ]);
+                        
+                        setProjects(projectsResponse.results || []);
+                        setActivities(activitiesResponse.results || []);
+                    } catch (error) {
+                        console.error('Error fetching member data:', error);
+                        setProjects([]);
+                        setActivities([]);
+                    } finally {
+                        setProjectsLoading(false);
+                        setActivitiesLoading(false);
+                    }
+                    
+                    setMembers([]);
+                    setOrganizations([]);
                 } else {
                     setMembers([]);
                     setOrganizations([]);

@@ -19,48 +19,6 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
 }) => {
     return (
         <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <Card title="Progres personal" className="bg-green-50 border-green-200">
-                    <div className="space-y-3">
-                        <div className="text-center mb-4">
-                            <div className="text-lg font-semibold text-green-700">
-                                Luna aceasta
-                            </div>
-                            <div className="text-sm text-gray-600">
-                                Progresul tău în proiecte
-                            </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 gap-3">
-                            <div className="bg-white p-3 rounded">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm text-gray-600">Activități finalizate:</span>
-                                    <span className="text-lg font-bold text-green-600">8</span>
-                                </div>
-                            </div>
-                            
-                            <div className="bg-white p-3 rounded">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm text-gray-600">Proiecte active:</span>
-                                    <span className="text-lg font-bold text-blue-600">3</span>
-                                </div>
-                            </div>
-                            
-                            <div className="bg-white p-3 rounded">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm text-gray-600">Ore lucrate:</span>
-                                    <span className="text-lg font-bold text-orange-600">52</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="text-xs text-gray-500 text-center mt-3 border-t pt-2">
-                            🎯 Continui munca excelentă!
-                        </div>
-                    </div>
-                </Card>
-            </div>
-
             <div className="mb-6">
                 <Card title="Tablou informativ - Proiectele și activitățile mele" className="mb-6">
                     <div className="space-y-4">
@@ -87,24 +45,25 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                                                         <div className="animate-pulse">Încărcare proiecte...</div>
                                                     </td>
                                                 </tr>
-                                            ) : projects.slice(0, 3).map((project, index) => (
-                                                <tr key={project.id || index} className="hover:bg-gray-50">
-                                                    <td className="px-4 py-3 font-medium">{project.name}</td>
-                                                    <td className="px-4 py-3">
-                                                        <span className={`px-2 py-1 text-xs rounded-full ${
-                                                            project.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                                        }`}>
-                                                            {project.status}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <div className="w-full bg-gray-200 rounded-full h-2">
-                                                            <div className="bg-blue-500 h-2 rounded-full" style={{ width: '65%' }}></div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                            {!projectsLoading && projects.length === 0 && (
+                                            ) : projects.length > 0 ? (
+                                                projects.map((project, index) => (
+                                                    <tr key={project.id || index} className="hover:bg-gray-50">
+                                                        <td className="px-4 py-3 font-medium">{project.name}</td>
+                                                        <td className="px-4 py-3">
+                                                            <span className={`px-2 py-1 text-xs rounded-full ${
+                                                                project.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                                            }`}>
+                                                                {project.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                                                <div className="bg-blue-500 h-2 rounded-full" style={{ width: '65%' }}></div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
                                                 <tr>
                                                     <td colSpan={3} className="px-4 py-6 text-center text-gray-500">
                                                         Nu participi la niciun proiect în acest moment
@@ -134,22 +93,23 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                                                         <div className="animate-pulse">Încărcare activități...</div>
                                                     </td>
                                                 </tr>
-                                            ) : activities.slice(0, 3).map((activity, index) => (
-                                                <tr key={activity.id || index} className="hover:bg-gray-50">
-                                                    <td className="px-4 py-3 font-medium">{activity.title}</td>
-                                                    <td className="px-4 py-3">
-                                                        <span className={`px-2 py-1 text-xs rounded-full ${
-                                                            activity.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                                        }`}>
-                                                            {activity.status}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-4 py-3 text-gray-600">
-                                                        {activity.endDate || activity.startDate || 'N/A'}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                            {!activitiesLoading && activities.length === 0 && (
+                                            ) : activities.length > 0 ? (
+                                                activities.map((activity, index) => (
+                                                    <tr key={activity.id || index} className="hover:bg-gray-50">
+                                                        <td className="px-4 py-3 font-medium">{activity.title}</td>
+                                                        <td className="px-4 py-3">
+                                                            <span className={`px-2 py-1 text-xs rounded-full ${
+                                                                activity.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                                            }`}>
+                                                                {activity.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-gray-600">
+                                                            {activity.endDate || activity.startDate || 'N/A'}
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
                                                 <tr>
                                                     <td colSpan={3} className="px-4 py-6 text-center text-gray-500">
                                                         Nu ai activități asignate în acest moment

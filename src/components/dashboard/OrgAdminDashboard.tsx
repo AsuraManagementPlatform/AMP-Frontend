@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/Card';
+import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import { Project, Activity, User } from '@/types/index.types';
+import { getUserRoleLabel } from '@/utils/dashboardUtils';
 
 interface OrgAdminDashboardProps {
     searchTerm: string;
@@ -18,6 +20,9 @@ interface OrgAdminDashboardProps {
     getProjectStatusText: (status: string) => string;
     getActivityStatusText: (status: string) => string;
     SortButton: React.ComponentType<{ field: string; label: string }>;
+    handleOpenCreateUser?: () => void;
+    handleOpenCreateProject?: () => void;
+    handleOpenCreateActivity?: () => void;
 }
 
 export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
@@ -35,7 +40,10 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
     getActivityStatusColor,
     getProjectStatusText,
     getActivityStatusText,
-    SortButton
+    SortButton,
+    handleOpenCreateUser,
+    handleOpenCreateProject,
+    handleOpenCreateActivity
 }) => {
     const [activeManagementView, setActiveManagementView] = useState<'membri' | 'proiecte'>('membri');
 
@@ -89,11 +97,21 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                 </div>
                             </div>
                         </div>
+                        {handleOpenCreateUser && (
+                            <div className="flex gap-2">
+                                <PrimaryActionButton 
+                                    onClick={handleOpenCreateUser}
+                                    size="sm"
+                                >
+                                    Creează utilizator
+                                </PrimaryActionButton>
+                            </div>
+                        )}
                     </div>
                     
                     {membersLoading ? (
                         <div className="text-center py-8">Se încarcă membrii...</div>
-                    ) : (
+                    ) : filteredMembers.length > 0 ? (
                         <div className="border rounded-lg overflow-hidden">
                             <table className="w-full">
                                 <thead className="bg-gray-50 border-b">
@@ -129,19 +147,41 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {(member.groups && member.groups.length > 0) ? member.groups[0] : 'Member'}
+                                                {getUserRoleLabel(member.groups)}
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
+                    ) : (
+                        <div className="border rounded-lg p-6 text-center">
+                            <div className="text-gray-500 mb-4">
+                                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239"/>
+                                </svg>
+                            </div>
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">Nu există utilizatori</h3>
+                            <p className="text-gray-500 mb-4">
+                                Nu au fost găsiți utilizatori în sistem. Creează primul utilizator pentru a începe.
+                            </p>
+                        </div>
                     )}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-900">Proiecte</h3>
+                        <div className="flex justify-between items-center">
+                            <h3 className="text-lg font-semibold text-gray-900">Proiecte</h3>
+                            {handleOpenCreateProject && (
+                                <PrimaryActionButton 
+                                    onClick={handleOpenCreateProject}
+                                    size="sm"
+                                >
+                                    Creează proiect
+                                </PrimaryActionButton>
+                            )}
+                        </div>
                         <div className="border rounded-lg overflow-hidden">
                             <div className="bg-gray-50 px-4 py-3 border-b">
                                 <div className="grid grid-cols-3 gap-4 text-sm font-medium text-gray-600">
@@ -193,9 +233,19 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                     </div>
                     
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                            {selectedProject ? `Activități - ${projects.find(p => p.id === selectedProject)?.name}` : 'Activități Recente'}
-                        </h3>
+                        <div className="flex justify-between items-center">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                                {selectedProject ? `Activități - ${projects.find(p => p.id === selectedProject)?.name}` : 'Activități Recente'}
+                            </h3>
+                            {handleOpenCreateActivity && (
+                                <PrimaryActionButton 
+                                    onClick={handleOpenCreateActivity}
+                                    size="sm"
+                                >
+                                    Creează activitate
+                                </PrimaryActionButton>
+                            )}
+                        </div>
                         <div className="border rounded-lg overflow-hidden">
                             <div className="bg-gray-50 px-4 py-3 border-b">
                                 <div className="grid grid-cols-4 gap-4 text-sm font-medium text-gray-600">

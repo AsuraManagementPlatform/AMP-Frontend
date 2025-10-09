@@ -36,6 +36,7 @@ export const getAuthHeader = (): Record<string, string> => {
     if (!keycloakService.authenticated || !keycloakService.token) {
         return {};
     }
+    
     return { Authorization: `Bearer ${keycloakService.token}` };
 };
 

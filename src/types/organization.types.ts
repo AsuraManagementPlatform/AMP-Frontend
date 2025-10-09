@@ -80,6 +80,7 @@ export interface Organization {
     employee_count?: number;
     volunteer_count?: number;
     member_count?: number;
+    member_statistics?: OrganizationMemberStats;
     status: OrganizationStatus;
     admin_user: string;
     is_verified?: boolean;
