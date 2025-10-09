@@ -1,5 +1,5 @@
 import {DynamicFormConfig, FieldType, SelectOption} from "@/types/form.types.ts";
-import {ActivityType} from "@/types/activity.types.ts";
+import {ActivityStatus, ActivityType} from "@/types/activity.types.ts";
 
 const getActivityTypeOptions = (): SelectOption[] => [
     { value: ActivityType.MEETING, label: 'Întâlnire' },
@@ -12,6 +12,14 @@ const getActivityTypeOptions = (): SelectOption[] => [
     { value: ActivityType.MILESTONE, label: 'Obiectiv' },
     { value: ActivityType.REVIEW, label: 'Revizuire' },
     { value: ActivityType.OTHER, label: 'Altele' }
+];
+
+const getActivityStatusOptions = (): SelectOption[] => [
+    { value: ActivityStatus.PLANNED, label: 'Planificat' },
+    { value: ActivityStatus.IN_PROGRESS, label: 'În progres' },
+    { value: ActivityStatus.COMPLETED, label: 'Finalizat' },
+    { value: ActivityStatus.CANCELLED, label: 'Anulat' },
+    { value: ActivityStatus.POSTPONED, label: 'Amânat' }
 ];
 
 export const createActivityFormConfig = (): DynamicFormConfig => ({
@@ -40,6 +48,13 @@ export const createActivityFormConfig = (): DynamicFormConfig => ({
                     type: FieldType.SELECT,
                     required: true,
                     options: getActivityTypeOptions()
+                },
+                {
+                    name: 'status',
+                    label: 'Status',
+                    type: FieldType.SELECT,
+                    required: true,
+                    options: getActivityStatusOptions()
                 },
                 {
                     name: 'description',

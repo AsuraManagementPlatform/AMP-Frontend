@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
-import { dashboardService, GlobalDashboardStats } from "@/services/dashboard.service";
-import { userService } from "@/services/user.service";
-import { organizationService } from "@/services/organization.service";
-import { projectService } from "@/services/project.service";
-import { activityService } from "@/services/activity.service";
-import { User } from "@/types/index.types";
-import { Organization } from "@/types/organization.types";
+import {useEffect} from 'react';
+import {dashboardService, GlobalDashboardStats} from "@/services/dashboard.service";
+import {userService} from "@/services/user.service";
+import {organizationService} from "@/services/organization.service";
+import {projectService} from "@/services/project.service";
+import {activityService} from "@/services/activity.service";
+import {User} from "@/types/index.types";
+import {Organization} from "@/types/organization.types";
+import appStatisticsService from "@/services/app-statistics.service.ts";
 
 interface DashboardDataProps {
     isAdmin: boolean;
@@ -46,16 +47,16 @@ export const useDashboardData = ({
                 setLoading(true);
                 
                 let dashboardStats: GlobalDashboardStats;
-                
+
                 if (isAdmin) {
-                    dashboardStats = await dashboardService.getGlobalStats();
+                    dashboardStats = await appStatisticsService.getStatistics();
                 } else if (isOrgAdmin && organizationId) {
                     dashboardStats = await dashboardService.getOrganizationStats(organizationId);
                 } else {
                     dashboardStats = {
-                        totalActivities: 0,
-                        totalProjects: 0,
-                        totalOrganizations: 0,
+                        activities_count: 0,
+                        projects_count: 0,
+                        organizations_count: 0,
                         activeProjects: 0,
                         completedActivities: 0,
                         activeOrganizations: 0

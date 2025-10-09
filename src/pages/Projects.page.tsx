@@ -71,9 +71,9 @@ const ProjectsPage: React.FC = () => {
 
                 <Card title="Lista proiecte" className="mb-6">
                     <ProjectList
-                        key={refreshProjectTable}
                         onView={handleViewProject}
                         onRowClick={handleProjectRowClick}
+                        refreshTrigger={refreshProjectTable}
                         className="flex gap-4 flex-col"
                     />
                 </Card>

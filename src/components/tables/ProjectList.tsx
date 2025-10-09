@@ -2,9 +2,6 @@ import React, {useState} from 'react';
 import {Project} from '@/types/index.types';
 import showToast from '@/components/ui/Toast';
 import {useTableData} from "@/hooks/useTableData";
-import IconActivity from "@/assets/icons/iconmonstr-activity.svg?react";
-import IconGroup from "@/assets/icons/iconmonstr-group.svg?react";
-import IconWallet from "@/assets/icons/iconmonstr-wallet.svg?react";
 
 interface ProjectListProps {
     onEdit?: (project: Project) => void;
@@ -19,7 +16,8 @@ interface ProjectListProps {
 
 const ProjectList: React.FC<ProjectListProps> = ({
     onRowClick,
-    className = ''
+    refreshTrigger = 0,
+    className = '',
 }) => {
     const [budgetModalOpen, setBudgetModalOpen] = useState(false);
     const [activitiesModalOpen, setActivitiesModalOpen] = useState(false);
@@ -27,8 +25,9 @@ const ProjectList: React.FC<ProjectListProps> = ({
     const [reportsModalOpen, setReportsModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const { data: projects = [], loading, error } = useTableData<Project>({
-        endpoint: "project/list",
-        initialPageSize: 20
+        endpoint: `project/list`,
+        initialPageSize: 20,
+        refreshTrigger
     });
 
     if (loading) {

@@ -120,6 +120,15 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             }
         },
         {
+            key: 'vat_amount',
+            label: 'TVA',
+            sortable: true,
+            width: '120px',
+            render: (vatAmount: number, row: ProjectExpense) => {
+                return `${vatAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${row.currency}`;
+            }
+        },
+        {
             key: 'total_amount',
             label: 'Total',
             sortable: true,

@@ -394,10 +394,9 @@ const OrganizationDetailsPage: React.FC = () => {
                 filterType: 'text' as const,
                 render: (groups: string) => {
                     if (!groups) return '-';
-                    const groupList = groups.split(',').map(g => g.trim());
                     return (
                         <div className="flex flex-wrap gap-1">
-                            {groupList.map((group, index) => (
+                            {groups.map((group, index) => (
                                 <span
                                     key={index}
                                     className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
@@ -424,7 +423,7 @@ const OrganizationDetailsPage: React.FC = () => {
                 </div>
                 
                 <Table
-                    endpoint="/api/user/list"
+                    endpoint="user/list"
                     columns={columns}
                     emptyMessage="Nu au fost găsiți utilizatori. Creează primul utilizator pentru a începe."
                     refreshTrigger={refreshTrigger}

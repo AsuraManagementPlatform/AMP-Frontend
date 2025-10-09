@@ -72,14 +72,6 @@ export const useOrganizationCreation = (onOrganizationCreated?: () => void) => {
             };
             
             await organizationService.create(organizationData);
-            if (preselectedUser && preselectedUser.status === UserStatus.DRAFT) {
-                try {
-                    await userService.update(preselectedUser.id, { 
-                        status: UserStatus.ACTIVE 
-                    });
-                } catch (userUpdateError) {
-                }
-            }
             
             if (loadingToast) {
                 toast.dismiss(loadingToast);

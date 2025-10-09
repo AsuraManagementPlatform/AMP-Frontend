@@ -1,5 +1,5 @@
 import {ListParams, PaginatedResponse} from "@/types/index.types.ts";
-import {Project, ProjectCreateRequest, ProjectUpdateRequest, ProjectStats} from "@/types/project.types.ts";
+import {Project, ProjectCreateRequest, ProjectUpdateRequest} from "@/types/project.types.ts";
 import {apiService} from "@/services/api.service.ts";
 
 export const projectService = {
@@ -7,20 +7,8 @@ export const projectService = {
         return apiService.getPaginatedList<Project>('project/list', params);
     },
 
-    getMyProjects: async (params?: ListParams): Promise<PaginatedResponse<any>> => {
-        return apiService.getPaginatedList<any>('/api/project/member/list', params);
-    },
-
-    getMyActivities: async (params?: ListParams): Promise<PaginatedResponse<any>> => {
-        return apiService.getPaginatedList<any>('/api/activity-member/list', params);
-    },
-
     getById: async (id: string): Promise<Project> => {
         return apiService.get<Project>(`project/${id}`);
-    },
-
-    getProjectStats: async (projectId: string): Promise<ProjectStats> => {
-        return await apiService.get<ProjectStats>(`project/stats/${projectId}`);
     },
 
     create: async (data: ProjectCreateRequest): Promise<Project> => {
