@@ -76,7 +76,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                         </Link>
                                     </li>
 
-                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN, UserGroup.ADMIN]) && (
+                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && (
                                         <li className="relative flex items-center">
                                             <button
                                                 className={`px-3 py-2 rounded-md text-sm transition-colors flex items-center ${
@@ -113,7 +113,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                         </li>
                                     )}
 
-                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN, UserGroup.ADMIN]) && (
+                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && (
                                         <li className="relative flex items-center">
                                             <button
                                                 className={`px-3 py-2 rounded-md text-sm transition-colors flex items-center ${
@@ -131,33 +131,13 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                             </button>
                                             {crmDropdownOpen && (
                                                 <div className="absolute left-0 top-full w-48 bg-white rounded-md shadow-lg py-1 z-20 border">
-                                                    {hasAnyUserGroup([UserGroup.ADMIN]) && (
-                                                        <>
-                                                            <Link
-                                                                to={ROUTES.CRM_ADMIN_PANEL}
-                                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                                                                onClick={() => setCrmDropdownOpen(false)}
-                                                            >
-                                                                Utilizatori
-                                                            </Link>
-                                                            <Link
-                                                                to={ROUTES.CRM_ORGANIZATIONS}
-                                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                                                                onClick={() => setCrmDropdownOpen(false)}
-                                                            >
-                                                                Organizații
-                                                            </Link>
-                                                        </>
-                                                    )}
-                                                    {hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && (
-                                                        <Link
-                                                            to={ROUTES.CRM_ORGANIZATION_DETAILS}
-                                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                                                            onClick={() => setCrmDropdownOpen(false)}
-                                                        >
-                                                            Organizația Mea
-                                                        </Link>
-                                                    )}
+                                                    <Link
+                                                        to={ROUTES.CRM_ORGANIZATION_DETAILS}
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        onClick={() => setCrmDropdownOpen(false)}
+                                                    >
+                                                        Organizația Mea
+                                                    </Link>
                                                 </div>
                                             )}
                                         </li>

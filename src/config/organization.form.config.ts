@@ -87,7 +87,6 @@ export const createOrganizationFormConfig = (
                     placeholder: 'ex: contact@asociatia-asura.ro',
                     required: true
                 },
-
                 {
                     name: 'cui',
                     label: 'CUI (Cod Unic de Înregistrare)',
@@ -119,6 +118,21 @@ export const createOrganizationFormConfig = (
                     rows: 2
                 },
                 {
+                    name: 'tax_exempt_status',
+                    label: 'Scutit de taxe',
+                    type: FieldType.CHECKBOX
+                },
+                {
+                    name: 'tax_percentage',
+                    label: 'Procentaj TVA (%)',
+                    type: FieldType.NUMBER,
+                    placeholder: 'ex: 19',
+                    min: 0,
+                    max: 100,
+                    step: 0.01,
+                    helperText: 'Procentul de TVA aplicabil (obligatoriu dacă organizația nu este scutită de taxe)'
+                },
+                {
                     name: 'status',
                     label: 'Status',
                     type: FieldType.SELECT,
@@ -131,7 +145,7 @@ export const createOrganizationFormConfig = (
                     type: FieldType.SELECT,
                     required: true,
                     disabled: !!preselectedUser || loadingPendingUsers,
-                    options: preselectedUser 
+                    options: preselectedUser
                         ? [
                             { value: preselectedUser.id, label: `${preselectedUser.full_name} (${preselectedUser.email})` }
                         ]
@@ -212,7 +226,6 @@ export const organizationDetailsFormConfig: DynamicFormConfig = {
                     placeholder: 'Numărul de înregistrare oficial',
                     maxLength: 50
                 },
-
                 {
                     name: 'registration_date',
                     label: 'Data înregistrării',
@@ -223,6 +236,16 @@ export const organizationDetailsFormConfig: DynamicFormConfig = {
                     name: 'tax_exempt_status',
                     label: 'Scutit de taxe',
                     type: FieldType.CHECKBOX
+                },
+                {
+                    name: 'tax_percentage',
+                    label: 'Procentaj TVA (%)',
+                    type: FieldType.NUMBER,
+                    placeholder: 'ex: 19',
+                    min: 0,
+                    max: 100,
+                    step: 0.01,
+                    helperText: 'Procentul de TVA aplicabil (obligatoriu dacă organizația nu este scutită de taxe)'
                 },
                 {
                     name: 'is_verified',

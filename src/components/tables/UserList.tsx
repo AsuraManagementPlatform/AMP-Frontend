@@ -128,7 +128,7 @@ export const UserList: React.FC<UserListProps> = ({
             showSearch={showSearch}
             showFilters={showFilters}
             showPagination={showPagination}
-            emptyMessage="No users found. Create your first user to get started."
+            emptyMessage="Nu au fost găsiți utilizatori. Creează primul utilizator pentru a începe."
             className={className}
             refreshTrigger={refreshTrigger}
         />

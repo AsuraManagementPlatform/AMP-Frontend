@@ -1,4 +1,4 @@
-import {ListParams, PaginatedResponse, User, UserMeResponse} from "@/types/index.types.ts";
+import {ListParams, PaginatedResponse, User} from "@/types/index.types.ts";
 import {apiService} from "@/services/api.service.ts";
 
 export const userService = {
@@ -14,8 +14,8 @@ export const userService = {
         return apiService.get<User>(`user/${id}`);
     },
 
-    getCurrentUser: async (): Promise<UserMeResponse> => {
-        return apiService.get<UserMeResponse>('user/me');
+    getCurrentUser: async (): Promise<User> => {
+        return apiService.get<User>('user/me');
     },
 
     create: async (data: Partial<User>): Promise<User> => {
@@ -28,6 +28,14 @@ export const userService = {
 
     delete: async (id: string): Promise<void> => {
         return apiService.delete<void>(`user/delete/${id}`);
+    },
+
+    deactivateUser: async (id: string): Promise<void> => {
+        return apiService.post<void>(`user/deactivate/${id}`, {});
+    },
+
+    reactivateUser: async (id: string): Promise<void> => {
+        return apiService.post<void>(`user/reactivate/${id}`, {});
     },
 };
 

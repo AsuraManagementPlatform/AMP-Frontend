@@ -11,10 +11,6 @@ export const activityService = {
         return apiService.get<Activity>(`activity/${id}`);
     },
 
-    getByProjectId: async (projectId: string, params?: ListParams): Promise<PaginatedResponse<Activity>> => {
-        return apiService.getPaginatedList<Activity>(`activity/project/${projectId}`, params);
-    },
-
     getActivityStats: async (projectId?: string): Promise<ActivityStats> => {
         const endpoint = projectId ? `activity/stats/${projectId}` : 'activity/stats';
         return await apiService.get<ActivityStats>(endpoint);

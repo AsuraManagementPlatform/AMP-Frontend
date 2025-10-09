@@ -8,6 +8,8 @@ import Projects from '@/pages/Projects.page';
 import Activities from '@/pages/Activities.page';
 import Calendar from '@/pages/Calendar.page';
 import OrganizationDetails from '@/pages/OrganizationDetails.page';
+import ProfilePage from '@/pages/Profile.page';
+import SettingsPage from '@/pages/Settings.page';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastConfig } from '@/components/ui/Toast';
 import { ROUTES } from '@/utils/constants.utils';
@@ -35,7 +37,22 @@ function App() {
               <Routes>
                 <Route path={ROUTES.HOME} element={<Home />} />
                 <Route path={ROUTES.DASHBOARD} element={<Home />} />
-                <Route path={ROUTES.PROFILE} element={<Home />} />
+                <Route
+                  path={ROUTES.PROFILE}
+                  element={
+                    <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN, UserGroup.EMPLOYEE, UserGroup.MEMBER, UserGroup.VOLUNTEER]}>
+                      <ProfilePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path={ROUTES.SETTINGS}
+                  element={
+                    <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN, UserGroup.EMPLOYEE, UserGroup.MEMBER, UserGroup.VOLUNTEER]}>
+                      <SettingsPage />
+                    </ProtectedRoute>
+                  }
+                />
                 
                 <Route 
                   path={ROUTES.CRM_ORGANIZATIONS} 
@@ -89,7 +106,7 @@ function App() {
                 <Route 
                   path={ROUTES.CALENDAR} 
                   element={
-                    <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN, UserGroup.MEMBER]}>
+                    <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN, UserGroup.EMPLOYEE, UserGroup.MEMBER, UserGroup.VOLUNTEER]}>
                       <Calendar />
                     </ProtectedRoute>
                   } 

@@ -81,17 +81,6 @@ export const createUserSchema = z.object({
         .min(1, 'Email-ul este obligatoriu')
         .email('Adresa de email nu este validă')
         .max(255, 'Email-ul nu poate avea mai mult de 255 caractere'),
-    cnp: z
-        .string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => {
-                if (!value || value.trim() === '') return true;
-                return validateCNP(value);
-            },
-            { message: 'CNP-ul introdus nu este valid conform standardelor românești' }
-        ),
 
     personal_numerical_number: z
         .string()

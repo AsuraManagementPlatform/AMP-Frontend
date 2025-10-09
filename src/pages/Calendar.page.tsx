@@ -1,14 +1,163 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
-import Calendar from '@/components/calendar/Calendar';
+import { CalendarView } from '@/components/calendar/CalendarView';
+import { EventModal } from '@/components/modals/calendar/EventModal';
+import { EventList } from '@/components/calendar/EventList';
 import { Card } from '@/components/ui/Card';
+import showToast from '@/components/ui/Toast';
+import calendarService from '@/services/calendar.service';
+import { CalendarEvent, CalendarFilters, CreateEventData } from '@/types/calendar.types';
+import { CreateEventFormData } from '@/schemas/calendar.schema';
 import { useAuth } from '@/hooks/useAuth';
 import { UserGroup } from '@/types/index.types';
 
+type ViewMode = 'month' | 'list';
+
 const CalendarPage: React.FC = () => {
-    const { hasAnyUserGroup } = useAuth();
+    const { hasAnyUserGroup, user } = useAuth();
     const isAdmin = hasAnyUserGroup([UserGroup.ADMIN]);
     const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
+
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [viewMode, setViewMode] = useState<ViewMode>('month');
+    const [events, setEvents] = useState<CalendarEvent[]>([]);
+    const [upcomingEvents, setUpcomingEvents] = useState<CalendarEvent[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+    const [defaultDate, setDefaultDate] = useState<Date | undefined>(undefined);
+    const [showOnlyCurrentMonth, setShowOnlyCurrentMonth] = useState(true);
+
+    const loadEvents = async () => {
+        setIsLoading(true);
+        try {
+            let filters: CalendarFilters = {
+                event_type: 'CALENDAR_NOTE'
+            };
+
+            if (showOnlyCurrentMonth) {
+                const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                filters.start_date = startDate.toISOString();
+                filters.end_date = endDate.toISOString();
+            }
+
+            const data = await calendarService.getEvents(filters);
+            setEvents(data);
+        } catch (error) {
+            console.error('Error loading events:', error);
+            showToast.error('Eroare la încărcarea evenimentelor');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const loadUpcomingEvents = async () => {
+        try {
+            const data = await calendarService.getUpcomingEvents(5);
+            setUpcomingEvents(data);
+        } catch (error) {
+            console.error('Error loading upcoming events:', error);
+        }
+    };
+
+    useEffect(() => {
+        loadEvents();
+        loadUpcomingEvents();
+    }, [currentDate, showOnlyCurrentMonth]);
+
+    const handleCreateEvent = async (data: CreateEventFormData) => {
+        try {
+            if (data.is_organization_event && !user?.organization_id) {
+                showToast.error('Nu aveți o organizație asociată pentru evenimente organizaționale');
+                return;
+            }
+
+            const eventData: CreateEventData = {
+                ...data,
+                organization_id: data.is_organization_event && user?.organization_id ? user.organization_id : undefined
+            };
+
+            if (selectedEvent) {
+                await calendarService.updateEvent({ ...eventData, id: selectedEvent.id });
+                showToast.success('Eveniment actualizat cu succes!');
+            } else {
+                await calendarService.createEvent(eventData);
+                showToast.success('Eveniment creat cu succes!');
+            }
+            await loadEvents();
+            await loadUpcomingEvents();
+            setIsEventModalOpen(false);
+            setSelectedEvent(null);
+            setDefaultDate(undefined);
+        } catch (error) {
+            if (error instanceof Error) {
+                showToast.error(`Eroare: ${error.message}`);
+            } else {
+                showToast.error('Eroare la salvarea evenimentului');
+            }
+        }
+    };
+
+    const handleDeleteEvent = async (id: string) => {
+        try {
+            await calendarService.deleteEvent(id);
+            showToast.success('Eveniment șters cu succes!');
+            await loadEvents();
+            await loadUpcomingEvents();
+            setIsEventModalOpen(false);
+            setSelectedEvent(null);
+        } catch (error) {
+            showToast.error('Eroare la ștergerea evenimentului');
+        }
+    };
+
+    const handleEventClick = (event: CalendarEvent) => {
+        setSelectedEvent(event);
+        setIsEventModalOpen(true);
+    };
+
+    const handleDateClick = (date: Date) => {
+        setDefaultDate(date);
+        setSelectedEvent(null);
+        setIsEventModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsEventModalOpen(false);
+        setSelectedEvent(null);
+        setDefaultDate(undefined);
+    };
+
+    const formatEventDate = (dateString: string): string => {
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat('ro-RO', {
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(date);
+    };
+
+    const getEventTypeLabel = (type: string): string => {
+        const labels: Record<string, string> = {
+            CALENDAR_NOTE: 'Notă calendar',
+            VOTE_SCHEDULING: 'Programare vot',
+            MEETING: 'Întâlnire',
+            EVENT: 'Eveniment'
+        };
+        return labels[type] || type;
+    };
+
+    const getEventTypeColor = (type: string): string => {
+        const colors: Record<string, string> = {
+            CALENDAR_NOTE: 'blue',
+            VOTE_SCHEDULING: 'purple',
+            MEETING: 'green',
+            EVENT: 'orange'
+        };
+        return colors[type] || 'gray';
+    };
 
     return (
         <Layout showNavigation={true}>
@@ -28,84 +177,127 @@ const CalendarPage: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div className="lg:col-span-3">
                         <Card title="Calendar organizațional" className="h-full">
-                            <Calendar />
+                            <div className="mb-4 flex items-center justify-between">
+                                <div className="flex rounded-md shadow-sm">
+                                    <button
+                                        onClick={() => setViewMode('month')}
+                                        className={`px-4 py-2 text-sm font-medium rounded-l-md border ${
+                                            viewMode === 'month'
+                                                ? 'bg-orange-600 text-white border-orange-600'
+                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        Lună
+                                    </button>
+                                    <button
+                                        onClick={() => setViewMode('list')}
+                                        className={`px-4 py-2 text-sm font-medium rounded-r-md border-t border-r border-b ${
+                                            viewMode === 'list'
+                                                ? 'bg-orange-600 text-white border-orange-600'
+                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        Listă
+                                    </button>
+                                </div>
+                            </div>
+
+                            {isLoading && (
+                                <div className="text-center py-8">
+                                    <p className="text-gray-500">Se încarcă evenimentele...</p>
+                                </div>
+                            )}
+
+                            {!isLoading && (
+                                <>
+                                    {viewMode === 'month' ? (
+                                        <CalendarView
+                                            currentDate={currentDate}
+                                            events={events}
+                                            onDateChange={setCurrentDate}
+                                            onEventClick={handleEventClick}
+                                            onDateClick={handleDateClick}
+                                        />
+                                    ) : (
+                                        <EventList
+                                            events={events}
+                                            onEventClick={handleEventClick}
+                                            onDeleteEvent={handleDeleteEvent}
+                                        />
+                                    )}
+                                </>
+                            )}
                         </Card>
                     </div>
 
                     <div className="space-y-6">
-                        <Card title="Acțiuni rapide">
+                        <Card title="Filtre">
                             <div className="space-y-3">
-                                {(isAdmin || isOrgAdmin) && (
-                                    <>
-                                        <button 
-                                            className="w-full bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition-colors"
-                                            onClick={() => {}}
-                                        >
-                                            ➕ Creează întâlnire
-                                        </button>
-                                        <button 
-                                            className="w-full bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700 transition-colors"
-                                            onClick={() => {}}
-                                        >
-                                            🗳️ Programează votare
-                                        </button>
-                                        <button 
-                                            className="w-full bg-orange-600 text-white px-4 py-2 rounded text-sm hover:bg-orange-700 transition-colors"
-                                            onClick={() => {}}
-                                        >
-                                            📅 Creează eveniment
-                                        </button>
-                                    </>
-                                )}
-                                <button 
-                                    className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-200 transition-colors"
-                                    onClick={() => {}}
-                                >
-                                    📄 Exportă calendar
-                                </button>
+                                <label className="flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={showOnlyCurrentMonth}
+                                        onChange={(e) => setShowOnlyCurrentMonth(e.target.checked)}
+                                        className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                                    />
+                                    <span className="ml-2 text-sm text-gray-700">
+                                        Afișează doar luna curentă
+                                    </span>
+                                </label>
                             </div>
                         </Card>
 
                         <Card title="Evenimente următoare">
-                            <div className="space-y-3">
-                                <div className="border-l-4 border-green-500 pl-3 py-2">
-                                    <div className="font-medium text-sm">Ședință echipă</div>
-                                    <div className="text-xs text-gray-500">30 Sep, 10:00</div>
-                                    <div className="text-xs text-green-600">Întâlnire</div>
+                            {upcomingEvents.length > 0 ? (
+                                <div className="space-y-3">
+                                    {upcomingEvents.map((event) => {
+                                        const color = getEventTypeColor(event.event_type);
+                                        return (
+                                            <div
+                                                key={event.id}
+                                                className={`border-l-4 border-${color}-500 pl-3 py-2 cursor-pointer hover:bg-gray-50`}
+                                                onClick={() => handleEventClick(event)}
+                                            >
+                                                <div className="font-medium text-sm">{event.title}</div>
+                                                <div className="text-xs text-gray-500">
+                                                    {formatEventDate(event.start_date)}
+                                                </div>
+                                                <div className={`text-xs text-${color}-600`}>
+                                                    {getEventTypeLabel(event.event_type)}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
-                                
-                                <div className="border-l-4 border-blue-500 pl-3 py-2">
-                                    <div className="font-medium text-sm">Votare buget 2025</div>
-                                    <div className="text-xs text-gray-500">5 Oct, 14:00</div>
-                                    <div className="text-xs text-blue-600">Votare</div>
-                                </div>
-                                
-                                <div className="border-l-4 border-orange-500 pl-3 py-2">
-                                    <div className="font-medium text-sm">Eveniment fundraising</div>
-                                    <div className="text-xs text-gray-500">12 Oct, 18:00</div>
-                                    <div className="text-xs text-orange-600">Eveniment</div>
-                                </div>
-                            </div>
+                            ) : (
+                                <p className="text-sm text-gray-500">Nu există evenimente programate</p>
+                            )}
                         </Card>
 
                         <Card title="Statistici calendar">
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-sm text-gray-600">Întâlniri luna aceasta:</span>
-                                    <span className="font-medium">8</span>
+                                    <span className="text-sm text-gray-600">Total evenimente:</span>
+                                    <span className="font-medium">{events.length}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-sm text-gray-600">Votări programate:</span>
-                                    <span className="font-medium">3</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm text-gray-600">Evenimente:</span>
-                                    <span className="font-medium">5</span>
+                                    <span className="text-sm text-gray-600">Viitoare:</span>
+                                    <span className="font-medium">{upcomingEvents.length}</span>
                                 </div>
                             </div>
                         </Card>
                     </div>
                 </div>
+
+                <EventModal
+                    isOpen={isEventModalOpen}
+                    onClose={handleCloseModal}
+                    onSubmit={handleCreateEvent}
+                    onDelete={handleDeleteEvent}
+                    event={selectedEvent}
+                    defaultDate={defaultDate}
+                    userGroups={user?.groups || []}
+                />
             </div>
         </Layout>
     );

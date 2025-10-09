@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { FormModal } from '@/components/ui/Modal';
 import { DynamicForm } from '@/components/forms/DynamicForm';
 import { Organization, OrganizationStatus, OrganizationType } from '@/types/organization.types';
-import { updateOrganizationSchema, UpdateOrganizationData } from '@/schemas/organization.schema';
+import {
+    updateOrganizationSchema,
+    UpdateOrganizationData,
+    prepareOrganizationDataForAPI,
+    prepareOrganizationDataForForm
+} from '@/schemas/organization.schema';
 import { organizationService } from '@/services/organization.service';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
@@ -41,21 +46,21 @@ const getOrganizationDisplayConfig = (organization: Organization): OrganizationD
                 { name: 'legal_name', label: 'Nume legal', value: organization.legal_name || '-', type: 'text' },
                 { name: 'short_name', label: 'Nume scurt', value: organization.short_name || '-', type: 'text' },
                 { name: 'organization_type', label: 'Tip organizație', value: organization.organization_type || '-', type: 'select',
-                  options: [
-                    { value: OrganizationType.NGO, label: 'ONG' },
-                    { value: OrganizationType.ASSOCIATION, label: 'Asociație' },
-                    { value: OrganizationType.FOUNDATION, label: 'Fundație' },
-                    { value: OrganizationType.COMPANY, label: 'Companie' },
-                    { value: OrganizationType.COOPERATIVE, label: 'Cooperativă' },
-                    { value: OrganizationType.OTHER, label: 'Altul' }
-                  ]
+                    options: [
+                        { value: OrganizationType.NGO, label: 'ONG' },
+                        { value: OrganizationType.ASSOCIATION, label: 'Asociație' },
+                        { value: OrganizationType.FOUNDATION, label: 'Fundație' },
+                        { value: OrganizationType.COMPANY, label: 'Companie' },
+                        { value: OrganizationType.COOPERATIVE, label: 'Cooperativă' },
+                        { value: OrganizationType.OTHER, label: 'Altul' }
+                    ]
                 },
                 { name: 'status', label: 'Status', value: organization.status, type: 'select',
-                  options: [
-                    { value: OrganizationStatus.ACTIVE, label: 'Activ' },
-                    { value: OrganizationStatus.INACTIVE, label: 'Inactiv' },
-                    { value: OrganizationStatus.PENDING, label: 'În așteptare' }
-                  ]
+                    options: [
+                        { value: OrganizationStatus.ACTIVE, label: 'Activ' },
+                        { value: OrganizationStatus.INACTIVE, label: 'Inactiv' },
+                        { value: OrganizationStatus.PENDING, label: 'În așteptare' }
+                    ]
                 }
             ]
         },
@@ -67,6 +72,14 @@ const getOrganizationDisplayConfig = (organization: Organization): OrganizationD
                 { name: 'registration_number', label: 'Nr. înregistrare', value: organization.registration_number || '-', type: 'text' },
                 { name: 'registration_date', label: 'Data înregistrării', value: organization.registration_date || '-', type: 'date' },
                 { name: 'tax_exempt_status', label: 'Scutit de taxe', value: organization.tax_exempt_status, type: 'boolean' },
+                {
+                    name: 'tax_percentage',
+                    label: 'Procentaj TVA',
+                    value: organization.tax_percentage
+                        ? `${(organization.tax_percentage * 100).toFixed(2)}%`
+                        : '-',
+                    type: 'text'
+                },
                 { name: 'is_verified', label: 'Verificat', value: organization.is_verified, type: 'boolean', readonly: true }
             ]
         },
@@ -109,17 +122,17 @@ const getOrganizationDisplayConfig = (organization: Organization): OrganizationD
 });
 
 export const OrganizationDetailsModal: React.FC<OrganizationDetailsModalProps> = ({
-    isOpen,
-    onClose,
-    organizationId,
-    onUpdate
-}) => {
+                                                                                      isOpen,
+                                                                                      onClose,
+                                                                                      organizationId,
+                                                                                      onUpdate
+                                                                                  }) => {
     const [organization, setOrganization] = useState<Organization | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    
+
     const { user } = useAuth();
     const canEdit = user?.groups?.includes(UserGroup.ADMIN) || user?.groups?.includes(UserGroup.ORGANIZATION_ADMIN);
 
@@ -155,7 +168,8 @@ export const OrganizationDetailsModal: React.FC<OrganizationDetailsModalProps> =
 
         setIsSubmitting(true);
         try {
-            const updatedOrg = await organizationService.update(organization.id, data);
+            const apiData = prepareOrganizationDataForAPI(data as any);
+            const updatedOrg = await organizationService.update(organization.id, apiData);
             setOrganization(updatedOrg);
             setIsEditing(false);
             onUpdate?.(updatedOrg);
@@ -169,37 +183,40 @@ export const OrganizationDetailsModal: React.FC<OrganizationDetailsModalProps> =
     const getFormDefaultValues = (): UpdateOrganizationData => {
         if (!organization) return {} as UpdateOrganizationData;
 
+        const formData = prepareOrganizationDataForForm(organization);
+
         return {
-            name: organization.name,
-            legal_name: organization.legal_name || '',
-            short_name: organization.short_name || '',
-            cui: organization.cui || '',
-            registration_number: organization.registration_number || '',
-            email: organization.email,
-            phone_number: organization.phone_number || '',
-            secondary_phone: organization.secondary_phone || '',
-            fax_number: organization.fax_number || '',
-            website: organization.website || '',
-            address: organization.address,
-            address2: organization.address2 || '',
-            city: organization.city || '',
-            county: organization.county || '',
-            postal_code: organization.postal_code || '',
-            country: organization.country || 'Romania',
-            organization_type: organization.organization_type || OrganizationType.NGO,
-            industry_sector: organization.industry_sector || '',
-            description: organization.description || '',
-            budget: organization.budget || undefined,
-            funding_sources: organization.funding_sources || [],
-            tax_exempt_status: organization.tax_exempt_status || false,
-            employee_count: organization.employee_count || undefined,
-            volunteer_count: organization.volunteer_count || undefined,
-            member_count: organization.member_count || undefined,
-            registration_date: organization.registration_date || '',
-            status: organization.status,
-            admin_user: organization.admin_user,
-            is_verified: organization.is_verified || false,
-            social_media_links: organization.social_media_links || {}
+            name: formData.name,
+            legal_name: formData.legal_name || '',
+            short_name: formData.short_name || '',
+            cui: formData.cui || '',
+            registration_number: formData.registration_number || '',
+            email: formData.email,
+            phone_number: formData.phone_number || '',
+            secondary_phone: formData.secondary_phone || '',
+            fax_number: formData.fax_number || '',
+            website: formData.website || '',
+            address: formData.address,
+            address2: formData.address2 || '',
+            city: formData.city || '',
+            county: formData.county || '',
+            postal_code: formData.postal_code || '',
+            country: formData.country || 'Romania',
+            organization_type: formData.organization_type || OrganizationType.NGO,
+            industry_sector: formData.industry_sector || '',
+            description: formData.description || '',
+            budget: formData.budget || undefined,
+            funding_sources: formData.funding_sources || [],
+            tax_exempt_status: formData.tax_exempt_status || false,
+            tax_percentage: formData.tax_percentage,
+            employee_count: formData.employee_count || undefined,
+            volunteer_count: formData.volunteer_count || undefined,
+            member_count: formData.member_count || undefined,
+            registration_date: formData.registration_date || '',
+            status: formData.status,
+            admin_user: formData.admin_user,
+            is_verified: formData.is_verified || false,
+            social_media_links: formData.social_media_links || {}
         };
     };
 
@@ -237,20 +254,22 @@ export const OrganizationDetailsModal: React.FC<OrganizationDetailsModalProps> =
     }
 
     return (
-        <FormModal 
-            isOpen={isOpen} 
-            onClose={onClose} 
-            title={`Detalii organizație: ${organization.name}`} 
+        <FormModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={`Detalii organizație: ${organization.name}`}
             size="xl"
         >
             {!isEditing ? (
-                <div className="space-y-6">{canEdit && (
+                <div className="space-y-6">
+                    {canEdit && (
                         <div className="flex justify-end border-b pb-4">
                             <Button onClick={handleEdit} variant="primary">
                                 Editează
                             </Button>
                         </div>
-                    )}{getOrganizationDisplayConfig(organization).sections.map((section, sectionIndex) => (
+                    )}
+                    {getOrganizationDisplayConfig(organization).sections.map((section, sectionIndex) => (
                         <div key={sectionIndex} className="border rounded-lg p-4">
                             <h3 className="font-semibold text-lg mb-4 text-gray-800">{section.title}</h3>
                             <div className={`grid grid-cols-${section.columns} gap-4`}>
@@ -267,10 +286,10 @@ export const OrganizationDetailsModal: React.FC<OrganizationDetailsModalProps> =
                                                     {field.value ? 'Da' : 'Nu'}
                                                 </span>
                                             ) : field.type === 'url' && field.value !== '-' ? (
-                                                <a 
-                                                    href={field.value} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer" 
+                                                <a
+                                                    href={field.value}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
                                                     className="text-blue-600 hover:underline"
                                                 >
                                                     {field.value}
@@ -283,7 +302,8 @@ export const OrganizationDetailsModal: React.FC<OrganizationDetailsModalProps> =
                                 ))}
                             </div>
                         </div>
-                    ))}<div className="border-t pt-4 text-sm text-gray-500">
+                    ))}
+                    <div className="border-t pt-4 text-sm text-gray-500">
                         <p>Creat la: {new Date(organization.created_at).toLocaleString('ro-RO')}</p>
                         <p>Ultima actualizare: {new Date(organization.updated_at).toLocaleString('ro-RO')}</p>
                         {organization.verification_date && (
@@ -297,7 +317,7 @@ export const OrganizationDetailsModal: React.FC<OrganizationDetailsModalProps> =
                         <h3 className="font-semibold text-lg text-gray-800">Editare organizație</h3>
                         <p className="text-sm text-gray-600">Modificați informațiile organizației și salvați modificările.</p>
                     </div>
-                    
+
                     <DynamicForm<UpdateOrganizationData>
                         config={organizationDetailsFormConfig}
                         schema={updateOrganizationSchema}
@@ -311,4 +331,3 @@ export const OrganizationDetailsModal: React.FC<OrganizationDetailsModalProps> =
         </FormModal>
     );
 };
-
