@@ -12,8 +12,7 @@ export * from './activity.types.ts';
 export * from './userExperience.types.ts';
 export * from './budget.types.ts';
 export * from './entity.types.ts';
-export * from './transaction.types.ts';
-export * from './project-expense.types.ts';
+export * from './financial.types.ts';
 
 export interface BaseEntity {
     id: string;
@@ -32,11 +31,3 @@ export interface BaseComponentProps {
     className?: string;
     children?: React.ReactNode;
 }
-
-export const Currency = {
-    RON: 'RON',
-    EUR: 'EUR',
-    USD: 'USD',
-} as const;
-
-export type Currency = typeof Currency[keyof typeof Currency];

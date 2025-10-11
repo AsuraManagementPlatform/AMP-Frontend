@@ -14,7 +14,7 @@ export const useOrganizationCreation = (onOrganizationCreated?: () => void) => {
     const [preselectedUser, setPreselectedUser] = useState<UserMeResponse | null>(null);
     const [companyData, setCompanyData] = useState<{ company_name: string; company_number: string } | null>(null);
     const {refresh} = useTableData({
-        endpoint:"user/list",
+        endpoint:"/api/user/list",
         initialPageSize: 20,
         initialFilters:[{field: 'status', operator: 'exact', value: UserStatus.DRAFT}],
         initialSort:{ field: 'email', direction: 'asc' },
@@ -72,6 +72,14 @@ export const useOrganizationCreation = (onOrganizationCreated?: () => void) => {
             };
             
             await organizationService.create(organizationData);
+            if (preselectedUser && preselectedUser.status === UserStatus.DRAFT) {
+                try {
+                    await userService.update(preselectedUser.id, { 
+                        status: UserStatus.ACTIVE 
+                    });
+                } catch (userUpdateError) {
+                }
+            }
             
             if (loadingToast) {
                 toast.dismiss(loadingToast);

@@ -1,0 +1,28 @@
+[phases.setup]
+nixPkgs = ['nodejs_20']
+
+[variables]
+NODE_VERSION = "20.19.0"
+
+[phases.install]
+cmds = [
+  "curl -fsSL https://deb.nodesource.com/setup_20.x | bash -",
+  "apt-get install -y nodejs",
+  "node --version",
+  "npm --version",
+  "npm ci --no-audit"
+]
+
+[phases.build]
+cmds = [
+  "node --version",
+  "npm run build",
+  "ls -la",
+  "ls -la dist"
+]
+
+[start]
+cmd = "node serve.js"
+
+[staticAssets]
+outputDir = "dist"

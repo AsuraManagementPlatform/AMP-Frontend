@@ -17,30 +17,30 @@ class CalendarService {
         if (filters?.organization_id) params.append('organization_id', filters.organization_id);
 
         const queryString = params.toString();
-        const url = `calendar/list${queryString ? `?${queryString}` : ''}`;
+        const url = `/api/calendar/list${queryString ? `?${queryString}` : ''}`;
         
         const response = await apiService.get<{ calendar_events: CalendarEvent[] }>(url);
         return response.calendar_events;
     }
 
     async getEventById(id: string): Promise<CalendarEvent> {
-        const response = await apiService.get<{ calendar_event: CalendarEvent }>(`calendar/${id}`);
+        const response = await apiService.get<{ calendar_event: CalendarEvent }>(`/api/calendar/${id}`);
         return response.calendar_event;
     }
 
     async createEvent(data: CreateEventData): Promise<CalendarEvent> {
-        const response = await apiService.post<{ calendar_event: CalendarEvent }>('calendar/create', data);
+        const response = await apiService.post<{ calendar_event: CalendarEvent }>('/api/calendar/create', data);
         return response.calendar_event;
     }
 
     async updateEvent(data: UpdateEventData): Promise<CalendarEvent> {
         const { id, ...updateData } = data;
-        const response = await apiService.put<{ calendar_event: CalendarEvent }>(`calendar/update/${id}`, updateData);
+        const response = await apiService.put<{ calendar_event: CalendarEvent }>(`/api/calendar/update/${id}`, updateData);
         return response.calendar_event;
     }
 
     async deleteEvent(id: string): Promise<void> {
-        return await apiService.delete(`calendar/delete/${id}`);
+        return await apiService.delete(`/api/calendar/delete/${id}`);
     }
 
     async getUpcomingEvents(days: number = 7): Promise<CalendarEvent[]> {
@@ -66,7 +66,7 @@ class CalendarService {
 
     async searchEvents(searchTerm: string): Promise<CalendarEvent[]> {
         return await apiService.get<CalendarEvent[]>(
-            `calendar/events/search?q=${encodeURIComponent(searchTerm)}`
+            `/api/calendar/events/search?q=${encodeURIComponent(searchTerm)}`
         );
     }
 }

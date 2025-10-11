@@ -7,7 +7,6 @@ export const ROUTES = {
     
     // ERP Module (Projects & Activities)
     ERP_PROJECTS: '/erp/projects',
-    ERP_PROJECT_DETAILS: '/erp/project/:project_id',
     ERP_ACTIVITIES: '/erp/activities',
     
     // CRM Module (Users & Organization Management)
@@ -38,10 +37,9 @@ export const ROUTES = {
 } as const;
 
 export const KEYCLOAK_INIT_OPTIONS: AuthInitOptions = {
-    onLoad: 'check-sso',
-    silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
+    onLoad: 'login-required',
     pkceMethod: 'S256',
     checkLoginIframe: false,
     responseMode: 'fragment',
-    enableLogging: false,
+    enableLogging: true,
 };

@@ -44,8 +44,7 @@ export const ProfilePage: React.FC = () => {
 
         try {
             setSaving(true);
-            console.log(formData);
-            await userService.update(user.id, formData);
+            await userService.updateCurrentUser(formData);
             toast.success('Profil actualizat cu succes!');
             setIsEditing(false);
             await loadUserData();

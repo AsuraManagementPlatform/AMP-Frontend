@@ -16,7 +16,6 @@ import { ROUTES } from '@/utils/constants.utils';
 import { AuthProvider } from "@/context/Auth.context.tsx";
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { UserGroup } from '@/types/index.types';
-import ProjectPage from "@/pages/project/Project.page.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,23 +34,23 @@ function App() {
           <Router>
             <div className="App">
               <Routes>
-                <Route path={ROUTES.HOME} element={<Home />} />
+                <Route path={ROUTES.HOME} element={<Navigate to={ROUTES.DASHBOARD} replace />} />
                 <Route path={ROUTES.DASHBOARD} element={<Home />} />
-                <Route
-                  path={ROUTES.PROFILE}
+                <Route 
+                  path={ROUTES.PROFILE} 
                   element={
                     <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN, UserGroup.EMPLOYEE, UserGroup.MEMBER, UserGroup.VOLUNTEER]}>
                       <ProfilePage />
                     </ProtectedRoute>
-                  }
+                  } 
                 />
-                <Route
-                  path={ROUTES.SETTINGS}
+                <Route 
+                  path={ROUTES.SETTINGS} 
                   element={
                     <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN, UserGroup.EMPLOYEE, UserGroup.MEMBER, UserGroup.VOLUNTEER]}>
                       <SettingsPage />
                     </ProtectedRoute>
-                  }
+                  } 
                 />
                 
                 <Route 
@@ -86,14 +85,6 @@ function App() {
                       <Projects />
                     </ProtectedRoute>
                   } 
-                />
-                <Route
-                  path={ROUTES.ERP_PROJECT_DETAILS}
-                  element={
-                      <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN]}>
-                          <ProjectPage />
-                      </ProtectedRoute>
-                  }
                 />
                 <Route 
                   path={ROUTES.ERP_ACTIVITIES} 

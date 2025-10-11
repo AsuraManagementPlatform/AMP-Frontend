@@ -14,6 +14,7 @@ export interface UserMeResponse {
     first_name?: string;
     last_name?: string;
     email: string;
+    cnp?: string;
     personal_numerical_number?: string;
     isLegalEntity: boolean;
     company_number?: string;
@@ -42,6 +43,7 @@ export interface User {
     first_name?: string;
     last_name?: string;
     email: string;
+    cnp?: string;
     personal_numerical_number?: string;
     phone_number?: string;
     secondary_phone?: string;
