@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {FormModal} from '@/components/ui/Modal';
 import {DynamicForm} from '@/components/forms/DynamicForm';
 import {createOrganizationFormConfig} from '@/config/organization.form.config';
@@ -8,6 +8,8 @@ import {
     getCreateOrganizationDefaultValues
 } from '@/schemas/organization.schema';
 import {User, UserMeResponse} from '@/types/user.types';
+import {useForm} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
 
 interface OrganizationCreationModalProps {
     isOpen: boolean;

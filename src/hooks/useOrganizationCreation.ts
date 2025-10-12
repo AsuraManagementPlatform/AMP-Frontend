@@ -66,10 +66,18 @@ export const useOrganizationCreation = (onOrganizationCreated?: () => void) => {
             setIsSubmittingOrg(true);
             loadingToast = showToast.creatingOrganization();
             
-            const organizationData = {
+            let organizationData: any = {
                 ...data,
                 admin_user: data.admin_user
             };
+
+            if (data.cui && data.cui.toUpperCase().startsWith('RO')) {
+                organizationData.tax_exempt_status = false;
+                organizationData.tax_percentage = 0.19;
+            } else {
+                organizationData.tax_exempt_status = true;
+                delete organizationData.tax_percentage;
+            }
             
             await organizationService.create(organizationData);
             if (preselectedUser && preselectedUser.status === UserStatus.DRAFT) {

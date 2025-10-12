@@ -70,7 +70,7 @@ export const createOrganizationFormConfig = (
     sections: [
         {
             title: "Informații organizație",
-            columns: 1,
+            columns: 2,
             fields: [
                 {
                     name: 'name',
@@ -87,7 +87,6 @@ export const createOrganizationFormConfig = (
                     placeholder: 'ex: contact@asociatia-asura.ro',
                     required: true
                 },
-
                 {
                     name: 'cui',
                     label: 'CUI (Cod Unic de Înregistrare)',
@@ -108,7 +107,8 @@ export const createOrganizationFormConfig = (
                     placeholder: 'ex: Strada Matei Basarab, nr. 59A',
                     required: true,
                     maxLength: 500,
-                    rows: 3
+                    rows: 2,
+                    gridColumn: 'full'
                 },
                 {
                     name: 'address2',
@@ -116,7 +116,8 @@ export const createOrganizationFormConfig = (
                     type: FieldType.TEXTAREA,
                     placeholder: 'Informații suplimentare despre adresă (opțional)',
                     maxLength: 500,
-                    rows: 2
+                    rows: 2,
+                    gridColumn: 'full'
                 },
                 {
                     name: 'status',
@@ -221,8 +222,20 @@ export const organizationDetailsFormConfig: DynamicFormConfig = {
                 },
                 {
                     name: 'tax_exempt_status',
-                    label: 'Scutit de taxe',
-                    type: FieldType.CHECKBOX
+                    label: 'Neplătitor TVA',
+                    type: FieldType.CHECKBOX,
+                    helperText: 'Bifează dacă organizația NU plătește TVA'
+                },
+                {
+                    name: 'tax_percentage',
+                    label: 'Procent TVA',
+                    type: FieldType.NUMBER,
+                    placeholder: 'ex: 0.19 pentru 19%',
+                    min: 0,
+                    max: 1,
+                    step: 0.01,
+                    disabled: true,
+                    helperText: 'Calculat automat (19% pentru plătitori TVA, 0% pentru neplătitori)'
                 },
                 {
                     name: 'is_verified',

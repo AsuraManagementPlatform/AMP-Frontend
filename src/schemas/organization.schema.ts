@@ -187,6 +187,14 @@ export const createOrganizationSchema = z.object({
     tax_exempt_status: z.boolean()
         .optional()
         .default(false),
+    
+    tax_percentage: z.number()
+        .optional()
+        .refine(
+            (value) => value === undefined || value === null || (value >= 0 && value <= 1),
+            { message: 'Procentul TVA trebuie să fie între 0 și 1 (ex: 0.19 pentru 19%)' }
+        ),
+    
     employee_count: z.number()
         .optional()
         .refine(
