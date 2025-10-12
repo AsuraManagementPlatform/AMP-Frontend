@@ -3,7 +3,6 @@ import { dashboardService, GlobalDashboardStats } from "@/services/dashboard.ser
 import { userService } from "@/services/user.service";
 import { organizationService } from "@/services/organization.service";
 import { projectService } from "@/services/project.service";
-import { activityService } from "@/services/activity.service";
 import { User } from "@/types/index.types";
 import { Organization } from "@/types/organization.types";
 
@@ -136,15 +135,11 @@ export const useDashboardData = ({
                 } else if (isMember) {
                     try {
                         setProjectsLoading(true);
-                        setActivitiesLoading(true);
                         
-                        const [projectsResponse, activitiesResponse] = await Promise.all([
-                            projectService.getList({ page: 1, pageSize: 50 }),
-                            activityService.getList({ page: 1, pageSize: 50 })
-                        ]);
+                        const projectsResponse = await projectService.getList({ page: 1, pageSize: 50 });
                         
                         setProjects(projectsResponse.results || []);
-                        setActivities(activitiesResponse.results || []);
+                        setActivities([]);
                     } catch (error) {
                         console.error('Error fetching member data:', error);
                         setProjects([]);
