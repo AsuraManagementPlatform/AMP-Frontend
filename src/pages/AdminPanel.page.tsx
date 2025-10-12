@@ -69,9 +69,21 @@ const AdminPanel: React.FC = () => {
         }
     };
 
-    const handleEditUser = (user: UserMeResponse) => {
-        console.log('Edit user:', user);
+    const handleEditUser = () => {
         showToast.info('Funcționalitatea de editare va fi implementată în curând');
+    };
+
+    const handleResetPassword = async (userId: string): Promise<void> => {
+        if (!window.confirm('Sigur doriți să resetați parola acestui utilizator? Va primi un email cu o parolă temporară.')) {
+            return;
+        }
+
+        try {
+            const result = await userService.resetPassword(userId);
+            showToast.success(`Email de resetare parolă trimis cu succes la ${result.email}!`);
+        } catch (error) {
+            showToast.error('Eroare la trimiterea emailului de resetare parolă');
+        }
     };
 
     const columns: TableColumn<UserMeResponse>[] = [
@@ -117,19 +129,26 @@ const AdminPanel: React.FC = () => {
         {
             key: 'actions',
             label: 'Actions',
-            render: (_, user: UserMeResponse) => (
+            render: (_, _user: UserMeResponse) => (
                 <div className="flex space-x-2">
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleEditUser(user)}
+                        onClick={() => handleEditUser()}
                     >
                         Edit
                     </Button>
                     <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleResetPassword(_user.id)}
+                    >
+                        Resetare Parolă
+                    </Button>
+                    <Button
                         variant="danger"
                         size="sm"
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => handleDeleteUser(_user.id)}
                     >
                         Delete
                     </Button>

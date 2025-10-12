@@ -147,6 +147,20 @@ export const useDashboardHandlers = ({
         }
     };
 
+    const handleResetPassword = async (userId: string) => {
+        if (!window.confirm('Sigur doriți să resetați parola acestui utilizator? Va primi un email cu o parolă temporară.')) {
+            return;
+        }
+
+        try {
+            const result = await userService.resetPassword(userId);
+            showToast.success(`Email de resetare parolă trimis cu succes la ${result.email}!`);
+        } catch (error) {
+            console.error('Error resetting password:', error);
+            showToast.error('Eroare la trimiterea emailului de resetare parolă');
+        }
+    };
+
     return {
         handleCreateUser,
         handleOpenCreateUser,
@@ -162,6 +176,7 @@ export const useDashboardHandlers = ({
         handleActivateOrganization,
         handleDeactivateOrganization,
         handleDeactivateUser,
-        handleReactivateUser
+        handleReactivateUser,
+        handleResetPassword
     };
 };

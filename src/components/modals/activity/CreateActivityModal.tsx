@@ -39,20 +39,7 @@ export const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
             setIsSubmitting(true);
             loadingToastId = showToast.loading('Se creează activitatea...');
 
-            const activityData: any = {
-                project: projectId || data.projectId,
-                title: data.title,
-                description: data.description || '',
-                starting_date: data.startDate,
-                estimated_ending_date: data.endDate || data.startDate,
-                ending_date: data.endDate || null,
-                status: data.status,
-                type: data.type,
-                location: data.location || '',
-                observation: data.notes || ''
-            };
-
-            const activity = await activityService.create(activityData);
+            const activity = await activityService.create(data);
             
             if (loadingToastId) {
                 toast.dismiss(loadingToastId);
@@ -87,7 +74,7 @@ export const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
     const formConfig = createActivityFormConfig(projectId, availableProjects, []);
     const defaultValues = getCreateActivityDefaultValues();
     if (projectId) {
-        defaultValues.projectId = projectId;
+        defaultValues.project = projectId;
     }
 
     return (

@@ -19,7 +19,7 @@ const ProjectsPage: React.FC = () => {
 
     const canCreateProject = isAdmin || (isOrgAdmin && hasOrganization);
     const canDeleteProject = (project: Project): boolean => {
-        return isAdmin || (isOrgAdmin && project.organizationId === user?.organization_id);
+        return isAdmin || (isOrgAdmin && project.organization === user?.organization_id);
     };
 
     const handleOpenCreateProject = () => {

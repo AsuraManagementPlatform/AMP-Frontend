@@ -18,6 +18,7 @@ interface AdminDashboardProps {
     handleDeactivateOrganization: (organizationId: string) => void;
     handleDeactivateUser?: (userId: string) => void;
     handleReactivateUser?: (userId: string) => void;
+    handleResetPassword?: (userId: string) => void;
     SortButton: React.ComponentType<{ field: string; label: string }>;
 }
 
@@ -34,6 +35,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     handleDeactivateOrganization,
     handleDeactivateUser,
     handleReactivateUser,
+    handleResetPassword,
     SortButton
 }) => {
     const { t } = useTranslation();
@@ -160,7 +162,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                     </button>
                                                 )}
                                                 {member.status === 'DRAFT' && (
-                                                    <span className="text-gray-400 text-xs">În așteptare</span>
+                                                    <>
+                                                        <span className="text-gray-400 text-xs mr-2">În așteptare</span>
+                                                        {handleResetPassword && (
+                                                            <button 
+                                                                className="text-blue-600 hover:text-blue-900 px-3 py-1 rounded border border-blue-600 hover:bg-blue-50 transition-colors"
+                                                                onClick={() => handleResetPassword(member.id)}
+                                                            >
+                                                                Resetare Parolă
+                                                            </button>
+                                                        )}
+                                                    </>
                                                 )}
                                             </td>
                                         </tr>
