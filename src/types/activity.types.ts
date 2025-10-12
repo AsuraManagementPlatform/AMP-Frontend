@@ -22,37 +22,32 @@ export const ActivityType = {
 export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
 
 export interface Activity extends BaseEntity {
+    projectId: string;
     title: string;
     description?: string;
-    type: ActivityType;
-    status: ActivityStatus;
     startDate: string;
     endDate?: string;
+    status: ActivityStatus;
+    type: ActivityType;
     location?: string;
-    projectId: string;
-    assignedTo?: string[];
-    estimatedHours?: number;
-    actualHours?: number;
-    notes?: string;
+    observation?: string;
 }
 
 export interface ActivityCreateRequest {
+    project: string;
+    project_objective?: string;
     title: string;
     description?: string;
-    type: ActivityType;
+    starting_date: string;
+    estimated_ending_date: string;
+    ending_date?: string;
     status: ActivityStatus;
-    startDate: string;
-    endDate?: string;
+    type: ActivityType;
     location?: string;
-    projectId: string;
-    assignedTo?: string[];
-    estimatedHours?: number;
-    notes?: string;
+    observation?: string;
 }
 
-export interface ActivityUpdateRequest extends Partial<ActivityCreateRequest> {
-    actualHours?: number;
-}
+export interface ActivityUpdateRequest extends Partial<ActivityCreateRequest> {}
 
 export interface ActivityStats {
     totalActivities: number;

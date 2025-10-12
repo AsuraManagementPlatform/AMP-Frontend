@@ -57,7 +57,7 @@ export const CreateProjectMemberModal: React.FC<CreateProjectMemberModalProps> =
     const handleSubmit = async (data: CreateProjectMemberData) => {
         try {
             setIsSubmitting(true);
-            await projectMemberService.create(data);
+            await projectMemberService.create(data as any);
             showToast.success('Membrul a fost adăugat cu succes!');
             onSuccess();
             onClose();

@@ -42,19 +42,17 @@ export const UpdateActivityModal: React.FC<UpdateActivityModalProps> = ({
     const formConfig = updateActivityFormConfig(projectId);
 
     const defaultValues: UpdateActivityData = {
-        project: activity.project,
-        project_objective: activity.project_objective || '',
+        project: activity.projectId,
+        project_objective: '',
         title: activity.title,
         description: activity.description || '',
-        starting_date: activity.starting_date,
-        estimated_ending_date: activity.estimated_ending_date,
-        ending_date: activity.ending_date || '',
+        starting_date: activity.startDate,
+        estimated_ending_date: activity.startDate,
+        ending_date: activity.endDate || '',
         status: activity.status,
         type: activity.type,
         location: activity.location || '',
-        observation: activity.observation || '',
-        results: activity.results || '',
-        indicators: activity.indicators || ''
+        observation: activity.observation || ''
     };
 
     return (

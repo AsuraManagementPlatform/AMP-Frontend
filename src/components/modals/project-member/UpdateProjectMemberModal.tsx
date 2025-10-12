@@ -57,7 +57,7 @@ export const UpdateProjectMemberModal: React.FC<UpdateProjectMemberModalProps> =
     const handleSubmit = async (data: UpdateProjectMemberData) => {
         try {
             setIsSubmitting(true);
-            await projectMemberService.update(member.id, data);
+            await projectMemberService.update(member.id, data as any);
             showToast.success('Membrul a fost actualizat cu succes!');
             onSuccess();
             onClose();

@@ -182,7 +182,7 @@ const ActivityList: React.FC<ActivityListProps> = ({
                         <IconGroup className="w-5 h-5 text-blue-600 mr-2" />
                         <div>
                             <div className="text-lg font-semibold text-blue-700">
-                                {safeActivities.reduce((sum: number, activity: Activity) => sum + (activity.assignedTo?.length || 0), 0)}
+                                0
                             </div>
                             <div className="text-xs text-blue-600">Persoane asignate</div>
                         </div>
@@ -206,7 +206,7 @@ const ActivityList: React.FC<ActivityListProps> = ({
                         <IconWallet className="w-5 h-5 text-purple-600 mr-2" />
                         <div>
                             <div className="text-lg font-semibold text-purple-700">
-                                {safeActivities.reduce((sum: number, activity: Activity) => sum + (activity.estimatedHours || 0), 0)}
+                                0
                             </div>
                             <div className="text-xs text-purple-600">Ore estimate total</div>
                         </div>
@@ -242,11 +242,11 @@ const ActivityList: React.FC<ActivityListProps> = ({
                                 </div>
                                 <div>
                                     <span className="font-medium">Persoane asignate:</span>
-                                    <div className="font-semibold text-blue-600">{activity.assignedTo?.length || 0}</div>
+                                    <div className="font-semibold text-blue-600">0</div>
                                 </div>
                                 <div>
                                     <span className="font-medium">Ore estimate:</span>
-                                    <div className="font-semibold text-purple-600">{activity.estimatedHours || 0}h</div>
+                                    <div className="font-semibold text-purple-600">0h</div>
                                 </div>
                             </div>
                         </div>
@@ -350,11 +350,11 @@ const ActivityList: React.FC<ActivityListProps> = ({
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="bg-blue-50 p-3 rounded">
-                                    <div className="text-2xl font-bold text-blue-600">{selectedActivity.estimatedHours || 0}h</div>
+                                    <div className="text-2xl font-bold text-blue-600">0h</div>
                                     <div className="text-sm text-blue-600">Ore estimate</div>
                                 </div>
                                 <div className="bg-green-50 p-3 rounded">
-                                    <div className="text-2xl font-bold text-green-600">{selectedActivity.actualHours || 0}h</div>
+                                    <div className="text-2xl font-bold text-green-600">0h</div>
                                     <div className="text-sm text-green-600">Ore lucrate</div>
                                 </div>
                             </div>

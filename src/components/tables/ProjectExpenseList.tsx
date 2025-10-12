@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Table from "@/components/ui/Table.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
-import { ProjectExpense, ExpenseCategory, UnitType } from '@/types/project-expense.types';
+import { ProjectExpense, ExpenseCategory } from '@/types/project-expense.types';
 import { UpdateProjectExpenseModal } from '@/components/modals/project-expense/UpdateProjectExpenseModal';
 import projectExpenseService from '@/services/project-expense.service';
 import showToast from '@/components/ui/Toast';

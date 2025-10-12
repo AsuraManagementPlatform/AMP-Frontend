@@ -2,6 +2,13 @@ import { z } from 'zod';
 import { ActivityStatus, ActivityType } from '@/types/activity.types';
 
 export const createActivitySchema = z.object({
+    project: z.string()
+        .min(1, 'ID-ul proiectului este obligatoriu'),
+    
+    project_objective: z.string()
+        .optional()
+        .or(z.literal('')),
+    
     title: z.string()
         .min(2, 'Titlul activității trebuie să aibă cel puțin 2 caractere')
         .max(255, 'Titlul activității nu poate depăși 255 de caractere'),
@@ -12,9 +19,9 @@ export const createActivitySchema = z.object({
         .refine(
             (value) => {
                 if (!value) return true;
-                return value.length <= 1000;
+                return value.length <= 511;
             },
-            'Descrierea nu poate depăși 1000 de caractere'
+            'Descrierea nu poate depăși 511 caractere'
         ),
     
     type: z.enum([
@@ -38,7 +45,7 @@ export const createActivitySchema = z.object({
         message: 'Statusul activității este invalid'
     }),
     
-    startDate: z.string()
+    starting_date: z.string()
         .min(1, 'Data de început este obligatorie')
         .refine(
             (value) => {
@@ -47,7 +54,16 @@ export const createActivitySchema = z.object({
             'Data de început nu este validă'
         ),
     
-    endDate: z.string()
+    estimated_ending_date: z.string()
+        .min(1, 'Data estimată de sfârșit este obligatorie')
+        .refine(
+            (value) => {
+                return !isNaN(Date.parse(value));
+            },
+            'Data estimată de sfârșit nu este validă'
+        ),
+    
+    ending_date: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
@@ -69,66 +85,44 @@ export const createActivitySchema = z.object({
             'Locația nu poate depăși 255 de caractere'
         ),
     
-    projectId: z.string()
-        .min(1, 'ID-ul proiectului este obligatoriu'),
-    
-    assignedTo: z.array(z.string())
-        .optional(),
-    
-    estimatedHours: z.union([
-        z.number(),
-        z.string()
-    ]).optional().transform((value) => {
-        if (value === undefined || value === null || value === '') {
-            return undefined;
-        }
-        if (typeof value === 'string') {
-            const num = parseFloat(value);
-            if (isNaN(num)) {
-                return 0;
-            }
-            return num;
-        }
-        return value;
-    }).refine(
-        (value) => {
-            return value !== undefined && value >= 0;
-        },
-        'Orele estimate trebuie să fie un număr pozitiv sau zero'
-    ),
-    
-    notes: z.string()
+    observation: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
             (value) => {
                 if (!value) return true;
-                return value.length <= 500;
+                return value.length <= 511;
             },
-            'Notele nu pot depăși 500 de caractere'
+            'Observațiile nu pot depăși 511 caractere'
         )
 }).refine((data) => {
-    if (data.startDate && data.endDate) {
-        return new Date(data.startDate) <= new Date(data.endDate);
+    if (data.starting_date && data.ending_date) {
+        return new Date(data.starting_date) <= new Date(data.ending_date);
     }
     return true;
 }, {
     message: 'Data de sfârșit trebuie să fie după data de început',
-    path: ['endDate']
+    path: ['ending_date']
 });
 
 export type CreateActivityData = z.infer<typeof createActivitySchema>;
 
+export const updateActivitySchema = createActivitySchema.partial().extend({
+    id: z.string().optional()
+});
+
+export type UpdateActivityData = z.infer<typeof updateActivitySchema>;
+
 export const getCreateActivityDefaultValues = (): CreateActivityData => ({
+    project: '',
+    project_objective: '',
     title: '',
     description: '',
     type: ActivityType.TASK,
     status: ActivityStatus.PLANNED,
-    startDate: '',
-    endDate: '',
+    starting_date: '',
+    estimated_ending_date: '',
+    ending_date: '',
     location: '',
-    projectId: '',
-    assignedTo: [],
-    estimatedHours: 0,
-    notes: ''
+    observation: ''
 });

@@ -1,4 +1,4 @@
-import {BaseEntity, Currency, TransactionStatus} from "@/types/index.types.ts";
+import {BaseEntity, Currency, TransactionStatus} from "@/types/index.types";
 
 export const ExpenseCategory = {
     PERSONNEL: 'PERSONNEL',

@@ -29,7 +29,7 @@ const ProjectPage: React.FC = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<TabType>('details');
     const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
-    const [refreshActivities, setRefreshActivities] = useState(0);
+    const [_refreshActivities, setRefreshActivities] = useState(0);
     const [isCreateExpenseModalOpen, setIsCreateExpenseModalOpen] = useState(false);
     const [refreshExpenses, setRefreshExpenses] = useState(0);
     const [isCreateFundModalOpen, setIsCreateFundModalOpen] = useState(false);
@@ -258,10 +258,7 @@ const ProjectPage: React.FC = () => {
                 </PrimaryActionButton>
             }
         >
-            <ActivityList
-                projectId={project.id}
-                refreshTrigger={refreshActivities}
-            />
+            <ActivityList />
 
             {isCreateActivityModalOpen && (
                 <CreateActivityModal
@@ -319,7 +316,6 @@ const ProjectPage: React.FC = () => {
             <ProjectFundList
                 projectId={project.id}
                 onEdit={(fund) => {
-                    // TODO: Implement edit
                     showToast.info(`Edit fund: ${fund.source_name}`);
                 }}
                 onDelete={async (fund) => {

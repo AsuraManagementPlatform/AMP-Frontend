@@ -57,7 +57,7 @@ export const UpdateProjectExpenseModal: React.FC<UpdateProjectExpenseModalProps>
     const handleSubmit = async (data: UpdateProjectExpenseData) => {
         try {
             setIsSubmitting(true);
-            await projectExpenseService.update(expense.id, data);
+            await projectExpenseService.update(expense.id, data as any);
             showToast.success('Cheltuiala a fost actualizată cu succes!');
             onSuccess();
             onClose();

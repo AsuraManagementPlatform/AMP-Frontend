@@ -22,27 +22,37 @@ export type ProjectPriority = typeof ProjectPriority[keyof typeof ProjectPriorit
 export interface Project extends BaseEntity {
     name: string;
     description?: string;
+    category: string;
+    starting_date: string;
+    ending_date: string;
     status: ProjectStatus;
-    priority: ProjectPriority;
-    startDate?: string;
-    endDate?: string;
-    budget?: number;
-    organizationId: string;
-    managerId?: string;
-    tags?: string[];
+    priority?: ProjectPriority;
+    organization: string;
+    location: string;
+    budget: number;
+    currency: string;
+    budget_planning_date: string;
+    budget_responsible: string;
+    budget_responsible_name?: string;
+    budget_notes?: string;
+    teamSize?: number;
+    activitiesCount?: number;
 }
 
 export interface ProjectCreateRequest {
     name: string;
     description?: string;
+    category: string;
+    starting_date: string;
+    ending_date: string;
     status: ProjectStatus;
-    priority: ProjectPriority;
-    startDate?: string;
-    endDate?: string;
-    budget?: number;
-    organizationId: string;
-    managerId?: string;
-    tags?: string[];
+    organization: string;
+    location: string;
+    budget: number;
+    currency: string;
+    budget_planning_date: string;
+    budget_responsible: string;
+    budget_notes?: string;
 }
 
 export interface ProjectUpdateRequest extends Partial<ProjectCreateRequest> {}

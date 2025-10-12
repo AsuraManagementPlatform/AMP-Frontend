@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ProjectStatus, ProjectPriority } from '@/types/project.types';
+import { ProjectStatus } from '@/types/project.types';
 
 export const createProjectSchema = z.object({
     name: z.string()
@@ -12,9 +12,9 @@ export const createProjectSchema = z.object({
         .refine(
             (value) => {
                 if (!value) return true;
-                return value.length <= 1000;
+                return value.length <= 511;
             },
-            'Descrierea nu poate depăși 1000 de caractere'
+            'Descrierea nu poate depăși 511 caractere'
         ),
     
     category: z.string()
@@ -34,23 +34,14 @@ export const createProjectSchema = z.object({
         message: 'Statusul proiectului este invalid'
     }),
     
-    priority: z.enum([
-        ProjectPriority.LOW,
-        ProjectPriority.MEDIUM,
-        ProjectPriority.HIGH,
-        ProjectPriority.URGENT
-    ], {
-        message: 'Prioritatea proiectului este invalidă'
-    }),
-    
-    startDate: z.string()
+    starting_date: z.string()
         .min(1, 'Data de început este obligatorie')
         .refine(
             (value) => !isNaN(Date.parse(value)),
             'Data de început nu este validă'
         ),
     
-    endDate: z.string()
+    ending_date: z.string()
         .min(1, 'Data de sfârșit este obligatorie')
         .refine(
             (value) => !isNaN(Date.parse(value)),
@@ -81,40 +72,33 @@ export const createProjectSchema = z.object({
         message: 'Moneda selectată nu este validă'
     }),
     
-    budgetPlanningDate: z.string()
-        .optional()
-        .or(z.literal(''))
+    budget_planning_date: z.string()
+        .min(1, 'Data planificării bugetului este obligatorie')
         .refine(
-            (value) => {
-                if (!value) return true;
-                return !isNaN(Date.parse(value));
-            },
-            'Data planificare buget nu este validă'
+            (value) => !isNaN(Date.parse(value)),
+            'Data planificării bugetului nu este validă'
         ),
     
-    organizationId: z.string()
+    organization: z.string()
         .min(1, 'ID-ul organizației este obligatoriu'),
     
-    managerId: z.string()
-        .min(1, 'Managerul proiectului este obligatoriu'),
+    budget_responsible: z.string()
+        .min(1, 'Responsabilul bugetului este obligatoriu'),
     
-    budgetNotes: z.string()
+    budget_notes: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
             (value) => {
                 if (!value) return true;
-                return value.length <= 500;
+                return value.length <= 511;
             },
-            'Notele buget nu pot depăși 500 de caractere'
-        ),
-    
-    tags: z.array(z.string())
-        .optional()
+            'Notele buget nu pot depăși 511 caractere'
+        )
 }).refine((data) => {
-    if (data.startDate && data.endDate) {
-        const startDate = new Date(data.startDate);
-        const endDate = new Date(data.endDate);
+    if (data.starting_date && data.ending_date) {
+        const startDate = new Date(data.starting_date);
+        const endDate = new Date(data.ending_date);
         if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
             return false;
         }
@@ -124,10 +108,16 @@ export const createProjectSchema = z.object({
     return true;
 }, {
     message: 'Data de sfârșit trebuie să fie după data de început',
-    path: ['endDate']
+    path: ['ending_date']
 });
 
 export type CreateProjectData = z.infer<typeof createProjectSchema>;
+
+export const updateProjectSchema = createProjectSchema.partial().extend({
+    id: z.string().optional()
+});
+
+export type UpdateProjectData = z.infer<typeof updateProjectSchema>;
 
 export const getCreateProjectDefaultValues = (): CreateProjectData => ({
     name: '',
@@ -135,14 +125,12 @@ export const getCreateProjectDefaultValues = (): CreateProjectData => ({
     category: '',
     location: '',
     status: ProjectStatus.DRAFT,
-    priority: ProjectPriority.MEDIUM,
-    startDate: '',
-    endDate: '',
+    starting_date: '',
+    ending_date: '',
     budget: 0,
     currency: 'RON',
-    budgetPlanningDate: '',
-    organizationId: '',
-    managerId: '',
-    budgetNotes: '',
-    tags: []
+    budget_planning_date: '',
+    organization: '',
+    budget_responsible: '',
+    budget_notes: ''
 });

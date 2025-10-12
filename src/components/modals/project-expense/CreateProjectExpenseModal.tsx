@@ -55,7 +55,7 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
     const handleSubmit = async (data: CreateProjectExpenseData) => {
         try {
             setIsSubmitting(true);
-            await projectExpenseService.create(data);
+            await projectExpenseService.create(data as any);
             showToast.success('Cheltuiala a fost adăugată cu succes!');
             onSuccess();
             onClose();

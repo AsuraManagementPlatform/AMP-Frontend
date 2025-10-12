@@ -218,7 +218,7 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                                     </span>
                                                 </div>
                                                 <div className="text-xs text-gray-500">
-                                                    {project.endDate ? new Date(project.endDate).toLocaleDateString('ro-RO') : 'N/A'}
+                                                    {project.ending_date ? new Date(project.ending_date).toLocaleDateString('ro-RO') : 'N/A'}
                                                 </div>
                                             </div>
                                         </div>

@@ -1,4 +1,4 @@
-import {BaseEntity} from "@/types/index.types.ts";
+import {BaseEntity} from "@/types/index.types";
 
 export const ProjectMemberStatus = {
     ACTIVE: 'ACTIVE',

@@ -23,7 +23,6 @@ export const userService = {
     },
 
     create: async (data: Partial<User>): Promise<User> => {
-        console.log('🚀 UserService.create called with data:', data);
         return apiService.post<User>('/api/user/create', data);
     },
 
@@ -41,6 +40,10 @@ export const userService = {
 
     reactivateUser: async (id: string): Promise<void> => {
         return apiService.post<void>(`/api/user/reactivate/${id}`, {});
+    },
+
+    resetPassword: async (id: string): Promise<{ message: string; email: string }> => {
+        return apiService.post<{ message: string; email: string }>(`/api/user/reset-password/${id}`, {});
     },
 };
 
