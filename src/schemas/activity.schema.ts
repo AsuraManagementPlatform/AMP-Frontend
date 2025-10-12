@@ -2,47 +2,32 @@ import { z } from 'zod';
 import { ActivityStatus, ActivityType } from '@/types/activity.types';
 
 export const createActivitySchema = z.object({
-    project: z.string()
-        .min(1, 'Proiectul este obligatoriu'),
-
-    project_objective: z.string()
-        .optional()
-        .or(z.literal('')),
-
     title: z.string()
-        .min(2, 'Titlul trebuie să aibă cel puțin 2 caractere')
-        .max(255, 'Titlul nu poate depăși 255 de caractere'),
-
+        .min(2, 'Titlul activității trebuie să aibă cel puțin 2 caractere')
+        .max(255, 'Titlul activității nu poate depăși 255 de caractere'),
+    
     description: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
-            (value) => !value || value.length <= 511,
-            'Descrierea nu poate depăși 511 caractere'
+            (value) => {
+                if (!value) return true;
+                return value.length <= 1000;
+            },
+            'Descrierea nu poate depăși 1000 de caractere'
         ),
-
-    starting_date: z.string()
-        .min(1, 'Data de început este obligatorie')
-        .refine(
-            (value) => !isNaN(Date.parse(value)),
-            'Data de început nu este validă'
-        ),
-
-    estimated_ending_date: z.string()
-        .min(1, 'Data estimată de sfârșit este obligatorie')
-        .refine(
-            (value) => !isNaN(Date.parse(value)),
-            'Data estimată de sfârșit nu este validă'
-        ),
-
-    ending_date: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => !value || !isNaN(Date.parse(value)),
-            'Data de sfârșit nu este validă'
-        ),
-
+    
+    type: z.enum([
+        ActivityType.MEETING,
+        ActivityType.WORKSHOP,
+        ActivityType.EVENT,
+        ActivityType.TASK,
+        ActivityType.MILESTONE,
+        ActivityType.REVIEW
+    ], {
+        message: 'Tipul activității este invalid'
+    }),
+    
     status: z.enum([
         ActivityStatus.PLANNED,
         ActivityStatus.IN_PROGRESS,
@@ -51,204 +36,99 @@ export const createActivitySchema = z.object({
         ActivityStatus.POSTPONED
     ], {
         message: 'Statusul activității este invalid'
-    }).default(ActivityStatus.PLANNED),
-
-    type: z.enum([
-        ActivityType.MEETING,
-        ActivityType.WORKSHOP,
-        ActivityType.TRAINING,
-        ActivityType.CONFERENCE,
-        ActivityType.PRESENTATION,
-        ActivityType.EVENT,
-        ActivityType.TASK,
-        ActivityType.MILESTONE,
-        ActivityType.REVIEW,
-        ActivityType.OTHER
-    ], {
-        message: 'Tipul activității este invalid'
     }),
-
+    
+    startDate: z.string()
+        .min(1, 'Data de început este obligatorie')
+        .refine(
+            (value) => {
+                return !isNaN(Date.parse(value));
+            },
+            'Data de început nu este validă'
+        ),
+    
+    endDate: z.string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => {
+                if (!value) return true;
+                return !isNaN(Date.parse(value));
+            },
+            'Data de sfârșit nu este validă'
+        ),
+    
     location: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
-            (value) => !value || value.length <= 255,
+            (value) => {
+                if (!value) return true;
+                return value.length <= 255;
+            },
             'Locația nu poate depăși 255 de caractere'
         ),
-
-    observation: z.string()
+    
+    projectId: z.string()
+        .min(1, 'ID-ul proiectului este obligatoriu'),
+    
+    assignedTo: z.array(z.string())
+        .optional(),
+    
+    estimatedHours: z.union([
+        z.number(),
+        z.string()
+    ]).optional().transform((value) => {
+        if (value === undefined || value === null || value === '') {
+            return undefined;
+        }
+        if (typeof value === 'string') {
+            const num = parseFloat(value);
+            if (isNaN(num)) {
+                return 0;
+            }
+            return num;
+        }
+        return value;
+    }).refine(
+        (value) => {
+            return value !== undefined && value >= 0;
+        },
+        'Orele estimate trebuie să fie un număr pozitiv sau zero'
+    ),
+    
+    notes: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
-            (value) => !value || value.length <= 511,
-            'Observația nu poate depăși 511 caractere'
-        ),
-
-    results: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => !value || value.length <= 511,
-            'Rezultatele nu pot depăși 511 caractere'
-        ),
-
-    indicators: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => !value || value.length <= 511,
-            'Indicatorii nu pot depăși 511 caractere'
+            (value) => {
+                if (!value) return true;
+                return value.length <= 500;
+            },
+            'Notele nu pot depăși 500 de caractere'
         )
 }).refine((data) => {
-    if (data.starting_date && data.estimated_ending_date) {
-        const startDate = new Date(data.starting_date);
-        const endDate = new Date(data.estimated_ending_date);
-        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-            return false;
-        }
-        return endDate > startDate;
+    if (data.startDate && data.endDate) {
+        return new Date(data.startDate) <= new Date(data.endDate);
     }
     return true;
 }, {
-    message: 'Data estimată de sfârșit trebuie să fie după data de început',
-    path: ['estimated_ending_date']
+    message: 'Data de sfârșit trebuie să fie după data de început',
+    path: ['endDate']
 });
 
 export type CreateActivityData = z.infer<typeof createActivitySchema>;
 
-export const updateActivitySchema = z.object({
-    project: z.string()
-        .optional()
-        .or(z.literal('')),
-
-    project_objective: z.string()
-        .optional()
-        .or(z.literal('')),
-
-    title: z.string()
-        .optional()
-        .refine(
-            (value) => !value || (value.length >= 2 && value.length <= 255),
-            'Titlul trebuie să aibă între 2 și 255 caractere'
-        ),
-
-    description: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => !value || value.length <= 511,
-            'Descrierea nu poate depăși 511 caractere'
-        ),
-
-    starting_date: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => !value || !isNaN(Date.parse(value)),
-            'Data de început nu este validă'
-        ),
-
-    estimated_ending_date: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => !value || !isNaN(Date.parse(value)),
-            'Data estimată de sfârșit nu este validă'
-        ),
-
-    ending_date: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => !value || !isNaN(Date.parse(value)),
-            'Data de sfârșit nu este validă'
-        ),
-
-    status: z.enum([
-        ActivityStatus.PLANNED,
-        ActivityStatus.IN_PROGRESS,
-        ActivityStatus.COMPLETED,
-        ActivityStatus.CANCELLED,
-        ActivityStatus.POSTPONED
-    ], {
-        message: 'Statusul activității este invalid'
-    }).optional(),
-
-    type: z.enum([
-        ActivityType.MEETING,
-        ActivityType.WORKSHOP,
-        ActivityType.TRAINING,
-        ActivityType.CONFERENCE,
-        ActivityType.PRESENTATION,
-        ActivityType.EVENT,
-        ActivityType.TASK,
-        ActivityType.MILESTONE,
-        ActivityType.REVIEW,
-        ActivityType.OTHER
-    ], {
-        message: 'Tipul activității este invalid'
-    }).optional(),
-
-    location: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => !value || value.length <= 255,
-            'Locația nu poate depăși 255 de caractere'
-        ),
-
-    observation: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => !value || value.length <= 511,
-            'Observația nu poate depăși 511 caractere'
-        ),
-
-    results: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => !value || value.length <= 511,
-            'Rezultatele nu pot depăși 511 caractere'
-        ),
-
-    indicators: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => !value || value.length <= 511,
-            'Indicatorii nu pot depăși 511 caractere'
-        )
-}).refine((data) => {
-    if (data.starting_date && data.estimated_ending_date) {
-        const startDate = new Date(data.starting_date);
-        const endDate = new Date(data.estimated_ending_date);
-        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-            return true;
-        }
-        return endDate > startDate;
-    }
-    return true;
-}, {
-    message: 'Data estimată de sfârșit trebuie să fie după data de început',
-    path: ['estimated_ending_date']
-});
-
-export type UpdateActivityData = z.infer<typeof updateActivitySchema>;
-
-export const getCreateActivityDefaultValues = (projectId?: string): CreateActivityData => ({
-    project: projectId || '',
-    project_objective: '',
+export const getCreateActivityDefaultValues = (): CreateActivityData => ({
     title: '',
     description: '',
-    starting_date: '',
-    estimated_ending_date: '',
-    ending_date: '',
+    type: ActivityType.TASK,
     status: ActivityStatus.PLANNED,
-    type: ActivityType.EVENT,
+    startDate: '',
+    endDate: '',
     location: '',
-    observation: '',
-    results: '',
-    indicators: ''
+    projectId: '',
+    assignedTo: [],
+    estimatedHours: 0,
+    notes: ''
 });

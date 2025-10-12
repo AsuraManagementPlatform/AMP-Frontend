@@ -40,7 +40,6 @@ export interface OrganizationCreateRequest {
     funding_sources?: string[];
     registration_date?: string;
     tax_exempt_status?: boolean;
-    tax_percentage?: number;
     employee_count?: number;
     volunteer_count?: number;
     member_count?: number;
@@ -75,8 +74,6 @@ export interface Organization {
     funding_sources?: string[];
     registration_date?: string;
     tax_exempt_status?: boolean;
-    tax_percentage?: number;
-    tax_percentage_display?: number;
     employee_count?: number;
     volunteer_count?: number;
     member_count?: number;

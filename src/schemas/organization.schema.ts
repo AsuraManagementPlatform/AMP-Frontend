@@ -1,5 +1,5 @@
-import {z} from 'zod';
-import {OrganizationStatus, OrganizationType} from '@/types/organization.types';
+import { z } from 'zod';
+import { OrganizationType, OrganizationStatus } from '@/types/organization.types';
 
 const ROMANIAN_PHONE_REGEX = /^(\+40|0)[0-9]{9}$/;
 const CUI_REGEX = /^(RO)?[0-9]{2,10}$/;
@@ -10,7 +10,7 @@ export const createOrganizationSchema = z.object({
     name: z.string()
         .min(2, 'Numele organizației trebuie să aibă cel puțin 2 caractere')
         .max(255, 'Numele organizației nu poate depăși 255 de caractere'),
-
+    
     legal_name: z.string()
         .optional()
         .or(z.literal(''))
@@ -18,7 +18,7 @@ export const createOrganizationSchema = z.object({
             (value) => !value || value.length <= 255,
             { message: 'Numele legal nu poate depăși 255 de caractere' }
         ),
-
+    
     short_name: z.string()
         .optional()
         .or(z.literal(''))
@@ -36,7 +36,7 @@ export const createOrganizationSchema = z.object({
             },
             { message: 'CUI-ul trebuie să fie în format valid (ex: RO12345678 sau 12345678)' }
         ),
-
+    
     registration_number: z.string()
         .optional()
         .or(z.literal(''))
@@ -47,7 +47,7 @@ export const createOrganizationSchema = z.object({
     email: z.string()
         .email('Email-ul nu este valid')
         .min(1, 'Email-ul este obligatoriu'),
-
+    
     phone_number: z.string()
         .optional()
         .or(z.literal(''))
@@ -58,7 +58,7 @@ export const createOrganizationSchema = z.object({
             },
             { message: 'Numărul de telefon trebuie să fie în format românesc (ex: +40712345678, 0712345678)' }
         ),
-
+    
     secondary_phone: z.string()
         .optional()
         .or(z.literal(''))
@@ -69,7 +69,7 @@ export const createOrganizationSchema = z.object({
             },
             { message: 'Numărul secundar de telefon trebuie să fie în format românesc' }
         ),
-
+    
     fax_number: z.string()
         .optional()
         .or(z.literal(''))
@@ -80,7 +80,7 @@ export const createOrganizationSchema = z.object({
             },
             { message: 'Numărul de fax trebuie să fie în format românesc' }
         ),
-
+    
     website: z.string()
         .optional()
         .or(z.literal(''))
@@ -94,7 +94,7 @@ export const createOrganizationSchema = z.object({
     address: z.string()
         .min(5, 'Adresa trebuie să aibă cel puțin 5 caractere')
         .max(500, 'Adresa nu poate depăși 500 de caractere'),
-
+    
     address2: z.string()
         .optional()
         .or(z.literal(''))
@@ -102,7 +102,7 @@ export const createOrganizationSchema = z.object({
             (value) => !value || value.length <= 500,
             { message: 'Adresa secundară nu poate depăși 500 de caractere' }
         ),
-
+    
     city: z.string()
         .optional()
         .or(z.literal(''))
@@ -110,7 +110,7 @@ export const createOrganizationSchema = z.object({
             (value) => !value || value.length <= 100,
             { message: 'Orașul nu poate depăși 100 de caractere' }
         ),
-
+    
     county: z.string()
         .optional()
         .or(z.literal(''))
@@ -118,7 +118,7 @@ export const createOrganizationSchema = z.object({
             (value) => !value || value.length <= 100,
             { message: 'Județul nu poate depăși 100 de caractere' }
         ),
-
+    
     postal_code: z.string()
         .optional()
         .or(z.literal(''))
@@ -129,7 +129,7 @@ export const createOrganizationSchema = z.object({
             },
             { message: 'Codul poștal trebuie să fie format din 6 cifre' }
         ),
-
+    
     country: z.string()
         .optional()
         .or(z.literal(''))
@@ -144,7 +144,7 @@ export const createOrganizationSchema = z.object({
     ], {
         message: 'Tipul organizației trebuie să fie unul din valorile predefinite'
     }).default(OrganizationType.NGO),
-
+    
     industry_sector: z.string()
         .optional()
         .or(z.literal(''))
@@ -152,7 +152,7 @@ export const createOrganizationSchema = z.object({
             (value) => !value || value.length <= 100,
             { message: 'Sectorul de activitate nu poate depăși 100 de caractere' }
         ),
-
+    
     description: z.string()
         .optional()
         .or(z.literal(''))
@@ -166,7 +166,7 @@ export const createOrganizationSchema = z.object({
             (value) => value === undefined || value >= 0,
             { message: 'Bugetul anual trebuie să fie pozitiv' }
         ),
-
+    
     funding_sources: z.array(z.string())
         .optional()
         .default([]),
@@ -183,45 +183,24 @@ export const createOrganizationSchema = z.object({
             },
             { message: 'Data înregistrării trebuie să fie în format valid (YYYY-MM-DD)' }
         ),
-
+    
     tax_exempt_status: z.boolean()
         .optional()
         .default(false),
-
-    tax_percentage: z.union([
-        z.number(),
-        z.string()
-    ]).optional().transform((value) => {
-        if (value === undefined || value === null || value === '') {
-            return undefined;
-        }
-        if (typeof value === 'string') {
-            const num = parseFloat(value);
-            if (isNaN(num)) {
-                throw new Error('Procentul de taxare trebuie să fie un număr valid');
-            }
-            return num;
-        }
-        return value;
-    }).refine(
-        (value) => value === undefined || (value >= 0 && value <= 100),
-        'Procentul de taxare trebuie să fie între 0 și 100'
-    ),
-
     employee_count: z.number()
         .optional()
         .refine(
             (value) => value === undefined || (value >= 0 && Number.isInteger(value)),
             { message: 'Numărul de angajați trebuie să fie un număr întreg pozitiv' }
         ),
-
+    
     volunteer_count: z.number()
         .optional()
         .refine(
             (value) => value === undefined || (value >= 0 && Number.isInteger(value)),
             { message: 'Numărul de voluntari trebuie să fie un număr întreg pozitiv' }
         ),
-
+    
     member_count: z.number()
         .optional()
         .refine(
@@ -231,56 +210,23 @@ export const createOrganizationSchema = z.object({
     status: z.enum([OrganizationStatus.ACTIVE, OrganizationStatus.INACTIVE, OrganizationStatus.PENDING], {
         message: 'Statusul trebuie să fie ACTIVE, INACTIVE sau PENDING'
     }),
-
+    
     admin_user: z.string()
         .min(1, 'Administratorul organizației este obligatoriu')
         .refine(
             (value) => value !== '',
             { message: 'Trebuie să selectați un administrator pentru organizație' }
         ),
-
+    
     is_verified: z.boolean()
         .optional()
         .default(false),
     social_media_links: z.record(z.string(), z.string())
         .optional()
         .default({})
-}).refine((data) => {
-    if (!data.tax_exempt_status && (data.tax_percentage === undefined || data.tax_percentage === null)) {
-        return false;
-    }
-    return true;
-}, {
-    message: 'Procentul de taxare este obligatoriu când organizația nu este scutită de taxe',
-    path: ['tax_percentage']
 });
 
 export type CreateOrganizationData = z.infer<typeof createOrganizationSchema>;
-
-export const prepareOrganizationDataForAPI = (data: CreateOrganizationData) => {
-    const apiData = { ...data };
-
-    if (apiData.tax_percentage !== undefined && apiData.tax_percentage !== null) {
-        apiData.tax_percentage = apiData.tax_percentage / 100;
-    }
-
-    if (apiData.tax_exempt_status) {
-        apiData.tax_percentage = undefined;
-    }
-
-    return apiData;
-};
-
-export const prepareOrganizationDataForForm = (data: Organization) => {
-    const formData: any = { ...data };
-
-    if (formData.tax_percentage !== undefined && formData.tax_percentage !== null) {
-        formData.tax_percentage = formData.tax_percentage * 100;
-    }
-
-    return formData;
-};
-
 export const updateOrganizationSchema = z.object({
     name: z.string()
         .optional()
@@ -289,7 +235,7 @@ export const updateOrganizationSchema = z.object({
             (value) => !value || (value.length >= 2 && value.length <= 255),
             { message: 'Numele organizației trebuie să aibă între 2 și 255 caractere' }
         ),
-
+    
     legal_name: z.string()
         .optional()
         .or(z.literal(''))
@@ -297,7 +243,7 @@ export const updateOrganizationSchema = z.object({
             (value) => !value || value.length <= 255,
             { message: 'Numele legal nu poate depăși 255 de caractere' }
         ),
-
+    
     short_name: z.string()
         .optional()
         .or(z.literal(''))
@@ -315,7 +261,7 @@ export const updateOrganizationSchema = z.object({
             },
             { message: 'CUI-ul trebuie să fie în format valid (ex: RO12345678 sau 12345678)' }
         ),
-
+    
     registration_number: z.string()
         .optional()
         .or(z.literal(''))
@@ -333,7 +279,7 @@ export const updateOrganizationSchema = z.object({
             },
             { message: 'Email-ul nu este valid' }
         ),
-
+    
     phone_number: z.string()
         .optional()
         .or(z.literal(''))
@@ -344,7 +290,7 @@ export const updateOrganizationSchema = z.object({
             },
             { message: 'Numărul de telefon trebuie să fie în format românesc (ex: +40712345678, 0712345678)' }
         ),
-
+    
     secondary_phone: z.string()
         .optional()
         .or(z.literal(''))
@@ -355,7 +301,7 @@ export const updateOrganizationSchema = z.object({
             },
             { message: 'Numărul secundar de telefon trebuie să fie în format românesc' }
         ),
-
+    
     fax_number: z.string()
         .optional()
         .or(z.literal(''))
@@ -366,7 +312,7 @@ export const updateOrganizationSchema = z.object({
             },
             { message: 'Numărul de fax trebuie să fie în format românesc' }
         ),
-
+    
     website: z.string()
         .optional()
         .or(z.literal(''))
@@ -384,7 +330,7 @@ export const updateOrganizationSchema = z.object({
             (value) => !value || (value.length >= 5 && value.length <= 500),
             { message: 'Adresa trebuie să aibă între 5 și 500 caractere' }
         ),
-
+    
     address2: z.string()
         .optional()
         .or(z.literal(''))
@@ -392,7 +338,7 @@ export const updateOrganizationSchema = z.object({
             (value) => !value || value.length <= 500,
             { message: 'Adresa secundară nu poate depăși 500 de caractere' }
         ),
-
+    
     city: z.string()
         .optional()
         .or(z.literal(''))
@@ -400,7 +346,7 @@ export const updateOrganizationSchema = z.object({
             (value) => !value || value.length <= 100,
             { message: 'Orașul nu poate depăși 100 de caractere' }
         ),
-
+    
     county: z.string()
         .optional()
         .or(z.literal(''))
@@ -408,7 +354,7 @@ export const updateOrganizationSchema = z.object({
             (value) => !value || value.length <= 100,
             { message: 'Județul nu poate depăși 100 de caractere' }
         ),
-
+    
     postal_code: z.string()
         .optional()
         .or(z.literal(''))
@@ -419,7 +365,7 @@ export const updateOrganizationSchema = z.object({
             },
             { message: 'Codul poștal trebuie să fie format din 6 cifre' }
         ),
-
+    
     country: z.string()
         .optional()
         .or(z.literal('')),
@@ -433,7 +379,7 @@ export const updateOrganizationSchema = z.object({
     ], {
         message: 'Tipul organizației trebuie să fie unul din valorile predefinite'
     }).optional(),
-
+    
     industry_sector: z.string()
         .optional()
         .or(z.literal(''))
@@ -441,7 +387,7 @@ export const updateOrganizationSchema = z.object({
             (value) => !value || value.length <= 100,
             { message: 'Sectorul de activitate nu poate depăși 100 de caractere' }
         ),
-
+    
     description: z.string()
         .optional()
         .or(z.literal(''))
@@ -455,7 +401,7 @@ export const updateOrganizationSchema = z.object({
             (value) => value === undefined || value >= 0,
             { message: 'Bugetul anual trebuie să fie pozitiv' }
         ),
-
+    
     funding_sources: z.array(z.string())
         .optional(),
     registration_date: z.string()
@@ -471,44 +417,23 @@ export const updateOrganizationSchema = z.object({
             },
             { message: 'Data înregistrării trebuie să fie în format valid (YYYY-MM-DD)' }
         ),
-
+    
     tax_exempt_status: z.boolean()
         .optional(),
-
-    tax_percentage: z.union([
-        z.number(),
-        z.string()
-    ]).optional().transform((value) => {
-        if (value === undefined || value === null || value === '') {
-            return undefined;
-        }
-        if (typeof value === 'string') {
-            const num = parseFloat(value);
-            if (isNaN(num)) {
-                throw new Error('Procentul de taxare trebuie să fie un număr valid');
-            }
-            return num;
-        }
-        return value;
-    }).refine(
-        (value) => value === undefined || (value >= 0 && value <= 100),
-        'Procentul de taxare trebuie să fie între 0 și 100'
-    ),
-
     employee_count: z.number()
         .optional()
         .refine(
             (value) => value === undefined || (value >= 0 && Number.isInteger(value)),
             { message: 'Numărul de angajați trebuie să fie un număr întreg pozitiv' }
         ),
-
+    
     volunteer_count: z.number()
         .optional()
         .refine(
             (value) => value === undefined || (value >= 0 && Number.isInteger(value)),
             { message: 'Numărul de voluntari trebuie să fie un număr întreg pozitiv' }
         ),
-
+    
     member_count: z.number()
         .optional()
         .refine(
@@ -518,7 +443,7 @@ export const updateOrganizationSchema = z.object({
     status: z.enum([OrganizationStatus.ACTIVE, OrganizationStatus.INACTIVE, OrganizationStatus.PENDING], {
         message: 'Statusul trebuie să fie ACTIVE, INACTIVE sau PENDING'
     }).optional(),
-
+    
     admin_user: z.string()
         .optional()
         .or(z.literal(''))
@@ -526,16 +451,11 @@ export const updateOrganizationSchema = z.object({
             (value) => !value || value !== '',
             { message: 'Administratorul organizației nu poate fi gol dacă este specificat' }
         ),
-
+    
     is_verified: z.boolean()
         .optional(),
     social_media_links: z.record(z.string(), z.string())
         .optional()
-}).refine((data) => {
-    return !(data.tax_exempt_status === false && (data.tax_percentage === undefined || data.tax_percentage === null));
-}, {
-    message: 'Procentul de taxare este obligatoriu când organizația nu este scutită de taxe',
-    path: ['tax_percentage']
 });
 
 export type UpdateOrganizationData = z.infer<typeof updateOrganizationSchema>;
@@ -563,7 +483,6 @@ export const getCreateOrganizationDefaultValues = (preselectedUser?: { id: strin
     budget: undefined,
     funding_sources: [],
     tax_exempt_status: false,
-    tax_percentage: undefined,
     employee_count: undefined,
     volunteer_count: undefined,
     member_count: undefined,

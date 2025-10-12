@@ -19,9 +19,9 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ stats, loading, isAd
                     <div className="h-8 bg-gray-200 rounded mb-2"></div>
                     <div className="h-4 bg-gray-200 rounded"></div>
                 </div>
-            ) : stats.activities_count > 0 ? (
+            ) : stats.totalActivities > 0 ? (
                 <div className="text-2xl font-semibold text-orange-600">
-                    {stats.activities_count}
+                    {stats.totalActivities}
                 </div>
             ) : (
                 <p className="text-gray-500">
@@ -39,9 +39,9 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ stats, loading, isAd
                     <div className="h-8 bg-gray-200 rounded mb-2"></div>
                     <div className="h-4 bg-gray-200 rounded"></div>
                 </div>
-            ) : stats.projects_count > 0 ? (
+            ) : stats.totalProjects > 0 ? (
                 <div className="text-2xl font-semibold text-blue-600">
-                    {stats.projects_count}
+                    {stats.totalProjects}
                 </div>
             ) : (
                 <p className="text-gray-500">
@@ -60,9 +60,9 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ stats, loading, isAd
                     <div className="h-4 bg-gray-200 rounded"></div>
                 </div>
             ) : isAdmin ? (
-                stats.organizations_count > 0 ? (
+                stats.totalOrganizations > 0 ? (
                     <div className="text-2xl font-semibold text-green-600">
-                        {stats.organizations_count}
+                        {stats.totalOrganizations}
                     </div>
                 ) : (
                     <p className="text-gray-500">Nu există organizații înregistrate.</p>

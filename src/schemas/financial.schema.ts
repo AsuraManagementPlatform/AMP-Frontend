@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ExpenseCategory, TransactionStatus, IncomeCategory, IncomeStatus } from '@/types/transaction.types.ts';
+import { ExpenseCategory, ExpenseStatus, IncomeCategory, IncomeStatus } from '@/types/financial.types';
 
 export const createExpenseSchema = z.object({
     projectId: z.string()
@@ -36,12 +36,12 @@ export const createExpenseSchema = z.object({
         .default('RON'),
     
     status: z.enum([
-        TransactionStatus.DRAFT,
-        TransactionStatus.PENDING_APPROVAL,
-        TransactionStatus.APPROVED,
-        TransactionStatus.PAID,
-        TransactionStatus.REJECTED,
-        TransactionStatus.CANCELLED
+        ExpenseStatus.DRAFT,
+        ExpenseStatus.PENDING_APPROVAL,
+        ExpenseStatus.APPROVED,
+        ExpenseStatus.PAID,
+        ExpenseStatus.REJECTED,
+        ExpenseStatus.CANCELLED
     ], {
         message: 'Statusul cheltuielii este invalid'
     }),
@@ -199,7 +199,7 @@ export const getCreateExpenseDefaultValues = (): CreateExpenseData => ({
     description: '',
     amount: 0,
     currency: 'RON',
-    status: TransactionStatus.DRAFT,
+    status: ExpenseStatus.DRAFT,
     expenseDate: new Date().toISOString().split('T')[0],
     vendor: '',
     receiptUrl: '',

@@ -1,28 +1,22 @@
 import React from "react";
 import Layout from "@/components/layout/Layout";
-import {useOrganizationCreation} from "@/hooks/useOrganizationCreation";
-import {AdminDashboard} from "@/components/dashboard/AdminDashboard";
-import {OrgAdminDashboard} from "@/components/dashboard/OrgAdminDashboard";
-import {MemberDashboard} from "@/components/dashboard/MemberDashboard";
-import {StatsSection} from "@/components/dashboard/SharedComponents";
-import {DashboardHeader} from "@/components/dashboard/DashboardHeader";
-import {DashboardModals} from "@/components/dashboard/DashboardModals";
-import {SortButton} from "@/components/ui/SortButton";
-import {useDashboardState} from "@/hooks/useDashboardState";
-import {useDashboardHandlers} from "@/hooks/useDashboardHandlers";
-import {useDashboardData} from "@/hooks/useDashboardData";
-import {
-    getActivityStatusColor,
-    getActivityStatusText,
-    getProjectStatusColor,
-    getProjectStatusText,
-    getUserDisplayName
-} from "@/utils/dashboardUtils";
+import { useOrganizationCreation } from "@/hooks/useOrganizationCreation";
+import { AdminDashboard } from "@/components/dashboard/AdminDashboard";
+import { OrgAdminDashboard } from "@/components/dashboard/OrgAdminDashboard";
+import { MemberDashboard } from "@/components/dashboard/MemberDashboard";
+import { StatsSection } from "@/components/dashboard/SharedComponents";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { DashboardModals } from "@/components/dashboard/DashboardModals";
+import { SortButton } from "@/components/ui/SortButton";
+import { useDashboardState } from "@/hooks/useDashboardState";
+import { useDashboardHandlers } from "@/hooks/useDashboardHandlers";
+import { useDashboardData } from "@/hooks/useDashboardData";
+import { getUserDisplayName, getProjectStatusColor, getActivityStatusColor, getProjectStatusText, getActivityStatusText } from "@/utils/dashboardUtils";
 
 const DashboardPage: React.FC = () => {
     const organization = useOrganizationCreation();
     const state = useDashboardState();
-
+    
     const dataHooks = useDashboardData({
         isAdmin: state.isAdmin,
         isOrgAdmin: state.isOrgAdmin,

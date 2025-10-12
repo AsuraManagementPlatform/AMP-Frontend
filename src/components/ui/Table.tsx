@@ -156,7 +156,6 @@ export function Table<T extends Record<string, any>>({
                                                                  initialFilters = [],
                                                                  initialSort,
                                                                  pageSize = 20,
-                                                                 refreshTrigger,
                                                                  className = 'flex gap-4',
                                                                  showSearch = true,
                                                                  showFilters = true,
@@ -185,9 +184,7 @@ export function Table<T extends Record<string, any>>({
         endpoint,
         initialFilters,
         initialSort,
-        initialPageSize: pageSize,
-        autoFetch: true,
-        refreshTrigger
+        initialPageSize: pageSize
     });
 
     const allColumns = [...columns];

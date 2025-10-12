@@ -1,5 +1,5 @@
 import {DynamicFormConfig, FieldType, SelectOption} from "@/types/form.types.ts";
-import {ExpenseCategory, TransactionStatus, IncomeCategory, IncomeStatus} from "@/types/transaction.types.ts";
+import {ExpenseCategory, ExpenseStatus, IncomeCategory, IncomeStatus} from "@/types/financial.types.ts";
 
 const getExpenseCategoryOptions = (): SelectOption[] => [
     { value: ExpenseCategory.PERSONNEL, label: 'Personal' },
@@ -13,13 +13,13 @@ const getExpenseCategoryOptions = (): SelectOption[] => [
     { value: ExpenseCategory.OTHER, label: 'Altele' }
 ];
 
-const getTransactionStatusOptions = (): SelectOption[] => [
-    { value: TransactionStatus.DRAFT, label: 'Draft' },
-    { value: TransactionStatus.PENDING_APPROVAL, label: 'În așteptare aprobare' },
-    { value: TransactionStatus.APPROVED, label: 'Aprobat' },
-    { value: TransactionStatus.PAID, label: 'Plătit' },
-    { value: TransactionStatus.REJECTED, label: 'Respins' },
-    { value: TransactionStatus.CANCELLED, label: 'Anulat' }
+const getExpenseStatusOptions = (): SelectOption[] => [
+    { value: ExpenseStatus.DRAFT, label: 'Draft' },
+    { value: ExpenseStatus.PENDING_APPROVAL, label: 'În așteptare aprobare' },
+    { value: ExpenseStatus.APPROVED, label: 'Aprobat' },
+    { value: ExpenseStatus.PAID, label: 'Plătit' },
+    { value: ExpenseStatus.REJECTED, label: 'Respins' },
+    { value: ExpenseStatus.CANCELLED, label: 'Anulat' }
 ];
 
 const getIncomeCategoryOptions = (): SelectOption[] => [
@@ -104,7 +104,7 @@ export const createExpenseFormConfig = (
                     label: 'Status',
                     type: FieldType.SELECT,
                     required: true,
-                    options: getTransactionStatusOptions()
+                    options: getExpenseStatusOptions()
                 },
                 {
                     name: 'expenseDate',
