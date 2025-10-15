@@ -3,7 +3,6 @@ import React from "react";
 export * from './auth.types';
 export * from './api.types';
 export * from './dashboard.types';
-export * from './adminPanel.types';
 export * from './table.types.ts';
 export * from './form.types.ts';
 export * from './user.types.ts';
@@ -12,9 +11,9 @@ export * from './activity.types.ts';
 export * from './userExperience.types.ts';
 export * from './budget.types.ts';
 export * from './entity.types.ts';
-export * from './financial.types.ts';
 export * from './project-member.types.ts';
-export * from './project-finance.types.ts';
+export * from './project-fund.types.ts';
+export * from './project-expense.types.ts';
 
 export const Currency = {
     RON: 'RON',

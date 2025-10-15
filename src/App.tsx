@@ -1,21 +1,21 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import {BrowserRouter as Router, Navigate, Route, Routes} from 'react-router-dom';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import {ReactQueryDevtools} from '@tanstack/react-query-devtools';
 
 import Home from '@/pages/Home.page';
 import AdminPanel from '@/pages/AdminPanel.page';
 import Projects from '@/pages/Projects.page';
-import Activities from '@/pages/Activities.page';
 import Calendar from '@/pages/Calendar.page';
 import OrganizationDetails from '@/pages/OrganizationDetails.page';
 import ProfilePage from '@/pages/Profile.page';
 import SettingsPage from '@/pages/Settings.page';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { ToastConfig } from '@/components/ui/Toast';
-import { ROUTES } from '@/utils/constants.utils';
-import { AuthProvider } from "@/context/Auth.context.tsx";
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { UserGroup } from '@/types/index.types';
+import {ErrorBoundary} from '@/components/ErrorBoundary';
+import {ToastConfig} from '@/components/ui/Toast';
+import {ROUTES} from '@/utils/constants.utils';
+import {AuthProvider} from "@/context/Auth.context.tsx";
+import {ProtectedRoute} from '@/components/auth/ProtectedRoute';
+import {UserGroup} from '@/types/index.types';
+import ProjectPage from "@/pages/project/Project.page.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -86,13 +86,13 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
-                <Route 
-                  path={ROUTES.ERP_ACTIVITIES} 
+                <Route
+                  path={ROUTES.ERP_PROJECT_DETAILS}
                   element={
-                    <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN]}>
-                      <Activities />
-                    </ProtectedRoute>
-                  } 
+                      <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]}>
+                          <ProjectPage />
+                      </ProtectedRoute>
+                  }
                 />
                 <Route 
                   path={ROUTES.CALENDAR} 

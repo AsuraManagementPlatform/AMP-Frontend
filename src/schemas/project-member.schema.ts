@@ -1,4 +1,4 @@
-﻿import { z } from 'zod';
+import { z } from 'zod';
 import { ProjectMemberStatus, ProjectMemberType } from '@/types/project-member.types';
 
 export const PROJECT_MEMBER_STATUSES = Object.values(ProjectMemberStatus);
@@ -11,15 +11,15 @@ export const createProjectMemberSchema = z.object({
     member: z.string()
         .min(1, 'Membrul este obligatoriu'),
 
-    user_role: z.string()
-        .min(2, 'Rolul trebuie s─â aib─â cel pu╚¢in 2 caractere')
-        .max(255, 'Rolul nu poate dep─â╚Öi 255 de caractere'),
+    userRole: z.string()
+        .min(2, 'Rolul trebuie să aibă cel puțin 2 caractere')
+        .max(255, 'Rolul nu poate depăși 255 de caractere'),
 
-    added_to_project: z.string()
-        .min(1, 'Data ad─âug─ârii este obligatorie')
+    addedToProject: z.string()
+        .min(1, 'Data adăugării este obligatorie')
         .refine(
             (value) => !isNaN(Date.parse(value)),
-            'Data ad─âug─ârii nu este valid─â'
+            'Data adăugării nu este validă'
         ),
 
     status: z.enum(PROJECT_MEMBER_STATUSES as [string, ...string[]], {
@@ -30,31 +30,31 @@ export const createProjectMemberSchema = z.object({
         message: 'Tipul selectat nu este valid'
     }),
 
-    contractual_document_number: z.string()
+    contractualDocumentNumber: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 255,
-            'Num─ârul contractului nu poate dep─â╚Öi 255 de caractere'
+            'Numărul contractului nu poate depăși 255 de caractere'
         ),
 
-    active_from: z.string()
-        .min(1, 'Data de ├«nceput este obligatorie')
+    activeFrom: z.string()
+        .min(1, 'Data de început este obligatorie')
         .refine(
             (value) => !isNaN(Date.parse(value)),
-            'Data de ├«nceput nu este valid─â'
+            'Data de început nu este validă'
         ),
 
-    active_to: z.string()
-        .min(1, 'Data de sf├ór╚Öit este obligatorie')
+    activeTo: z.string()
+        .min(1, 'Data de sfârșit este obligatorie')
         .refine(
             (value) => !isNaN(Date.parse(value)),
-            'Data de sf├ór╚Öit nu este valid─â'
+            'Data de sfârșit nu este validă'
         )
 }).refine((data) => {
-    if (data.active_from && data.active_to) {
-        const fromDate = new Date(data.active_from);
-        const toDate = new Date(data.active_to);
+    if (data.activeFrom && data.activeTo) {
+        const fromDate = new Date(data.activeFrom);
+        const toDate = new Date(data.activeTo);
         if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
             return false;
         }
@@ -62,8 +62,8 @@ export const createProjectMemberSchema = z.object({
     }
     return true;
 }, {
-    message: 'Data de sf├ór╚Öit trebuie s─â fie dup─â data de ├«nceput',
-    path: ['active_to']
+    message: 'Data de sfârșit trebuie să fie după data de început',
+    path: ['activeTo']
 });
 
 export type CreateProjectMemberData = z.infer<typeof createProjectMemberSchema>;
@@ -77,20 +77,20 @@ export const updateProjectMemberSchema = z.object({
         .optional()
         .or(z.literal('')),
 
-    user_role: z.string()
+    userRole: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
             (value) => !value || (value.length >= 2 && value.length <= 255),
-            'Rolul trebuie s─â aib─â ├«ntre 2 ╚Öi 255 caractere'
+            'Rolul trebuie să aibă între 2 și 255 caractere'
         ),
 
-    added_to_project: z.string()
+    addedToProject: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
             (value) => !value || !isNaN(Date.parse(value)),
-            'Data ad─âug─ârii nu este valid─â'
+            'Data adăugării nu este validă'
         ),
 
     status: z.enum(PROJECT_MEMBER_STATUSES as [string, ...string[]], {
@@ -101,33 +101,33 @@ export const updateProjectMemberSchema = z.object({
         message: 'Tipul selectat nu este valid'
     }).optional(),
 
-    contractual_document_number: z.string()
+    contractualDocumentNumber: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 255,
-            'Num─ârul contractului nu poate dep─â╚Öi 255 de caractere'
+            'Numărul contractului nu poate depăși 255 de caractere'
         ),
 
-    active_from: z.string()
+    activeFrom: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
             (value) => !value || !isNaN(Date.parse(value)),
-            'Data de ├«nceput nu este valid─â'
+            'Data de început nu este validă'
         ),
 
-    active_to: z.string()
+    activeTo: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
             (value) => !value || !isNaN(Date.parse(value)),
-            'Data de sf├ór╚Öit nu este valid─â'
+            'Data de sfârșit nu este validă'
         )
 }).refine((data) => {
-    if (data.active_from && data.active_to) {
-        const fromDate = new Date(data.active_from);
-        const toDate = new Date(data.active_to);
+    if (data.activeFrom && data.activeTo) {
+        const fromDate = new Date(data.activeFrom);
+        const toDate = new Date(data.activeTo);
         if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
             return true;
         }
@@ -135,20 +135,20 @@ export const updateProjectMemberSchema = z.object({
     }
     return true;
 }, {
-    message: 'Data de sf├ór╚Öit trebuie s─â fie dup─â data de ├«nceput',
+    message: 'Data de sfârșit trebuie să fie după data de început',
     path: ['active_to']
 });
 
 export type UpdateProjectMemberData = z.infer<typeof updateProjectMemberSchema>;
 
-export const getCreateProjectMemberDefaultValues = (projectId?: string): CreateProjectMemberData => ({
-    project: projectId || '',
+export const getCreateProjectMemberDefaultValues = (project?: string): CreateProjectMemberData => ({
+    project: project || '',
     member: '',
-    user_role: '',
-    added_to_project: new Date().toISOString().split('T')[0],
+    userRole: '',
+    addedToProject: new Date().toISOString().split('T')[0],
     status: ProjectMemberStatus.ACTIVE,
     type: ProjectMemberType.EMPLOYEE,
-    contractual_document_number: '',
-    active_from: new Date().toISOString().split('T')[0],
-    active_to: ''
+    contractualDocumentNumber: '',
+    activeFrom: new Date().toISOString().split('T')[0],
+    activeTo: ''
 });

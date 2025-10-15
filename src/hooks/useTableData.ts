@@ -9,6 +9,7 @@ interface UseTableDataProps {
     initialFilters?: FilterConfig[];
     initialSort?: SortConfig;
     autoFetch?: boolean;
+    refreshTrigger?: number;
 }
 
 interface UseTableDataReturn<T> {
@@ -39,7 +40,8 @@ export function useTableData<T>({
                                     initialPageSize = 20,
                                     initialFilters = [],
                                     initialSort,
-                                    autoFetch = true
+                                    autoFetch = true,
+                                    refreshTrigger = 0
                                 }: UseTableDataProps): UseTableDataReturn<T> {
     const [data, setData] = useState<T[]>([]);
     const [loading, setLoading] = useState(false);
@@ -96,7 +98,9 @@ export function useTableData<T>({
 
         try {
             const queryParams = buildQueryParams();
-            const url = `${endpoint}?${queryParams.toString()}`;
+            const separator = endpoint.includes('?') ? '&' : '?';
+            const url = `${endpoint}${separator}${queryParams.toString()}`;
+
             const response = await apiService.get<PaginatedResponse<T>>(url);
 
             setData(response.results);
@@ -118,7 +122,7 @@ export function useTableData<T>({
         if (autoFetch) {
             fetchData();
         }
-    }, [fetchData, autoFetch]);
+    }, [fetchData, autoFetch, refreshTrigger]);
 
     const setPage = useCallback((page: number) => {
         setTableState(prev => ({ ...prev, currentPage: page }));

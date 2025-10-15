@@ -23,18 +23,18 @@ export interface Project extends BaseEntity {
     name: string;
     description?: string;
     category: string;
-    starting_date: string;
-    ending_date: string;
+    startingDate: string;
+    endingDate: string;
     status: ProjectStatus;
     priority?: ProjectPriority;
     organization: string;
     location: string;
     budget: number;
     currency: string;
-    budget_planning_date: string;
-    budget_responsible: string;
-    budget_responsible_name?: string;
-    budget_notes?: string;
+    budgetPlanningDate: string;
+    budgetResponsible: string;
+    budgetResponsibleName?: string;
+    budgetNotes?: string;
     teamSize?: number;
     activitiesCount?: number;
 }
@@ -43,16 +43,16 @@ export interface ProjectCreateRequest {
     name: string;
     description?: string;
     category: string;
-    starting_date: string;
-    ending_date: string;
+    startingDate: string;
+    endingDate: string;
     status: ProjectStatus;
     organization: string;
     location: string;
     budget: number;
     currency: string;
-    budget_planning_date: string;
-    budget_responsible: string;
-    budget_notes?: string;
+    budgetPlanningDate: string;
+    budgetResponsible: string;
+    budgetNotes?: string;
 }
 
 export interface ProjectUpdateRequest extends Partial<ProjectCreateRequest> {}

@@ -23,11 +23,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             const newUserData = {
                 id: userData.id,
                 email: userData.email,
-                full_name: userData.full_name,
+                fullName: userData.fullName,
                 groups: userData.groups,
                 status: userData.status,
-                organization_id: userData.organization_id,
-                is_active: userData.is_active || true
+                organizationId: userData.organizationId,
+                isActive: userData.isActive || true
             };
 
             setUser(newUserData);

@@ -4,18 +4,19 @@ import {FilterConfig, SortConfig, TableAction, TableColumn} from '@/types/index.
 import {useTableData} from '@/hooks/useTableData';
 import {Button} from "@/components/ui/Button.tsx";
 import {SecondaryButton} from "@/components/ui/SecondaryButton.tsx";
-import RefreshIcon from '@/assets/icons/iconmonstr-refresh-3.svg?react';
 import ArrowUp from '@/assets/icons/iconmonstr-arrow-up.svg?react';
 import ArrowDown from '@/assets/icons/iconmonstr-arrow-down.svg?react';
 import ArrowUpDown from '@/assets/icons/iconmonstr-cursor-up-down.svg?react';
+import FilterIcon from '@/assets/icons/iconmonstr-filter.svg?react';
 
 interface FilterInputProps {
     column: TableColumn<any>;
     currentFilter?: FilterConfig;
     onFilterChange: (filter: FilterConfig | null) => void;
+    onClose: () => void;
 }
 
-const FilterInput: React.FC<FilterInputProps> = ({ column, currentFilter, onFilterChange }) => {
+const FilterInput: React.FC<FilterInputProps> = ({ column, currentFilter, onFilterChange, onClose }) => {
     const [value, setValue] = useState(() => {
         if (Array.isArray(currentFilter?.value)) {
             return currentFilter.value[0] || '';
@@ -41,6 +42,12 @@ const FilterInput: React.FC<FilterInputProps> = ({ column, currentFilter, onFilt
         }
     };
 
+    const handleClear = () => {
+        setValue('');
+        onFilterChange(null);
+        onClose();
+    };
+
     const getOperatorOptions = () => {
         switch (column.filterType) {
             case 'text':
@@ -64,42 +71,59 @@ const FilterInput: React.FC<FilterInputProps> = ({ column, currentFilter, onFilt
     };
 
     return (
-        <div className="flex flex-col space-y-2 p-2 bg-gray-50 border-b">
-            {column.filterType !== 'select' && getOperatorOptions().length > 1 && (
-                <select
-                    value={operator}
-                    onChange={(e) => {
-                        setOperator(e.target.value as any);
-                        handleChange(value, e.target.value);
-                    }}
-                    className="px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                    {getOperatorOptions().map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                </select>
-            )}
+        <div className="absolute top-full right-0 mt-1 z-50 bg-white border border-gray-300 rounded-lg shadow-lg p-3 min-w-[200px]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-col space-y-2">
+                {column.filterType !== 'select' && getOperatorOptions().length > 1 && (
+                    <select
+                        value={operator}
+                        onChange={(e) => {
+                            setOperator(e.target.value as any);
+                            handleChange(value, e.target.value);
+                        }}
+                        className="px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                        {getOperatorOptions().map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                    </select>
+                )}
 
-            {column.filterType === 'select' && column.filterOptions ? (
-                <select
-                    value={Array.isArray(value) ? value[0] || '' : value}
-                    onChange={(e) => handleChange(e.target.value)}
-                    className="px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                    <option value="">All</option>
-                    {column.filterOptions.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                </select>
-            ) : (
-                <input
-                    type={column.filterType === 'number' ? 'number' : column.filterType === 'date' ? 'date' : 'text'}
-                    value={value}
-                    onChange={(e) => handleChange(e.target.value)}
-                    placeholder={`Filter ${column.label}`}
-                    className="px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-            )}
+                {column.filterType === 'select' && column.filterOptions ? (
+                    <select
+                        value={Array.isArray(value) ? value[0] || '' : value}
+                        onChange={(e) => handleChange(e.target.value)}
+                        className="px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                        <option value="">All</option>
+                        {column.filterOptions.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                    </select>
+                ) : (
+                    <input
+                        type={column.filterType === 'number' ? 'number' : column.filterType === 'date' ? 'date' : 'text'}
+                        value={value}
+                        onChange={(e) => handleChange(e.target.value)}
+                        placeholder={`Filter ${column.label}`}
+                        className="px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                )}
+
+                <div className="flex gap-2 justify-end">
+                    <button
+                        onClick={handleClear}
+                        className="px-2 py-1 text-xs text-gray-600 hover:text-gray-800 border border-gray-300 rounded"
+                    >
+                        Clear
+                    </button>
+                    <button
+                        onClick={onClose}
+                        className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                        Apply
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };
@@ -140,6 +164,7 @@ interface Table<T> {
     initialFilters?: FilterConfig[];
     initialSort?: SortConfig;
     pageSize?: number;
+    autoFetch?: boolean;
     refreshTrigger?: number;
     showSearch?: boolean;
     showFilters?: boolean;
@@ -148,20 +173,21 @@ interface Table<T> {
 }
 
 export function Table<T extends Record<string, any>>({
-                                                                 endpoint,
-                                                                 columns,
-                                                                 actions = [],
-                                                                 onRowClick,
-                                                                 emptyMessage = 'No data available',
-                                                                 initialFilters = [],
-                                                                 initialSort,
-                                                                 pageSize = 20,
-                                                                 className = 'flex gap-4',
-                                                                 showSearch = true,
-                                                                 showFilters = true,
-                                                                 showPagination = true
+                                                         endpoint,
+                                                         columns,
+                                                         actions = [],
+                                                         onRowClick,
+                                                         emptyMessage = 'No data available',
+                                                         initialFilters = [],
+                                                         initialSort,
+                                                         pageSize = 20,
+                                                         autoFetch = true,
+                                                         refreshTrigger = 0,
+                                                         className = 'flex gap-4',
+                                                         showFilters = true,
+                                                         showPagination = true
                                                      }: Table<T>) {
-    const [showFilterRow] = useState(true);
+    const [openFilterColumn, setOpenFilterColumn] = useState<string | null>(null);
 
     const {
         data,
@@ -173,10 +199,8 @@ export function Table<T extends Record<string, any>>({
         hasNext,
         hasPrevious,
         setPage,
-        setSearch,
         addFilter,
         removeFilter,
-        clearAllFilters,
         setSort,
         refresh,
         tableState
@@ -184,7 +208,9 @@ export function Table<T extends Record<string, any>>({
         endpoint,
         initialFilters,
         initialSort,
-        initialPageSize: pageSize
+        initialPageSize: pageSize,
+        autoFetch,
+        refreshTrigger
     });
 
     const allColumns = [...columns];
@@ -235,8 +261,12 @@ export function Table<T extends Record<string, any>>({
 
     const getSortIcon = (field: string) => {
         const currentSort = tableState.sort;
-        if (currentSort?.field !== field) return <ArrowUpDown className="w-4 h-4"></ArrowUpDown>;
-        return currentSort.direction === 'asc' ? <ArrowUp className="w-4 h-4"></ArrowUp> : <ArrowDown className="w-4 h-4"></ArrowDown>;
+        if (currentSort?.field !== field) return <ArrowUpDown className="w-4 h-4" />;
+        return currentSort.direction === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />;
+    };
+
+    const toggleFilterDropdown = (field: string) => {
+        setOpenFilterColumn(openFilterColumn === field ? null : field);
     };
 
     if (error) {
@@ -255,101 +285,19 @@ export function Table<T extends Record<string, any>>({
 
     return (
         <div className={`${className}`}>
-            {(showSearch || showFilters) && (
-                <div className="overflow-hidden border border-gray-200 rounded-lg shadow">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                {showFilterRow && showFilters && (
-                                    <tr>
-                                        {allColumns.map((column) => (
-                                            <th key={`filter-${String(column.key)}`} className="p-0">
-                                                {column.key !== 'actions' && (
-                                                    <FilterInput
-                                                        column={column}
-                                                        currentFilter={tableState.filters.find(f => f.field === column.key)}
-                                                        onFilterChange={(filter) => handleFilterChange(String(column.key), filter)}
-                                                    />
-                                                )}
-                                            </th>
-                                        ))}
-                                        <th className={'w-auto text-right'}>
-                                            <div className="flex justify-end">
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        clearAllFilters();
-                                                    }}
-                                                    className="px-3 py-1 text-xs text-gray-600 hover:text-gray-800 border border-gray-300 hover:border-gray-400 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                    disabled={tableState.filters.length === 0 && !tableState.search}
-                                                >
-                                                    Clear All
-                                                </button>
-                                            </div>
-                                        </th>
-                                    </tr>
-                                )}
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        {tableState.filters.length > 0 && (
-                                            <div className="flex flex-wrap gap-1 items-center">
-                                                {tableState.filters.map((filter, index) => (
-                                                    <span key={index} className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-md border">
-                                                        <span className="font-medium">{filter.field}</span>
-                                                        <span className="mx-1 text-gray-500">{filter.operator}</span>
-                                                        <span className="font-semibold">"{filter.value}"</span>
-                                                        <button 
-                                                            onClick={() => removeFilter(filter.field)}
-                                                            className="ml-2 text-gray-400 hover:text-gray-600 focus:outline-none"
-                                                        >
-                                                            ×
-                                                        </button>
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
             <div className="overflow-hidden border border-gray-200 rounded-lg shadow">
                 <div className="overflow-x-auto">
-                    <div className="flex gap-4 justify-between p-2">
-                        <SecondaryButton
-                            onClick={refresh}
-                            disabled={loading}
-                            variant="ghost"
-                            size="sm"
-                        >
-                            {loading ? <RefreshIcon className="w-4 h-4 animate-spin" /> : <RefreshIcon className="w-4 h-4" />}
-                        </SecondaryButton>
-                        {(
-                            <input
-                                type="text"
-                                value={tableState.search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Search..."
-                                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent flex-1 max-w-lg text-sm"
-                            />
-                        )}
-                    </div>
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
-                            <tr>
-                                {allColumns.map((column) => (
-                                    <th
-                                        key={String(column.key)}
-                                        className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${column.className || ''}`}
-                                        style={{ width: column.width }}
-                                    >
-                                        <div className="flex items-center">
-                                            <span>{column.label}</span>
+                        <tr>
+                            {allColumns.map((column) => (
+                                <th
+                                    key={String(column.key)}
+                                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${column.className || ''}`}
+                                    style={{ width: column.width }}
+                                >
+                                    <div className="flex items-center justify-between gap-2 relative">
+                                        <div className="flex items-center gap-2">
                                             {column.sortable && (
                                                 <SecondaryButton
                                                     onClick={() => handleSort(String(column.key))}
@@ -360,10 +308,32 @@ export function Table<T extends Record<string, any>>({
                                                     {getSortIcon(String(column.key))}
                                                 </SecondaryButton>
                                             )}
+                                            <span>{column.label}</span>
                                         </div>
-                                    </th>
-                                ))}
-                            </tr>
+                                        {column.filterable && showFilters && column.key !== 'actions' && (
+                                            <div className="relative">
+                                                <SecondaryButton
+                                                    onClick={() => toggleFilterDropdown(String(column.key))}
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className={`!p-1 !min-w-0 ${tableState.filters.find(f => f.field === column.key) ? 'text-blue-600' : ''}`}
+                                                >
+                                                    <FilterIcon className="w-4 h-4" />
+                                                </SecondaryButton>
+                                                {openFilterColumn === String(column.key) && (
+                                                    <FilterInput
+                                                        column={column}
+                                                        currentFilter={tableState.filters.find(f => f.field === column.key)}
+                                                        onFilterChange={(filter) => handleFilterChange(String(column.key), filter)}
+                                                        onClose={() => setOpenFilterColumn(null)}
+                                                    />
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </th>
+                            ))}
+                        </tr>
                         </thead>
 
                         <tbody className="bg-white divide-y divide-gray-200">

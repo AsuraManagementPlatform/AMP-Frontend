@@ -26,13 +26,13 @@ export const dashboardService = {
                 activityService.getActivityStats()
             ]);
 
-            const activeProjectsResponse = await apiService.getPaginatedList('/api/project/list', {
+            const activeProjectsResponse = await apiService.getPaginatedList('project/list', {
                 page: 1,
                 pageSize: 1,
                 filters: { status: 'ACTIVE' }
             });
 
-            const activeOrganizationsResponse = await apiService.getPaginatedList('/api/organization/list', {
+            const activeOrganizationsResponse = await apiService.getPaginatedList('organization/list', {
                 page: 1,
                 pageSize: 1,
                 filters: { status: 'active' }
@@ -63,7 +63,7 @@ export const dashboardService = {
         try {
             const orgStats = await organizationService.getOrganizationStats(organizationId);
             
-            const projectsResponse = await apiService.getPaginatedList('/api/project/list', {
+            const projectsResponse = await projectService.getList({
                 page: 1,
                 pageSize: 1,
                 filters: { organizationId }

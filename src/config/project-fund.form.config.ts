@@ -1,6 +1,6 @@
 import { DynamicFormConfig, FieldType } from "@/types/form.types.ts";
 
-export const createProjectFundFormConfig = (_projectId?: string): DynamicFormConfig => ({
+export const createProjectFundFormConfig = (_project?: string): DynamicFormConfig => ({
     sections: [
         {
             title: "Informații finanțare",
@@ -132,7 +132,7 @@ export const createProjectFundFormConfig = (_projectId?: string): DynamicFormCon
     cancelButtonText: 'Anulează'
 });
 
-export const updateProjectFundFormConfig = (projectId?: string): DynamicFormConfig => ({
-    ...createProjectFundFormConfig(projectId),
+export const updateProjectFundFormConfig = (project?: string): DynamicFormConfig => ({
+    ...createProjectFundFormConfig(project),
     submitButtonText: 'Actualizează finanțare'
 });

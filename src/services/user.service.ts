@@ -3,47 +3,47 @@ import {apiService} from "@/services/api.service.ts";
 
 export const userService = {
     getList: async (params?: ListParams): Promise<PaginatedResponse<User>> => {
-        return apiService.getPaginatedList<User>('/api/user/list', params);
+        return apiService.getPaginatedList<User>('user/list', params);
     },
 
     getManagers: async (params?: ListParams): Promise<PaginatedResponse<User>> => {
-        return apiService.getPaginatedList<User>('/api/user/managers', params);
+        return apiService.getPaginatedList<User>('user/managers', params);
     },
 
     getById: async (id: string): Promise<User> => {
-        return apiService.get<User>(`/api/user/${id}`);
+        return apiService.get<User>(`user/${id}`);
     },
 
     getCurrentUser: async (): Promise<User> => {
-        return apiService.get<User>('/api/user/me');
+        return apiService.get<User>('user/me');
     },
 
     updateCurrentUser: async (data: Partial<User>): Promise<User> => {
-        return apiService.put<User>('/api/user/me', data);
+        return apiService.put<User>('user/me', data);
     },
 
     create: async (data: Partial<User>): Promise<User> => {
-        return apiService.post<User>('/api/user/create', data);
+        return apiService.post<User>('user/create', data);
     },
 
     update: async (id: string, data: Partial<User>): Promise<User> => {
-        return apiService.put<User>(`/api/user/update/${id}`, data);
+        return apiService.put<User>(`user/update/${id}`, data);
     },
 
     delete: async (id: string): Promise<void> => {
-        return apiService.delete<void>(`/api/user/delete/${id}`);
+        return apiService.delete<void>(`user/delete/${id}`);
     },
 
     deactivateUser: async (id: string): Promise<void> => {
-        return apiService.post<void>(`/api/user/deactivate/${id}`, {});
+        return apiService.post<void>(`user/deactivate/${id}`, {});
     },
 
     reactivateUser: async (id: string): Promise<void> => {
-        return apiService.post<void>(`/api/user/reactivate/${id}`, {});
+        return apiService.post<void>(`user/reactivate/${id}`, {});
     },
 
     resetPassword: async (id: string): Promise<{ message: string; email: string }> => {
-        return apiService.post<{ message: string; email: string }>(`/api/user/reset-password/${id}`, {});
+        return apiService.post<{ message: string; email: string }>(`user/reset-password/${id}`, {});
     },
 };
 

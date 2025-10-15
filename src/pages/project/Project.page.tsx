@@ -14,7 +14,7 @@ import {ProjectExpenseList} from '@/components/tables/ProjectExpenseList';
 import {CreateProjectExpenseModal} from "@/components/modals/project-expense/CreateProjectExpenseModal.tsx";
 import {ProjectFundList} from '@/components/tables/ProjectFundList';
 import projectFundService from '@/services/project-fund.service';
-import {CreateProjectFundModal} from "@/components/modals/project_fund/CreateProjectFundModal.tsx";
+import {CreateProjectFundModal} from "@/components/modals/project-fund/CreateProjectFundModal.tsx";
 import ProjectMemberList from "@/components/tables/ProjectMemberList.tsx";
 import {CreateProjectMemberModal} from "@/components/modals/project-member/CreateProjectMemberModal.tsx";
 
@@ -29,7 +29,7 @@ const ProjectPage: React.FC = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<TabType>('details');
     const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
-    const [_refreshActivities, setRefreshActivities] = useState(0);
+    const [refreshActivities, setRefreshActivities] = useState(0);
     const [isCreateExpenseModalOpen, setIsCreateExpenseModalOpen] = useState(false);
     const [refreshExpenses, setRefreshExpenses] = useState(0);
     const [isCreateFundModalOpen, setIsCreateFundModalOpen] = useState(false);
@@ -202,14 +202,14 @@ const ProjectPage: React.FC = () => {
                         <label className="block text-sm font-medium text-gray-600 mb-1">
                             Data de început
                         </label>
-                        <p className="text-gray-900">{formatDate(project.starting_date)}</p>
+                        <p className="text-gray-900">{formatDate(project.startingDate)}</p>
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-600 mb-1">
                             Data de sfârșit
                         </label>
-                        <p className="text-gray-900">{formatDate(project.ending_date)}</p>
+                        <p className="text-gray-900">{formatDate(project.endingDate)}</p>
                     </div>
                 </div>
             </Card>
@@ -232,12 +232,12 @@ const ProjectPage: React.FC = () => {
                         <p className="text-gray-900">{project.currency || 'RON'}</p>
                     </div>
 
-                    {project.budget_notes && (
+                    {project.budgetNotes && (
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-600 mb-1">
                                 Note buget
                             </label>
-                            <p className="text-gray-900">{project.budget_notes}</p>
+                            <p className="text-gray-900">{project.budgetNotes}</p>
                         </div>
                     )}
                 </div>
@@ -258,14 +258,17 @@ const ProjectPage: React.FC = () => {
                 </PrimaryActionButton>
             }
         >
-            <ActivityList />
+            <ActivityList
+                project={project.id}
+                refreshTrigger={refreshActivities}
+            />
 
             {isCreateActivityModalOpen && (
                 <CreateActivityModal
                     isOpen={isCreateActivityModalOpen}
                     onClose={() => setIsCreateActivityModalOpen(false)}
                     onSuccess={() => setRefreshActivities(prev => prev + 1)}
-                    projectId={project.id}
+                    project={project.id}
                 />
             )}
         </Card>
@@ -285,7 +288,7 @@ const ProjectPage: React.FC = () => {
             }
         >
             <ProjectExpenseList
-                projectId={project.id}
+                project={project.id}
                 refreshTrigger={refreshExpenses}
             />
 
@@ -294,7 +297,7 @@ const ProjectPage: React.FC = () => {
                     isOpen={isCreateExpenseModalOpen}
                     onClose={() => setIsCreateExpenseModalOpen(false)}
                     onSuccess={() => setRefreshExpenses(prev => prev + 1)}
-                    projectId={project.id}
+                    project={project.id}
                 />
             )}
         </Card>
@@ -314,9 +317,10 @@ const ProjectPage: React.FC = () => {
             }
         >
             <ProjectFundList
-                projectId={project.id}
+                project={project.id}
                 onEdit={(fund) => {
-                    showToast.info(`Edit fund: ${fund.source_name}`);
+                    // TODO: Implement edit
+                    showToast.info(`Edit fund: ${fund.sourceName}`);
                 }}
                 onDelete={async (fund) => {
                     try {
@@ -336,7 +340,7 @@ const ProjectPage: React.FC = () => {
                     isOpen={isCreateFundModalOpen}
                     onClose={() => setIsCreateFundModalOpen(false)}
                     onSuccess={() => setRefreshFunds(prev => prev + 1)}
-                    projectId={project.id}
+                    project={project.id}
                 />
             )}
         </Card>
@@ -356,7 +360,7 @@ const ProjectPage: React.FC = () => {
             }
         >
             <ProjectMemberList
-                projectId={project.id}
+                project={project.id}
                 organizationId={project.organization}
                 refreshTrigger={refreshMembers}
             />
@@ -366,7 +370,7 @@ const ProjectPage: React.FC = () => {
                     isOpen={isCreateMemberModalOpen}
                     onClose={() => setIsCreateMemberModalOpen(false)}
                     onSuccess={() => setRefreshMembers(prev => prev + 1)}
-                    projectId={project.id}
+                    project={project.id}
                     organizationId={project.organization}
                 />
             )}

@@ -1,12 +1,12 @@
-﻿import { TableAction, TableColumn } from '@/types/index.types';
+import { TableAction, TableColumn } from '@/types/index.types';
 import React from "react";
 import Table from "@/components/ui/Table.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
-import { ProjectFund } from '@/types/project-finance.types';
+import { ProjectFund } from '@/types/project-fund.types.ts';
 
 interface ProjectFundListProps {
-    projectId: string;
+    project: string;
     onEdit?: (fund: ProjectFund) => void;
     onDelete?: (fund: ProjectFund) => void;
     onRowClick?: (fund: ProjectFund) => void;
@@ -16,7 +16,7 @@ interface ProjectFundListProps {
 }
 
 export const ProjectFundList: React.FC<ProjectFundListProps> = ({
-                                                                    projectId,
+                                                                    project,
                                                                     onEdit,
                                                                     onDelete,
                                                                     onRowClick,
@@ -27,8 +27,8 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
 
     const getColumns = (): TableColumn<ProjectFund>[] => [
         {
-            key: 'source_name',
-            label: 'Surs─â',
+            key: 'sourceName',
+            label: 'Sursă',
             sortable: true,
             filterable: false,
             width: '200px',
@@ -43,7 +43,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
         },
         {
             key: 'amount',
-            label: 'Sum─â',
+            label: 'Sumă',
             sortable: true,
             width: '120px',
             render: (amount: number, row: ProjectFund) => {
@@ -51,8 +51,8 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
             }
         },
         {
-            key: 'estimated_amount',
-            label: 'Sum─â estimat─â',
+            key: 'estimatedAmount',
+            label: 'Sumă estimată',
             sortable: true,
             width: '120px',
             render: (amount: number, row: ProjectFund) => {
@@ -96,7 +96,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
 
     return (
         <Table<ProjectFund>
-            endpoint={`project_fund/list?project_id=${projectId}`}
+            endpoint={`project_fund/list?project_id=${project}`}
             columns={getColumns()}
             actions={getActions()}
             onRowClick={onRowClick}
@@ -105,7 +105,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
             showSearch={true}
             showFilters={true}
             showPagination={true}
-            emptyMessage="Nu exist─â surse de finan╚¢are pentru acest proiect."
+            emptyMessage="Nu există surse de finanțare pentru acest proiect."
             className={className}
             refreshTrigger={refreshTrigger}
         />

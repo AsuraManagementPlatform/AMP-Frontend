@@ -9,14 +9,14 @@ import projectExpenseService from '@/services/project-expense.service';
 import showToast from '@/components/ui/Toast';
 
 interface ProjectExpenseListProps {
-    projectId: string;
+    project: string;
     refreshTrigger?: number;
     className?: string;
     pageSize?: number;
 }
 
 export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
-                                                                          projectId,
+                                                                          project,
                                                                           refreshTrigger = 0,
                                                                           className = '',
                                                                           pageSize = 10
@@ -57,7 +57,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             width: '200px',
         },
         {
-            key: 'activity_title',
+            key: 'activityTitle',
             label: 'Activitate',
             sortable: false,
             width: '180px',
@@ -107,11 +107,11 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                     'NUMBER': 'buc',
                     'BATCH': 'loturi'
                 };
-                return `${quantity} ${unitLabels[row.unit_type as keyof typeof unitLabels] || ''}`;
+                return `${quantity} ${unitLabels[row.unitType as keyof typeof unitLabels] || ''}`;
             }
         },
         {
-            key: 'unit_price',
+            key: 'unitPrice',
             label: 'Preț unitar',
             sortable: true,
             width: '120px',
@@ -120,7 +120,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             }
         },
         {
-            key: 'vat_amount',
+            key: 'vatAmount',
             label: 'TVA',
             sortable: true,
             width: '120px',
@@ -129,7 +129,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             }
         },
         {
-            key: 'total_amount',
+            key: 'totalAmount',
             label: 'Total',
             sortable: true,
             width: '120px',
@@ -198,7 +198,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
     return (
         <>
             <Table<ProjectExpense>
-                endpoint={`project_expense/list?project_id=${projectId}`}
+                endpoint={`project_expense/list?project_id=${project}`}
                 columns={getColumns()}
                 actions={getActions()}
                 pageSize={pageSize}
@@ -220,7 +220,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                     }}
                     onSuccess={handleUpdateSuccess}
                     expense={selectedExpense}
-                    projectId={projectId}
+                    project={project}
                 />
             )}
         </>

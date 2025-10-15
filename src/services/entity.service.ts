@@ -14,67 +14,67 @@ import {apiService} from "@/services/api.service.ts";
 
 export const entityService = {
     getList: async (params?: ListParams): Promise<PaginatedResponse<Entity>> => {
-        return apiService.getPaginatedList<Entity>('/api/entity/list', params);
+        return apiService.getPaginatedList<Entity>('entity/list', params);
     },
 
     getById: async (id: string): Promise<Entity> => {
-        return apiService.get<Entity>(`/api/entity/${id}`);
+        return apiService.get<Entity>(`entity/${id}`);
     },
 
     getByOrganization: async (organizationId: string, params?: ListParams): Promise<PaginatedResponse<Entity>> => {
-        return apiService.getPaginatedList<Entity>(`/api/entity/organization/${organizationId}`, params);
+        return apiService.getPaginatedList<Entity>(`entity/organization/${organizationId}`, params);
     },
 
     create: async (data: EntityCreateRequest): Promise<Entity> => {
-        return apiService.post<Entity>('/api/entity/create', data);
+        return apiService.post<Entity>('entity/create', data);
     },
 
     update: async (id: string, data: EntityUpdateRequest): Promise<Entity> => {
-        return apiService.put<Entity>(`/api/entity/update/${id}`, data);
+        return apiService.put<Entity>(`entity/update/${id}`, data);
     },
 
     delete: async (id: string): Promise<void> => {
-        return apiService.delete<void>(`/api/entity/delete/${id}`);
+        return apiService.delete<void>(`entity/delete/${id}`);
     },
     getContributions: async (entityId: string, params?: ListParams): Promise<PaginatedResponse<EntityContribution>> => {
-        return apiService.getPaginatedList<EntityContribution>(`/api/entity/${entityId}/contributions`, params);
+        return apiService.getPaginatedList<EntityContribution>(`entity/${entityId}/contributions`, params);
     },
 
     createContribution: async (data: EntityContributionCreateRequest): Promise<EntityContribution> => {
-        return apiService.post<EntityContribution>('/api/entity/contribution/create', data);
+        return apiService.post<EntityContribution>('entity/contribution/create', data);
     },
 
     updateContribution: async (contributionId: string, data: EntityContributionUpdateRequest): Promise<EntityContribution> => {
-        return apiService.put<EntityContribution>(`/api/entity/contribution/update/${contributionId}`, data);
+        return apiService.put<EntityContribution>(`entity/contribution/update/${contributionId}`, data);
     },
 
     deleteContribution: async (contributionId: string): Promise<void> => {
-        return apiService.delete<void>(`/api/entity/contribution/delete/${contributionId}`);
+        return apiService.delete<void>(`entity/contribution/delete/${contributionId}`);
     },
     getRelationships: async (entityId: string, params?: ListParams): Promise<PaginatedResponse<EntityRelationship>> => {
-        return apiService.getPaginatedList<EntityRelationship>(`/api/entity/${entityId}/relationships`, params);
+        return apiService.getPaginatedList<EntityRelationship>(`entity/${entityId}/relationships`, params);
     },
 
     createRelationship: async (data: EntityRelationshipCreateRequest): Promise<EntityRelationship> => {
-        return apiService.post<EntityRelationship>('/api/entity/relationship/create', data);
+        return apiService.post<EntityRelationship>('entity/relationship/create', data);
     },
 
     updateRelationship: async (relationshipId: string, data: Partial<EntityRelationshipCreateRequest>): Promise<EntityRelationship> => {
-        return apiService.put<EntityRelationship>(`/api/entity/relationship/update/${relationshipId}`, data);
+        return apiService.put<EntityRelationship>(`entity/relationship/update/${relationshipId}`, data);
     },
 
     deleteRelationship: async (relationshipId: string): Promise<void> => {
-        return apiService.delete<void>(`/api/entity/relationship/delete/${relationshipId}`);
+        return apiService.delete<void>(`entity/relationship/delete/${relationshipId}`);
     },
     getEntityStats: async (organizationId?: string): Promise<EntityStats> => {
-        const endpoint = organizationId ? `/api/entity/stats/${organizationId}` : '/api/entity/stats';
+        const endpoint = organizationId ? `entity/stats/${organizationId}` : 'entity/stats';
         return apiService.get<EntityStats>(endpoint);
     },
     associateWithUser: async (entityId: string, userId: string): Promise<Entity> => {
-        return apiService.post<Entity>(`/api/entity/${entityId}/associate-user`, { userId });
+        return apiService.post<Entity>(`entity/${entityId}/associate-user`, { userId });
     },
     dissociateFromUser: async (entityId: string): Promise<Entity> => {
-        return apiService.post<Entity>(`/api/entity/${entityId}/dissociate-user`, {});
+        return apiService.post<Entity>(`entity/${entityId}/dissociate-user`, {});
     },
 };
 

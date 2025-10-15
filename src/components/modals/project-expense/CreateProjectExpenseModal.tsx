@@ -11,19 +11,21 @@ import {
     getCreateProjectExpenseDefaultValues
 } from "@/schemas/project-expense.schema.ts";
 import {Activity} from "@/types/activity.types.ts";
+import {ExpenseCategory, ProjectExpenseCreateRequest, UnitType} from "@/types/project-expense.types.ts";
+import {Currency, TransactionStatus} from "@/types/index.types.ts";
 
 interface CreateProjectExpenseModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
-    projectId: string;
+    project: string;
 }
 
 export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps> = ({
                                                                                         isOpen,
                                                                                         onClose,
                                                                                         onSuccess,
-                                                                                        projectId
+                                                                                        project
                                                                                     }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [activities, setActivities] = useState<Activity[]>([]);
@@ -36,7 +38,7 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
                 const response = await activityService.getList({
                     pageSize: 100,
                     filters: {
-                        project_id: projectId
+                        project_id: project
                     }
                 });
                 setActivities(response.results || []);
@@ -50,12 +52,25 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
         if (isOpen) {
             loadActivities();
         }
-    }, [isOpen, projectId]);
+    }, [isOpen, project]);
 
     const handleSubmit = async (data: CreateProjectExpenseData) => {
         try {
             setIsSubmitting(true);
-            await projectExpenseService.create(data as any);
+
+            const projectExpenseCreateRequest: ProjectExpenseCreateRequest = {
+                project: data.project,
+                activity: data.activity,
+                name: data.name,
+                unitType: data.unitType as UnitType,
+                quantity: data.quantity,
+                unitPrice: data.unitPrice,
+                category: data.category as ExpenseCategory,
+                currency: data.currency as Currency,
+                status: data.status as TransactionStatus,
+            }
+
+            await projectExpenseService.create(projectExpenseCreateRequest);
             showToast.success('Cheltuiala a fost adăugată cu succes!');
             onSuccess();
             onClose();
@@ -68,7 +83,7 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
     };
 
     const formConfig = createProjectExpenseFormConfig(activities);
-    const defaultValues = getCreateProjectExpenseDefaultValues(projectId);
+    const defaultValues = getCreateProjectExpenseDefaultValues(project);
 
     if (loadingActivities) {
         return (

@@ -1,9 +1,10 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import {ApiError, ApiConfig, PaginatedResponse, ListParams} from '@/types/index.types';
 import {getAuthHeader} from "@/services/keycloak.service";
+import { convertKeysToSnakeCase, convertKeysToCamelCase } from '@/utils/caseConverter';
 
 export const API_CONFIG: ApiConfig = {
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
@@ -22,6 +23,11 @@ apiClient.interceptors.request.use(
         if (authHeader.Authorization) {
             config.headers.Authorization = authHeader.Authorization;
         }
+
+        if (config.data) {
+            config.data = convertKeysToSnakeCase(config.data);
+        }
+
         return config;
     },
     (error) => Promise.reject(error)
@@ -29,6 +35,9 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
     (response: AxiosResponse) => {
+        if (response.data) {
+            response.data = convertKeysToCamelCase(response.data);
+        }
         return response;
     },
     (error) => {
