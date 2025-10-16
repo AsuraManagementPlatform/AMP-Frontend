@@ -47,6 +47,7 @@ export interface OrganizationCreateRequest {
     admin_user?: string;
     is_verified?: boolean;
     social_media_links?: Record<string, string>;
+    active_modules?: string[];
 }
 
 export interface Organization {
@@ -83,6 +84,7 @@ export interface Organization {
     is_verified?: boolean;
     verification_date?: string;
     social_media_links?: Record<string, string>;
+    active_modules?: string[];
     created_at: string;
     updated_at: string;
 }
