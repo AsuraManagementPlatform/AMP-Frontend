@@ -10,6 +10,9 @@ import Calendar from '@/pages/Calendar.page';
 import OrganizationDetails from '@/pages/OrganizationDetails.page';
 import ProfilePage from '@/pages/Profile.page';
 import SettingsPage from '@/pages/Settings.page';
+import EntitiesPage from '@/pages/crm/Entities.page';
+import DonationsPage from '@/pages/crm/Donations.page';
+import CommunicationsPage from '@/pages/crm/Communications.page';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastConfig } from '@/components/ui/Toast';
 import { ROUTES } from '@/utils/constants.utils';
@@ -107,6 +110,30 @@ function App() {
                   element={
                     <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]}>
                       <OrganizationDetails />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path={ROUTES.CRM_ENTITIES} 
+                  element={
+                    <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]}>
+                      <EntitiesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path={ROUTES.CRM_DONATIONS} 
+                  element={
+                    <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]}>
+                      <DonationsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path={ROUTES.CRM_COMMUNICATIONS} 
+                  element={
+                    <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]}>
+                      <CommunicationsPage />
                     </ProtectedRoute>
                   } 
                 />

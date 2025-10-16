@@ -136,7 +136,28 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                                                         onClick={() => setCrmDropdownOpen(false)}
                                                     >
-                                                        Organizația Mea
+                                                        🏢 Organizația Mea
+                                                    </Link>
+                                                    <Link
+                                                        to={ROUTES.CRM_ENTITIES}
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        onClick={() => setCrmDropdownOpen(false)}
+                                                    >
+                                                        👥 Entități
+                                                    </Link>
+                                                    <Link
+                                                        to={ROUTES.CRM_DONATIONS}
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        onClick={() => setCrmDropdownOpen(false)}
+                                                    >
+                                                        💰 Donații
+                                                    </Link>
+                                                    <Link
+                                                        to={ROUTES.CRM_COMMUNICATIONS}
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        onClick={() => setCrmDropdownOpen(false)}
+                                                    >
+                                                        📧 Comunicări
                                                     </Link>
                                                 </div>
                                             )}
