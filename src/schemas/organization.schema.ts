@@ -468,11 +468,11 @@ export const updateOrganizationSchema = z.object({
 
 export type UpdateOrganizationData = z.infer<typeof updateOrganizationSchema>;
 
-export const getCreateOrganizationDefaultValues = (preselectedUser?: { id: string } | null): CreateOrganizationData => ({
-    name: '',
-    legal_name: '',
+export const getCreateOrganizationDefaultValues = (preselectedUser?: { id: string; company_name?: string; company_number?: string } | null): CreateOrganizationData => ({
+    name: preselectedUser?.company_name || '',
+    legal_name: preselectedUser?.company_name || '',
     short_name: '',
-    cui: '',
+    cui: preselectedUser?.company_number || '',
     registration_number: '',
     email: '',
     phone_number: '',

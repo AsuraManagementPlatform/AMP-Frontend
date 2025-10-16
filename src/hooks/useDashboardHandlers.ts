@@ -5,8 +5,11 @@ import showToast from "@/components/ui/Toast";
 
 interface DashboardHandlersProps {
     setIsCreateUserModalOpen: (open: boolean) => void;
+    setIsEditUserModalOpen: (open: boolean) => void;
     setIsCreateOrgModalOpen: (open: boolean) => void;
     setCreatedUserData: (data: any) => void;
+    setSelectedUser: (user: any) => void;
+    selectedUser: any;
     setIsCreateProjectModalOpen: (open: boolean) => void;
     setIsCreateActivityModalOpen: (open: boolean) => void;
     setSelectedProject: (project: string | null) => void;
@@ -18,8 +21,11 @@ interface DashboardHandlersProps {
 
 export const useDashboardHandlers = ({
     setIsCreateUserModalOpen,
+    setIsEditUserModalOpen,
     setIsCreateOrgModalOpen,
     setCreatedUserData,
+    setSelectedUser,
+    selectedUser,
     setIsCreateProjectModalOpen,
     setIsCreateActivityModalOpen,
     setSelectedProject,
@@ -161,10 +167,46 @@ export const useDashboardHandlers = ({
         }
     };
 
+    const handleEditUser = (user: any) => {
+        setSelectedUser(user);
+        setIsEditUserModalOpen(true);
+    };
+
+    const handleCloseEditUser = () => {
+        setIsEditUserModalOpen(false);
+        setSelectedUser(null);
+    };
+
+    const handleUpdateUser = async (data: UserCreateRequest) => {
+        if (!selectedUser) return;
+
+        try {
+            const response = await userService.update(selectedUser.id, data);
+            
+            if (response.email_changed) {
+                showToast.success('Utilizator actualizat! Un email de resetare a parolei a fost trimis la noua adresă de email.', { duration: 8000 });
+            } else {
+                showToast.success('Utilizator actualizat cu succes!');
+            }
+            
+            if (refreshUsers) {
+                refreshUsers();
+            }
+            setIsEditUserModalOpen(false);
+            setSelectedUser(null);
+        } catch (error) {
+            console.error('Error updating user:', error);
+            throw error;
+        }
+    };
+
     return {
         handleCreateUser,
         handleOpenCreateUser,
         handleCloseCreateUser,
+        handleEditUser,
+        handleCloseEditUser,
+        handleUpdateUser,
         handleCloseCreateProject,
         handleCloseCreateActivity,
         handleCreateOrganization,

@@ -5,11 +5,17 @@ import {Card} from "@/components/ui/Card.tsx";
 import {Alert} from "@/components/ui/Alert.tsx";
 import {Button} from "@/components/ui/Button.tsx";
 import userService from "@/services/user.service.ts";
+import organizationService from "@/services/organization.service.ts";
 import {User, UserMeResponse} from "@/types/user.types.ts";
 import {PaginatedResponse, TableColumn} from "@/types/index.types.ts";
 import Table from "@/components/ui/Table.tsx";
 import { CreateUserModal } from "@/components/modals/user/CreateUserModal.tsx";
+import { EditUserModal } from "@/components/modals/user/EditUserModal.tsx";
+import { PasswordResetConfirmModal } from "@/components/modals/user/PasswordResetConfirmModal.tsx";
+import { LinkOrganizationModal } from "@/components/modals/organization/LinkOrganizationModal.tsx";
+import { OrganizationCreationModal } from "@/components/organization/OrganizationCreationModal.tsx";
 import { UserCreateRequest } from "@/schemas/user.schema.ts";
+import { CreateOrganizationData } from "@/schemas/organization.schema.ts";
 import showToast from "@/components/ui/Toast.tsx";
 
 const AdminPanel: React.FC = () => {
@@ -18,6 +24,13 @@ const AdminPanel: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
+    const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
+    const [isPasswordResetModalOpen, setIsPasswordResetModalOpen] = useState(false);
+    const [isLinkOrgModalOpen, setIsLinkOrgModalOpen] = useState(false);
+    const [isCreateOrgModalOpen, setIsCreateOrgModalOpen] = useState(false);
+    const [createdUser, setCreatedUser] = useState<UserMeResponse | null>(null);
+    const [selectedUser, setSelectedUser] = useState<UserMeResponse | null>(null);
+    const [isSubmittingOrg, setIsSubmittingOrg] = useState(false);
 
     useEffect(() => {
         fetchUsers();
@@ -38,19 +51,6 @@ const AdminPanel: React.FC = () => {
         }
     };
 
-    const handleDeleteUser = async (userId: string): Promise<void> => {
-        if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-            return;
-        }
-
-        try {
-            await userService.delete(userId);
-            await fetchUsers(); 
-        } catch (error) {
-            setError('Failed to delete user. Please try again.');
-        }
-    };
-
     const handleOpenCreateUser = () => {
         setIsCreateUserModalOpen(true);
     };
@@ -61,16 +61,89 @@ const AdminPanel: React.FC = () => {
 
     const handleCreateUser = async (data: UserCreateRequest): Promise<void> => {
         try {
-            await userService.create(data);
+            const newUser = await userService.create(data);
             showToast.success('Utilizator creat cu succes!');
             await fetchUsers();
+            
+            if (data.isLegalEntity) {
+                setCreatedUser(newUser as UserMeResponse);
+                setIsLinkOrgModalOpen(true);
+            }
         } catch (error) {
             throw error;
         }
     };
 
-    const handleEditUser = () => {
-        showToast.info('Funcționalitatea de editare va fi implementată în curând');
+    const handleCloseLinkOrgModal = () => {
+        setIsLinkOrgModalOpen(false);
+        setCreatedUser(null);
+    };
+
+    const handleConfirmLinkOrg = () => {
+        setIsLinkOrgModalOpen(false);
+        setIsCreateOrgModalOpen(true);
+    };
+
+    const handleCloseOrgModal = () => {
+        setIsCreateOrgModalOpen(false);
+        setCreatedUser(null);
+    };
+
+    const handleCreateOrganization = async (data: CreateOrganizationData): Promise<void> => {
+        try {
+            setIsSubmittingOrg(true);
+            await organizationService.create(data);
+            showToast.success('Organizație creată cu succes!');
+            setIsCreateOrgModalOpen(false);
+            setCreatedUser(null);
+        } catch (error) {
+            showToast.error('Eroare la crearea organizației');
+            throw error;
+        } finally {
+            setIsSubmittingOrg(false);
+        }
+    };
+
+    const handleEditUser = (user: UserMeResponse) => {
+        setSelectedUser(user);
+        setIsEditUserModalOpen(true);
+    };
+
+    const handleCloseEditUser = () => {
+        setIsEditUserModalOpen(false);
+        setSelectedUser(null);
+    };
+
+    const handleUpdateUser = async (data: UserCreateRequest): Promise<void> => {
+        if (!selectedUser) return;
+
+        try {
+            await userService.update(selectedUser.id, data);
+            showToast.success('Utilizator actualizat cu succes!');
+            await fetchUsers();
+            setIsEditUserModalOpen(false);
+            setIsPasswordResetModalOpen(true);
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const handleClosePasswordResetModal = () => {
+        setIsPasswordResetModalOpen(false);
+        setSelectedUser(null);
+    };
+
+    const handleConfirmPasswordReset = async () => {
+        if (!selectedUser) return;
+
+        try {
+            const result = await userService.resetPassword(selectedUser.id);
+            showToast.success(`Email de resetare parolă trimis cu succes la ${result.email}!`);
+            setIsPasswordResetModalOpen(false);
+            setSelectedUser(null);
+        } catch (error) {
+            showToast.error('Eroare la trimiterea emailului de resetare parolă');
+        }
     };
 
     const handleResetPassword = async (userId: string): Promise<void> => {
@@ -129,31 +202,32 @@ const AdminPanel: React.FC = () => {
         {
             key: 'actions',
             label: 'Actions',
-            render: (_, _user: UserMeResponse) => (
-                <div className="flex space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditUser()}
-                    >
-                        Edit
-                    </Button>
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleResetPassword(_user.id)}
-                    >
-                        Resetare Parolă
-                    </Button>
-                    <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => handleDeleteUser(_user.id)}
-                    >
-                        Delete
-                    </Button>
-                </div>
-            )
+            render: (_, _user: UserMeResponse) => {
+                const isCurrentUser = _user.id === user?.id;
+                
+                if (isCurrentUser) {
+                    return <span className="text-sm text-gray-500 italic">Current user</span>;
+                }
+                
+                return (
+                    <div className="flex space-x-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditUser(_user)}
+                        >
+                            Edit
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleResetPassword(_user.id)}
+                        >
+                            Resetare Parolă
+                        </Button>
+                    </div>
+                );
+            }
         }
     ];
 
@@ -227,6 +301,38 @@ const AdminPanel: React.FC = () => {
                     onClose={handleCloseCreateUser}
                     onSubmit={handleCreateUser}
                     isAdmin={true}
+                />
+
+                <EditUserModal
+                    isOpen={isEditUserModalOpen}
+                    onClose={handleCloseEditUser}
+                    onSubmit={handleUpdateUser}
+                    user={selectedUser}
+                    isAdmin={true}
+                />
+
+                <PasswordResetConfirmModal
+                    isOpen={isPasswordResetModalOpen}
+                    onClose={handleClosePasswordResetModal}
+                    onConfirm={handleConfirmPasswordReset}
+                    userEmail={selectedUser?.email || ''}
+                />
+
+                <LinkOrganizationModal
+                    isOpen={isLinkOrgModalOpen}
+                    onClose={handleCloseLinkOrgModal}
+                    onConfirm={handleConfirmLinkOrg}
+                    user={createdUser}
+                />
+
+                <OrganizationCreationModal
+                    isOpen={isCreateOrgModalOpen}
+                    onClose={handleCloseOrgModal}
+                    onSubmit={handleCreateOrganization}
+                    isSubmitting={isSubmittingOrg}
+                    pendingAdminUsers={[]}
+                    loadingPendingUsers={false}
+                    preselectedUser={createdUser}
                 />
 
             </div>

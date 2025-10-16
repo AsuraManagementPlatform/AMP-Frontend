@@ -26,8 +26,8 @@ export const userService = {
         return apiService.post<User>('/api/user/create', data);
     },
 
-    update: async (id: string, data: Partial<User>): Promise<User> => {
-        return apiService.put<User>(`/api/user/update/${id}`, data);
+    update: async (id: string, data: Partial<User>): Promise<{ user: User; email_changed?: boolean; message: string }> => {
+        return apiService.put<{ user: User; email_changed?: boolean; message: string }>(`/api/user/update/${id}`, data);
     },
 
     delete: async (id: string): Promise<void> => {

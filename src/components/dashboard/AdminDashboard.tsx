@@ -19,6 +19,8 @@ interface AdminDashboardProps {
     handleDeactivateUser?: (userId: string) => void;
     handleReactivateUser?: (userId: string) => void;
     handleResetPassword?: (userId: string) => void;
+    handleEditUser?: (user: User) => void;
+    currentUserId?: string;
     SortButton: React.ComponentType<{ field: string; label: string }>;
 }
 
@@ -36,6 +38,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     handleDeactivateUser,
     handleReactivateUser,
     handleResetPassword,
+    handleEditUser,
+    currentUserId,
     SortButton
 }) => {
     const { t } = useTranslation();
@@ -145,31 +149,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                                 Administrator Organizație
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                                {member.status === 'ACTIVE' && handleDeactivateUser && (
-                                                    <button 
-                                                        className="text-yellow-600 hover:text-yellow-900 px-3 py-1 rounded border border-yellow-600 hover:bg-yellow-50 transition-colors"
-                                                        onClick={() => handleDeactivateUser(member.id)}
-                                                    >
-                                                        Dezactivează
-                                                    </button>
-                                                )}
-                                                {member.status === 'INACTIVE' && handleReactivateUser && (
-                                                    <button 
-                                                        className="text-blue-600 hover:text-blue-900 px-3 py-1 rounded border border-blue-600 hover:bg-blue-50 transition-colors"
-                                                        onClick={() => handleReactivateUser(member.id)}
-                                                    >
-                                                        Reactivează
-                                                    </button>
-                                                )}
-                                                {member.status === 'DRAFT' && (
+                                                {member.id === currentUserId ? (
+                                                    <span className="text-gray-400 text-xs italic">Current user</span>
+                                                ) : (
                                                     <>
-                                                        <span className="text-gray-400 text-xs mr-2">În așteptare</span>
-                                                        {handleResetPassword && (
+                                                        {handleEditUser && (
                                                             <button 
                                                                 className="text-blue-600 hover:text-blue-900 px-3 py-1 rounded border border-blue-600 hover:bg-blue-50 transition-colors"
+                                                                onClick={() => handleEditUser(member)}
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                        )}
+                                                        {handleResetPassword && (
+                                                            <button 
+                                                                className="text-green-600 hover:text-green-900 px-3 py-1 rounded border border-green-600 hover:bg-green-50 transition-colors"
                                                                 onClick={() => handleResetPassword(member.id)}
                                                             >
                                                                 Resetare Parolă
+                                                            </button>
+                                                        )}
+                                                        {member.status === 'ACTIVE' && handleDeactivateUser && (
+                                                            <button 
+                                                                className="text-yellow-600 hover:text-yellow-900 px-3 py-1 rounded border border-yellow-600 hover:bg-yellow-50 transition-colors"
+                                                                onClick={() => handleDeactivateUser(member.id)}
+                                                            >
+                                                                Dezactivează
+                                                            </button>
+                                                        )}
+                                                        {member.status === 'INACTIVE' && handleReactivateUser && (
+                                                            <button 
+                                                                className="text-purple-600 hover:text-purple-900 px-3 py-1 rounded border border-purple-600 hover:bg-purple-50 transition-colors"
+                                                                onClick={() => handleReactivateUser(member.id)}
+                                                            >
+                                                                Reactivează
                                                             </button>
                                                         )}
                                                     </>

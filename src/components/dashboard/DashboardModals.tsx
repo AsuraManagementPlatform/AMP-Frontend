@@ -6,6 +6,8 @@ import { ConfirmationModal } from "@/components/ui/Modal";
 import { OrganizationCreationModal } from "@/components/organization/OrganizationCreationModal";
 import { OrganizationDetailsModal } from "@/components/organization/OrganizationDetailsModal";
 import { CreateUserModal } from "@/components/modals/user/CreateUserModal";
+import { EditUserModal } from "@/components/modals/user/EditUserModal";
+
 import { CreateProjectModal } from "@/components/modals/project/CreateProjectModal";
 import { CreateActivityModal } from "@/components/modals/activity/CreateActivityModal";
 
@@ -42,6 +44,11 @@ interface DashboardModalsProps {
     isOrgDetailsModalOpen: boolean;
     setIsOrgDetailsModalOpen: (open: boolean) => void;
     onOrganizationUpdate: () => void;
+
+    isEditUserModalOpen: boolean;
+    handleCloseEditUser: () => void;
+    handleUpdateUser: (data: UserCreateRequest) => Promise<void>;
+    selectedUser: UserMeResponse | null;
 }
 
 export const DashboardModals: React.FC<DashboardModalsProps> = ({
@@ -71,7 +78,11 @@ export const DashboardModals: React.FC<DashboardModalsProps> = ({
     availableProjects,
     isOrgDetailsModalOpen,
     setIsOrgDetailsModalOpen,
-    onOrganizationUpdate
+    onOrganizationUpdate,
+    isEditUserModalOpen,
+    handleCloseEditUser,
+    handleUpdateUser,
+    selectedUser
 }) => (
     <>
         <CreateUserModal
@@ -122,6 +133,15 @@ export const DashboardModals: React.FC<DashboardModalsProps> = ({
             onClose={() => setIsOrgDetailsModalOpen(false)}
             organizationId=""
             onUpdate={onOrganizationUpdate}
+        />
+
+        <EditUserModal
+            isOpen={isEditUserModalOpen}
+            onClose={handleCloseEditUser}
+            onSubmit={handleUpdateUser}
+            user={selectedUser}
+            isAdmin={isAdmin}
+            isOrgAdmin={isOrgAdmin}
         />
     </>
 );

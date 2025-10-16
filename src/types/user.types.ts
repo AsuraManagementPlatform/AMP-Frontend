@@ -50,6 +50,7 @@ export interface User {
     company_number?: string;
     company_name?: string;
     cui?: string;
+    isLegalEntity?: boolean;
     address?: string;
     city?: string;
     county?: string;

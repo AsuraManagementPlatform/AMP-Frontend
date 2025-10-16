@@ -33,8 +33,10 @@ export const useDashboardState = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
+    const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
     const [isCreateOrgModalOpen, setIsCreateOrgModalOpen] = useState(false);
     const [createdUserData, setCreatedUserData] = useState<UserMeResponse | null>(null);
+    const [selectedUser, setSelectedUser] = useState<UserMeResponse | null>(null);
     const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
     const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
     const [isOrgDetailsModalOpen, setIsOrgDetailsModalOpen] = useState(false);
@@ -100,10 +102,14 @@ export const useDashboardState = () => {
 
         isCreateUserModalOpen,
         setIsCreateUserModalOpen,
+        isEditUserModalOpen,
+        setIsEditUserModalOpen,
         isCreateOrgModalOpen,
         setIsCreateOrgModalOpen,
         createdUserData,
         setCreatedUserData,
+        selectedUser,
+        setSelectedUser,
         isCreateProjectModalOpen,
         setIsCreateProjectModalOpen,
         isCreateActivityModalOpen,

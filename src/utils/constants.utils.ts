@@ -15,6 +15,13 @@ export const ROUTES = {
     CRM_ORGANIZATION_DETAILS: '/crm/organization-details',
     CRM_CREATE_ORGANIZATION: '/crm/organizations/create',
     
+    // CRM Module - Entity Management (NEW)
+    CRM_ENTITIES: '/crm/entities',
+    CRM_ENTITY_CREATE: '/crm/entities/create',
+    CRM_ENTITY_DETAIL: '/crm/entities/:id',
+    CRM_DONATIONS: '/crm/donations',
+    CRM_COMMUNICATIONS: '/crm/communications',
+    
     // Calendar (Standalone)
     CALENDAR: '/calendar',
     

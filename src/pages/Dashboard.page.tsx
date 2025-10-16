@@ -36,8 +36,11 @@ const DashboardPage: React.FC = () => {
 
     const handlers = useDashboardHandlers({
         setIsCreateUserModalOpen: state.setIsCreateUserModalOpen,
+        setIsEditUserModalOpen: state.setIsEditUserModalOpen,
         setIsCreateOrgModalOpen: state.setIsCreateOrgModalOpen,
         setCreatedUserData: state.setCreatedUserData,
+        setSelectedUser: state.setSelectedUser,
+        selectedUser: state.selectedUser,
         setIsCreateProjectModalOpen: state.setIsCreateProjectModalOpen,
         setIsCreateActivityModalOpen: state.setIsCreateActivityModalOpen,
         setSelectedProject: state.setSelectedProject,
@@ -67,6 +70,8 @@ const DashboardPage: React.FC = () => {
                         handleDeactivateUser={handlers.handleDeactivateUser}
                         handleReactivateUser={handlers.handleReactivateUser}
                         handleResetPassword={handlers.handleResetPassword}
+                        handleEditUser={handlers.handleEditUser}
+                        currentUserId={state.user?.id}
                         SortButton={SortButton}
                     />
                 )}
@@ -200,6 +205,10 @@ const DashboardPage: React.FC = () => {
                     isOrgDetailsModalOpen={state.isOrgDetailsModalOpen}
                     setIsOrgDetailsModalOpen={state.setIsOrgDetailsModalOpen}
                     onOrganizationUpdate={handlers.handleOrganizationUpdate}
+                    isEditUserModalOpen={state.isEditUserModalOpen}
+                    handleCloseEditUser={handlers.handleCloseEditUser}
+                    handleUpdateUser={handlers.handleUpdateUser}
+                    selectedUser={state.selectedUser}
                 />
             </div>
         </Layout>

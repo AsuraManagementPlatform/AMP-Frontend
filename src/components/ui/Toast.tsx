@@ -196,6 +196,7 @@ export const showToast = {
     operationCompleted: () => showToast.success(toastMessages.success.operationCompleted),
     savingChanges: () => showToast.loading(toastMessages.loading.savingChanges),
     creatingUser: () => showToast.loading(toastMessages.loading.creatingUser),
+    updatingUser: () => showToast.loading(toastMessages.loading.updatingUser),
     creatingOrganization: () => showToast.loading(toastMessages.loading.creatingOrganization),
     updatingOrganization: () => showToast.loading(toastMessages.loading.updatingOrganization),
     submittingForm: () => showToast.loading(toastMessages.loading.submittingForm),
