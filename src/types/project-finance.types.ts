@@ -1,4 +1,4 @@
-import { BaseEntity } from './index.types';
+﻿import { BaseEntity } from './index.types';
 
 export interface ProjectFund extends BaseEntity {
     project: string;

@@ -1,4 +1,4 @@
-import {z} from 'zod';
+﻿import {z} from 'zod';
 import {ExpenseCategory, UnitType} from '@/types/project-expense.types';
 import {TransactionStatus} from "@/types/transaction.types.ts";
 
@@ -14,11 +14,11 @@ export const createProjectExpenseSchema = z.object({
         .min(1, 'Activitatea este obligatorie'),
 
     name: z.string()
-        .min(2, 'Numele trebuie să aibă cel puțin 2 caractere')
-        .max(255, 'Numele nu poate depăși 255 de caractere'),
+        .min(2, 'Numele trebuie s─â aib─â cel pu╚¢in 2 caractere')
+        .max(255, 'Numele nu poate dep─â╚Öi 255 de caractere'),
 
     unit_type: z.enum(UNIT_TYPES as [string, ...string[]], {
-        message: 'Tipul unității selectat nu este valid'
+        message: 'Tipul unit─â╚¢ii selectat nu este valid'
     }),
 
     quantity: z.union([
@@ -31,14 +31,14 @@ export const createProjectExpenseSchema = z.object({
             }
             const num = parseFloat(value);
             if (isNaN(num)) {
-                throw new Error('Cantitatea trebuie să fie un număr valid');
+                throw new Error('Cantitatea trebuie s─â fie un num─âr valid');
             }
             return num;
         }
         return value;
     }).refine(
         (value) => value > 0,
-        'Cantitatea trebuie să fie pozitivă'
+        'Cantitatea trebuie s─â fie pozitiv─â'
     ),
 
     unit_price: z.union([
@@ -47,26 +47,26 @@ export const createProjectExpenseSchema = z.object({
     ]).transform((value) => {
         if (typeof value === 'string') {
             if (value === '' || value === null || value === undefined) {
-                throw new Error('Prețul unitar este obligatoriu');
+                throw new Error('Pre╚¢ul unitar este obligatoriu');
             }
             const num = parseFloat(value);
             if (isNaN(num)) {
-                throw new Error('Prețul unitar trebuie să fie un număr valid');
+                throw new Error('Pre╚¢ul unitar trebuie s─â fie un num─âr valid');
             }
             return num;
         }
         return value;
     }).refine(
         (value) => value > 0,
-        'Prețul unitar trebuie să fie pozitiv'
+        'Pre╚¢ul unitar trebuie s─â fie pozitiv'
     ),
 
     category: z.enum(EXPENSE_CATEGORIES as [string, ...string[]], {
-        message: 'Categoria selectată nu este validă'
+        message: 'Categoria selectat─â nu este valid─â'
     }),
 
     currency: z.enum(['RON', 'EUR', 'USD'], {
-        message: 'Moneda selectată nu este validă'
+        message: 'Moneda selectat─â nu este valid─â'
     }),
 
     status: z.enum(TRANSACTION_STATUSES as [string, ...string[]], {
@@ -90,11 +90,11 @@ export const updateProjectExpenseSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || (value.length >= 2 && value.length <= 255),
-            'Numele trebuie să aibă între 2 și 255 caractere'
+            'Numele trebuie s─â aib─â ├«ntre 2 ╚Öi 255 caractere'
         ),
 
     unit_type: z.enum(UNIT_TYPES as [string, ...string[]], {
-        message: 'Tipul unității selectat nu este valid'
+        message: 'Tipul unit─â╚¢ii selectat nu este valid'
     }).optional(),
 
     quantity: z.union([
@@ -107,14 +107,14 @@ export const updateProjectExpenseSchema = z.object({
         if (typeof value === 'string') {
             const num = parseFloat(value);
             if (isNaN(num)) {
-                throw new Error('Cantitatea trebuie să fie un număr valid');
+                throw new Error('Cantitatea trebuie s─â fie un num─âr valid');
             }
             return num;
         }
         return value;
     }).refine(
         (value) => value === undefined || value > 0,
-        'Cantitatea trebuie să fie pozitivă'
+        'Cantitatea trebuie s─â fie pozitiv─â'
     ),
 
     unit_price: z.union([
@@ -127,22 +127,22 @@ export const updateProjectExpenseSchema = z.object({
         if (typeof value === 'string') {
             const num = parseFloat(value);
             if (isNaN(num)) {
-                throw new Error('Prețul unitar trebuie să fie un număr valid');
+                throw new Error('Pre╚¢ul unitar trebuie s─â fie un num─âr valid');
             }
             return num;
         }
         return value;
     }).refine(
         (value) => value === undefined || value > 0,
-        'Prețul unitar trebuie să fie pozitiv'
+        'Pre╚¢ul unitar trebuie s─â fie pozitiv'
     ),
 
     category: z.enum(EXPENSE_CATEGORIES as [string, ...string[]], {
-        message: 'Categoria selectată nu este validă'
+        message: 'Categoria selectat─â nu este valid─â'
     }).optional(),
 
     currency: z.enum(['RON', 'EUR', 'USD'], {
-        message: 'Moneda selectată nu este validă'
+        message: 'Moneda selectat─â nu este valid─â'
     }).optional(),
 
     status: z.enum(TRANSACTION_STATUSES as [string, ...string[]], {

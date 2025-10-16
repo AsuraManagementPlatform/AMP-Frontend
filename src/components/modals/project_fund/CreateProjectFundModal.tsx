@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { DynamicForm } from '@/components/forms/DynamicForm';
 import { createProjectFundFormConfig } from '@/config/project-fund.form.config';
@@ -25,11 +25,11 @@ export const CreateProjectFundModal: React.FC<CreateProjectFundModalProps> = ({
         try {
             setIsSubmitting(true);
             await projectFundService.create(data);
-            showToast.success('Finanțarea a fost adăugată cu succes!');
+            showToast.success('Finan╚¢area a fost ad─âugat─â cu succes!');
             onSuccess();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.message || 'Eroare la adăugarea finanțării';
+            const errorMessage = error?.message || 'Eroare la ad─âugarea finan╚¢─ârii';
             showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
@@ -43,7 +43,7 @@ export const CreateProjectFundModal: React.FC<CreateProjectFundModalProps> = ({
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Adaugă sursă de finanțare"
+            title="Adaug─â surs─â de finan╚¢are"
             size="lg"
         >
             <DynamicForm<CreateProjectFundData>

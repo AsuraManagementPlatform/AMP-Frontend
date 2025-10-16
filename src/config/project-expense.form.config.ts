@@ -1,4 +1,4 @@
-import { DynamicFormConfig, FieldType, SelectOption } from "@/types/form.types.ts";
+﻿import { DynamicFormConfig, FieldType, SelectOption } from "@/types/form.types.ts";
 import { ExpenseCategory, UnitType } from "@/types/project-expense.types.ts";
 import {TransactionStatus} from "@/types/transaction.types.ts";
 import {Activity} from "@/types/activity.types.ts";
@@ -8,25 +8,25 @@ const getExpenseCategoryOptions = (): SelectOption[] => [
     { value: ExpenseCategory.EQUIPMENT, label: 'Echipamente' },
     { value: ExpenseCategory.MATERIALS, label: 'Materiale' },
     { value: ExpenseCategory.SERVICES, label: 'Servicii' },
-    { value: ExpenseCategory.TRAVEL, label: 'Deplasări' },
-    { value: ExpenseCategory.UTILITIES, label: 'Utilități' },
+    { value: ExpenseCategory.TRAVEL, label: 'Deplas─âri' },
+    { value: ExpenseCategory.UTILITIES, label: 'Utilit─â╚¢i' },
     { value: ExpenseCategory.MARKETING, label: 'Marketing' },
     { value: ExpenseCategory.ADMINISTRATIVE, label: 'Administrative' },
     { value: ExpenseCategory.OTHER, label: 'Altele' }
 ];
 
 const getUnitTypeOptions = (): SelectOption[] => [
-    { value: UnitType.HOUR, label: 'Oră' },
+    { value: UnitType.HOUR, label: 'Or─â' },
     { value: UnitType.DAY, label: 'Zi' },
-    { value: UnitType.NUMBER, label: 'Bucată' },
+    { value: UnitType.NUMBER, label: 'Bucat─â' },
     { value: UnitType.BATCH, label: 'Lot' }
 ];
 
 const getTransactionStatusOptions = (): SelectOption[] => [
     { value: TransactionStatus.DRAFT, label: 'Draft' },
-    { value: TransactionStatus.PENDING_APPROVAL, label: 'În aprobare' },
+    { value: TransactionStatus.PENDING_APPROVAL, label: '├Än aprobare' },
     { value: TransactionStatus.APPROVED, label: 'Aprobat' },
-    { value: TransactionStatus.PAID, label: 'Plătit' },
+    { value: TransactionStatus.PAID, label: 'Pl─âtit' },
     { value: TransactionStatus.REJECTED, label: 'Respins' },
     { value: TransactionStatus.CANCELLED, label: 'Anulat' }
 ];
@@ -34,7 +34,7 @@ const getTransactionStatusOptions = (): SelectOption[] => [
 export const createProjectExpenseFormConfig = (activities: Activity[] = []): DynamicFormConfig => ({
     sections: [
         {
-            title: "Informații cheltuială",
+            title: "Informa╚¢ii cheltuial─â",
             columns: 1,
             fields: [
                 {
@@ -49,7 +49,7 @@ export const createProjectExpenseFormConfig = (activities: Activity[] = []): Dyn
                     type: FieldType.SELECT,
                     required: true,
                     options: [
-                        { value: '', label: 'Selectează activitatea' },
+                        { value: '', label: 'Selecteaz─â activitatea' },
                         ...activities.map(activity => ({
                             value: activity.id,
                             label: activity.title
@@ -58,7 +58,7 @@ export const createProjectExpenseFormConfig = (activities: Activity[] = []): Dyn
                 },
                 {
                     name: 'name',
-                    label: 'Nume cheltuială',
+                    label: 'Nume cheltuial─â',
                     type: FieldType.TEXT,
                     placeholder: 'ex: Materiale de birou',
                     required: true,
@@ -95,7 +95,7 @@ export const createProjectExpenseFormConfig = (activities: Activity[] = []): Dyn
                 },
                 {
                     name: 'unit_price',
-                    label: 'Preț unitar',
+                    label: 'Pre╚¢ unitar',
                     type: FieldType.NUMBER,
                     placeholder: 'ex: 150',
                     required: true,
@@ -108,7 +108,7 @@ export const createProjectExpenseFormConfig = (activities: Activity[] = []): Dyn
                     type: FieldType.SELECT,
                     required: true,
                     options: [
-                        { value: 'RON', label: 'Lei Românești (RON)' },
+                        { value: 'RON', label: 'Lei Rom├óne╚Öti (RON)' },
                         { value: 'EUR', label: 'Euro (EUR)' },
                         { value: 'USD', label: 'Dolari Americani (USD)' }
                     ]
@@ -123,11 +123,11 @@ export const createProjectExpenseFormConfig = (activities: Activity[] = []): Dyn
             ]
         }
     ],
-    submitButtonText: 'Adaugă cheltuială',
-    cancelButtonText: 'Anulează'
+    submitButtonText: 'Adaug─â cheltuial─â',
+    cancelButtonText: 'Anuleaz─â'
 });
 
 export const updateProjectExpenseFormConfig = (activities: Activity[] = []): DynamicFormConfig => ({
     ...createProjectExpenseFormConfig(activities),
-    submitButtonText: 'Actualizează cheltuială'
+    submitButtonText: 'Actualizeaz─â cheltuial─â'
 });

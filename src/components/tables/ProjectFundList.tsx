@@ -1,4 +1,4 @@
-import { TableAction, TableColumn } from '@/types/index.types';
+﻿import { TableAction, TableColumn } from '@/types/index.types';
 import React from "react";
 import Table from "@/components/ui/Table.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
@@ -28,7 +28,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
     const getColumns = (): TableColumn<ProjectFund>[] => [
         {
             key: 'source_name',
-            label: 'Sursă',
+            label: 'Surs─â',
             sortable: true,
             filterable: false,
             width: '200px',
@@ -43,7 +43,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
         },
         {
             key: 'amount',
-            label: 'Sumă',
+            label: 'Sum─â',
             sortable: true,
             width: '120px',
             render: (amount: number, row: ProjectFund) => {
@@ -52,7 +52,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
         },
         {
             key: 'estimated_amount',
-            label: 'Sumă estimată',
+            label: 'Sum─â estimat─â',
             sortable: true,
             width: '120px',
             render: (amount: number, row: ProjectFund) => {
@@ -105,7 +105,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
             showSearch={true}
             showFilters={true}
             showPagination={true}
-            emptyMessage="Nu există surse de finanțare pentru acest proiect."
+            emptyMessage="Nu exist─â surse de finan╚¢are pentru acest proiect."
             className={className}
             refreshTrigger={refreshTrigger}
         />

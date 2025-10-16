@@ -1,4 +1,4 @@
-import { DynamicFormConfig, FieldType, SelectOption } from "@/types/form.types.ts";
+﻿import { DynamicFormConfig, FieldType, SelectOption } from "@/types/form.types.ts";
 import { ProjectMemberStatus, ProjectMemberType } from "@/types/project-member.types.ts";
 import { User } from "@/types/user.types.ts";
 
@@ -20,7 +20,7 @@ const getTypeOptions = (): SelectOption[] => [
 export const createProjectMemberFormConfig = (organizationUsers: User[] = []): DynamicFormConfig => ({
     sections: [
         {
-            title: "Informații membru",
+            title: "Informa╚¢ii membru",
             columns: 1,
             fields: [
                 {
@@ -35,7 +35,7 @@ export const createProjectMemberFormConfig = (organizationUsers: User[] = []): D
                     type: FieldType.SELECT,
                     required: true,
                     options: [
-                        { value: '', label: 'Selectează membrul' },
+                        { value: '', label: 'Selecteaz─â membrul' },
                         ...organizationUsers.map(user => ({
                             value: user.id,
                             label: `${user.full_name} (${user.email})`
@@ -44,7 +44,7 @@ export const createProjectMemberFormConfig = (organizationUsers: User[] = []): D
                 },
                 {
                     name: 'user_role',
-                    label: 'Rol în proiect',
+                    label: 'Rol ├«n proiect',
                     type: FieldType.TEXT,
                     placeholder: 'ex: Manager de proiect, Developer, Coordonator',
                     required: true,
@@ -72,14 +72,14 @@ export const createProjectMemberFormConfig = (organizationUsers: User[] = []): D
             fields: [
                 {
                     name: 'contractual_document_number',
-                    label: 'Număr contract',
+                    label: 'Num─âr contract',
                     type: FieldType.TEXT,
                     placeholder: 'ex: CT-2025-001',
                     maxLength: 255
                 },
                 {
                     name: 'added_to_project',
-                    label: 'Data adăugării',
+                    label: 'Data ad─âug─ârii',
                     type: FieldType.DATE,
                     required: true
                 },
@@ -91,18 +91,18 @@ export const createProjectMemberFormConfig = (organizationUsers: User[] = []): D
                 },
                 {
                     name: 'active_to',
-                    label: 'Activ până la',
+                    label: 'Activ p├ón─â la',
                     type: FieldType.DATE,
                     required: true
                 }
             ]
         }
     ],
-    submitButtonText: 'Adaugă membru',
-    cancelButtonText: 'Anulează'
+    submitButtonText: 'Adaug─â membru',
+    cancelButtonText: 'Anuleaz─â'
 });
 
 export const updateProjectMemberFormConfig = (organizationUsers: User[] = []): DynamicFormConfig => ({
     ...createProjectMemberFormConfig(organizationUsers),
-    submitButtonText: 'Actualizează membru'
+    submitButtonText: 'Actualizeaz─â membru'
 });

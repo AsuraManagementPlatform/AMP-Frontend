@@ -1,4 +1,4 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 import { ProjectMemberStatus, ProjectMemberType } from '@/types/project-member.types';
 
 export const PROJECT_MEMBER_STATUSES = Object.values(ProjectMemberStatus);
@@ -12,14 +12,14 @@ export const createProjectMemberSchema = z.object({
         .min(1, 'Membrul este obligatoriu'),
 
     user_role: z.string()
-        .min(2, 'Rolul trebuie să aibă cel puțin 2 caractere')
-        .max(255, 'Rolul nu poate depăși 255 de caractere'),
+        .min(2, 'Rolul trebuie s─â aib─â cel pu╚¢in 2 caractere')
+        .max(255, 'Rolul nu poate dep─â╚Öi 255 de caractere'),
 
     added_to_project: z.string()
-        .min(1, 'Data adăugării este obligatorie')
+        .min(1, 'Data ad─âug─ârii este obligatorie')
         .refine(
             (value) => !isNaN(Date.parse(value)),
-            'Data adăugării nu este validă'
+            'Data ad─âug─ârii nu este valid─â'
         ),
 
     status: z.enum(PROJECT_MEMBER_STATUSES as [string, ...string[]], {
@@ -35,21 +35,21 @@ export const createProjectMemberSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 255,
-            'Numărul contractului nu poate depăși 255 de caractere'
+            'Num─ârul contractului nu poate dep─â╚Öi 255 de caractere'
         ),
 
     active_from: z.string()
-        .min(1, 'Data de început este obligatorie')
+        .min(1, 'Data de ├«nceput este obligatorie')
         .refine(
             (value) => !isNaN(Date.parse(value)),
-            'Data de început nu este validă'
+            'Data de ├«nceput nu este valid─â'
         ),
 
     active_to: z.string()
-        .min(1, 'Data de sfârșit este obligatorie')
+        .min(1, 'Data de sf├ór╚Öit este obligatorie')
         .refine(
             (value) => !isNaN(Date.parse(value)),
-            'Data de sfârșit nu este validă'
+            'Data de sf├ór╚Öit nu este valid─â'
         )
 }).refine((data) => {
     if (data.active_from && data.active_to) {
@@ -62,7 +62,7 @@ export const createProjectMemberSchema = z.object({
     }
     return true;
 }, {
-    message: 'Data de sfârșit trebuie să fie după data de început',
+    message: 'Data de sf├ór╚Öit trebuie s─â fie dup─â data de ├«nceput',
     path: ['active_to']
 });
 
@@ -82,7 +82,7 @@ export const updateProjectMemberSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || (value.length >= 2 && value.length <= 255),
-            'Rolul trebuie să aibă între 2 și 255 caractere'
+            'Rolul trebuie s─â aib─â ├«ntre 2 ╚Öi 255 caractere'
         ),
 
     added_to_project: z.string()
@@ -90,7 +90,7 @@ export const updateProjectMemberSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || !isNaN(Date.parse(value)),
-            'Data adăugării nu este validă'
+            'Data ad─âug─ârii nu este valid─â'
         ),
 
     status: z.enum(PROJECT_MEMBER_STATUSES as [string, ...string[]], {
@@ -106,7 +106,7 @@ export const updateProjectMemberSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 255,
-            'Numărul contractului nu poate depăși 255 de caractere'
+            'Num─ârul contractului nu poate dep─â╚Öi 255 de caractere'
         ),
 
     active_from: z.string()
@@ -114,7 +114,7 @@ export const updateProjectMemberSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || !isNaN(Date.parse(value)),
-            'Data de început nu este validă'
+            'Data de ├«nceput nu este valid─â'
         ),
 
     active_to: z.string()
@@ -122,7 +122,7 @@ export const updateProjectMemberSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || !isNaN(Date.parse(value)),
-            'Data de sfârșit nu este validă'
+            'Data de sf├ór╚Öit nu este valid─â'
         )
 }).refine((data) => {
     if (data.active_from && data.active_to) {
@@ -135,7 +135,7 @@ export const updateProjectMemberSchema = z.object({
     }
     return true;
 }, {
-    message: 'Data de sfârșit trebuie să fie după data de început',
+    message: 'Data de sf├ór╚Öit trebuie s─â fie dup─â data de ├«nceput',
     path: ['active_to']
 });
 

@@ -1,4 +1,4 @@
-import { TableAction, TableColumn } from '@/types/index.types';
+﻿import { TableAction, TableColumn } from '@/types/index.types';
 import React, { useState } from "react";
 import Table from "@/components/ui/Table.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
@@ -33,7 +33,7 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
     };
 
     const handleDelete = async (member: ProjectMember) => {
-        if (!window.confirm(`Sigur doriți să eliminați membrul "${member.member_name}" din proiect?`)) {
+        if (!window.confirm(`Sigur dori╚¢i s─â elimina╚¢i membrul "${member.member_name}" din proiect?`)) {
             return;
         }
 
@@ -141,7 +141,7 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
         },
         {
             key: 'active_to',
-            label: 'Activ până la',
+            label: 'Activ p├ón─â la',
             sortable: true,
             width: '120px',
             render: (date: string) => {
@@ -176,7 +176,7 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
                 showSearch={true}
                 showFilters={true}
                 showPagination={true}
-                emptyMessage="Nu există membri în acest proiect."
+                emptyMessage="Nu exist─â membri ├«n acest proiect."
                 className={className}
                 refreshTrigger={refreshTrigger + localRefresh}
             />
