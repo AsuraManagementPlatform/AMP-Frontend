@@ -79,14 +79,14 @@ export const createProjectFormConfig = (
                     options: getProjectPriorityOptions()
                 },
                 {
-                    name: 'startDate',
+                    name: 'startingDate',
                     label: 'Data de început',
                     type: FieldType.DATE,
                     placeholder: 'Selectează data de început',
                     required: true
                 },
                 {
-                    name: 'endDate',
+                    name: 'endingDate',
                     label: 'Data de sfârșit',
                     type: FieldType.DATE,
                     placeholder: 'Selectează data de sfârșit',
@@ -124,13 +124,13 @@ export const createProjectFormConfig = (
             columns: 1,
             fields: [
                 {
-                    name: 'organizationId',
+                    name: 'organization',
                     label: 'Organizație',
                     type: FieldType.HIDDEN,
                     required: true
                 },
                 {
-                    name: 'managerId',
+                    name: 'manager',
                     label: 'Manager proiect',
                     type: FieldType.SELECT,
                     required: true,
