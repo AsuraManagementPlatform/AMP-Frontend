@@ -54,7 +54,7 @@ export const CreateProjectFundModal: React.FC<CreateProjectFundModalProps> = ({
         }
     };
 
-    const formConfig = createProjectFundFormConfig(project);
+    const formConfig = createProjectFundFormConfig();
     const defaultValues = getCreateProjectFundDefaultValues(project);
 
     return (

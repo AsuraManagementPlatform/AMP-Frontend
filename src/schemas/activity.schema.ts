@@ -106,7 +106,7 @@ export const createActivitySchema = z.object({
         if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
             return false;
         }
-        return endDate > startDate;
+        return endDate >= startDate;
     }
     return true;
 }, {
