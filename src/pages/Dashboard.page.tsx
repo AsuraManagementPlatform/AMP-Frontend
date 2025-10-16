@@ -96,6 +96,11 @@ const DashboardPage: React.FC = () => {
                         handleOpenCreateUser={handlers.handleOpenCreateUser}
                         handleOpenCreateProject={() => state.setIsCreateProjectModalOpen(true)}
                         handleOpenCreateActivity={() => state.setIsCreateActivityModalOpen(true)}
+                        handleEditUser={handlers.handleEditUser}
+                        handleResetPassword={handlers.handleResetPassword}
+                        handleDeactivateUser={handlers.handleDeactivateUser}
+                        handleReactivateUser={handlers.handleReactivateUser}
+                        currentUserId={state.user?.id}
                     />
                 )}
 

@@ -23,6 +23,11 @@ interface OrgAdminDashboardProps {
     handleOpenCreateUser?: () => void;
     handleOpenCreateProject?: () => void;
     handleOpenCreateActivity?: () => void;
+    handleEditUser?: (user: User) => void;
+    handleResetPassword?: (userId: string) => void;
+    handleDeactivateUser?: (userId: string) => void;
+    handleReactivateUser?: (userId: string) => void;
+    currentUserId?: string;
 }
 
 export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
@@ -43,7 +48,12 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
     SortButton,
     handleOpenCreateUser,
     handleOpenCreateProject,
-    handleOpenCreateActivity
+    handleOpenCreateActivity,
+    handleEditUser,
+    handleResetPassword,
+    handleDeactivateUser,
+    handleReactivateUser,
+    currentUserId
 }) => {
     const [activeManagementView, setActiveManagementView] = useState<'membri' | 'proiecte'>('membri');
 
@@ -128,6 +138,9 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             <SortButton field="role" label="Role" />
                                         </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Acțiuni
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
@@ -148,6 +161,46 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {getUserRoleLabel(member.groups)}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                                {member.id === currentUserId ? (
+                                                    <span className="text-gray-400 text-xs italic">Current user</span>
+                                                ) : (
+                                                    <>
+                                                        {handleEditUser && (
+                                                            <button 
+                                                                className="text-blue-600 hover:text-blue-900 px-3 py-1 rounded border border-blue-600 hover:bg-blue-50 transition-colors"
+                                                                onClick={() => handleEditUser(member)}
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                        )}
+                                                        {handleResetPassword && (
+                                                            <button 
+                                                                className="text-green-600 hover:text-green-900 px-3 py-1 rounded border border-green-600 hover:bg-green-50 transition-colors"
+                                                                onClick={() => handleResetPassword(member.id)}
+                                                            >
+                                                                Resetare Parolă
+                                                            </button>
+                                                        )}
+                                                        {member.status === 'ACTIVE' && handleDeactivateUser && (
+                                                            <button 
+                                                                className="text-yellow-600 hover:text-yellow-900 px-3 py-1 rounded border border-yellow-600 hover:bg-yellow-50 transition-colors"
+                                                                onClick={() => handleDeactivateUser(member.id)}
+                                                            >
+                                                                Dezactivează
+                                                            </button>
+                                                        )}
+                                                        {member.status === 'INACTIVE' && handleReactivateUser && (
+                                                            <button 
+                                                                className="text-purple-600 hover:text-purple-900 px-3 py-1 rounded border border-purple-600 hover:bg-purple-50 transition-colors"
+                                                                onClick={() => handleReactivateUser(member.id)}
+                                                            >
+                                                                Reactivează
+                                                            </button>
+                                                        )}
+                                                    </>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
