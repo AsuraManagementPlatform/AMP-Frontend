@@ -22,12 +22,6 @@ const MOCK_SURVEYS = [
     { id: '2', title: 'Feedback proiect X', deadline: '2025-03-25', status: 'ACTIVE', completed: false },
 ];
 
-const MOCK_CALENDAR_EVENTS = [
-    { id: '1', title: 'Workshop Fundraising', date: '2025-03-20', time: '10:00', type: 'Workshop' },
-    { id: '2', title: 'Adunarea Generală', date: '2025-03-25', time: '18:00', type: 'Întâlnire' },
-    { id: '3', title: 'Activitate de voluntariat', date: '2025-03-28', time: '09:00', type: 'Voluntariat' },
-];
-
 const MOCK_MESSAGES = [
     { id: '1', subject: 'Întrebare despre cotizație', date: '2025-03-10', status: 'RĂSPUNS', from: 'Tu' },
     { id: '2', subject: 'Sugestie eveniment', date: '2025-03-05', status: 'ÎN AȘTEPTARE', from: 'Tu' },
@@ -166,31 +160,22 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                                         </tbody>
                                     </table>
                                 </div>
+                                <div className="mt-4 flex items-center justify-between bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border border-yellow-200">
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-gray-800 mb-1">Ai o idee pentru o nouă activitate?</p>
+                                        <p className="text-xs text-gray-600">Contribuie cu propuneri creative care vor fi revizuite de echipa administrativă</p>
+                                    </div>
+                                    <button 
+                                        onClick={handlePropose}
+                                        className="ml-4 px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 hover:shadow-lg transition-all text-base font-semibold flex items-center gap-2 whitespace-nowrap shadow-md"
+                                    >
+                                        <span className="text-xl">💡</span>
+                                        Propune activitate
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
-                        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                            <h4 className="font-semibold text-blue-800 mb-2">Informații despre mine</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <span className="text-gray-600">Nume:</span> 
-                                    <span className="ml-2 font-medium">{user?.full_name || 'N/A'}</span>
-                                </div>
-                                <div>
-                                    <span className="text-gray-600">Email:</span> 
-                                    <span className="ml-2 font-medium">{user?.email || 'N/A'}</span>
-                                </div>
-                                <div>
-                                    <span className="text-gray-600">Organizație:</span> 
-                                    <span className="ml-2 font-medium">N/A</span>
-                                </div>
-                                <div>
-                                    <span className="text-gray-600">Status:</span> 
-                                    <span className="ml-2 font-medium">{user?.status || 'N/A'}</span>
-                                </div>
-                            </div>
-                        </div>
-
                         <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                             <h4 className="font-semibold text-blue-800 mb-2">Informații despre mine</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -262,28 +247,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     </div>
                 </Card>
 
-                {/* 3. Activity Calendar */}
-                <Card title="📅 Calendar Activități" className="hover:shadow-lg transition-shadow">
-                    <div className="space-y-3">
-                        <p className="text-sm text-gray-600">Evenimente viitoare</p>
-                        <div className="space-y-2">
-                            {MOCK_CALENDAR_EVENTS.slice(0, 2).map((event) => (
-                                <div key={event.id} className="text-sm border-l-4 border-blue-500 pl-3 py-1">
-                                    <div className="font-medium">{event.title}</div>
-                                    <div className="text-xs text-gray-600">{event.date} la {event.time}</div>
-                                </div>
-                            ))}
-                        </div>
-                        <button 
-                            onClick={() => toast.success('Calendarul complet va fi disponibil în curând')}
-                            className="w-full mt-3 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
-                        >
-                            Vezi calendar complet
-                        </button>
-                    </div>
-                </Card>
-
-                {/* 4. Surveys & Voting */}
+                {/* 3. Surveys & Voting */}
                 <Card title="📊 Sondaje & Voturi" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Sondaje active care așteaptă răspunsul tău</p>
@@ -308,7 +272,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     </div>
                 </Card>
 
-                {/* 5. Certificate Download */}
+                {/* 4. Certificate Download */}
                 <Card title="📜 Adeverințe" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Descarcă adeverințe membru sau voluntar</p>
@@ -333,7 +297,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     </div>
                 </Card>
 
-                {/* 6. CV/Skills Upload */}
+                {/* 5. CV/Skills Upload */}
                 <Card title="📋 CV & Competențe" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Încarcă CV-ul și competențele tale</p>
@@ -360,7 +324,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     </div>
                 </Card>
 
-                {/* 7. Messages/Requests */}
+                {/* 6. Messages/Requests */}
                 <Card title="✉️ Mesaje" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Trimite solicitări către ONG</p>
@@ -384,46 +348,6 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                             className="w-full px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors text-sm font-medium"
                         >
                             ✍️ Trimite mesaj nou
-                        </button>
-                    </div>
-                </Card>
-
-                {/* 8. Activity Proposals */}
-                <Card title="💡 Propune Activitate" className="hover:shadow-lg transition-shadow">
-                    <div className="space-y-3">
-                        <p className="text-sm text-gray-600">Ai o idee pentru o nouă activitate?</p>
-                        <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 rounded-lg text-center">
-                            <div className="text-4xl mb-2">🚀</div>
-                            <p className="text-xs text-gray-600">Contribuie cu idei noi</p>
-                        </div>
-                        <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded">
-                            Propunerile vor fi revizuite de echipa administrativă
-                        </div>
-                        <button 
-                            onClick={handlePropose}
-                            className="w-full px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-colors text-sm font-medium"
-                        >
-                            Propune o activitate
-                        </button>
-                    </div>
-                </Card>
-
-                {/* 9. View Projects Where Involved */}
-                <Card title="🔍 Proiectele Mele Detaliate" className="hover:shadow-lg transition-shadow">
-                    <div className="space-y-3">
-                        <p className="text-sm text-gray-600">Vezi activitățile din proiectele tale</p>
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                            <div className="text-2xl font-bold text-gray-700">{projects.length}</div>
-                            <div className="text-xs text-gray-600">proiecte active</div>
-                        </div>
-                        <div className="text-xs text-gray-600">
-                            Vizualizează toate detaliile proiectelor la care participi și contribuie la succes
-                        </div>
-                        <button 
-                            onClick={() => window.location.href = '/projects'}
-                            className="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
-                        >
-                            Vezi toate proiectele
                         </button>
                     </div>
                 </Card>
