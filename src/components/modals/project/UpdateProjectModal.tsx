@@ -44,7 +44,7 @@ export const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
                     )
                     .map(user => ({
                         id: user.id,
-                        name: user.full_name || user.email
+                        name: user.fullName || user.email
                     })) || [];
                 setAvailableManagers(managers);
             } catch (error) {
@@ -82,12 +82,12 @@ export const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
         category: project.category || '',
         location: project.location || '',
         status: project.status,
-        starting_date: project.starting_date,
-        ending_date: project.ending_date,
+        startingDate: project.startingDate,
+        endingDate: project.endingDate,
         budget: project.budget,
         currency: (project.currency || 'RON') as 'RON' | 'EUR' | 'USD',
-        budget_responsible: project.budget_responsible || '',
-        budget_notes: project.budget_notes || '',
+        budgetResponsible: project.budgetResponsible || '',
+        budgetNotes: project.budgetNotes || '',
         organization: project.organization || organizationId || ''
     };
 

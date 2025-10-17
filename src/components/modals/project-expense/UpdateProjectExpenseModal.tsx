@@ -1,23 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Modal } from '@/components/ui/Modal';
-import { DynamicForm } from '@/components/forms/DynamicForm';
+import React, {useEffect, useState} from 'react';
+import {Modal} from '@/components/ui/Modal';
+import {DynamicForm} from '@/components/forms/DynamicForm';
 import projectExpenseService from '@/services/project-expense.service.ts';
 import activityService from '@/services/activity.service.ts';
 import showToast from '@/components/ui/Toast';
-import { updateProjectExpenseFormConfig } from "@/config/project-expense.form.config.ts";
-import {
-    UpdateProjectExpenseData,
-    updateProjectExpenseSchema
-} from "@/schemas/project-expense.schema.ts";
-import { Activity } from "@/types/activity.types.ts";
-import { ProjectExpense } from "@/types/project-expense.types.ts";
+import {updateProjectExpenseFormConfig} from "@/config/project-expense.form.config.ts";
+import {UpdateProjectExpenseData, updateProjectExpenseSchema} from "@/schemas/project-expense.schema.ts";
+import {Activity} from "@/types/activity.types.ts";
+import {ExpenseCategory, ProjectExpense, ProjectExpenseUpdateRequest, UnitType} from "@/types/project-expense.types.ts";
+import {Currency, TransactionStatus} from "@/types/index.types.ts";
 
 interface UpdateProjectExpenseModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
     expense: ProjectExpense;
-    projectId: string;
+    project: string;
 }
 
 export const UpdateProjectExpenseModal: React.FC<UpdateProjectExpenseModalProps> = ({
@@ -25,7 +23,7 @@ export const UpdateProjectExpenseModal: React.FC<UpdateProjectExpenseModalProps>
                                                                                         onClose,
                                                                                         onSuccess,
                                                                                         expense,
-                                                                                        projectId
+                                                                                        project
                                                                                     }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [activities, setActivities] = useState<Activity[]>([]);
@@ -38,7 +36,7 @@ export const UpdateProjectExpenseModal: React.FC<UpdateProjectExpenseModalProps>
                 const response = await activityService.getList({
                     pageSize: 100,
                     filters: {
-                        project_id: projectId
+                        project_id: project
                     }
                 });
                 setActivities(response.results || []);
@@ -52,12 +50,25 @@ export const UpdateProjectExpenseModal: React.FC<UpdateProjectExpenseModalProps>
         if (isOpen) {
             loadActivities();
         }
-    }, [isOpen, projectId]);
+    }, [isOpen, project]);
 
     const handleSubmit = async (data: UpdateProjectExpenseData) => {
         try {
             setIsSubmitting(true);
-            await projectExpenseService.update(expense.id, data as any);
+
+            const projectExpenseUpdateRequest: ProjectExpenseUpdateRequest = {
+                project: data.project,
+                activity: data.activity,
+                name: data.name,
+                unitType: data.unitType as UnitType,
+                quantity: data.quantity,
+                unitPrice: data.unitPrice,
+                category: data.category as ExpenseCategory,
+                currency: data.currency as Currency,
+                status: data.status as TransactionStatus,
+            }
+
+            await projectExpenseService.update(expense.id, projectExpenseUpdateRequest);
             showToast.success('Cheltuiala a fost actualizată cu succes!');
             onSuccess();
             onClose();
@@ -75,9 +86,9 @@ export const UpdateProjectExpenseModal: React.FC<UpdateProjectExpenseModalProps>
         project: expense.project,
         activity: expense.activity,
         name: expense.name,
-        unit_type: expense.unit_type,
+        unitType: expense.unitType,
         quantity: expense.quantity,
-        unit_price: expense.unit_price,
+        unitPrice: expense.unitPrice,
         category: expense.category,
         currency: expense.currency,
         status: expense.status

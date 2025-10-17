@@ -34,14 +34,14 @@ export const createProjectSchema = z.object({
         message: 'Statusul proiectului este invalid'
     }),
     
-    starting_date: z.string()
+    startingDate: z.string()
         .min(1, 'Data de început este obligatorie')
         .refine(
             (value) => !isNaN(Date.parse(value)),
             'Data de început nu este validă'
         ),
     
-    ending_date: z.string()
+    endingDate: z.string()
         .min(1, 'Data de sfârșit este obligatorie')
         .refine(
             (value) => !isNaN(Date.parse(value)),
@@ -72,7 +72,7 @@ export const createProjectSchema = z.object({
         message: 'Moneda selectată nu este validă'
     }),
     
-    budget_planning_date: z.string()
+    budgetPlanningDate: z.string()
         .min(1, 'Data planificării bugetului este obligatorie')
         .refine(
             (value) => !isNaN(Date.parse(value)),
@@ -82,10 +82,10 @@ export const createProjectSchema = z.object({
     organization: z.string()
         .min(1, 'ID-ul organizației este obligatoriu'),
     
-    budget_responsible: z.string()
+    budgetResponsible: z.string()
         .min(1, 'Responsabilul bugetului este obligatoriu'),
     
-    budget_notes: z.string()
+    budgetNotes: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
@@ -96,9 +96,9 @@ export const createProjectSchema = z.object({
             'Notele buget nu pot depăși 511 caractere'
         )
 }).refine((data) => {
-    if (data.starting_date && data.ending_date) {
-        const startDate = new Date(data.starting_date);
-        const endDate = new Date(data.ending_date);
+    if (data.startingDate && data.endingDate) {
+        const startDate = new Date(data.startingDate);
+        const endDate = new Date(data.endingDate);
         if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
             return false;
         }
@@ -125,12 +125,12 @@ export const getCreateProjectDefaultValues = (): CreateProjectData => ({
     category: '',
     location: '',
     status: ProjectStatus.DRAFT,
-    starting_date: '',
-    ending_date: '',
+    startingDate: '',
+    endingDate: '',
     budget: 0,
     currency: 'RON',
-    budget_planning_date: '',
+    budgetPlanningDate: '',
     organization: '',
-    budget_responsible: '',
-    budget_notes: ''
+    budgetResponsible: '',
+    budgetNotes: ''
 });

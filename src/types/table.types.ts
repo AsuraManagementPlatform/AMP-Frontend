@@ -38,14 +38,3 @@ export interface TableState {
     filters: FilterConfig[];
     sort?: SortConfig;
 }
-
-export interface TableMetadata {
-    model: string;
-    filterable_fields: Record<string, Record<string, string>>;
-    sortable_fields: string[];
-    search_fields: string[];
-    pagination: {
-        page_size: number;
-        max_page_size: number;
-    };
-}

@@ -93,7 +93,7 @@ const AdminPanel: React.FC = () => {
             render: (email: string, user: UserMeResponse) => (
                 <div>
                     <div className="font-medium text-gray-900">{email}</div>
-                    <div className="text-sm text-gray-500">{user.full_name}</div>
+                    <div className="text-sm text-gray-500">{user.fullName}</div>
                 </div>
             )
         },
@@ -163,7 +163,7 @@ const AdminPanel: React.FC = () => {
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold">Admin Panel</h1>
                     <p className="text-gray-600 mt-2">
-                        Welcome, {user?.full_name || user?.email}
+                        Welcome, {user?.fullName || user?.email}
                     </p>
                 </div>
 

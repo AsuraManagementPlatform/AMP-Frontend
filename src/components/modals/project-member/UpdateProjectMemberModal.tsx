@@ -10,7 +10,12 @@ import {
     updateProjectMemberSchema
 } from "@/schemas/project-member.schema.ts";
 import { User } from "@/types/user.types.ts";
-import { ProjectMember } from "@/types/project-member.types.ts";
+import {
+    ProjectMember,
+    ProjectMemberStatus,
+    ProjectMemberType,
+    ProjectMemberUpdateRequest
+} from "@/types/project-member.types.ts";
 
 interface UpdateProjectMemberModalProps {
     isOpen: boolean;
@@ -57,7 +62,22 @@ export const UpdateProjectMemberModal: React.FC<UpdateProjectMemberModalProps> =
     const handleSubmit = async (data: UpdateProjectMemberData) => {
         try {
             setIsSubmitting(true);
-            await projectMemberService.update(member.id, data as any);
+
+            const status = data.status as ProjectMemberStatus ?? undefined;
+            const type = data.type as ProjectMemberType ?? undefined;
+            const projectMemberUpdateRequest: ProjectMemberUpdateRequest = {
+                project: data.project,
+                member: data.member,
+                userRole: data.userRole,
+                addedToProject: data.addedToProject,
+                status: status,
+                type: type,
+                contractualDocumentNumber: data.contractualDocumentNumber,
+                activeFrom: data.activeFrom,
+                activeTo: data.activeTo,
+            }
+
+            await projectMemberService.update(member.id, projectMemberUpdateRequest);
             showToast.success('Membrul a fost actualizat cu succes!');
             onSuccess();
             onClose();
@@ -74,13 +94,13 @@ export const UpdateProjectMemberModal: React.FC<UpdateProjectMemberModalProps> =
     const defaultValues: UpdateProjectMemberData = {
         project: member.project,
         member: member.member,
-        user_role: member.user_role,
-        added_to_project: member.added_to_project,
+        userRole: member.userRole,
+        addedToProject: member.addedToProject,
         status: member.status,
         type: member.type,
-        contractual_document_number: member.contractual_document_number || '',
-        active_from: member.active_from,
-        active_to: member.active_to
+        contractualDocumentNumber: member.contractualDocumentNumber || '',
+        activeFrom: member.activeFrom,
+        activeTo: member.activeTo
     };
 
     if (loadingUsers) {

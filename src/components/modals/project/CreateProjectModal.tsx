@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Modal } from '@/components/ui/Modal';
-import { DynamicForm } from '@/components/forms/DynamicForm';
-import { createProjectFormConfig } from '@/config/project.form.config';
-import { createProjectSchema, CreateProjectData, getCreateProjectDefaultValues } from '@/schemas/project.schema';
+import React, {useEffect, useState} from 'react';
+import {Modal} from '@/components/ui/Modal';
+import {DynamicForm} from '@/components/forms/DynamicForm';
+import {createProjectFormConfig} from '@/config/project.form.config';
+import {CreateProjectData, createProjectSchema, getCreateProjectDefaultValues} from '@/schemas/project.schema';
 import showToast from '@/components/ui/Toast';
 import projectService from '@/services/project.service';
 import userService from '@/services/user.service';
 import toast from 'react-hot-toast';
+import {ProjectCreateRequest} from "@/types/project.types.ts";
 
 interface CreateProjectModalProps {
     isOpen: boolean;
@@ -48,7 +49,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 
                 const managers = response.results?.map(user => ({
                     id: user.id,
-                    name: user.full_name || user.email
+                    name: user.fullName || user.email
                 })) || [];
                 
                 setAvailableManagers(managers);
@@ -63,20 +64,20 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     const handleSubmit = async (data: CreateProjectData) => {
         if (isSubmitting) return;
         
-        const projectData: any = {
+        const projectData: ProjectCreateRequest = {
             name: data.name,
             description: data.description || '',
             category: data.category,
-            starting_date: data.starting_date,
-            ending_date: data.ending_date,
+            startingDate: data.startingDate,
+            endingDate: data.endingDate,
             status: data.status,
             organization: organizationId || data.organization,
             location: data.location,
             budget: Math.round(data.budget),
             currency: data.currency,
-            budget_planning_date: data.budget_planning_date || data.starting_date,
-            budget_responsible: data.budget_responsible,
-            budget_notes: data.budget_notes || ''
+            budgetPlanningDate: data.budgetPlanningDate || data.startingDate,
+            budgetResponsible: data.budgetResponsible,
+            budgetNotes: data.budgetNotes || ''
         };
 
         let loadingToastId: string | undefined;

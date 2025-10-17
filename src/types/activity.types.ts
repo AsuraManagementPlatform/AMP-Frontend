@@ -13,38 +13,49 @@ export type ActivityStatus = typeof ActivityStatus[keyof typeof ActivityStatus];
 export const ActivityType = {
     MEETING: 'MEETING',
     WORKSHOP: 'WORKSHOP',
+    TRAINING: 'TRAINING',
+    CONFERENCE: 'CONFERENCE',
+    PRESENTATION: 'PRESENTATION',
     EVENT: 'EVENT',
     TASK: 'TASK',
     MILESTONE: 'MILESTONE',
-    REVIEW: 'REVIEW'
+    REVIEW: 'REVIEW',
+    OTHER: 'OTHER',
 } as const;
 
 export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
 
 export interface Activity extends BaseEntity {
-    projectId: string;
+    project: string;
+    projectObjective?: string;
     title: string;
     description?: string;
-    startDate: string;
-    endDate?: string;
+    startingDate: string;
+    estimatedEndingDate: string;
+    endingDate?: string;
     status: ActivityStatus;
     type: ActivityType;
     location?: string;
     observation?: string;
+    results?: string;
+    indicators?: string;
+    totalActivityExpensesAmount?: number;
 }
 
 export interface ActivityCreateRequest {
     project: string;
-    project_objective?: string;
+    projectObjective?: string;
     title: string;
     description?: string;
-    starting_date: string;
-    estimated_ending_date: string;
-    ending_date?: string;
+    startingDate: string;
+    estimatedEndingDate: string;
+    endingDate?: string;
     status: ActivityStatus;
     type: ActivityType;
     location?: string;
     observation?: string;
+    results?: string;
+    indicators?: string;
 }
 
 export interface ActivityUpdateRequest extends Partial<ActivityCreateRequest> {}
@@ -61,7 +72,7 @@ export interface ActivityStats {
 export interface ActivityFilter {
     status?: ActivityStatus;
     type?: ActivityType;
-    projectId?: string;
+    project?: string;
     assignedTo?: string;
     startDate?: string;
     endDate?: string;

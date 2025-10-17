@@ -28,14 +28,14 @@ const OrganizationDetailsPage: React.FC = () => {
 
     useEffect(() => {
         const loadOrganizationData = async () => {
-            if (!user || !user.organization_id) {
+            if (!user || !user.organizationId) {
                 setLoading(false);
                 return;
             }
 
             try {
                 setLoading(true);
-                const orgData = await organizationService.getById(user.organization_id);
+                const orgData = await organizationService.getById(user.organizationId);
                 
                 const organization = (orgData as any).organization || orgData;
                 setOrganization(organization);
@@ -100,13 +100,13 @@ const OrganizationDetailsPage: React.FC = () => {
     ];
 
     const handleSave = async (formData: UpdateOrganizationData) => {
-        if (!user?.organization_id) {
+        if (!user?.organizationId) {
             showToast.error("Nu aveți o organizație asociată");
             return;
         }
 
         try {
-            const updatedOrg = await organizationService.update(user.organization_id, formData);
+            const updatedOrg = await organizationService.update(user.organizationId, formData);
             
             const orgToSet = (updatedOrg as any).organization || updatedOrg;
             
@@ -424,7 +424,7 @@ const OrganizationDetailsPage: React.FC = () => {
                 </div>
                 
                 <Table
-                    endpoint="/api/user/list"
+                    endpoint="user/list"
                     columns={columns}
                     emptyMessage="Nu au fost găsiți utilizatori. Creează primul utilizator pentru a începe."
                     refreshTrigger={refreshTrigger}

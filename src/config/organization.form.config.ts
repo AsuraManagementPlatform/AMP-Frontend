@@ -134,13 +134,13 @@ export const createOrganizationFormConfig = (
                     disabled: !!preselectedUser || loadingPendingUsers,
                     options: preselectedUser 
                         ? [
-                            { value: preselectedUser.id, label: `${preselectedUser.full_name} (${preselectedUser.email})` }
+                            { value: preselectedUser.id, label: `${preselectedUser.fullName} (${preselectedUser.email})` }
                         ]
                         : [
                             { value: '', label: loadingPendingUsers ? 'Se încarcă...' : 'Selectează administrator' },
                             ...pendingAdminUsers.map(admin => ({
                                 value: admin.id,
-                                label: `${admin.full_name} (${admin.email})`
+                                label: `${admin.fullName} (${admin.email})`
                             }))
                         ]
                 }

@@ -1,27 +1,27 @@
-﻿import { z } from 'zod';
+import { z } from 'zod';
 
 export const createProjectFundSchema = z.object({
     project: z.string()
         .min(1, 'Proiectul este obligatoriu'),
 
-    estimated_amount: z.union([
+    estimatedAmount: z.union([
         z.number(),
         z.string()
     ]).transform((value) => {
         if (typeof value === 'string') {
             if (value === '' || value === null || value === undefined) {
-                throw new Error('Suma estimat─â este obligatorie');
+                throw new Error('Suma estimată este obligatorie');
             }
             const num = parseFloat(value);
             if (isNaN(num)) {
-                throw new Error('Suma estimat─â trebuie s─â fie un num─âr valid');
+                throw new Error('Suma estimată trebuie să fie un număr valid');
             }
             return num;
         }
         return value;
     }).refine(
         (value) => value >= 0,
-        'Suma estimat─â nu poate fi negativ─â'
+        'Suma estimată nu poate fi negativă'
     ),
 
     amount: z.union([
@@ -34,55 +34,55 @@ export const createProjectFundSchema = z.object({
             }
             const num = parseFloat(value);
             if (isNaN(num)) {
-                throw new Error('Suma trebuie s─â fie un num─âr valid');
+                throw new Error('Suma trebuie să fie un număr valid');
             }
             return num;
         }
         return value;
     }).refine(
         (value) => value >= 0,
-        'Suma nu poate fi negativ─â'
+        'Suma nu poate fi negativă'
     ),
 
     source: z.string()
         .min(1, 'Sursa este obligatorie')
-        .max(255, 'Sursa nu poate dep─â╚Öi 255 de caractere'),
+        .max(255, 'Sursa nu poate depăși 255 de caractere'),
 
     category: z.string()
         .min(1, 'Categoria este obligatorie')
-        .max(255, 'Categoria nu poate dep─â╚Öi 255 de caractere'),
+        .max(255, 'Categoria nu poate depăși 255 de caractere'),
 
-    source_name: z.string()
+    sourceName: z.string()
         .min(1, 'Numele sursei este obligatoriu')
-        .max(255, 'Numele sursei nu poate dep─â╚Öi 255 de caractere'),
+        .max(255, 'Numele sursei nu poate depăși 255 de caractere'),
 
     currency: z.enum(['RON', 'EUR', 'USD'], {
-        message: 'Moneda selectat─â nu este valid─â'
+        message: 'Moneda selectată nu este validă'
     }),
 
-    estimated_date: z.string()
-        .min(1, 'Data estimat─â este obligatorie')
+    estimatedDate: z.string()
+        .min(1, 'Data estimată este obligatorie')
         .refine(
             (value) => !isNaN(Date.parse(value)),
-            'Data estimat─â nu este valid─â'
+            'Data estimată nu este validă'
         ),
 
     date: z.string()
         .min(1, 'Data este obligatorie')
         .refine(
             (value) => !isNaN(Date.parse(value)),
-            'Data nu este valid─â'
+            'Data nu este validă'
         ),
 
-    payment_method: z.string()
-        .min(1, 'Metoda de plat─â este obligatorie')
-        .max(255, 'Metoda de plat─â nu poate dep─â╚Öi 255 de caractere'),
+    paymentMethod: z.string()
+        .min(1, 'Metoda de plată este obligatorie')
+        .max(255, 'Metoda de plată nu poate depăși 255 de caractere'),
 
     scope: z.string()
         .min(1, 'Scopul este obligatoriu')
-        .max(255, 'Scopul nu poate dep─â╚Öi 255 de caractere'),
+        .max(255, 'Scopul nu poate depăși 255 de caractere'),
 
-    document_reference: z.string()
+    documentReference: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
@@ -95,7 +95,7 @@ export const createProjectFundSchema = z.object({
                     return false;
                 }
             },
-            'Referin╚¢a documentului trebuie s─â fie un URL valid'
+            'Referința documentului trebuie să fie un URL valid'
         ),
 
     notes: z.string()
@@ -103,11 +103,11 @@ export const createProjectFundSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 511,
-            'Notele nu pot dep─â╚Öi 511 caractere'
+            'Notele nu pot depăși 511 caractere'
         )
 }).refine((data) => {
-    if (data.estimated_date && data.date) {
-        const estimatedDate = new Date(data.estimated_date);
+    if (data.estimatedDate && data.date) {
+        const estimatedDate = new Date(data.estimatedDate);
         const actualDate = new Date(data.date);
         if (isNaN(estimatedDate.getTime()) || isNaN(actualDate.getTime())) {
             return false;
@@ -116,7 +116,7 @@ export const createProjectFundSchema = z.object({
     }
     return true;
 }, {
-    message: 'Data actual─â nu poate fi ├«nainte de data estimat─â',
+    message: 'Data actuală nu poate fi înainte de data estimată',
     path: ['date']
 });
 
@@ -127,7 +127,7 @@ export const updateProjectFundSchema = z.object({
         .optional()
         .or(z.literal('')),
 
-    estimated_amount: z.union([
+    estimatedAmount: z.union([
         z.number(),
         z.string()
     ]).optional().transform((value) => {
@@ -137,14 +137,14 @@ export const updateProjectFundSchema = z.object({
         if (typeof value === 'string') {
             const num = parseFloat(value);
             if (isNaN(num)) {
-                throw new Error('Suma estimat─â trebuie s─â fie un num─âr valid');
+                throw new Error('Suma estimată trebuie să fie un număr valid');
             }
             return num;
         }
         return value;
     }).refine(
         (value) => value === undefined || value >= 0,
-        'Suma estimat─â nu poate fi negativ─â'
+        'Suma estimată nu poate fi negativă'
     ),
 
     amount: z.union([
@@ -157,14 +157,14 @@ export const updateProjectFundSchema = z.object({
         if (typeof value === 'string') {
             const num = parseFloat(value);
             if (isNaN(num)) {
-                throw new Error('Suma trebuie s─â fie un num─âr valid');
+                throw new Error('Suma trebuie să fie un număr valid');
             }
             return num;
         }
         return value;
     }).refine(
         (value) => value === undefined || value >= 0,
-        'Suma nu poate fi negativ─â'
+        'Suma nu poate fi negativă'
     ),
 
     source: z.string()
@@ -172,7 +172,7 @@ export const updateProjectFundSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 255,
-            'Sursa nu poate dep─â╚Öi 255 de caractere'
+            'Sursa nu poate depăși 255 de caractere'
         ),
 
     category: z.string()
@@ -180,27 +180,27 @@ export const updateProjectFundSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 255,
-            'Categoria nu poate dep─â╚Öi 255 de caractere'
+            'Categoria nu poate depăși 255 de caractere'
         ),
 
-    source_name: z.string()
+    sourceName: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 255,
-            'Numele sursei nu poate dep─â╚Öi 255 de caractere'
+            'Numele sursei nu poate depăși 255 de caractere'
         ),
 
     currency: z.enum(['RON', 'EUR', 'USD'], {
-        message: 'Moneda selectat─â nu este valid─â'
+        message: 'Moneda selectată nu este validă'
     }).optional(),
 
-    estimated_date: z.string()
+    estimatedDate: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
             (value) => !value || !isNaN(Date.parse(value)),
-            'Data estimat─â nu este valid─â'
+            'Data estimată nu este validă'
         ),
 
     date: z.string()
@@ -208,15 +208,15 @@ export const updateProjectFundSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || !isNaN(Date.parse(value)),
-            'Data nu este valid─â'
+            'Data nu este validă'
         ),
 
-    payment_method: z.string()
+    paymentMethod: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 255,
-            'Metoda de plat─â nu poate dep─â╚Öi 255 de caractere'
+            'Metoda de plată nu poate depăși 255 de caractere'
         ),
 
     scope: z.string()
@@ -224,10 +224,10 @@ export const updateProjectFundSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 255,
-            'Scopul nu poate dep─â╚Öi 255 de caractere'
+            'Scopul nu poate depăși 255 de caractere'
         ),
 
-    document_reference: z.string()
+    documentReference: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
@@ -240,7 +240,7 @@ export const updateProjectFundSchema = z.object({
                     return false;
                 }
             },
-            'Referin╚¢a documentului trebuie s─â fie un URL valid'
+            'Referința documentului trebuie să fie un URL valid'
         ),
 
     notes: z.string()
@@ -248,11 +248,11 @@ export const updateProjectFundSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 511,
-            'Notele nu pot dep─â╚Öi 511 caractere'
+            'Notele nu pot depăși 511 caractere'
         )
 }).refine((data) => {
-    if (data.estimated_date && data.date) {
-        const estimatedDate = new Date(data.estimated_date);
+    if (data.estimatedDate && data.date) {
+        const estimatedDate = new Date(data.estimatedDate);
         const actualDate = new Date(data.date);
         if (isNaN(estimatedDate.getTime()) || isNaN(actualDate.getTime())) {
             return true;
@@ -261,7 +261,7 @@ export const updateProjectFundSchema = z.object({
     }
     return true;
 }, {
-    message: 'Data actual─â nu poate fi ├«nainte de data estimat─â',
+    message: 'Data actuală nu poate fi înainte de data estimată',
     path: ['date']
 });
 
@@ -269,16 +269,16 @@ export type UpdateProjectFundData = z.infer<typeof updateProjectFundSchema>;
 
 export const getCreateProjectFundDefaultValues = (projectId?: string): CreateProjectFundData => ({
     project: projectId || '',
-    estimated_amount: 0,
+    estimatedAmount: 0,
     amount: 0,
     source: '',
     category: '',
-    source_name: '',
+    sourceName: '',
     currency: 'RON',
-    estimated_date: '',
+    estimatedDate: '',
     date: '',
-    payment_method: '',
+    paymentMethod: '',
     scope: '',
-    document_reference: '',
+    documentReference: '',
     notes: ''
 });

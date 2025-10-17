@@ -1,26 +1,29 @@
 import {TableAction, TableColumn, TransactionStatus} from '@/types/index.types';
-import React, { useState } from "react";
+import React, {useState} from "react";
 import Table from "@/components/ui/Table.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
-import { ProjectExpense, ExpenseCategory } from '@/types/project-expense.types';
-import { UpdateProjectExpenseModal } from '@/components/modals/project-expense/UpdateProjectExpenseModal';
+import {ExpenseCategory, ProjectExpense} from '@/types/project-expense.types';
+import {UpdateProjectExpenseModal} from '@/components/modals/project-expense/UpdateProjectExpenseModal';
 import projectExpenseService from '@/services/project-expense.service';
 import showToast from '@/components/ui/Toast';
+import {useConfirmDialog} from "@/components/ui/ConfirmDialog.tsx";
+import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react'
 
 interface ProjectExpenseListProps {
-    projectId: string;
+    project: string;
     refreshTrigger?: number;
     className?: string;
     pageSize?: number;
 }
 
 export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
-                                                                          projectId,
+                                                                          project,
                                                                           refreshTrigger = 0,
                                                                           className = '',
                                                                           pageSize = 10
                                                                       }) => {
+    const confirm = useConfirmDialog();
     const [selectedExpense, setSelectedExpense] = useState<ProjectExpense | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
@@ -31,9 +34,18 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
     };
 
     const handleDelete = async (expense: ProjectExpense) => {
-        if (!window.confirm(`Sigur doriți să ștergeți cheltuiala "${expense.name}"?`)) {
-            return;
-        }
+      const isConfirmed = await confirm({
+        title: 'Șterge cheltuiala proiectului',
+        message: `Sigur doriți să ștergeți cheltuiala "${expense.name}"?`,
+        confirmText: 'Confirmă',
+        cancelText: 'Renunță',
+        confirmButtonVariant: 'primary',
+        icon: (<IconWarning></IconWarning>)
+      });
+
+      if (!isConfirmed) {
+        return;
+      }
 
         try {
             await projectExpenseService.delete(expense.id);
@@ -57,7 +69,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             width: '200px',
         },
         {
-            key: 'activity_title',
+            key: 'activityTitle',
             label: 'Activitate',
             sortable: false,
             width: '180px',
@@ -107,11 +119,11 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                     'NUMBER': 'buc',
                     'BATCH': 'loturi'
                 };
-                return `${quantity} ${unitLabels[row.unit_type as keyof typeof unitLabels] || ''}`;
+                return `${quantity} ${unitLabels[row.unitType as keyof typeof unitLabels] || ''}`;
             }
         },
         {
-            key: 'unit_price',
+            key: 'unitPrice',
             label: 'Preț unitar',
             sortable: true,
             width: '120px',
@@ -120,7 +132,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             }
         },
         {
-            key: 'vat_amount',
+            key: 'vatAmount',
             label: 'TVA',
             sortable: true,
             width: '120px',
@@ -129,7 +141,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             }
         },
         {
-            key: 'total_amount',
+            key: 'totalAmount',
             label: 'Total',
             sortable: true,
             width: '120px',
@@ -198,7 +210,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
     return (
         <>
             <Table<ProjectExpense>
-                endpoint={`project_expense/list?project_id=${projectId}`}
+                endpoint={`project_expense/list?project_id=${project}`}
                 columns={getColumns()}
                 actions={getActions()}
                 pageSize={pageSize}
@@ -220,7 +232,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                     }}
                     onSuccess={handleUpdateSuccess}
                     expense={selectedExpense}
-                    projectId={projectId}
+                    project={project}
                 />
             )}
         </>
