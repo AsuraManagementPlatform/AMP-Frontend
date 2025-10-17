@@ -227,12 +227,12 @@ export const updateActivitySchema = z.object({
         if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
             return true;
         }
-        return endDate > startDate;
+        return endDate >= startDate;
     }
     return true;
 }, {
     message: 'Data estimată de sfârșit trebuie să fie după data de început',
-    path: ['estimated_ending_date']
+    path: ['estimatedEndingDate']
 });
 
 export type UpdateActivityData = z.infer<typeof updateActivitySchema>;

@@ -7,6 +7,8 @@ import { ProjectMember, ProjectMemberStatus, ProjectMemberType } from '@/types/p
 import { UpdateProjectMemberModal } from '@/components/modals/project-member/UpdateProjectMemberModal';
 import projectMemberService from '@/services/project-member.service';
 import showToast from '@/components/ui/Toast';
+import {useConfirmDialog} from "@/components/ui/ConfirmDialog.tsx";
+import IconWarning from "@/assets/icons/iconmonstr-warning.svg?react"
 
 interface ProjectMemberListProps {
     project: string;
@@ -23,6 +25,7 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
                                                                         className = '',
                                                                         pageSize = 10
                                                                     }) => {
+    const confirm = useConfirmDialog();
     const [selectedMember, setSelectedMember] = useState<ProjectMember | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
@@ -33,9 +36,18 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
     };
 
     const handleDelete = async (member: ProjectMember) => {
-        if (!window.confirm(`Sigur doriți să eliminați membrul "${member.memberName}" din proiect?`)) {
-            return;
-        }
+      const isConfirmed = await confirm({
+        title: 'Elimină membru din echipa proiectului',
+        message: `Sigur doriți să eliminați membrul "${member.memberName}" din proiect?`,
+        confirmText: 'Confirmă',
+        cancelText: 'Renunță',
+        confirmButtonVariant: 'primary',
+        icon: (<IconWarning />)
+      });
+
+      if (!isConfirmed) {
+        return;
+      }
 
         try {
             await projectMemberService.delete(member.id);

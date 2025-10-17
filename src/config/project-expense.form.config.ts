@@ -78,7 +78,7 @@ export const createProjectExpenseFormConfig = (activities: Activity[] = []): Dyn
             columns: 2,
             fields: [
                 {
-                    name: 'unit_type',
+                    name: 'unitType',
                     label: 'Tip unitate',
                     type: FieldType.SELECT,
                     required: true,
@@ -94,7 +94,7 @@ export const createProjectExpenseFormConfig = (activities: Activity[] = []): Dyn
                     step: 0.01
                 },
                 {
-                    name: 'unit_price',
+                    name: 'unitPrice',
                     label: 'Preț unitar',
                     type: FieldType.NUMBER,
                     placeholder: 'ex: 150',

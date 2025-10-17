@@ -13,7 +13,7 @@ export const createProjectFundFormConfig = (): DynamicFormConfig => ({
                     required: true
                 },
                 {
-                    name: 'source_name',
+                    name: 'sourceName',
                     label: 'Nume sursă',
                     type: FieldType.TEXT,
                     placeholder: 'ex: Ministerul Fondurilor Europene',
@@ -51,7 +51,7 @@ export const createProjectFundFormConfig = (): DynamicFormConfig => ({
             columns: 2,
             fields: [
                 {
-                    name: 'estimated_amount',
+                    name: 'estimatedAmount',
                     label: 'Sumă estimată',
                     type: FieldType.NUMBER,
                     placeholder: 'ex: 50000',
@@ -78,7 +78,7 @@ export const createProjectFundFormConfig = (): DynamicFormConfig => ({
                     ]
                 },
                 {
-                    name: 'payment_method',
+                    name: 'paymentMethod',
                     label: 'Metodă de plată',
                     type: FieldType.TEXT,
                     placeholder: 'ex: Transfer bancar, Cec',
@@ -92,7 +92,7 @@ export const createProjectFundFormConfig = (): DynamicFormConfig => ({
             columns: 2,
             fields: [
                 {
-                    name: 'estimated_date',
+                    name: 'estimatedDate',
                     label: 'Data estimată',
                     type: FieldType.DATE,
                     placeholder: 'Selectează data estimată',
@@ -112,7 +112,7 @@ export const createProjectFundFormConfig = (): DynamicFormConfig => ({
             columns: 1,
             fields: [
                 {
-                    name: 'document_reference',
+                    name: 'documentReference',
                     label: 'Referință document',
                     type: FieldType.TEXT,
                     placeholder: 'https://example.com/contract.pdf'

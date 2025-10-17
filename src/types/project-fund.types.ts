@@ -1,4 +1,4 @@
-import { BaseEntity } from './index.types';
+import {BaseEntity, Currency} from './index.types';
 
 export interface ProjectFund extends BaseEntity {
     project: string;
@@ -7,7 +7,7 @@ export interface ProjectFund extends BaseEntity {
     source: string;
     category: string;
     sourceName: string;
-    currency: string;
+    currency: Currency;
     estimatedDate: string;
     date: string;
     paymentMethod: string;
@@ -23,7 +23,7 @@ export interface ProjectFundCreateRequest {
     source: string;
     category: string;
     sourceName: string;
-    currency: string;
+    currency: Currency;
     estimatedDate: string;
     date: string;
     paymentMethod: string;

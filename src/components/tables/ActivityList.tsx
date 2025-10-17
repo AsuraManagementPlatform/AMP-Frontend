@@ -7,6 +7,8 @@ import { Activity, ActivityStatus } from '@/types/activity.types';
 import { UpdateActivityModal } from '@/components/modals/activity/UpdateActivityModal';
 import activityService from '@/services/activity.service';
 import showToast from '@/components/ui/Toast';
+import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
+import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
 
 interface ActivityListProps {
     project: string;
@@ -21,7 +23,8 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                                                               className = '',
                                                               pageSize = 10
                                                           }) => {
-    const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const confirm = useConfirmDialog();
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
 
@@ -31,9 +34,18 @@ export const ActivityList: React.FC<ActivityListProps> = ({
     };
 
     const handleDelete = async (activity: Activity) => {
-        if (!window.confirm(`Sigur doriți să ștergeți activitatea "${activity.title}"?`)) {
-            return;
-        }
+      const isConfirmed = await confirm({
+        title: 'Șterge activitatea',
+        message: `Sigur doriți să ștergeți activitatea "${activity.title}"?`,
+        confirmText: 'Confirmă',
+        cancelText: 'Renunță',
+        confirmButtonVariant: 'primary',
+        icon: (<IconWarning></IconWarning>)
+      });
+
+      if (!isConfirmed) {
+        return;
+      }
 
         try {
             await activityService.delete(activity.id);
@@ -150,7 +162,7 @@ export const ActivityList: React.FC<ActivityListProps> = ({
             }
         },
         {
-            key: 'total_activity_expenses_amount',
+            key: 'totalActivityExpensesAmount',
             label: 'Total cheltuieli',
             sortable: false,
             width: '120px',

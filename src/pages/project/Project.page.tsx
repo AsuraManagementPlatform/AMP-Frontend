@@ -13,7 +13,6 @@ import {CreateActivityModal} from "@/components/modals/activity/CreateActivityMo
 import {ProjectExpenseList} from '@/components/tables/ProjectExpenseList';
 import {CreateProjectExpenseModal} from "@/components/modals/project-expense/CreateProjectExpenseModal.tsx";
 import {ProjectFundList} from '@/components/tables/ProjectFundList';
-import projectFundService from '@/services/project-fund.service';
 import {CreateProjectFundModal} from "@/components/modals/project-fund/CreateProjectFundModal.tsx";
 import ProjectMemberList from "@/components/tables/ProjectMemberList.tsx";
 import {CreateProjectMemberModal} from "@/components/modals/project-member/CreateProjectMemberModal.tsx";
@@ -96,26 +95,6 @@ const ProjectPage: React.FC = () => {
             default: return status;
         }
     };
-
-    // const getPriorityBadgeColor = (priority: string) => {
-    //     switch (priority) {
-    //         case 'URGENT': return 'bg-red-100 text-red-800';
-    //         case 'HIGH': return 'bg-orange-100 text-orange-800';
-    //         case 'MEDIUM': return 'bg-yellow-100 text-yellow-800';
-    //         case 'LOW': return 'bg-green-100 text-green-800';
-    //         default: return 'bg-gray-100 text-gray-800';
-    //     }
-    // };
-    //
-    // const getPriorityLabel = (priority: string) => {
-    //     switch (priority) {
-    //         case 'URGENT': return 'Urgentă';
-    //         case 'HIGH': return 'Înaltă';
-    //         case 'MEDIUM': return 'Medie';
-    //         case 'LOW': return 'Scăzută';
-    //         default: return priority;
-    //     }
-    // };
 
     const formatDate = (dateString: string) => {
         if (!dateString) return 'N/A';
@@ -318,21 +297,7 @@ const ProjectPage: React.FC = () => {
         >
             <ProjectFundList
                 project={project.id}
-                onEdit={(fund) => {
-                    // TODO: Implement edit
-                    showToast.info(`Edit fund: ${fund.sourceName}`);
-                }}
-                onDelete={async (fund) => {
-                    try {
-                        await projectFundService.delete(fund.id);
-                        showToast.success('Finanțarea a fost ștearsă');
-                        setRefreshFunds(prev => prev + 1);
-                    } catch (error) {
-                        showToast.error('Eroare la ștergerea finanțării');
-                    }
-                }}
                 refreshTrigger={refreshFunds}
-                pageSize={10}
             />
 
             {isCreateFundModalOpen && (

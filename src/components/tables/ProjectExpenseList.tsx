@@ -1,12 +1,14 @@
 import {TableAction, TableColumn, TransactionStatus} from '@/types/index.types';
-import React, { useState } from "react";
+import React, {useState} from "react";
 import Table from "@/components/ui/Table.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
-import { ProjectExpense, ExpenseCategory } from '@/types/project-expense.types';
-import { UpdateProjectExpenseModal } from '@/components/modals/project-expense/UpdateProjectExpenseModal';
+import {ExpenseCategory, ProjectExpense} from '@/types/project-expense.types';
+import {UpdateProjectExpenseModal} from '@/components/modals/project-expense/UpdateProjectExpenseModal';
 import projectExpenseService from '@/services/project-expense.service';
 import showToast from '@/components/ui/Toast';
+import {useConfirmDialog} from "@/components/ui/ConfirmDialog.tsx";
+import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react'
 
 interface ProjectExpenseListProps {
     project: string;
@@ -21,6 +23,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                                                                           className = '',
                                                                           pageSize = 10
                                                                       }) => {
+    const confirm = useConfirmDialog();
     const [selectedExpense, setSelectedExpense] = useState<ProjectExpense | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
@@ -31,9 +34,18 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
     };
 
     const handleDelete = async (expense: ProjectExpense) => {
-        if (!window.confirm(`Sigur doriți să ștergeți cheltuiala "${expense.name}"?`)) {
-            return;
-        }
+      const isConfirmed = await confirm({
+        title: 'Șterge cheltuiala proiectului',
+        message: `Sigur doriți să ștergeți cheltuiala "${expense.name}"?`,
+        confirmText: 'Confirmă',
+        cancelText: 'Renunță',
+        confirmButtonVariant: 'primary',
+        icon: (<IconWarning></IconWarning>)
+      });
+
+      if (!isConfirmed) {
+        return;
+      }
 
         try {
             await projectExpenseService.delete(expense.id);

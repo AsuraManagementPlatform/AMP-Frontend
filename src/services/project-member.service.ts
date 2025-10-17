@@ -21,7 +21,7 @@ const projectMemberService = {
     },
 
     update: async (id: string, data: ProjectMemberUpdateRequest): Promise<ProjectMember> => {
-        return apiService.put<ProjectMember>(`project_member/${id}`, data);
+        return apiService.put<ProjectMember>(`project_member/update/${id}`, data);
     },
 
     delete: async (id: string): Promise<void> => {
