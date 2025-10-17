@@ -3,6 +3,7 @@ import {Link, useLocation} from 'react-router-dom';
 import {BaseComponentProps, UserGroup} from "@/types/index.types.ts";
 import {ROUTES} from "@/utils/constants.utils.ts";
 import {useAuth} from "@/hooks/useAuth.ts";
+import {useOrganizationModules} from "@/hooks/useOrganizationModules.ts";
 import logoImage from '@/assets/img/logo.png';
 
 interface LayoutProps extends BaseComponentProps {
@@ -17,6 +18,8 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
         logout,
         hasAnyUserGroup
     } = useAuth();
+
+    const { hasERP, hasCRM } = useOrganizationModules();
 
     const location = useLocation();
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -76,7 +79,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                         </Link>
                                     </li>
 
-                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && (
+                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && hasERP && (
                                         <li className="relative flex items-center">
                                             <button
                                                 className={`px-3 py-2 rounded-md text-sm transition-colors flex items-center ${
@@ -113,7 +116,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                         </li>
                                     )}
 
-                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && (
+                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && hasCRM && (
                                         <li className="relative flex items-center">
                                             <button
                                                 className={`px-3 py-2 rounded-md text-sm transition-colors flex items-center ${

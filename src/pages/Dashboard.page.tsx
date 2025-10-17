@@ -67,6 +67,7 @@ const DashboardPage: React.FC = () => {
                         openCreateOrganizationModal={organization.openCreateOrganizationModal}
                         handleActivateOrganization={handlers.handleActivateOrganization}
                         handleDeactivateOrganization={handlers.handleDeactivateOrganization}
+                        handleToggleModule={handlers.handleToggleModule}
                         handleDeactivateUser={handlers.handleDeactivateUser}
                         handleReactivateUser={handlers.handleReactivateUser}
                         handleResetPassword={handlers.handleResetPassword}

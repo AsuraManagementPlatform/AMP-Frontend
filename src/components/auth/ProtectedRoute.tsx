@@ -1,37 +1,53 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useOrganizationModules } from '@/hooks/useOrganizationModules';
 import { UserGroup } from '@/types/index.types';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
     allowedRoles: UserGroup[];
+    requireModule?: 'ERP' | 'CRM';
     redirectTo?: string;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     children,
     allowedRoles,
+    requireModule,
     redirectTo = '/dashboard'
 }) => {
     const { user, isAuthenticated, isLoading } = useAuth();
-    if (isLoading) {
+    const { hasERP, hasCRM, loading: modulesLoading } = useOrganizationModules();
+    
+    if (isLoading || modulesLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
             </div>
         );
     }
+    
     if (!isAuthenticated || !user) {
         return <Navigate to="/" replace />;
     }
+    
     const userGroups = user.groups || [];
     const hasAllowedRole = allowedRoles.some(role => 
         userGroups.includes(role as string)
     );
+    
     if (!hasAllowedRole) {
         return <Navigate to={redirectTo} replace />;
     }
+
+    if (requireModule) {
+        const hasModule = requireModule === 'ERP' ? hasERP : hasCRM;
+        if (!hasModule) {
+            return <Navigate to={redirectTo} replace />;
+        }
+    }
+    
     return <>{children}</>;
 };
 export const usePermissions = () => {

@@ -2,6 +2,7 @@ import { UserCreateRequest } from "@/schemas/user.schema";
 import { organizationService } from "@/services/organization.service";
 import { userService } from "@/services/user.service";
 import showToast from "@/components/ui/Toast";
+import { cacheInvalidation, CACHE_KEYS } from "@/utils/cacheInvalidation";
 
 interface DashboardHandlersProps {
     setIsCreateUserModalOpen: (open: boolean) => void;
@@ -127,6 +128,24 @@ export const useDashboardHandlers = ({
         }
     };
 
+    const handleToggleModule = async (organizationId: string, module: 'ERP' | 'CRM', currentlyEnabled: boolean) => {
+        try {
+            await organizationService.toggleModule(organizationId, module, !currentlyEnabled);
+            
+            showToast.success(`Modulul ${module} a fost ${currentlyEnabled ? 'dezactivat' : 'activat'} cu succes!`);
+            
+            cacheInvalidation.invalidate(CACHE_KEYS.ORGANIZATION_MODULES);
+            cacheInvalidation.invalidate(CACHE_KEYS.ORGANIZATIONS);
+            
+            if (refreshOrganizations) {
+                await refreshOrganizations();
+            }
+        } catch (error) {
+            console.error(`Error toggling ${module} module:`, error);
+            showToast.error(`Eroare la ${module === 'ERP' ? 'activarea/dezactivarea' : 'activarea/dezactivarea'} modulului ${module}`);
+        }
+    };
+
     const handleDeactivateUser = async (userId: string) => {
         try {
             await userService.deactivateUser(userId);
@@ -217,6 +236,7 @@ export const useDashboardHandlers = ({
         handleOrganizationUpdate,
         handleActivateOrganization,
         handleDeactivateOrganization,
+        handleToggleModule,
         handleDeactivateUser,
         handleReactivateUser,
         handleResetPassword

@@ -8,7 +8,8 @@ export const organizationService = {
     },
 
     getById: async (id: string): Promise<Organization> => {
-        return apiService.get<Organization>(`/api/organization/${id}`);
+        const response = await apiService.get<{organization: Organization}>(`/api/organization/${id}`);
+        return response.organization;
     },
 
     getOrganizationStats: async (organizationId: string): Promise<OrganizationStatsResponse> => {
@@ -25,6 +26,10 @@ export const organizationService = {
 
     delete: async (id: string): Promise<void> => {
         return apiService.delete<void>(`/api/organization/delete/${id}`);
+    },
+
+    toggleModule: async (id: string, module: 'ERP' | 'CRM', enabled: boolean): Promise<Organization> => {
+        return apiService.post<Organization>(`/api/organization/${id}/toggle-module`, { module, enabled });
     },
 };
 

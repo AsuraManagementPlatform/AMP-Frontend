@@ -84,7 +84,7 @@ function App() {
                 <Route 
                   path={ROUTES.ERP_PROJECTS} 
                   element={
-                    <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN]}>
+                    <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN]} requireModule="ERP">
                       <Projects />
                     </ProtectedRoute>
                   } 
@@ -92,7 +92,7 @@ function App() {
                 <Route 
                   path={ROUTES.ERP_ACTIVITIES} 
                   element={
-                    <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN]}>
+                    <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN]} requireModule="ERP">
                       <Activities />
                     </ProtectedRoute>
                   } 
@@ -108,7 +108,7 @@ function App() {
                 <Route 
                   path={ROUTES.CRM_ORGANIZATION_DETAILS} 
                   element={
-                    <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]}>
+                    <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]} requireModule="CRM">
                       <OrganizationDetails />
                     </ProtectedRoute>
                   } 
@@ -116,7 +116,7 @@ function App() {
                 <Route 
                   path={ROUTES.CRM_ENTITIES} 
                   element={
-                    <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]}>
+                    <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]} requireModule="CRM">
                       <EntitiesPage />
                     </ProtectedRoute>
                   } 
@@ -124,7 +124,7 @@ function App() {
                 <Route 
                   path={ROUTES.CRM_DONATIONS} 
                   element={
-                    <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]}>
+                    <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]} requireModule="CRM">
                       <DonationsPage />
                     </ProtectedRoute>
                   } 
@@ -132,7 +132,7 @@ function App() {
                 <Route 
                   path={ROUTES.CRM_COMMUNICATIONS} 
                   element={
-                    <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]}>
+                    <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]} requireModule="CRM">
                       <CommunicationsPage />
                     </ProtectedRoute>
                   } 

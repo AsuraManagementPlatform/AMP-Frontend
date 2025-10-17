@@ -16,6 +16,7 @@ interface AdminDashboardProps {
     openCreateOrganizationModal: () => void;
     handleActivateOrganization: (organizationId: string) => void;
     handleDeactivateOrganization: (organizationId: string) => void;
+    handleToggleModule: (organizationId: string, module: 'ERP' | 'CRM', currentlyEnabled: boolean) => void;
     handleDeactivateUser?: (userId: string) => void;
     handleReactivateUser?: (userId: string) => void;
     handleResetPassword?: (userId: string) => void;
@@ -35,6 +36,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     openCreateOrganizationModal,
     handleActivateOrganization,
     handleDeactivateOrganization,
+    handleToggleModule,
     handleDeactivateUser,
     handleReactivateUser,
     handleResetPassword,
@@ -44,6 +46,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
     const { t } = useTranslation();
     const [activeAdminView, setActiveAdminView] = useState<'crm' | 'erp'>('crm');
+
+    const getAdminName = (adminUserId: string): string => {
+        const admin = filteredMembers.find(member => member.id === adminUserId);
+        return admin?.full_name || admin?.email || 'N/A';
+    };
 
     return (
         <Card
@@ -259,6 +266,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                             <SortButton field="member_count" label="Membri" />
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Administrator
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Module
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Acțiuni
                                         </th>
                                     </tr>
@@ -288,6 +301,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {org.member_statistics?.total_people || org.member_count || 0}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {getAdminName(org.admin_user)}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => handleToggleModule(org.id, 'ERP', org.active_modules?.includes('ERP') || false)}
+                                                        className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
+                                                            org.active_modules?.includes('ERP')
+                                                                ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                        }`}
+                                                        title={org.active_modules?.includes('ERP') ? 'Click to disable ERP' : 'Click to enable ERP'}
+                                                    >
+                                                        ERP {org.active_modules?.includes('ERP') ? '✓' : '✗'}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleToggleModule(org.id, 'CRM', org.active_modules?.includes('CRM') || false)}
+                                                        className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
+                                                            org.active_modules?.includes('CRM')
+                                                                ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                        }`}
+                                                        title={org.active_modules?.includes('CRM') ? 'Click to disable CRM' : 'Click to enable CRM'}
+                                                    >
+                                                        CRM {org.active_modules?.includes('CRM') ? '✓' : '✗'}
+                                                    </button>
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                                                 {org.status !== 'active' && (

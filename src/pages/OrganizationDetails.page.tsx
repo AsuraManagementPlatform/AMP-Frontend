@@ -26,9 +26,6 @@ const OrganizationDetailsPage: React.FC = () => {
     const [docsFilterCategory, setDocsFilterCategory] = useState<string>('all');
     
     const [financialEditMode, setFinancialEditMode] = useState(false);
-    
-    const [auditFilterType, setAuditFilterType] = useState<string>('all');
-    const [auditFilterUser, setAuditFilterUser] = useState<string>('all');
 
     const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
