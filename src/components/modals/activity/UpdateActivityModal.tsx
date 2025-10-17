@@ -12,7 +12,7 @@ interface UpdateActivityModalProps {
     onClose: () => void;
     onSuccess: () => void;
     activity: Activity;
-    projectId: string;
+    project: string;
 }
 
 export const UpdateActivityModal: React.FC<UpdateActivityModalProps> = ({
@@ -20,7 +20,6 @@ export const UpdateActivityModal: React.FC<UpdateActivityModalProps> = ({
                                                                             onClose,
                                                                             onSuccess,
                                                                             activity,
-                                                                            projectId
                                                                         }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,20 +38,22 @@ export const UpdateActivityModal: React.FC<UpdateActivityModalProps> = ({
         }
     };
 
-    const formConfig = updateActivityFormConfig(projectId);
+    const formConfig = updateActivityFormConfig();
 
     const defaultValues: UpdateActivityData = {
-        project: activity.projectId,
-        project_objective: '',
+        project: activity.project,
+        projectObjective: activity.projectObjective || '',
         title: activity.title,
         description: activity.description || '',
-        starting_date: activity.startDate,
-        estimated_ending_date: activity.startDate,
-        ending_date: activity.endDate || '',
+        startingDate: activity.startingDate,
+        estimatedEndingDate: activity.estimatedEndingDate,
+        endingDate: activity.endingDate || '',
         status: activity.status,
         type: activity.type,
         location: activity.location || '',
-        observation: activity.observation || ''
+        observation: activity.observation || '',
+        results: activity.results || '',
+        indicators: activity.indicators || ''
     };
 
     return (

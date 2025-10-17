@@ -17,7 +17,7 @@ export const createProjectExpenseSchema = z.object({
         .min(2, 'Numele trebuie să aibă cel puțin 2 caractere')
         .max(255, 'Numele nu poate depăși 255 de caractere'),
 
-    unit_type: z.enum(UNIT_TYPES as [string, ...string[]], {
+    unitType: z.enum(UNIT_TYPES as [string, ...string[]], {
         message: 'Tipul unității selectat nu este valid'
     }),
 
@@ -41,7 +41,7 @@ export const createProjectExpenseSchema = z.object({
         'Cantitatea trebuie să fie pozitivă'
     ),
 
-    unit_price: z.union([
+    unitPrice: z.union([
         z.number(),
         z.string()
     ]).transform((value) => {
@@ -93,7 +93,7 @@ export const updateProjectExpenseSchema = z.object({
             'Numele trebuie să aibă între 2 și 255 caractere'
         ),
 
-    unit_type: z.enum(UNIT_TYPES as [string, ...string[]], {
+    unitType: z.enum(UNIT_TYPES as [string, ...string[]], {
         message: 'Tipul unității selectat nu este valid'
     }).optional(),
 
@@ -117,7 +117,7 @@ export const updateProjectExpenseSchema = z.object({
         'Cantitatea trebuie să fie pozitivă'
     ),
 
-    unit_price: z.union([
+    unitPrice: z.union([
         z.number(),
         z.string()
     ]).optional().transform((value) => {
@@ -156,9 +156,9 @@ export const getCreateProjectExpenseDefaultValues = (projectId?: string, activit
     project: projectId || '',
     activity: activityId || '',
     name: '',
-    unit_type: UnitType.NUMBER,
+    unitType: UnitType.NUMBER,
     quantity: 1,
-    unit_price: 0,
+    unitPrice: 0,
     category: ExpenseCategory.OTHER,
     currency: 'RON',
     status: TransactionStatus.DRAFT

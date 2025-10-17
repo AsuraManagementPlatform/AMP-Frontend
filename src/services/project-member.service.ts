@@ -1,8 +1,8 @@
 import {
     ProjectMember,
     ProjectMemberCreateRequest,
-    ProjectMemberUpdateRequest,
-    ProjectMemberFilter
+    ProjectMemberFilter,
+    ProjectMemberUpdateRequest
 } from '@/types/project-member.types';
 import {ListParams, PaginatedResponse} from '@/types/index.types';
 import {apiService} from "@/services/api.service.ts";
@@ -21,7 +21,7 @@ const projectMemberService = {
     },
 
     update: async (id: string, data: ProjectMemberUpdateRequest): Promise<ProjectMember> => {
-        return apiService.put<ProjectMember>(`project_member/${id}`, data);
+        return apiService.put<ProjectMember>(`project_member/update/${id}`, data);
     },
 
     delete: async (id: string): Promise<void> => {

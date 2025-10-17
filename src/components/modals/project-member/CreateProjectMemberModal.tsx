@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Modal } from '@/components/ui/Modal';
-import { DynamicForm } from '@/components/forms/DynamicForm';
+import React, {useEffect, useState} from 'react';
+import {Modal} from '@/components/ui/Modal';
+import {DynamicForm} from '@/components/forms/DynamicForm';
 import projectMemberService from '@/services/project-member.service.ts';
 import userService from '@/services/user.service.ts';
 import showToast from '@/components/ui/Toast';
-import { createProjectMemberFormConfig } from "@/config/project-member.form.config.ts";
+import {createProjectMemberFormConfig} from "@/config/project-member.form.config.ts";
 import {
     CreateProjectMemberData,
     createProjectMemberSchema,
     getCreateProjectMemberDefaultValues
 } from "@/schemas/project-member.schema.ts";
-import { User } from "@/types/user.types.ts";
+import {User} from "@/types/user.types.ts";
+import {ProjectMemberCreateRequest, ProjectMemberStatus, ProjectMemberType} from "@/types/project-member.types.ts";
 
 interface CreateProjectMemberModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
-    projectId: string;
+    project: string;
     organizationId: string;
 }
 
@@ -24,7 +25,7 @@ export const CreateProjectMemberModal: React.FC<CreateProjectMemberModalProps> =
                                                                                       isOpen,
                                                                                       onClose,
                                                                                       onSuccess,
-                                                                                      projectId,
+                                                                                      project,
                                                                                       organizationId
                                                                                   }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,7 +58,20 @@ export const CreateProjectMemberModal: React.FC<CreateProjectMemberModalProps> =
     const handleSubmit = async (data: CreateProjectMemberData) => {
         try {
             setIsSubmitting(true);
-            await projectMemberService.create(data as any);
+
+            const projectMemberCreateRequest: ProjectMemberCreateRequest = {
+                project: data.project,
+                member: data.member,
+                userRole: data.userRole,
+                addedToProject: data.addedToProject,
+                status: data.status in ProjectMemberStatus ? data.status as ProjectMemberStatus : ProjectMemberStatus.ACTIVE,
+                type: data.type in ProjectMemberType ? data.type as ProjectMemberType : ProjectMemberType.EMPLOYEE,
+                contractualDocumentNumber: data.contractualDocumentNumber,
+                activeFrom: data.activeFrom,
+                activeTo: data.activeTo,
+            };
+
+            await projectMemberService.create(projectMemberCreateRequest);
             showToast.success('Membrul a fost adăugat cu succes!');
             onSuccess();
             onClose();
@@ -70,7 +84,7 @@ export const CreateProjectMemberModal: React.FC<CreateProjectMemberModalProps> =
     };
 
     const formConfig = createProjectMemberFormConfig(organizationUsers);
-    const defaultValues = getCreateProjectMemberDefaultValues(projectId);
+    const defaultValues = getCreateProjectMemberDefaultValues(project);
 
     if (loadingUsers) {
         return (

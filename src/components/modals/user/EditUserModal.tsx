@@ -34,13 +34,13 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
     };
 
     const defaultValues: Partial<UserCreateRequest> = user ? {
-        full_name: user.full_name || '',
+        full_name: user.fullName || '',
         email: user.email || '',
-        personal_numerical_number: user.personal_numerical_number || '',
-        phone_number: user.phone_number || '',
+        personal_numerical_number: user.personalNumericalNumber || '',
+        phone_number: user.phoneNumber || '',
         isLegalEntity: user.isLegalEntity || false,
-        company_number: user.company_number || '',
-        company_name: user.company_name || '',
+        company_number: user.companyNumber || '',
+        company_name: user.companyName || '',
         group: user.groups?.[0] || '',
         status: user.status || ''
     } : {};

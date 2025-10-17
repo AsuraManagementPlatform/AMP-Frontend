@@ -21,7 +21,7 @@ const DashboardPage: React.FC = () => {
         isAdmin: state.isAdmin,
         isOrgAdmin: state.isOrgAdmin,
         isMember: state.isMember,
-        organizationId: state.user?.organization_id,
+        organizationId: state.user?.organizationId,
         setStats: state.setStats,
         setLoading: state.setLoading,
         setProjectsLoading: state.setProjectsLoading,
@@ -203,7 +203,7 @@ const DashboardPage: React.FC = () => {
                     isCreateProjectModalOpen={state.isCreateProjectModalOpen}
                     handleCloseCreateProject={handlers.handleCloseCreateProject}
                     handleProjectCreated={handlers.handleProjectCreated}
-                    organizationId={state.user?.organization_id}
+                    organizationId={state.user?.organizationId}
                     isCreateActivityModalOpen={state.isCreateActivityModalOpen}
                     handleCloseCreateActivity={handlers.handleCloseCreateActivity}
                     handleActivityCreated={handlers.handleActivityCreated}

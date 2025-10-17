@@ -1,15 +1,13 @@
 import React from 'react';
-import { UserCreateRequest } from "@/schemas/user.schema";
-import { UserMeResponse } from "@/types/user.types";
-import { Project } from "@/types/project.types";
-import { ConfirmationModal } from "@/components/ui/Modal";
-import { OrganizationCreationModal } from "@/components/organization/OrganizationCreationModal";
-import { OrganizationDetailsModal } from "@/components/organization/OrganizationDetailsModal";
-import { CreateUserModal } from "@/components/modals/user/CreateUserModal";
-import { EditUserModal } from "@/components/modals/user/EditUserModal";
-
-import { CreateProjectModal } from "@/components/modals/project/CreateProjectModal";
-import { CreateActivityModal } from "@/components/modals/activity/CreateActivityModal";
+import {UserCreateRequest} from "@/schemas/user.schema";
+import {UserMeResponse} from "@/types/user.types";
+import {Project} from "@/types/project.types";
+import {ConfirmationModal} from "@/components/ui/Modal";
+import {OrganizationCreationModal} from "@/components/organization/OrganizationCreationModal";
+import {OrganizationDetailsModal} from "@/components/organization/OrganizationDetailsModal";
+import {CreateUserModal} from "@/components/modals/user/CreateUserModal";
+import {EditUserModal} from "@/components/modals/user/EditUserModal";
+import {CreateProjectModal} from "@/components/modals/project/CreateProjectModal";
 
 interface DashboardModalsProps {
     isCreateUserModalOpen: boolean;
@@ -72,10 +70,6 @@ export const DashboardModals: React.FC<DashboardModalsProps> = ({
     handleCloseCreateProject,
     handleProjectCreated,
     organizationId,
-    isCreateActivityModalOpen,
-    handleCloseCreateActivity,
-    handleActivityCreated,
-    availableProjects,
     isOrgDetailsModalOpen,
     setIsOrgDetailsModalOpen,
     onOrganizationUpdate,
@@ -98,7 +92,7 @@ export const DashboardModals: React.FC<DashboardModalsProps> = ({
             onClose={handleSkipOrganization}
             onConfirm={handleCreateOrganization}
             title="Creează organizație"
-            message={`Utilizatorul ${createdUserData?.full_name || ''} a fost creat cu succes! Doriți să creați o organizație pentru acest utilizator?`}
+            message={`Utilizatorul ${createdUserData?.fullName || ''} a fost creat cu succes! Doriți să creați o organizație pentru acest utilizator?`}
             confirmText="Da, creează organizație"
             cancelText="Nu, doar utilizator"
             variant="info"
@@ -119,13 +113,6 @@ export const DashboardModals: React.FC<DashboardModalsProps> = ({
             onClose={handleCloseCreateProject}
             onSuccess={handleProjectCreated}
             organizationId={organizationId}
-        />
-
-        <CreateActivityModal
-            isOpen={isCreateActivityModalOpen}
-            onClose={handleCloseCreateActivity}
-            onSuccess={handleActivityCreated}
-            availableProjects={availableProjects}
         />
 
         <OrganizationDetailsModal

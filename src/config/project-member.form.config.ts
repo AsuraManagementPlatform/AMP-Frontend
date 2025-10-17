@@ -38,12 +38,12 @@ export const createProjectMemberFormConfig = (organizationUsers: User[] = []): D
                         { value: '', label: 'Selectează membrul' },
                         ...organizationUsers.map(user => ({
                             value: user.id,
-                            label: `${user.full_name} (${user.email})`
+                            label: `${user.fullName} (${user.email})`
                         }))
                     ]
                 },
                 {
-                    name: 'user_role',
+                    name: 'userRole',
                     label: 'Rol în proiect',
                     type: FieldType.TEXT,
                     placeholder: 'ex: Manager de proiect, Developer, Coordonator',
@@ -71,26 +71,26 @@ export const createProjectMemberFormConfig = (organizationUsers: User[] = []): D
             columns: 2,
             fields: [
                 {
-                    name: 'contractual_document_number',
+                    name: 'contractualDocumentNumber',
                     label: 'Număr contract',
                     type: FieldType.TEXT,
                     placeholder: 'ex: CT-2025-001',
                     maxLength: 255
                 },
                 {
-                    name: 'added_to_project',
+                    name: 'addedToProject',
                     label: 'Data adăugării',
                     type: FieldType.DATE,
                     required: true
                 },
                 {
-                    name: 'active_from',
+                    name: 'activeFrom',
                     label: 'Activ de la',
                     type: FieldType.DATE,
                     required: true
                 },
                 {
-                    name: 'active_to',
+                    name: 'activeTo',
                     label: 'Activ până la',
                     type: FieldType.DATE,
                     required: true

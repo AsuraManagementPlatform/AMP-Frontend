@@ -9,19 +9,6 @@ export interface ApiError {
     details?: ValidationError[];
 }
 
-export interface ApiResponse<T> {
-    success: boolean;
-    data: T;
-    message?: string;
-}
-
-export interface PaginatedApiResponse<T> {
-    results: T[];
-    count: number;
-    next: string | null;
-    previous: string | null;
-}
-
 export interface ApiConfig {
     readonly baseURL: string;
     readonly timeout: number;

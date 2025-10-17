@@ -28,7 +28,7 @@ export const createBudgetFormConfig = (
             columns: 2,
             fields: [
                 {
-                    name: 'projectId',
+                    name: 'project',
                     label: 'Proiect',
                     type: FieldType.SELECT,
                     required: true,

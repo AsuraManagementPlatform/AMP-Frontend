@@ -21,38 +21,38 @@ export type ProjectMemberType = typeof ProjectMemberType[keyof typeof ProjectMem
 
 export interface ProjectMember extends BaseEntity {
     project: string;
-    project_name?: string;
+    projectName?: string;
     member: string;
-    member_name?: string;
-    member_email?: string;
-    user_role: string;
-    added_to_project: string;
+    memberName?: string;
+    memberEmail?: string;
+    userRole: string;
+    addedToProject: string;
     status: ProjectMemberStatus;
     type: ProjectMemberType;
-    contractual_document_number?: string;
-    active_from: string;
-    active_to: string;
+    contractualDocumentNumber?: string;
+    activeFrom: string;
+    activeTo: string;
 }
 
 export interface ProjectMemberCreateRequest {
     project: string;
     member: string;
-    user_role: string;
-    added_to_project: string;
+    userRole: string;
+    addedToProject: string;
     status: ProjectMemberStatus;
     type: ProjectMemberType;
-    contractual_document_number?: string;
-    active_from: string;
-    active_to: string;
+    contractualDocumentNumber?: string;
+    activeFrom: string;
+    activeTo: string;
 }
 
 export interface ProjectMemberUpdateRequest extends Partial<ProjectMemberCreateRequest> {}
 
 export interface ProjectMemberFilter {
-    project_id?: string;
-    member_id?: string;
+    projectId?: string;
+    memberId?: string;
     status?: ProjectMemberStatus;
     type?: ProjectMemberType;
-    user_role?: string;
+    userTole?: string;
     search?: string;
 }

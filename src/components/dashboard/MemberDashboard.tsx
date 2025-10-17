@@ -146,7 +146,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                                                             </span>
                                                         </td>
                                                         <td className="px-4 py-3 text-gray-600">
-                                                            {activity.endDate || activity.startDate || 'N/A'}
+                                                            {activity.endingDate || activity.startingDate || 'N/A'}
                                                         </td>
                                                     </tr>
                                                 ))
@@ -181,7 +181,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                 <div>
                                     <span className="text-gray-600">Nume:</span> 
-                                    <span className="ml-2 font-medium">{user?.full_name || 'N/A'}</span>
+                                    <span className="ml-2 font-medium">{user?.fullName || 'N/A'}</span>
                                 </div>
                                 <div>
                                     <span className="text-gray-600">Email:</span> 

@@ -27,18 +27,18 @@ export const LinkOrganizationModal: React.FC<LinkOrganizationModalProps> = ({
         >
             <div className="space-y-4">
                 <p className="text-gray-700">
-                    Utilizatorul <span className="font-semibold">{user.full_name}</span> ({user.email}) 
+                    Utilizatorul <span className="font-semibold">{user.fullName}</span> ({user.email}) 
                     a fost creat cu succes ca entitate juridică.
                 </p>
                 
-                {user.company_name && (
+                {user.companyName && (
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                         <p className="text-sm text-gray-700">
-                            <span className="font-medium">Companie:</span> {user.company_name}
+                            <span className="font-medium">Companie:</span> {user.companyName}
                         </p>
-                        {user.company_number && (
+                        {user.companyNumber && (
                             <p className="text-sm text-gray-700 mt-1">
-                                <span className="font-medium">CUI:</span> {user.company_number}
+                                <span className="font-medium">CUI:</span> {user.companyNumber}
                             </p>
                         )}
                     </div>

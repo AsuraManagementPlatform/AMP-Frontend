@@ -147,7 +147,7 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                     {filteredMembers.map((member, index) => (
                                         <tr key={member.id || index} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {member.full_name || 'N/A'}
+                                                {member.fullName || 'N/A'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {member.email || 'N/A'}
@@ -271,7 +271,7 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                                     </span>
                                                 </div>
                                                 <div className="text-xs text-gray-500">
-                                                    {project.ending_date ? new Date(project.ending_date).toLocaleDateString('ro-RO') : 'N/A'}
+                                                    {project.endingDate ? new Date(project.endingDate).toLocaleDateString('ro-RO') : 'N/A'}
                                                 </div>
                                             </div>
                                         </div>
@@ -319,7 +319,7 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                             <div className="grid grid-cols-4 gap-4 text-sm">
                                                 <div className="font-medium">{activity.title}</div>
                                                 <div className="text-gray-600">
-                                                    {projects.find(p => p.id === activity.projectId)?.name || 'Necunoscut'}
+                                                    {projects.find(p => p.id === activity.project)?.name || 'Necunoscut'}
                                                 </div>
                                                 <div>
                                                     <span className={`px-2 py-1 rounded text-xs ${
@@ -333,8 +333,8 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                                     </span>
                                                 </div>
                                                 <div className="text-xs text-gray-500">
-                                                    {activity.endDate ? new Date(activity.endDate).toLocaleDateString('ro-RO') : 
-                                                     activity.startDate ? new Date(activity.startDate).toLocaleDateString('ro-RO') : 'N/A'}
+                                                    {activity.endingDate ? new Date(activity.endingDate).toLocaleDateString('ro-RO') :
+                                                     activity.startingDate ? new Date(activity.startingDate).toLocaleDateString('ro-RO') : 'N/A'}
                                                 </div>
                                             </div>
                                         </div>

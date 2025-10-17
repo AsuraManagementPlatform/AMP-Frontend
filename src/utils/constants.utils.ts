@@ -7,6 +7,7 @@ export const ROUTES = {
     
     // ERP Module (Projects & Activities)
     ERP_PROJECTS: '/erp/projects',
+    ERP_PROJECT_DETAILS: '/erp/project/:project_id',
     ERP_ACTIVITIES: '/erp/activities',
     
     // CRM Module (Users & Organization Management)

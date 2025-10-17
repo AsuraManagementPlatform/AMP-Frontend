@@ -37,8 +37,8 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
     const getUserInitials = (): string => {
         if (!user) return 'U';
 
-        if (user.full_name) {
-            const names = user.full_name.split(' ');
+        if (user.fullName) {
+            const names = user.fullName.split(' ');
             return names.length > 1
                 ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
                 : names[0][0].toUpperCase();
@@ -49,7 +49,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
 
     const getUserDisplayName = (): string => {
         if (!user) return '';
-        return user.full_name || user.email;
+        return user.fullName || user.email;
     };
 
     return (
@@ -103,13 +103,6 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                                         onClick={() => setErpDropdownOpen(false)}
                                                     >
                                                         Proiecte
-                                                    </Link>
-                                                    <Link
-                                                        to={ROUTES.ERP_ACTIVITIES}
-                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                                                        onClick={() => setErpDropdownOpen(false)}
-                                                    >
-                                                        Activități
                                                     </Link>
                                                 </div>
                                             )}

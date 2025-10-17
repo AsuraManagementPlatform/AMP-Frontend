@@ -200,13 +200,9 @@ export const useDashboardHandlers = ({
         if (!selectedUser) return;
 
         try {
-            const response = await userService.update(selectedUser.id, data);
+            await userService.update(selectedUser.id, data);
             
-            if (response.email_changed) {
-                showToast.success('Utilizator actualizat! Un email de resetare a parolei a fost trimis la noua adresă de email.', { duration: 8000 });
-            } else {
-                showToast.success('Utilizator actualizat cu succes!');
-            }
+            showToast.success('Utilizator actualizat cu succes!');
             
             if (refreshUsers) {
                 refreshUsers();

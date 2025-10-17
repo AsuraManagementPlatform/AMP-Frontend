@@ -7,9 +7,11 @@ import { ProjectMember, ProjectMemberStatus, ProjectMemberType } from '@/types/p
 import { UpdateProjectMemberModal } from '@/components/modals/project-member/UpdateProjectMemberModal';
 import projectMemberService from '@/services/project-member.service';
 import showToast from '@/components/ui/Toast';
+import {useConfirmDialog} from "@/components/ui/ConfirmDialog.tsx";
+import IconWarning from "@/assets/icons/iconmonstr-warning.svg?react"
 
 interface ProjectMemberListProps {
-    projectId: string;
+    project: string;
     organizationId: string;
     refreshTrigger?: number;
     className?: string;
@@ -17,12 +19,13 @@ interface ProjectMemberListProps {
 }
 
 export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
-                                                                        projectId,
+                                                                        project,
                                                                         organizationId,
                                                                         refreshTrigger = 0,
                                                                         className = '',
                                                                         pageSize = 10
                                                                     }) => {
+    const confirm = useConfirmDialog();
     const [selectedMember, setSelectedMember] = useState<ProjectMember | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
@@ -33,9 +36,18 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
     };
 
     const handleDelete = async (member: ProjectMember) => {
-        if (!window.confirm(`Sigur doriți să eliminați membrul "${member.member_name}" din proiect?`)) {
-            return;
-        }
+      const isConfirmed = await confirm({
+        title: 'Elimină membru din echipa proiectului',
+        message: `Sigur doriți să eliminați membrul "${member.memberName}" din proiect?`,
+        confirmText: 'Confirmă',
+        cancelText: 'Renunță',
+        confirmButtonVariant: 'primary',
+        icon: (<IconWarning />)
+      });
+
+      if (!isConfirmed) {
+        return;
+      }
 
         try {
             await projectMemberService.delete(member.id);
@@ -53,19 +65,19 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
 
     const getColumns = (): TableColumn<ProjectMember>[] => [
         {
-            key: 'member_name',
+            key: 'memberName',
             label: 'Nume',
             sortable: false,
             width: '200px',
         },
         {
-            key: 'member_email',
+            key: 'memberEmail',
             label: 'Email',
             sortable: false,
             width: '200px',
         },
         {
-            key: 'user_role',
+            key: 'userRole',
             label: 'Rol',
             sortable: true,
             width: '150px',
@@ -131,7 +143,7 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
             }
         },
         {
-            key: 'active_from',
+            key: 'activeFrom',
             label: 'Activ de la',
             sortable: true,
             width: '120px',
@@ -140,7 +152,7 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
             }
         },
         {
-            key: 'active_to',
+            key: 'activeTo',
             label: 'Activ până la',
             sortable: true,
             width: '120px',
@@ -168,7 +180,7 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
     return (
         <>
             <Table<ProjectMember>
-                endpoint={`project_member/list?project_id=${projectId}`}
+                endpoint={`project_member/list?project_id=${project}`}
                 columns={getColumns()}
                 actions={getActions()}
                 pageSize={pageSize}

@@ -1,4 +1,8 @@
-import {ListParams, PaginatedResponse, ProjectExpense} from "@/types/index.types.ts";
+import {
+    ListParams,
+    PaginatedResponse,
+    ProjectExpense, ProjectExpenseCreateRequest, ProjectExpenseUpdateRequest,
+} from "@/types/index.types.ts";
 import {apiService} from "@/services/api.service.ts";
 
 export const projectExpenseService = {
@@ -10,11 +14,11 @@ export const projectExpenseService = {
         return apiService.get<ProjectExpense>(`project_expense/${id}`);
     },
 
-    create: async (data: Partial<ProjectExpense>): Promise<ProjectExpense> => {
+    create: async (data: Partial<ProjectExpenseCreateRequest>): Promise<ProjectExpense> => {
         return apiService.post<ProjectExpense>('project_expense/create', data);
     },
 
-    update: async (id: string, data: Partial<ProjectExpense>): Promise<ProjectExpense> => {
+    update: async (id: string, data: Partial<ProjectExpenseUpdateRequest>): Promise<ProjectExpense> => {
         return apiService.put<ProjectExpense>(`project_expense/update/${id}`, data);
     },
 

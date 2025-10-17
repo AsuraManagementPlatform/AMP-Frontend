@@ -49,7 +49,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
     const getAdminName = (adminUserId: string): string => {
         const admin = filteredMembers.find(member => member.id === adminUserId);
-        return admin?.full_name || admin?.email || 'N/A';
+        return admin?.fullName || admin?.email || 'N/A';
     };
 
     return (
@@ -140,7 +140,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     {filteredMembers.map((member, index) => (
                                         <tr key={member.id || index} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {member.full_name || 'N/A'}
+                                                {member.fullName || 'N/A'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {member.email || 'N/A'}

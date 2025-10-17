@@ -1,4 +1,4 @@
-export const TransactionStatus = {
+﻿export const TransactionStatus = {
     DRAFT: 'DRAFT',
     PENDING_APPROVAL: 'PENDING_APPROVAL',
     APPROVED: 'APPROVED',

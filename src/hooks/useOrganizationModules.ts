@@ -11,14 +11,14 @@ export const useOrganizationModules = () => {
 
     useEffect(() => {
         const fetchOrganizationModules = async () => {
-            if (!user?.organization_id) {
+            if (!user?.organizationId) {
                 setActiveModules([]);
                 setLoading(false);
                 return;
             }
 
             try {
-                const organization = await organizationService.getById(user.organization_id);
+                const organization = await organizationService.getById(user.organizationId);
                 setActiveModules(organization.active_modules || []);
             } catch (error) {
                 console.error('Error fetching organization modules:', error);
@@ -29,7 +29,7 @@ export const useOrganizationModules = () => {
         };
 
         fetchOrganizationModules();
-    }, [user?.organization_id, refreshKey]);
+    }, [user?.organizationId, refreshKey]);
 
     useEffect(() => {
         const unsubscribe = cacheInvalidation.subscribe(

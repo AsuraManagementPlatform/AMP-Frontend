@@ -5,26 +5,44 @@ import { createProjectFundFormConfig } from '@/config/project-fund.form.config';
 import { createProjectFundSchema, CreateProjectFundData, getCreateProjectFundDefaultValues } from '@/schemas/project-fund.schema';
 import projectFundService from '@/services/project-fund.service';
 import showToast from '@/components/ui/Toast';
+import {ProjectFundCreateRequest} from "@/types/project-fund.types.ts";
 
 interface CreateProjectFundModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
-    projectId: string;
+    project: string;
 }
 
 export const CreateProjectFundModal: React.FC<CreateProjectFundModalProps> = ({
                                                                                   isOpen,
                                                                                   onClose,
                                                                                   onSuccess,
-                                                                                  projectId
+                                                                                  project
                                                                               }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (data: CreateProjectFundData) => {
         try {
             setIsSubmitting(true);
-            await projectFundService.create(data);
+
+            const projectFundCreateRequest: ProjectFundCreateRequest = {
+                project: data.project,
+                estimatedAmount: data.estimatedAmount,
+                amount: data.amount,
+                source: data.source,
+                category: data.category,
+                sourceName: data.sourceName,
+                currency: data.currency,
+                estimatedDate: data.estimatedDate,
+                date: data.date,
+                paymentMethod: data.paymentMethod,
+                scope: data.scope,
+                documentReference: data.documentReference,
+                notes: data.notes,
+            };
+
+            await projectFundService.create(projectFundCreateRequest);
             showToast.success('Finanțarea a fost adăugată cu succes!');
             onSuccess();
             onClose();
@@ -36,8 +54,8 @@ export const CreateProjectFundModal: React.FC<CreateProjectFundModalProps> = ({
         }
     };
 
-    const formConfig = createProjectFundFormConfig(projectId);
-    const defaultValues = getCreateProjectFundDefaultValues(projectId);
+    const formConfig = createProjectFundFormConfig();
+    const defaultValues = getCreateProjectFundDefaultValues(project);
 
     return (
         <Modal

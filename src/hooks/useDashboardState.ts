@@ -52,10 +52,10 @@ export const useDashboardState = () => {
         );
         return !hasAdminRole;
     }, [user]);
-    const hasOrganization = useMemo(() => !!user?.organization_id, [user?.organization_id]);
+    const hasOrganization = useMemo(() => !!user?.organizationId, [user?.organizationId]);
 
     const filteredMembers = members.filter(member => 
-        member.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         member.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 

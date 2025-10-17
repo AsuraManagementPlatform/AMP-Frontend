@@ -68,14 +68,14 @@ const CalendarPage: React.FC = () => {
 
     const handleCreateEvent = async (data: CreateEventFormData) => {
         try {
-            if (data.is_organization_event && !user?.organization_id) {
+            if (data.is_organization_event && !user?.organizationId) {
                 showToast.error('Nu aveți o organizație asociată pentru evenimente organizaționale');
                 return;
             }
 
             const eventData: CreateEventData = {
                 ...data,
-                organization_id: data.is_organization_event && user?.organization_id ? user.organization_id : undefined
+                organization_id: data.is_organization_event && user?.organizationId ? user.organizationId : undefined
             };
 
             if (selectedEvent) {
