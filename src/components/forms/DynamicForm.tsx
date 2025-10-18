@@ -50,6 +50,7 @@ export function DynamicForm<TFormData extends FieldValues>({
     };
 
     const handleFormSubmit = (data: TFormData) => {
+        console.log('🔍 DynamicForm handleFormSubmit called:', { data, isValid, errors });
         onSubmit(data);
     };
 
@@ -115,6 +116,7 @@ export function DynamicForm<TFormData extends FieldValues>({
                         type="submit"
                         variant="primary"
                         disabled={isSubmitting || !isValid}
+                        onClick={() => console.log('🔍 Submit button clicked, isValid:', isValid, 'errors:', errors)}
                     >
                         {isSubmitting
                             ? 'Se procesează...'

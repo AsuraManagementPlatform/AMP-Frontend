@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
-import { Project, Activity, User } from '@/types/index.types';
+import { Project, Activity, User, TableColumn, TableAction } from '@/types/index.types';
 import { getUserRoleLabel } from '@/utils/dashboardUtils';
+import Table from '@/components/ui/Table';
 
 interface OrgAdminDashboardProps {
     searchTerm: string;
@@ -19,7 +20,6 @@ interface OrgAdminDashboardProps {
     getActivityStatusColor: (status: string) => string;
     getProjectStatusText: (status: string) => string;
     getActivityStatusText: (status: string) => string;
-    SortButton: React.ComponentType<{ field: string; label: string }>;
     handleOpenCreateUser?: () => void;
     handleOpenCreateProject?: () => void;
     handleOpenCreateActivity?: () => void;
@@ -45,7 +45,6 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
     getActivityStatusColor,
     getProjectStatusText,
     getActivityStatusText,
-    SortButton,
     handleOpenCreateUser,
     handleOpenCreateProject,
     handleOpenCreateActivity,
@@ -56,6 +55,186 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
     currentUserId
 }) => {
     const [activeManagementView, setActiveManagementView] = useState<'membri' | 'proiecte'>('membri');
+
+    const getMemberColumns = (): TableColumn<User>[] => [
+        {
+            key: 'fullName',
+            label: 'Name',
+            sortable: false,
+            render: (fullName: string) => (
+                <div className="flex items-center">
+                    <div className="flex-shrink-0 h-10 w-10">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                            {(fullName || 'N').charAt(0).toUpperCase()}
+                        </div>
+                    </div>
+                    <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">
+                            {fullName || 'N/A'}
+                        </div>
+                    </div>
+                </div>
+            )
+        },
+        {
+            key: 'email',
+            label: 'Email',
+            sortable: false,
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            sortable: false,
+            render: (status: string) => (
+                <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full shadow-sm ${
+                    status === 'ACTIVE' 
+                        ? 'bg-green-100 text-green-800 border border-green-200' 
+                        : status === 'INACTIVE'
+                        ? 'bg-red-100 text-red-800 border border-red-200'
+                        : 'bg-gray-100 text-gray-800 border border-gray-200'
+                }`}>
+                    {status || 'Unknown'}
+                </span>
+            )
+        },
+        {
+            key: 'groups',
+            label: 'Role',
+            sortable: false,
+            render: (groups: string[]) => (
+                <div className="text-sm text-gray-600 font-medium">
+                    {getUserRoleLabel(groups)}
+                </div>
+            )
+        }
+    ];
+
+    const getMemberActions = (): TableAction<User>[] => {
+        const actions: TableAction<User>[] = [];
+
+        if (handleEditUser) {
+            actions.push({
+                label: 'Edit',
+                variant: 'primary',
+                onClick: handleEditUser,
+                show: (member) => member.id !== currentUserId
+            });
+        }
+
+        if (handleResetPassword) {
+            actions.push({
+                label: 'Resetare Parolă',
+                variant: 'secondary',
+                onClick: (member) => handleResetPassword(member.id),
+                show: (member) => member.id !== currentUserId
+            });
+        }
+
+        if (handleDeactivateUser) {
+            actions.push({
+                label: 'Dezactivează',
+                variant: 'danger',
+                onClick: (member) => handleDeactivateUser(member.id),
+                show: (member) => member.id !== currentUserId && member.status === 'ACTIVE'
+            });
+        }
+
+        if (handleReactivateUser) {
+            actions.push({
+                label: 'Reactivează',
+                variant: 'secondary',
+                onClick: (member) => handleReactivateUser(member.id),
+                show: (member) => member.id !== currentUserId && member.status === 'INACTIVE'
+            });
+        }
+
+        return actions;
+    };
+
+    const getProjectColumns = (): TableColumn<Project>[] => [
+        {
+            key: 'name',
+            label: 'Nume Proiect',
+            sortable: false,
+            render: (name: string) => (
+                <div className="font-medium text-gray-900">{name}</div>
+            )
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            sortable: false,
+            render: (status: string) => (
+                <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full shadow-sm ${
+                    getProjectStatusColor(status) === 'green' ? 'bg-green-100 text-green-800 border border-green-200' :
+                    getProjectStatusColor(status) === 'blue' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                    getProjectStatusColor(status) === 'yellow' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
+                    getProjectStatusColor(status) === 'red' ? 'bg-red-100 text-red-800 border border-red-200' :
+                    'bg-gray-100 text-gray-800 border border-gray-200'
+                }`}>
+                    {getProjectStatusText(status)}
+                </span>
+            )
+        },
+        {
+            key: 'endingDate',
+            label: 'Data Finalizare',
+            sortable: false,
+            render: (endingDate: string) => (
+                <div className="text-sm text-gray-600">
+                    {endingDate ? new Date(endingDate).toLocaleDateString('ro-RO') : 'N/A'}
+                </div>
+            )
+        }
+    ];
+
+    const getActivityColumns = (): TableColumn<Activity>[] => [
+        {
+            key: 'title',
+            label: 'Nume Activitate',
+            sortable: false,
+            render: (title: string) => (
+                <div className="font-medium text-gray-900">{title}</div>
+            )
+        },
+        {
+            key: 'project',
+            label: 'Proiect',
+            sortable: false,
+            render: (projectId: string) => (
+                <div className="text-sm text-gray-600">
+                    {projects.find(p => p.id === projectId)?.name || 'Necunoscut'}
+                </div>
+            )
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            sortable: false,
+            render: (status: string) => (
+                <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full shadow-sm ${
+                    getActivityStatusColor(status) === 'green' ? 'bg-green-100 text-green-800 border border-green-200' :
+                    getActivityStatusColor(status) === 'blue' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                    getActivityStatusColor(status) === 'yellow' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
+                    getActivityStatusColor(status) === 'red' ? 'bg-red-100 text-red-800 border border-red-200' :
+                    'bg-gray-100 text-gray-800 border border-gray-200'
+                }`}>
+                    {getActivityStatusText(status)}
+                </span>
+            )
+        },
+        {
+            key: 'endingDate',
+            label: 'Data',
+            sortable: false,
+            render: (endingDate: string, activity: Activity) => (
+                <div className="text-sm text-gray-600">
+                    {endingDate ? new Date(endingDate).toLocaleDateString('ro-RO') :
+                     activity.startingDate ? new Date(activity.startingDate).toLocaleDateString('ro-RO') : 'N/A'}
+                </div>
+            )
+        }
+    ];
 
     return (
         <Card
@@ -119,107 +298,16 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                         )}
                     </div>
                     
-                    {membersLoading ? (
-                        <div className="text-center py-8">Se încarcă membrii...</div>
-                    ) : filteredMembers.length > 0 ? (
-                        <div className="border rounded-lg overflow-hidden">
-                            <table className="w-full">
-                                <thead className="bg-gray-50 border-b">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <SortButton field="full_name" label="Name" />
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <SortButton field="email" label="Email" />
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <SortButton field="status" label="Status" />
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <SortButton field="role" label="Role" />
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Acțiuni
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {filteredMembers.map((member, index) => (
-                                        <tr key={member.id || index} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {member.fullName || 'N/A'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {member.email || 'N/A'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                    member.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                                }`}>
-                                                    {member.status || 'Unknown'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {getUserRoleLabel(member.groups)}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                                {member.id === currentUserId ? (
-                                                    <span className="text-gray-400 text-xs italic">Current user</span>
-                                                ) : (
-                                                    <>
-                                                        {handleEditUser && (
-                                                            <button 
-                                                                className="text-blue-600 hover:text-blue-900 px-3 py-1 rounded border border-blue-600 hover:bg-blue-50 transition-colors"
-                                                                onClick={() => handleEditUser(member)}
-                                                            >
-                                                                Edit
-                                                            </button>
-                                                        )}
-                                                        {handleResetPassword && (
-                                                            <button 
-                                                                className="text-green-600 hover:text-green-900 px-3 py-1 rounded border border-green-600 hover:bg-green-50 transition-colors"
-                                                                onClick={() => handleResetPassword(member.id)}
-                                                            >
-                                                                Resetare Parolă
-                                                            </button>
-                                                        )}
-                                                        {member.status === 'ACTIVE' && handleDeactivateUser && (
-                                                            <button 
-                                                                className="text-yellow-600 hover:text-yellow-900 px-3 py-1 rounded border border-yellow-600 hover:bg-yellow-50 transition-colors"
-                                                                onClick={() => handleDeactivateUser(member.id)}
-                                                            >
-                                                                Dezactivează
-                                                            </button>
-                                                        )}
-                                                        {member.status === 'INACTIVE' && handleReactivateUser && (
-                                                            <button 
-                                                                className="text-purple-600 hover:text-purple-900 px-3 py-1 rounded border border-purple-600 hover:bg-purple-50 transition-colors"
-                                                                onClick={() => handleReactivateUser(member.id)}
-                                                            >
-                                                                Reactivează
-                                                            </button>
-                                                        )}
-                                                    </>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (
-                        <div className="border rounded-lg p-6 text-center">
-                            <div className="text-gray-500 mb-4">
-                                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239"/>
-                                </svg>
-                            </div>
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">Nu există utilizatori</h3>
-                            <p className="text-gray-500 mb-4">
-                                Nu au fost găsiți utilizatori în sistem. Creează primul utilizator pentru a începe.
-                            </p>
-                        </div>
-                    )}
+                    <Table<User>
+                        data={filteredMembers}
+                        columns={getMemberColumns()}
+                        actions={getMemberActions()}
+                        loading={membersLoading}
+                        emptyMessage="Nu au fost găsiți utilizatori în sistem. Creează primul utilizator pentru a începe."
+                        showFilters={false}
+                        showPagination={false}
+                        className=""
+                    />
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -235,54 +323,16 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                 </PrimaryActionButton>
                             )}
                         </div>
-                        <div className="border rounded-lg overflow-hidden">
-                            <div className="bg-gray-50 px-4 py-3 border-b">
-                                <div className="grid grid-cols-3 gap-4 text-sm font-medium text-gray-600">
-                                    <div>Nume Proiect</div>
-                                    <div>Status</div>
-                                    <div>Progres</div>
-                                </div>
-                            </div>
-                            <div className="divide-y divide-gray-200 max-h-64 overflow-y-auto">
-                                {projectsLoading ? (
-                                    <div className="px-4 py-8 text-center">
-                                        <div className="animate-pulse">Încărcare proiecte...</div>
-                                    </div>
-                                ) : projects.length > 0 ? (
-                                    projects.map((project) => (
-                                        <div
-                                            key={project.id}
-                                            className={`px-4 py-3 hover:bg-gray-50 cursor-pointer ${
-                                                selectedProject === project.id ? 'bg-blue-50' : ''
-                                            }`}
-                                            onClick={() => handleProjectClick(project.id)}
-                                        >
-                                            <div className="grid grid-cols-3 gap-4 text-sm">
-                                                <div className="font-medium">{project.name}</div>
-                                                <div>
-                                                    <span className={`px-2 py-1 rounded text-xs ${
-                                                        getProjectStatusColor(project.status) === 'green' ? 'bg-green-100 text-green-800' :
-                                                        getProjectStatusColor(project.status) === 'blue' ? 'bg-blue-100 text-blue-800' :
-                                                        getProjectStatusColor(project.status) === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
-                                                        getProjectStatusColor(project.status) === 'red' ? 'bg-red-100 text-red-800' :
-                                                        'bg-gray-100 text-gray-800'
-                                                    }`}>
-                                                        {getProjectStatusText(project.status)}
-                                                    </span>
-                                                </div>
-                                                <div className="text-xs text-gray-500">
-                                                    {project.endingDate ? new Date(project.endingDate).toLocaleDateString('ro-RO') : 'N/A'}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="px-4 py-8 text-center text-gray-500">
-                                        Nu există proiecte disponibile
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                        <Table<Project>
+                            data={projects}
+                            columns={getProjectColumns()}
+                            loading={projectsLoading}
+                            onRowClick={(project: Project) => handleProjectClick(project.id)}
+                            emptyMessage="Nu există proiecte disponibile"
+                            showFilters={false}
+                            showPagination={false}
+                            className=""
+                        />
                     </div>
                     
                     <div className="space-y-4">
@@ -299,53 +349,15 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                 </PrimaryActionButton>
                             )}
                         </div>
-                        <div className="border rounded-lg overflow-hidden">
-                            <div className="bg-gray-50 px-4 py-3 border-b">
-                                <div className="grid grid-cols-4 gap-4 text-sm font-medium text-gray-600">
-                                    <div>Nume Activitate</div>
-                                    <div>Proiect</div>
-                                    <div>Status</div>
-                                    <div>Data</div>
-                                </div>
-                            </div>
-                            <div className="divide-y divide-gray-200 max-h-64 overflow-y-auto">
-                                {activitiesLoading ? (
-                                    <div className="px-4 py-8 text-center">
-                                        <div className="animate-pulse">Încărcare activități...</div>
-                                    </div>
-                                ) : activities.length > 0 ? (
-                                    activities.map((activity) => (
-                                        <div key={activity.id} className="px-4 py-3 hover:bg-gray-50">
-                                            <div className="grid grid-cols-4 gap-4 text-sm">
-                                                <div className="font-medium">{activity.title}</div>
-                                                <div className="text-gray-600">
-                                                    {projects.find(p => p.id === activity.project)?.name || 'Necunoscut'}
-                                                </div>
-                                                <div>
-                                                    <span className={`px-2 py-1 rounded text-xs ${
-                                                        getActivityStatusColor(activity.status) === 'green' ? 'bg-green-100 text-green-800' :
-                                                        getActivityStatusColor(activity.status) === 'blue' ? 'bg-blue-100 text-blue-800' :
-                                                        getActivityStatusColor(activity.status) === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
-                                                        getActivityStatusColor(activity.status) === 'red' ? 'bg-red-100 text-red-800' :
-                                                        'bg-gray-100 text-gray-800'
-                                                    }`}>
-                                                        {getActivityStatusText(activity.status)}
-                                                    </span>
-                                                </div>
-                                                <div className="text-xs text-gray-500">
-                                                    {activity.endingDate ? new Date(activity.endingDate).toLocaleDateString('ro-RO') :
-                                                     activity.startingDate ? new Date(activity.startingDate).toLocaleDateString('ro-RO') : 'N/A'}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="px-4 py-8 text-center text-gray-500">
-                                        Nu există activități disponibile
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                        <Table<Activity>
+                            data={activities}
+                            columns={getActivityColumns()}
+                            loading={activitiesLoading}
+                            emptyMessage="Nu există activități disponibile"
+                            showFilters={false}
+                            showPagination={false}
+                            className=""
+                        />
                     </div>
                 </div>
             )}

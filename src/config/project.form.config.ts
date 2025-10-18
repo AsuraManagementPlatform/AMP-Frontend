@@ -130,12 +130,12 @@ export const createProjectFormConfig = (
                     required: true
                 },
                 {
-                    name: 'manager',
-                    label: 'Manager proiect',
+                    name: 'budgetResponsible',
+                    label: 'Responsabil buget (Manager proiect)',
                     type: FieldType.SELECT,
                     required: true,
                     options: [
-                        { value: '', label: 'Selectează managerul...' },
+                        { value: '', label: 'Selectează responsabilul bugetului...' },
                         ...availableManagers.map(manager => ({
                             value: manager.id,
                             label: manager.name

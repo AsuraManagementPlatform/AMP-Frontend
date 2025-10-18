@@ -19,24 +19,24 @@ class CalendarService {
         const queryString = params.toString();
         const url = `calendar/list${queryString ? `?${queryString}` : ''}`;
         
-        const response = await apiService.get<{ calendar_events: CalendarEvent[] }>(url);
-        return response.calendar_events;
+        const response = await apiService.get<{ calendarEvents: CalendarEvent[] }>(url);
+        return response.calendarEvents || [];
     }
 
     async getEventById(id: string): Promise<CalendarEvent> {
-        const response = await apiService.get<{ calendar_event: CalendarEvent }>(`calendar/${id}`);
-        return response.calendar_event;
+        const response = await apiService.get<{ calendarEvent: CalendarEvent }>(`calendar/${id}`);
+        return response.calendarEvent;
     }
 
     async createEvent(data: CreateEventData): Promise<CalendarEvent> {
-        const response = await apiService.post<{ calendar_event: CalendarEvent }>('calendar/create', data);
-        return response.calendar_event;
+        const response = await apiService.post<{ calendarEvent: CalendarEvent }>('calendar/create', data);
+        return response.calendarEvent;
     }
 
     async updateEvent(data: UpdateEventData): Promise<CalendarEvent> {
         const { id, ...updateData } = data;
-        const response = await apiService.put<{ calendar_event: CalendarEvent }>(`calendar/update/${id}`, updateData);
-        return response.calendar_event;
+        const response = await apiService.put<{ calendarEvent: CalendarEvent }>(`calendar/update/${id}`, updateData);
+        return response.calendarEvent;
     }
 
     async deleteEvent(id: string): Promise<void> {

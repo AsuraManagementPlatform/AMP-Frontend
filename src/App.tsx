@@ -13,6 +13,7 @@ import EntitiesPage from '@/pages/crm/Entities.page';
 import DonationsPage from '@/pages/crm/Donations.page';
 import CommunicationsPage from '@/pages/crm/Communications.page';
 import ProjectPage from "@/pages/project/Project.page.tsx";
+import MembershipFeesPage from "@/pages/MembershipFees.page";
 import {ErrorBoundary} from '@/components/ErrorBoundary';
 import {ToastConfig} from '@/components/ui/Toast';
 import {ROUTES} from '@/utils/constants.utils';
@@ -96,6 +97,14 @@ function App() {
                     element={
                       <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]}>
                         <ProjectPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path={ROUTES.ERP_MEMBERSHIP_FEES}
+                    element={
+                      <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]} requireModule="ERP">
+                        <MembershipFeesPage />
                       </ProtectedRoute>
                     }
                   />

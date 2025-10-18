@@ -1,0 +1,287 @@
+import { TableColumn } from '@/types/index.types';
+import React, { useState } from "react";
+import Table from "@/components/ui/Table.tsx";
+import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
+import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
+import IconMoneyBag from "@/assets/icons/iconmonstr-money-bag.svg?react";
+import { MembershipFee, MembershipFeeStatus, RenewPeriod } from '@/types/membershipFee.types';
+import { UpdateMembershipFeeModal } from '@/components/modals/membershipFee/UpdateMembershipFeeModal';
+import { ProcessPaymentModal } from '@/components/modals/membershipFee/ProcessPaymentModal';
+import { membershipFeeService } from '@/services/membershipFee.service';
+import showToast from '@/components/ui/Toast';
+import { useConfirmDialog } from "@/components/ui/ConfirmDialog.tsx";
+import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
+
+interface MembershipFeeListProps {
+    organizationId?: string;
+    memberId?: string;
+    refreshTrigger?: number;
+    className?: string;
+    pageSize?: number;
+}
+
+export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
+    organizationId,
+    memberId,
+    refreshTrigger = 0,
+    className = '',
+    pageSize = 10
+}) => {
+    const confirm = useConfirmDialog();
+    const [selectedFee, setSelectedFee] = useState<MembershipFee | null>(null);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [localRefresh, setLocalRefresh] = useState(0);
+
+    const handleEdit = (fee: MembershipFee) => {
+        setSelectedFee(fee);
+        setIsUpdateModalOpen(true);
+    };
+
+    const handleProcessPayment = (fee: MembershipFee) => {
+        setSelectedFee(fee);
+        setIsPaymentModalOpen(true);
+    };
+
+    const handleDelete = async (fee: MembershipFee) => {
+        const isConfirmed = await confirm({
+            title: 'Șterge cotizație',
+            message: `Sigur doriți să ștergeți această cotizație?`,
+            confirmText: 'Confirmă',
+            cancelText: 'Renunță',
+            confirmButtonVariant: 'primary',
+            icon: (<IconWarning></IconWarning>)
+        });
+
+        if (!isConfirmed) {
+            return;
+        }
+
+        try {
+            await membershipFeeService.delete(fee.id);
+            showToast.success('Cotizația a fost ștearsă cu succes!');
+            setLocalRefresh(prev => prev + 1);
+        } catch (error: any) {
+            const errorMessage = error?.message || 'Eroare la ștergerea cotizației';
+            showToast.error(errorMessage);
+        }
+    };
+
+    const handleUpdateSuccess = () => {
+        setLocalRefresh(prev => prev + 1);
+    };
+
+    const handlePaymentSuccess = () => {
+        setLocalRefresh(prev => prev + 1);
+    };
+
+    const getColumns = (): TableColumn<MembershipFee>[] => [
+        {
+            key: 'memberName',
+            label: 'Membru',
+            sortable: true,
+            render: (memberName: string) => {
+                return memberName || '-';
+            }
+        },
+        {
+            key: 'amount',
+            label: 'Sumă',
+            sortable: true,
+            render: (amount: number, row: MembershipFee) => {
+                return `${amount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${row.currency}`;
+            }
+        },
+        {
+            key: 'renewPeriod',
+            label: 'Perioadă',
+            sortable: true,
+            filterable: true,
+            filterType: 'select',
+            filterOptions: [
+                { label: 'Lunar', value: RenewPeriod.MONTHLY },
+                { label: 'Trimestrial', value: RenewPeriod.QUARTERLY },
+                { label: 'Semestrial', value: RenewPeriod.SEMI_ANNUAL },
+                { label: 'Anual', value: RenewPeriod.ANNUAL },
+                { label: 'O singură dată', value: RenewPeriod.ONE_TIME }
+            ],
+            render: (period: string) => {
+                const periodLabels = {
+                    'MONTHLY': 'Lunar',
+                    'QUARTERLY': 'Trimestrial',
+                    'SEMI_ANNUAL': 'Semestrial',
+                    'ANNUAL': 'Anual',
+                    'ONE_TIME': 'O singură dată'
+                };
+                return periodLabels[period as keyof typeof periodLabels] || period;
+            }
+        },
+        {
+            key: 'startedFrom',
+            label: 'Data început',
+            sortable: true,
+            render: (date: string) => {
+                if (!date) return '-';
+                return new Date(date).toLocaleDateString('ro-RO');
+            }
+        },
+        {
+            key: 'endedAt',
+            label: 'Data sfârșit',
+            sortable: true,
+            render: (date: string) => {
+                if (!date) return '-';
+                return new Date(date).toLocaleDateString('ro-RO');
+            }
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            sortable: true,
+            filterable: true,
+            filterType: 'select',
+            filterOptions: [
+                { label: 'În așteptare', value: MembershipFeeStatus.PENDING },
+                { label: 'Plătit', value: MembershipFeeStatus.PAID },
+                { label: 'Întârziat', value: MembershipFeeStatus.OVERDUE },
+                { label: 'Anulat', value: MembershipFeeStatus.CANCELLED }
+            ],
+            render: (status: string) => {
+                const statusConfig = {
+                    'PENDING': { label: 'În așteptare', className: 'bg-yellow-100 text-yellow-800' },
+                    'PAID': { label: 'Plătit', className: 'bg-green-100 text-green-800' },
+                    'OVERDUE': { label: 'Întârziat', className: 'bg-red-100 text-red-800' },
+                    'CANCELLED': { label: 'Anulat', className: 'bg-gray-100 text-gray-800' },
+                    'REFUNDED': { label: 'Returnat', className: 'bg-blue-100 text-blue-800' }
+                };
+                const config = statusConfig[status as keyof typeof statusConfig] || { label: status, className: 'bg-gray-100 text-gray-800' };
+                return (
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${config.className}`}>
+                        {config.label}
+                    </span>
+                );
+            }
+        },
+        {
+            key: 'daysUntilDue',
+            label: 'Zile până la scadență',
+            sortable: false,
+            render: (days: number, row: MembershipFee) => {
+                if (row.status === MembershipFeeStatus.CANCELLED) {
+                    return '-';
+                }
+                
+                if (row.status === MembershipFeeStatus.PAID && !row.autoRenew) {
+                    return '-';
+                }
+                
+                if (days < 0) {
+                    return <span className="text-red-600 font-semibold">Întârziat {Math.abs(days)} zile</span>;
+                } else if (days === 0) {
+                    return <span className="text-orange-600 font-semibold">Astăzi</span>;
+                } else if (days <= 7) {
+                    return <span className="text-orange-600 font-semibold">{days} zile</span>;
+                } else if (days <= 30) {
+                    return <span className="text-yellow-600">{days} zile</span>;
+                } else {
+                    return <span className="text-gray-600">{days} zile</span>;
+                }
+            }
+        },
+        {
+            key: 'paymentMethod',
+            label: 'Metodă plată',
+            sortable: false,
+            render: (method: string | undefined) => {
+                if (!method) return '-';
+                const methodLabels = {
+                    'BANK_TRANSFER': 'Transfer bancar',
+                    'CREDIT_CARD': 'Card',
+                    'CASH': 'Numerar',
+                    'STRIPE': 'Stripe',
+                    'PAYPAL': 'PayPal',
+                    'OTHER': 'Altă metodă'
+                };
+                return methodLabels[method as keyof typeof methodLabels] || method;
+            }
+        }
+    ];
+
+    const getActions = () => {
+        return [
+            {
+                label: 'Confirmă plata',
+                icon: <IconMoneyBag className="w-4 h-4" />,
+                onClick: handleProcessPayment,
+                className: 'text-green-600 hover:text-green-800',
+                show: (fee: MembershipFee) => fee.status === MembershipFeeStatus.PENDING || fee.status === MembershipFeeStatus.OVERDUE
+            },
+            {
+                label: 'Editează',
+                icon: <IconEdit className="w-4 h-4" />,
+                onClick: handleEdit,
+                className: 'text-blue-600 hover:text-blue-800'
+            },
+            {
+                label: 'Șterge',
+                icon: <IconDelete className="w-4 h-4" />,
+                onClick: handleDelete,
+                className: 'text-red-600 hover:text-red-800'
+            }
+        ];
+    };
+
+    const buildEndpoint = () => {
+        const params = new URLSearchParams();
+        
+        if (organizationId) {
+            params.append('organization_id', organizationId);
+        }
+        
+        if (memberId) {
+            params.append('member_id', memberId);
+        }
+        
+        return `membership_fee/list${params.toString() ? '?' + params.toString() : ''}`;
+    };
+
+    return (
+        <>
+            <Table<MembershipFee>
+                endpoint={buildEndpoint()}
+                columns={getColumns()}
+                actions={getActions()}
+                pageSize={pageSize}
+                initialSort={{ field: 'created_at', direction: 'desc' }}
+                showSearch={false}
+                showFilters={true}
+                showPagination={true}
+                emptyMessage="Nu există cotizații pentru această organizație."
+                className={className}
+                refreshTrigger={refreshTrigger + localRefresh}
+            />
+
+            {selectedFee && (
+                <>
+                    <UpdateMembershipFeeModal
+                        isOpen={isUpdateModalOpen}
+                        onClose={() => setIsUpdateModalOpen(false)}
+                        onSuccess={handleUpdateSuccess}
+                        membershipFeeId={selectedFee.id}
+                    />
+                    
+                    <ProcessPaymentModal
+                        isOpen={isPaymentModalOpen}
+                        onClose={() => setIsPaymentModalOpen(false)}
+                        onSuccess={handlePaymentSuccess}
+                        membershipFeeId={selectedFee.id}
+                        memberId={selectedFee.memberId}
+                        memberName={selectedFee.memberName || selectedFee.memberId}
+                        amount={selectedFee.amount}
+                        currency={selectedFee.currency}
+                    />
+                </>
+            )}
+        </>
+    );
+};

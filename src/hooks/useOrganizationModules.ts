@@ -18,10 +18,11 @@ export const useOrganizationModules = () => {
             }
 
             try {
-                const organization = await organizationService.getById(user.organizationId);
-                setActiveModules(organization.active_modules || []);
+                const response = await organizationService.getById(user.organizationId);
+                const organization = (response as any).organization || response;
+                setActiveModules(organization.activeModules || []);
             } catch (error) {
-                console.error('Error fetching organization modules:', error);
+                console.error('❌ [useOrganizationModules] Error fetching organization modules:', error);
                 setActiveModules([]);
             } finally {
                 setLoading(false);
@@ -29,6 +30,10 @@ export const useOrganizationModules = () => {
         };
 
         fetchOrganizationModules();
+
+        const pollInterval = setInterval(fetchOrganizationModules, 30000);
+
+        return () => clearInterval(pollInterval);
     }, [user?.organizationId, refreshKey]);
 
     useEffect(() => {

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/Card';
-import { Project, Activity, User } from '@/types/index.types';
+import { Project, Activity, User, TableColumn } from '@/types/index.types';
 import toast from 'react-hot-toast';
+import Table from '@/components/ui/Table';
 
 interface MemberDashboardProps {
     user: User | null;
@@ -38,6 +39,66 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
     const [showProposalModal, setShowProposalModal] = useState(false);
     const [showMessageModal, setShowMessageModal] = useState(false);
 
+    const getProjectColumns = (): TableColumn<Project>[] => [
+        {
+            key: 'name',
+            label: 'Proiect',
+            sortable: false,
+            render: (name: string) => <span className="font-medium">{name}</span>
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            sortable: false,
+            render: (status: string) => (
+                <span className={`px-2 py-1 text-xs rounded-full ${
+                    status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                    {status}
+                </span>
+            )
+        },
+        {
+            key: 'id',
+            label: 'Progres',
+            sortable: false,
+            render: () => (
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: '65%' }}></div>
+                </div>
+            )
+        }
+    ];
+
+    const getActivityColumns = (): TableColumn<Activity>[] => [
+        {
+            key: 'title',
+            label: 'Activitate',
+            sortable: false,
+            render: (title: string) => <span className="font-medium">{title}</span>
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            sortable: false,
+            render: (status: string) => (
+                <span className={`px-2 py-1 text-xs rounded-full ${
+                    status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                    {status}
+                </span>
+            )
+        },
+        {
+            key: 'endingDate',
+            label: 'Deadline',
+            sortable: false,
+            render: (endingDate: string, row: Activity) => (
+                <span className="text-gray-600">{endingDate || row.startingDate || 'N/A'}</span>
+            )
+        }
+    ];
+
     const handleDownloadCertificate = () => {
         toast.success('Certificatul va fi descărcat în curând...');
     };
@@ -70,96 +131,24 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <h4 className="font-semibold text-gray-800 mb-3">Proiectele mele</h4>
-                                <div className="border rounded-lg overflow-hidden">
-                                    <table className="w-full text-sm">
-                                        <thead className="bg-gray-50">
-                                            <tr>
-                                                <th className="px-4 py-2 text-left">Proiect</th>
-                                                <th className="px-4 py-2 text-left">Status</th>
-                                                <th className="px-4 py-2 text-left">Progres</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-200">
-                                            {projectsLoading ? (
-                                                <tr>
-                                                    <td colSpan={3} className="px-4 py-6 text-center text-gray-500">
-                                                        <div className="animate-pulse">Încărcare proiecte...</div>
-                                                    </td>
-                                                </tr>
-                                            ) : projects.length > 0 ? (
-                                                projects.map((project, index) => (
-                                                    <tr key={project.id || index} className="hover:bg-gray-50">
-                                                        <td className="px-4 py-3 font-medium">{project.name}</td>
-                                                        <td className="px-4 py-3">
-                                                            <span className={`px-2 py-1 text-xs rounded-full ${
-                                                                project.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                                            }`}>
-                                                                {project.status}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-4 py-3">
-                                                            <div className="w-full bg-gray-200 rounded-full h-2">
-                                                                <div className="bg-blue-500 h-2 rounded-full" style={{ width: '65%' }}></div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))
-                                            ) : (
-                                                <tr>
-                                                    <td colSpan={3} className="px-4 py-6 text-center text-gray-500">
-                                                        Nu participi la niciun proiect în acest moment
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <Table<Project>
+                                    data={projects}
+                                    columns={getProjectColumns()}
+                                    loading={projectsLoading}
+                                    emptyMessage="Nu participi la niciun proiect în acest moment"
+                                    className=""
+                                />
                             </div>
                             
                             <div>
                                 <h4 className="font-semibold text-gray-800 mb-3">Activitățile mele</h4>
-                                <div className="border rounded-lg overflow-hidden">
-                                    <table className="w-full text-sm">
-                                        <thead className="bg-gray-50">
-                                            <tr>
-                                                <th className="px-4 py-2 text-left">Activitate</th>
-                                                <th className="px-4 py-2 text-left">Status</th>
-                                                <th className="px-4 py-2 text-left">Deadline</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-200">
-                                            {activitiesLoading ? (
-                                                <tr>
-                                                    <td colSpan={3} className="px-4 py-6 text-center text-gray-500">
-                                                        <div className="animate-pulse">Încărcare activități...</div>
-                                                    </td>
-                                                </tr>
-                                            ) : activities.length > 0 ? (
-                                                activities.map((activity, index) => (
-                                                    <tr key={activity.id || index} className="hover:bg-gray-50">
-                                                        <td className="px-4 py-3 font-medium">{activity.title}</td>
-                                                        <td className="px-4 py-3">
-                                                            <span className={`px-2 py-1 text-xs rounded-full ${
-                                                                activity.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                                            }`}>
-                                                                {activity.status}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-4 py-3 text-gray-600">
-                                                            {activity.endingDate || activity.startingDate || 'N/A'}
-                                                        </td>
-                                                    </tr>
-                                                ))
-                                            ) : (
-                                                <tr>
-                                                    <td colSpan={3} className="px-4 py-6 text-center text-gray-500">
-                                                        Nu ai activități asignate în acest moment
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <Table<Activity>
+                                    data={activities}
+                                    columns={getActivityColumns()}
+                                    loading={activitiesLoading}
+                                    emptyMessage="Nu ai activități asignate în acest moment"
+                                    className=""
+                                />
                                 <div className="mt-4 flex items-center justify-between bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border border-yellow-200">
                                     <div className="flex-1">
                                         <p className="text-sm font-medium text-gray-800 mb-1">Ai o idee pentru o nouă activitate?</p>

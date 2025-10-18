@@ -9,6 +9,7 @@ interface DashboardHandlersProps {
     setIsEditUserModalOpen: (open: boolean) => void;
     setIsCreateOrgModalOpen: (open: boolean) => void;
     setCreatedUserData: (data: any) => void;
+    createdUserData: any;
     setSelectedUser: (user: any) => void;
     selectedUser: any;
     setIsCreateProjectModalOpen: (open: boolean) => void;
@@ -16,6 +17,7 @@ interface DashboardHandlersProps {
     setSelectedProject: (project: string | null) => void;
     selectedProject: string | null;
     openCreateOrganizationModal: () => void;
+    openCreateOrganizationModalWithUser: (user: any, companyData?: { company_name: string; company_number: string }) => Promise<void>;
     refreshOrganizations?: () => void;
     refreshUsers?: () => void;
 }
@@ -25,6 +27,7 @@ export const useDashboardHandlers = ({
     setIsEditUserModalOpen,
     setIsCreateOrgModalOpen,
     setCreatedUserData,
+    createdUserData,
     setSelectedUser,
     selectedUser,
     setIsCreateProjectModalOpen,
@@ -32,15 +35,26 @@ export const useDashboardHandlers = ({
     setSelectedProject,
     selectedProject,
     openCreateOrganizationModal,
+    openCreateOrganizationModalWithUser,
     refreshOrganizations,
     refreshUsers
 }: DashboardHandlersProps) => {
 
     const handleCreateUser = async (data: UserCreateRequest) => {
         try {
-            await userService.create(data);
-            showToast.success('Utilizatorul a fost creat cu succes!');
+            const createdUser = await userService.create(data);
             setIsCreateUserModalOpen(false);
+            
+            const isOrgAdmin = data.group?.toUpperCase() === 'ORGANIZATION_ADMIN' || data.group === 'organization_admin';
+            
+            if (createdUser && isOrgAdmin) {
+                const userData = (createdUser as any).user || createdUser;
+                setCreatedUserData(userData);
+                setIsCreateOrgModalOpen(true);
+            } else {
+                showToast.success('Utilizatorul a fost creat cu succes!');
+            }
+            
             if (refreshUsers) {
                 refreshUsers();
             }
@@ -67,8 +81,12 @@ export const useDashboardHandlers = ({
     };
 
     const handleCreateOrganization = async () => {
-        openCreateOrganizationModal();
         setIsCreateOrgModalOpen(false);
+        if (createdUserData) {
+            await openCreateOrganizationModalWithUser(createdUserData);
+        } else {
+            openCreateOrganizationModal();
+        }
     };
 
     const handleSkipOrganization = () => {

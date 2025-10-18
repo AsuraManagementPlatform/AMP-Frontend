@@ -102,7 +102,14 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                                                         onClick={() => setErpDropdownOpen(false)}
                                                     >
-                                                        Proiecte
+                                                        📋 Proiecte
+                                                    </Link>
+                                                    <Link
+                                                        to={ROUTES.ERP_MEMBERSHIP_FEES}
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        onClick={() => setErpDropdownOpen(false)}
+                                                    >
+                                                        💳 Cotizații Membri
                                                     </Link>
                                                 </div>
                                             )}

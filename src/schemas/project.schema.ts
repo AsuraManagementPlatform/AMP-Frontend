@@ -73,9 +73,13 @@ export const createProjectSchema = z.object({
     }),
     
     budgetPlanningDate: z.string()
-        .min(1, 'Data planificării bugetului este obligatorie')
+        .optional()
+        .or(z.literal(''))
         .refine(
-            (value) => !isNaN(Date.parse(value)),
+            (value) => {
+                if (!value) return true;
+                return !isNaN(Date.parse(value));
+            },
             'Data planificării bugetului nu este validă'
         ),
     

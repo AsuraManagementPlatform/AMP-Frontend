@@ -7,7 +7,6 @@ import { MemberDashboard } from "@/components/dashboard/MemberDashboard";
 import { StatsSection } from "@/components/dashboard/SharedComponents";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardModals } from "@/components/dashboard/DashboardModals";
-import { SortButton } from "@/components/ui/SortButton";
 import { useDashboardState } from "@/hooks/useDashboardState";
 import { useDashboardHandlers } from "@/hooks/useDashboardHandlers";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -39,6 +38,7 @@ const DashboardPage: React.FC = () => {
         setIsEditUserModalOpen: state.setIsEditUserModalOpen,
         setIsCreateOrgModalOpen: state.setIsCreateOrgModalOpen,
         setCreatedUserData: state.setCreatedUserData,
+        createdUserData: state.createdUserData,
         setSelectedUser: state.setSelectedUser,
         selectedUser: state.selectedUser,
         setIsCreateProjectModalOpen: state.setIsCreateProjectModalOpen,
@@ -46,6 +46,7 @@ const DashboardPage: React.FC = () => {
         setSelectedProject: state.setSelectedProject,
         selectedProject: state.selectedProject,
         openCreateOrganizationModal: organization.openCreateOrganizationModal,
+        openCreateOrganizationModalWithUser: organization.openCreateOrganizationModalWithUser,
         refreshOrganizations: dataHooks.refreshOrganizations,
         refreshUsers: dataHooks.refreshUsers
     });
@@ -73,7 +74,6 @@ const DashboardPage: React.FC = () => {
                         handleResetPassword={handlers.handleResetPassword}
                         handleEditUser={handlers.handleEditUser}
                         currentUserId={state.user?.id}
-                        SortButton={SortButton}
                     />
                 )}
 
@@ -93,7 +93,6 @@ const DashboardPage: React.FC = () => {
                         getActivityStatusColor={getActivityStatusColor}
                         getProjectStatusText={getProjectStatusText}
                         getActivityStatusText={getActivityStatusText}
-                        SortButton={SortButton}
                         handleOpenCreateUser={handlers.handleOpenCreateUser}
                         handleOpenCreateProject={() => state.setIsCreateProjectModalOpen(true)}
                         handleOpenCreateActivity={() => state.setIsCreateActivityModalOpen(true)}

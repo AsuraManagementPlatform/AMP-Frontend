@@ -43,10 +43,11 @@ const CalendarPage: React.FC = () => {
             }
 
             const data = await calendarService.getEvents(filters);
-            setEvents(data);
+            setEvents(data || []);
         } catch (error) {
             console.error('Error loading events:', error);
             showToast.error('Eroare la încărcarea evenimentelor');
+            setEvents([]);
         } finally {
             setIsLoading(false);
         }
@@ -55,9 +56,10 @@ const CalendarPage: React.FC = () => {
     const loadUpcomingEvents = async () => {
         try {
             const data = await calendarService.getUpcomingEvents(5);
-            setUpcomingEvents(data);
+            setUpcomingEvents(data || []);
         } catch (error) {
             console.error('Error loading upcoming events:', error);
+            setUpcomingEvents([]);
         }
     };
 

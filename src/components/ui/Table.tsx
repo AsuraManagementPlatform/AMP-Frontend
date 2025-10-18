@@ -139,24 +139,38 @@ const ActionButton = <T,>({ action, item, index }: ActionButtonProps<T>) => {
         return null;
     }
 
+    const getButtonStyles = () => {
+        const baseStyles = "inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-150 shadow-sm";
+        
+        switch (action.variant) {
+            case 'primary':
+                return `${baseStyles} border border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-400 focus:ring-blue-500`;
+            case 'secondary':
+                return `${baseStyles} border border-green-300 text-green-700 bg-green-50 hover:bg-green-100 hover:border-green-400 focus:ring-green-500`;
+            case 'danger':
+                return `${baseStyles} border border-yellow-300 text-yellow-700 bg-yellow-50 hover:bg-yellow-100 hover:border-yellow-400 focus:ring-yellow-500`;
+            default:
+                return `${baseStyles} border border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100 hover:border-purple-400 focus:ring-purple-500`;
+        }
+    };
+
     return (
-        <SecondaryButton
+        <button
             onClick={(e) => {
                 e.stopPropagation();
                 action.onClick(item, index);
             }}
-            variant="ghost"
-            size="sm"
-            className={`${action.className || ''} !p-1.5 !min-w-0`}
+            className={`${getButtonStyles()} ${action.className || ''}`}
             title={action.tooltip || action.label}
         >
             {action.icon !== undefined ? (action.icon) : (action.label)}
-        </SecondaryButton>
+        </button>
     );
 };
 
 interface Table<T> {
-    endpoint: string;
+    endpoint?: string;
+    data?: T[];
     columns: TableColumn<T>[];
     actions?: TableAction<T>[];
     onRowClick?: (item: T, index: number) => void;
@@ -170,10 +184,12 @@ interface Table<T> {
     showFilters?: boolean;
     showPagination?: boolean;
     className?: string;
+    loading?: boolean;
 }
 
 export function Table<T extends Record<string, any>>({
                                                          endpoint,
+                                                         data: staticData,
                                                          columns,
                                                          actions = [],
                                                          onRowClick,
@@ -185,33 +201,36 @@ export function Table<T extends Record<string, any>>({
                                                          refreshTrigger = 0,
                                                          className = 'flex gap-4',
                                                          showFilters = true,
-                                                         showPagination = true
+                                                         showPagination = true,
+                                                         loading: staticLoading = false
                                                      }: Table<T>) {
     const [openFilterColumn, setOpenFilterColumn] = useState<string | null>(null);
 
-    const {
-        data,
-        loading,
-        error,
-        totalCount,
-        currentPage,
-        totalPages,
-        hasNext,
-        hasPrevious,
-        setPage,
-        addFilter,
-        removeFilter,
-        setSort,
-        refresh,
-        tableState
-    } = useTableData<T>({
-        endpoint,
+    const useApi = !!endpoint && !staticData;
+
+    const apiData = useTableData<T>({
+        endpoint: endpoint || '',
         initialFilters,
         initialSort,
         initialPageSize: pageSize,
-        autoFetch,
+        autoFetch: useApi && autoFetch,
         refreshTrigger
     });
+
+    const data = staticData || apiData.data;
+    const loading = staticData ? staticLoading : apiData.loading;
+    const error = useApi ? apiData.error : null;
+    const totalCount = staticData ? staticData.length : apiData.totalCount;
+    const currentPage = useApi ? apiData.currentPage : 1;
+    const totalPages = staticData ? Math.ceil(staticData.length / pageSize) : apiData.totalPages;
+    const hasNext = useApi ? apiData.hasNext : false;
+    const hasPrevious = useApi ? apiData.hasPrevious : false;
+    const setPage = useApi ? apiData.setPage : () => {};
+    const addFilter = useApi ? apiData.addFilter : () => {};
+    const removeFilter = useApi ? apiData.removeFilter : () => {};
+    const setSort = useApi ? apiData.setSort : () => {};
+    const refresh = useApi ? apiData.refresh : () => {};
+    const tableState = useApi ? apiData.tableState : { filters: initialFilters || [], sort: initialSort, page: 1, pageSize };
 
     const allColumns = [...columns];
 
@@ -285,15 +304,15 @@ export function Table<T extends Record<string, any>>({
 
     return (
         <div className={`${className}`}>
-            <div className="overflow-hidden border border-gray-200 rounded-lg shadow">
+            <div className="overflow-hidden border border-gray-200 rounded-xl shadow-lg">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                        <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                         <tr>
                             {allColumns.map((column) => (
                                 <th
                                     key={String(column.key)}
-                                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${column.className || ''}`}
+                                    className={`px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider ${column.className || ''}`}
                                     style={{ width: column.width }}
                                 >
                                     <div className="flex items-center justify-between gap-2 relative">
@@ -355,8 +374,8 @@ export function Table<T extends Record<string, any>>({
                                     key={item.id || index}
                                     onClick={() => onRowClick?.(item, index)}
                                     className={`${
-                                        onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''
-                                    } ${loading ? 'opacity-50' : ''}`}
+                                        onRowClick ? 'cursor-pointer hover:bg-blue-50' : 'hover:bg-gray-50'
+                                    } ${loading ? 'opacity-50' : ''} transition-colors duration-150 ease-in-out`}
                                 >
                                     {allColumns.map((column) => (
                                         <td

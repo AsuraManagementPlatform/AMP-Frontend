@@ -20,6 +20,7 @@ export const BaseButton: React.FC<BaseButtonProps & { styleClasses: string }> = 
     className = '',
     styleClasses,
     disabled,
+    onClick,
     ...props
 }) => {
     const baseClasses = [
@@ -58,6 +59,7 @@ export const BaseButton: React.FC<BaseButtonProps & { styleClasses: string }> = 
         <button
             className={buttonClasses}
             disabled={disabled || isLoading}
+            onClick={onClick}
             {...props}
         >
             {isLoading ? (

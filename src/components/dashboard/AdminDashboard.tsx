@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
-import { User } from '@/types/index.types';
+import { User, TableColumn, TableAction } from '@/types/index.types';
 import { Organization } from '@/types/organization.types';
 import { useTranslation } from 'react-i18next';
+import Table from '@/components/ui/Table';
 
 interface AdminDashboardProps {
     searchTerm: string;
@@ -22,7 +23,6 @@ interface AdminDashboardProps {
     handleResetPassword?: (userId: string) => void;
     handleEditUser?: (user: User) => void;
     currentUserId?: string;
-    SortButton: React.ComponentType<{ field: string; label: string }>;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -41,8 +41,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     handleReactivateUser,
     handleResetPassword,
     handleEditUser,
-    currentUserId,
-    SortButton
+    currentUserId
 }) => {
     const { t } = useTranslation();
     const [activeAdminView, setActiveAdminView] = useState<'crm' | 'erp'>('crm');
@@ -50,6 +49,184 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     const getAdminName = (adminUserId: string): string => {
         const admin = filteredMembers.find(member => member.id === adminUserId);
         return admin?.fullName || admin?.email || 'N/A';
+    };
+
+    const getUserColumns = (): TableColumn<User>[] => [
+        {
+            key: 'fullName',
+            label: 'Name',
+            sortable: false,
+            render: (fullName: string) => (
+                <div className="flex items-center">
+                    <div className="flex-shrink-0 h-10 w-10">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                            {(fullName || 'N').charAt(0).toUpperCase()}
+                        </div>
+                    </div>
+                    <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">
+                            {fullName || 'N/A'}
+                        </div>
+                    </div>
+                </div>
+            )
+        },
+        {
+            key: 'email',
+            label: 'Email',
+            sortable: false,
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            sortable: false,
+            render: (status: string) => (
+                <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full shadow-sm ${
+                    status === 'ACTIVE' 
+                        ? 'bg-green-100 text-green-800 border border-green-200' 
+                        : status === 'INACTIVE'
+                        ? 'bg-red-100 text-red-800 border border-red-200'
+                        : 'bg-gray-100 text-gray-800 border border-gray-200'
+                }`}>
+                    {status || 'Unknown'}
+                </span>
+            )
+        },
+        {
+            key: 'groups',
+            label: 'Role',
+            sortable: false,
+            render: () => <div className="text-sm text-gray-600 font-medium">Administrator Organizație</div>
+        }
+    ];
+
+    const getUserActions = (): TableAction<User>[] => {
+        const actions: TableAction<User>[] = [];
+
+        if (handleEditUser) {
+            actions.push({
+                label: 'Edit',
+                variant: 'primary',
+                onClick: handleEditUser,
+                show: (member) => member.id !== currentUserId
+            });
+        }
+
+        if (handleResetPassword) {
+            actions.push({
+                label: 'Resetare Parolă',
+                variant: 'secondary',
+                onClick: (member) => handleResetPassword(member.id),
+                show: (member) => member.id !== currentUserId
+            });
+        }
+
+        if (handleDeactivateUser) {
+            actions.push({
+                label: 'Dezactivează',
+                variant: 'danger',
+                onClick: (member) => handleDeactivateUser(member.id),
+                show: (member) => member.id !== currentUserId && member.status === 'ACTIVE'
+            });
+        }
+
+        if (handleReactivateUser) {
+            actions.push({
+                label: 'Reactivează',
+                variant: 'secondary',
+                onClick: (member) => handleReactivateUser(member.id),
+                show: (member) => member.id !== currentUserId && member.status === 'INACTIVE'
+            });
+        }
+
+        return actions;
+    };
+
+    const getOrganizationColumns = (): TableColumn<Organization>[] => [
+        {
+            key: 'name',
+            label: 'Nume Organizație',
+            sortable: false,
+            render: (name: string) => (
+                <div className="font-medium text-gray-900">{name}</div>
+            )
+        },
+        {
+            key: 'adminUserId',
+            label: 'Administrator',
+            sortable: false,
+            render: (adminUserId: string) => (
+                <div className="text-sm text-gray-600">{getAdminName(adminUserId)}</div>
+            )
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            sortable: false,
+            render: (status: string) => (
+                <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full shadow-sm ${
+                    status === 'active' 
+                        ? 'bg-green-100 text-green-800 border border-green-200' 
+                        : 'bg-red-100 text-red-800 border border-red-200'
+                }`}>
+                    {status === 'active' ? 'Activ' : status === 'inactive' ? 'Inactiv' : status}
+                </span>
+            )
+        },
+        {
+            key: 'activeModules',
+            label: 'Module Active',
+            sortable: false,
+            render: (activeModules: string[] | undefined, row: Organization) => {
+                const modules = activeModules || [];
+                return (
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => handleToggleModule(row.id, 'ERP', modules.includes('ERP'))}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded transition-all shadow-sm ${
+                                modules.includes('ERP')
+                                    ? 'bg-green-100 text-green-800 border border-green-300 hover:bg-green-200'
+                                    : 'bg-red-100 text-red-800 border border-red-300 hover:bg-red-200'
+                            }`}
+                            title={modules.includes('ERP') ? 'Click pentru a dezactiva ERP' : 'Click pentru a activa ERP'}
+                        >
+                            ERP {modules.includes('ERP') ? '✓' : '✗'}
+                        </button>
+                        <button
+                            onClick={() => handleToggleModule(row.id, 'CRM', modules.includes('CRM'))}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded transition-all shadow-sm ${
+                                modules.includes('CRM')
+                                    ? 'bg-green-100 text-green-800 border border-green-300 hover:bg-green-200'
+                                    : 'bg-red-100 text-red-800 border border-red-300 hover:bg-red-200'
+                            }`}
+                            title={modules.includes('CRM') ? 'Click pentru a dezactiva CRM' : 'Click pentru a activa CRM'}
+                        >
+                            CRM {modules.includes('CRM') ? '✓' : '✗'}
+                        </button>
+                    </div>
+                );
+            }
+        }
+    ];
+
+    const getOrganizationActions = (): TableAction<Organization>[] => {
+        const actions: TableAction<Organization>[] = [];
+
+        actions.push({
+            label: 'Activează',
+            variant: 'primary',
+            onClick: (org) => handleActivateOrganization(org.id),
+            show: (org) => org.status !== 'active'
+        });
+
+        actions.push({
+            label: 'Dezactivează',
+            variant: 'danger',
+            onClick: (org) => handleDeactivateOrganization(org.id),
+            show: (org) => org.status === 'active'
+        });
+
+        return actions;
     };
 
     return (
@@ -112,107 +289,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
                     </div>
                     
-                    {membersLoading ? (
-                        <div className="text-center py-8">Se încarcă administratorii organizațiilor...</div>
-                    ) : filteredMembers.length > 0 ? (
-                        <div className="border rounded-lg overflow-hidden">
-                            <table className="w-full">
-                                <thead className="bg-gray-50 border-b">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <SortButton field="full_name" label="Name" />
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <SortButton field="email" label="Email" />
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <SortButton field="status" label="Status" />
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <SortButton field="role" label="Role" />
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Acțiuni
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {filteredMembers.map((member, index) => (
-                                        <tr key={member.id || index} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {member.fullName || 'N/A'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {member.email || 'N/A'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                    member.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                                }`}>
-                                                    {member.status || 'Unknown'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                Administrator Organizație
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                                {member.id === currentUserId ? (
-                                                    <span className="text-gray-400 text-xs italic">Current user</span>
-                                                ) : (
-                                                    <>
-                                                        {handleEditUser && (
-                                                            <button 
-                                                                className="text-blue-600 hover:text-blue-900 px-3 py-1 rounded border border-blue-600 hover:bg-blue-50 transition-colors"
-                                                                onClick={() => handleEditUser(member)}
-                                                            >
-                                                                Edit
-                                                            </button>
-                                                        )}
-                                                        {handleResetPassword && (
-                                                            <button 
-                                                                className="text-green-600 hover:text-green-900 px-3 py-1 rounded border border-green-600 hover:bg-green-50 transition-colors"
-                                                                onClick={() => handleResetPassword(member.id)}
-                                                            >
-                                                                Resetare Parolă
-                                                            </button>
-                                                        )}
-                                                        {member.status === 'ACTIVE' && handleDeactivateUser && (
-                                                            <button 
-                                                                className="text-yellow-600 hover:text-yellow-900 px-3 py-1 rounded border border-yellow-600 hover:bg-yellow-50 transition-colors"
-                                                                onClick={() => handleDeactivateUser(member.id)}
-                                                            >
-                                                                Dezactivează
-                                                            </button>
-                                                        )}
-                                                        {member.status === 'INACTIVE' && handleReactivateUser && (
-                                                            <button 
-                                                                className="text-purple-600 hover:text-purple-900 px-3 py-1 rounded border border-purple-600 hover:bg-purple-50 transition-colors"
-                                                                onClick={() => handleReactivateUser(member.id)}
-                                                            >
-                                                                Reactivează
-                                                            </button>
-                                                        )}
-                                                    </>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (
-                        <div className="border rounded-lg p-6 text-center">
-                            <div className="text-gray-500 mb-4">
-                                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239"/>
-                                </svg>
-                            </div>
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">Nu există utilizatori</h3>
-                            <p className="text-gray-500 mb-4">
-                                Nu au fost găsiți administratori de organizații în sistem. Folosește butonul de mai sus pentru a crea primul utilizator.
-                            </p>
-                        </div>
-                    )}
+                    <Table<User>
+                        data={filteredMembers}
+                        columns={getUserColumns()}
+                        actions={getUserActions()}
+                        loading={membersLoading}
+                        emptyMessage="Nu au fost găsiți administratori de organizații în sistem. Folosește butonul de mai sus pentru a crea primul utilizator."
+                        showFilters={false}
+                        showPagination={false}
+                        className=""
+                    />
                 </div>
             ) : (
                 <div className="space-y-4">
@@ -243,130 +329,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
                     </div>
                     
-                    {organizationsLoading ? (
-                        <div className="text-center py-8">Loading organizations...</div>
-                    ) : filteredOrganizations.length > 0 ? (
-                        <div className="border rounded-lg overflow-hidden">
-                            <table className="w-full">
-                                <thead className="bg-gray-50 border-b">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <SortButton field="name" label="Organizație" />
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <SortButton field="email" label="Email" />
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <SortButton field="status" label="Status" />
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <SortButton field="organization_type" label="Tip" />
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <SortButton field="member_count" label="Membri" />
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Administrator
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Module
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Acțiuni
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {filteredOrganizations.map((org, index) => (
-                                        <tr key={org.id || index} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {org.name || 'N/A'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {org.email || 'N/A'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                    org.status === 'active' ? 'bg-green-100 text-green-800' : 
-                                                    org.status === 'inactive' ? 'bg-red-100 text-red-800' :
-                                                    'bg-yellow-100 text-yellow-800'
-                                                }`}>
-                                                    {org.status === 'active' ? 'Activ' : 
-                                                     org.status === 'inactive' ? 'Inactiv' : 
-                                                     org.status === 'pending' ? 'În așteptare' : 'Necunoscut'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {org.organization_type || 'N/A'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {org.member_statistics?.total_people || org.member_count || 0}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {getAdminName(org.admin_user)}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => handleToggleModule(org.id, 'ERP', org.active_modules?.includes('ERP') || false)}
-                                                        className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
-                                                            org.active_modules?.includes('ERP')
-                                                                ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                                        }`}
-                                                        title={org.active_modules?.includes('ERP') ? 'Click to disable ERP' : 'Click to enable ERP'}
-                                                    >
-                                                        ERP {org.active_modules?.includes('ERP') ? '✓' : '✗'}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleToggleModule(org.id, 'CRM', org.active_modules?.includes('CRM') || false)}
-                                                        className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
-                                                            org.active_modules?.includes('CRM')
-                                                                ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                                        }`}
-                                                        title={org.active_modules?.includes('CRM') ? 'Click to disable CRM' : 'Click to enable CRM'}
-                                                    >
-                                                        CRM {org.active_modules?.includes('CRM') ? '✓' : '✗'}
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                                {org.status !== 'active' && (
-                                                    <button 
-                                                        className="text-blue-600 hover:text-blue-900 px-3 py-1 rounded border border-blue-600 hover:bg-blue-50 transition-colors"
-                                                        onClick={() => handleActivateOrganization(org.id)}
-                                                    >
-                                                        Activează
-                                                    </button>
-                                                )}
-                                                {org.status === 'active' && (
-                                                    <button 
-                                                        className="text-yellow-600 hover:text-yellow-900 px-3 py-1 rounded border border-yellow-600 hover:bg-yellow-50 transition-colors"
-                                                        onClick={() => handleDeactivateOrganization(org.id)}
-                                                    >
-                                                        Dezactivează
-                                                    </button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (
-                        <div className="border rounded-lg p-6 text-center">
-                            <div className="text-gray-500 mb-4">
-                                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                </svg>
-                            </div>
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">Nu există organizații</h3>
-                            <p className="text-gray-500 mb-4">
-                                Nu au fost găsite organizații în sistem. Folosește butonul de mai sus pentru a crea prima organizație.
-                            </p>
-                        </div>
-                    )}
+                    <Table<Organization>
+                        data={filteredOrganizations}
+                        columns={getOrganizationColumns()}
+                        actions={getOrganizationActions()}
+                        loading={organizationsLoading}
+                        emptyMessage="Nu au fost găsite organizații. Folosește butonul de mai sus pentru a crea prima organizație."
+                        showFilters={false}
+                        showPagination={false}
+                        className=""
+                    />
                 </div>
             )}
         </Card>

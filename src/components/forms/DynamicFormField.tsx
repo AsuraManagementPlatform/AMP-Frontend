@@ -74,6 +74,11 @@ export const DynamicFormField: React.FC<DynamicFormFieldProps> = ({
                         multiple={selectField.multiple}
                         className={`${baseSelectClasses} ${field.className || ''}`}
                     >
+                        {field.placeholder && (
+                            <option value="" disabled>
+                                {field.placeholder}
+                            </option>
+                        )}
                         {options.map((option) => (
                             <option
                                 key={option.value}

@@ -241,13 +241,14 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             showCloseButton={!isLoading}
         >
             <div className="confirmation-modal">
-                <p className="confirmation-message">{message}</p>
+                <p className="confirmation-message text-center py-6">{message}</p>
                 
-                <div className="flex justify-between items-center pt-6 border-t border-gray-200 mt-6">
+                <div className="flex justify-center gap-4 pt-4 border-t border-gray-200">
                     <ModalButton
                         onClick={onClose}
                         variant="cancel"
                         disabled={isLoading}
+                        size="sm"
                     >
                         {cancelText}
                     </ModalButton>
@@ -256,6 +257,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                         variant={variant === 'danger' ? 'danger' : 'primary'}
                         disabled={isLoading}
                         isLoading={isLoading}
+                        size="sm"
                     >
                         {confirmText}
                     </ModalButton>

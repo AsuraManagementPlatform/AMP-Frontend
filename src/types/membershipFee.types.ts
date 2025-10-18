@@ -36,35 +36,40 @@ export type PaymentMethod = typeof PaymentMethod[keyof typeof PaymentMethod];
 
 export interface MembershipFee {
     id: string;
-    member_id: string;
-    organization_id?: string;
-    processed_by_id?: string;
+    memberId: string;
+    memberName?: string;
+    organizationId?: string;
+    organizationName?: string;
+    processedById?: string;
     amount: number;
     currency: string;
-    renew_period: RenewPeriod;
-    started_from: string;
-    ended_at: string;
-    next_due_date?: string;
+    renewPeriod: RenewPeriod;
+    startedFrom: string;
+    endedAt: string;
+    nextDueDate?: string;
     status: MembershipFeeStatus;
-    payment_method?: PaymentMethod;
-    payment_date?: string;
-    transaction_reference?: string;
-    document_reference?: string;
-    invoice_number?: string;
-    receipt_number?: string;
-    stripe_id?: string;
-    auto_renew: boolean;
-    notification_sent: boolean;
-    reminder_count: number;
-    last_reminder_sent?: string;
+    paymentMethod?: PaymentMethod;
+    paymentDate?: string;
+    transactionReference?: string;
+    documentReference?: string;
+    invoiceNumber?: string;
+    receiptNumber?: string;
+    stripeId?: string;
+    autoRenew: boolean;
+    notificationSent: boolean;
+    reminderCount: number;
+    lastReminderSent?: string;
     notes?: string;
-    created_at: string;
-    updated_at: string;
+    isOverdue: boolean;
+    daysUntilDue: number;
+    totalAmountWithCurrency: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface MembershipFeeCreateRequest {
-    member_id: string;
-    organization_id?: string;
+    member: string;
+    organization?: string;
     amount: number;
     currency?: string;
     renew_period: RenewPeriod;
@@ -76,7 +81,12 @@ export interface MembershipFeeCreateRequest {
 }
 
 export interface MembershipFeeUpdateRequest {
+    member?: string;
     amount?: number;
+    currency?: string;
+    renew_period?: RenewPeriod;
+    started_from?: string;
+    ended_at?: string;
     status?: MembershipFeeStatus;
     payment_method?: PaymentMethod;
     payment_date?: string;
@@ -89,6 +99,7 @@ export interface MembershipFeePaymentRequest {
     payment_method: PaymentMethod;
     transaction_reference?: string;
     payment_date?: string;
+    document_reference?: string;
     processed_by_id?: string;
 }
 export interface MembershipFeeDisplayInfo {

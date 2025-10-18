@@ -62,7 +62,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     };
 
     const handleSubmit = async (data: CreateProjectData) => {
-        if (isSubmitting) return;
+        if (isSubmitting) {
+            return;
+        }
         
         const projectData: ProjectCreateRequest = {
             name: data.name,
@@ -87,6 +89,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             loadingToastId = showToast.loading('Se creează proiectul...');
 
             const project = await projectService.create(projectData);
+            
             if (loadingToastId) {
                 toast.dismiss(loadingToastId);
             }
