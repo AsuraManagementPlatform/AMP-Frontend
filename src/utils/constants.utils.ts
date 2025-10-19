@@ -46,9 +46,12 @@ export const ROUTES = {
 } as const;
 
 export const KEYCLOAK_INIT_OPTIONS: AuthInitOptions = {
-    onLoad: 'login-required',
+    onLoad: 'check-sso',
     pkceMethod: 'S256',
     checkLoginIframe: false,
     responseMode: 'fragment',
     enableLogging: true,
+    silentCheckSsoRedirectUri: typeof window !== 'undefined' 
+        ? window.location.origin + '/silent-check-sso.html' 
+        : undefined,
 };
