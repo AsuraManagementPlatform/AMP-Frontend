@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
                 setUser(null);
                 if (keycloakService.authenticated) {
                     await keycloakService.logout({ 
-                        redirectUri: window.location.origin + '/' 
+                        redirectUri: window.location.origin + window.location.pathname 
                     });
                 }
                 throw error;
@@ -64,6 +64,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             } else {
                 setUser(null);
                 setAuthState(AuthState.UNAUTHENTICATED);
+                await keycloakService.login({ 
+                    redirectUri: window.location.href 
+                });
             }
         } catch (initError) {
             const errorMessage = initError instanceof Error
