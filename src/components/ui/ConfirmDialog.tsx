@@ -51,13 +51,13 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
     return (
         <div
-            className="fixed inset-0 z-50 overflow-y-auto"
+            className="fixed inset-0 z-[9999] overflow-y-auto"
             aria-labelledby="confirm-dialog-title"
             role="dialog"
             aria-modal="true"
         >
             <div
-                className="fixed inset-0 bg-black opacity-25 transition-opacity"
+                className="fixed inset-0 bg-black/50 transition-opacity"
                 onClick={handleBackdropClick}
             />
 

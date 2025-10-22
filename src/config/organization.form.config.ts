@@ -366,9 +366,10 @@ export const organizationDetailsFormConfig: DynamicFormConfig = {
                     name: 'budget',
                     label: 'Buget anual (RON)',
                     type: FieldType.NUMBER,
-                    placeholder: 'ex: 100000',
+                    placeholder: 'ex: 100000 (opțional)',
                     min: 0,
-                    step: 1000
+                    step: 1000,
+                    helperText: 'Bugetul anual este opțional'
                 },
                 {
                     name: 'funding_sources',
@@ -376,7 +377,7 @@ export const organizationDetailsFormConfig: DynamicFormConfig = {
                     type: FieldType.TEXTAREA,
                     placeholder: 'ex: Granturi UE, Donații private, Finanțare guvernamentală',
                     rows: 3,
-                    helperText: 'Listați principalele surse de finanțare separate prin virgulă'
+                    helperText: 'Listați principalele surse de finanțare separate prin virgulă (opțional)'
                 }
             ]
         },

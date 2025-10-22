@@ -4,6 +4,7 @@ import { DynamicForm } from '@/components/forms/DynamicForm';
 import { createEntityFormConfig } from '@/config/entity.form.config';
 import { createEntitySchema, CreateEntityData, getCreateEntityDefaultValues } from '@/schemas/entity.schema';
 import showToast from '@/components/ui/Toast';
+import toast from 'react-hot-toast';
 import entityService from '@/services/entity.service';
 import { EntityCreateRequest } from '@/types/entity.types';
 
@@ -18,7 +19,7 @@ export const CreateEntityModal: React.FC<CreateEntityModalProps> = ({
     isOpen,
     onClose,
     onSuccess,
-    organizationId
+    organizationId: _organizationId
 }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     useEffect(() => {
@@ -30,41 +31,46 @@ export const CreateEntityModal: React.FC<CreateEntityModalProps> = ({
     const handleSubmit = async (data: CreateEntityData) => {
         if (isSubmitting) return;
 
+        let loadingToastId: string | undefined;
+
         try {
             setIsSubmitting(true);
-            showToast.loading('Se creează entitatea...');
+            loadingToastId = showToast.loading('Se creează entitatea...');
 
             const entityData: EntityCreateRequest = {
-                ...data,
-                organizationId: organizationId || data.organizationId,
-                email: data.email || undefined,
-                phoneNumber: data.phoneNumber || undefined,
-                address: data.address || undefined,
-                contactPerson: data.contactPerson || undefined,
-                website: data.website || undefined,
-                description: data.description || undefined,
-                userId: data.userId || undefined,
-                taxId: data.taxId || undefined,
-                registrationNumber: data.registrationNumber || undefined
+                legalType: data.legalType,
+                name: data.name,
+                identificationNumber: data.identificationNumber,
+                email: data.email,
+                phone: data.phone,
+                address: data.address,
+                address2: data.address2 || '',
+                type: data.type,
+                status: data.status || 'activ',
+                observation: data.observation || '',
+                engagementLevel: data.engagementLevel
             };
 
             const entity = await entityService.create(entityData);
             
+            if (loadingToastId) {
+                toast.dismiss(loadingToastId);
+            }
             showToast.success('Entitatea a fost creată cu succes!');
             onSuccess?.(entity);
             onClose();
         } catch (error: any) {
+            if (loadingToastId) {
+                toast.dismiss(loadingToastId);
+            }
             showToast.error('Crearea entității a eșuat');
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const formConfig = createEntityFormConfig(organizationId, []);
+    const formConfig = createEntityFormConfig();
     const defaultValues = getCreateEntityDefaultValues();
-    if (organizationId) {
-        defaultValues.organizationId = organizationId;
-    }
 
     return (
         <Modal

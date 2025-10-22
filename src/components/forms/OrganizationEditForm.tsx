@@ -25,7 +25,7 @@ export const OrganizationEditForm: React.FC<OrganizationEditFormProps> = ({
         handleSubmit,
         formState: { errors }
     } = useForm<UpdateOrganizationData>({
-        resolver: zodResolver(updateOrganizationSchema),
+        resolver: zodResolver(updateOrganizationSchema) as any,
         defaultValues: {
             name: organization.name,
             legal_name: organization.legal_name || '',

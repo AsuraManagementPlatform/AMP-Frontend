@@ -233,6 +233,63 @@ export const showToast = {
     updatingMembershipFee: () => showToast.loading(toastMessages.loading.updatingMembershipFee),
     deletingMembershipFee: () => showToast.loading(toastMessages.loading.deletingMembershipFee),
     confirmingPayment: () => showToast.loading(toastMessages.loading.confirmingPayment),
+
+    confirm: (message: string): Promise<boolean> => {
+        return new Promise((resolve) => {
+            const toastId = toast.custom(
+                (t) => (
+                    <div
+                        className={`${
+                            t.visible ? 'animate-enter' : 'animate-leave'
+                        } max-w-sm bg-white shadow-xl rounded-lg pointer-events-auto border border-gray-200`}
+                        style={{ zIndex: 9999 }}
+                    >
+                        <div className="p-3">
+                            <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0">
+                                    <svg className="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-semibold text-gray-900">
+                                        Confirmă ștergerea
+                                    </p>
+                                    <p className="mt-0.5 text-xs text-gray-600">
+                                        {message}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="mt-3 flex gap-2 justify-end">
+                                <button
+                                    onClick={() => {
+                                        toast.remove(toastId);
+                                        resolve(false);
+                                    }}
+                                    className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-400 transition-colors"
+                                >
+                                    Anulează
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        toast.remove(toastId);
+                                        resolve(true);
+                                    }}
+                                    className="px-3 py-1.5 text-xs font-medium text-white bg-orange-500 border border-orange-500 rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-orange-500 transition-colors"
+                                >
+                                    Șterge
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ),
+                {
+                    duration: Infinity,
+                    position: 'top-center',
+                }
+            );
+        });
+    },
 };
 
 export const ToastConfig: React.FC = () => (

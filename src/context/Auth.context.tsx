@@ -20,6 +20,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     const fetchUserData = useCallback(async (): Promise<void> => {
         try {
             const userData = await userService.getCurrentUser();
+            
             const newUserData = {
                 id: userData.id,
                 email: userData.email,
@@ -27,7 +28,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
                 groups: userData.groups,
                 status: userData.status,
                 organizationId: userData.organizationId,
-                isActive: userData.isActive || true
+                isActive: userData.isActive || true,
+                isContributor: userData.isContributor
             };
 
             setUser(newUserData);

@@ -4,6 +4,8 @@ import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import { Project, Activity, User, TableColumn, TableAction } from '@/types/index.types';
 import { getUserRoleLabel } from '@/utils/dashboardUtils';
 import Table from '@/components/ui/Table';
+import { ReactivationNotifications } from './ReactivationNotifications';
+import { MyCotizatii } from './MyCotizatii';
 
 interface OrgAdminDashboardProps {
     searchTerm: string;
@@ -237,9 +239,17 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
     ];
 
     return (
-        <Card
-            title="Management administrativ"
-            className="mb-6 space-y-4"
+        <>
+            <ReactivationNotifications />
+            
+            {/* Cotizațiile mele - Secțiune dedicată */}
+            <div className="mb-6">
+                <MyCotizatii />
+            </div>
+
+            <Card
+                title="Management administrativ"
+                className="mb-6 space-y-4"
             headerActions={
                 <>
                     <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
@@ -362,5 +372,6 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                 </div>
             )}
         </Card>
+        </>
     );
 };

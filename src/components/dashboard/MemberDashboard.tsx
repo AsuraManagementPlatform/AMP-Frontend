@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/Card';
 import { Project, Activity, User, TableColumn } from '@/types/index.types';
 import toast from 'react-hot-toast';
 import Table from '@/components/ui/Table';
+import { MyCotizatii } from './MyCotizatii';
 
 interface MemberDashboardProps {
     user: User | null;
@@ -11,12 +12,6 @@ interface MemberDashboardProps {
     projectsLoading: boolean;
     activitiesLoading: boolean;
 }
-
-const MOCK_MEMBERSHIP_FEES = [
-    { id: '1', period: 'Ian 2025', amount: 50, status: 'PAID', paymentDate: '2025-01-15', method: 'Transfer bancar' },
-    { id: '2', period: 'Feb 2025', amount: 50, status: 'PAID', paymentDate: '2025-02-10', method: 'Cash' },
-    { id: '3', period: 'Mar 2025', amount: 50, status: 'PENDING', dueDate: '2025-03-31', method: '-' },
-];
 
 const MOCK_SURVEYS = [
     { id: '1', title: 'Sondaj satisfacție membri 2025', deadline: '2025-03-30', status: 'ACTIVE', completed: false },
@@ -190,34 +185,14 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                 </Card>
             </div>
 
-            {/* Feature Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                {/* 1. Membership Fees */}
-                <Card title="💳 Cotizații" className="hover:shadow-lg transition-shadow">
-                    <div className="space-y-3">
-                        <p className="text-sm text-gray-600">Istoric plăți cotizații</p>
-                        <div className="space-y-2">
-                            {MOCK_MEMBERSHIP_FEES.slice(0, 2).map((fee) => (
-                                <div key={fee.id} className="flex justify-between items-center text-sm border-b pb-2">
-                                    <span className="font-medium">{fee.period}</span>
-                                    <span className={`px-2 py-1 rounded text-xs ${
-                                        fee.status === 'PAID' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                    }`}>
-                                        {fee.status === 'PAID' ? 'Plătit' : 'Restant'}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                        <button 
-                            onClick={() => toast.success('Pagina de cotizații va fi disponibilă în curând')}
-                            className="w-full mt-3 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
-                        >
-                            Vezi istoricul complet
-                        </button>
-                    </div>
-                </Card>
+            {/* Cotizațiile mele - Secțiune dedicată */}
+            <div className="mb-6">
+                <MyCotizatii />
+            </div>
 
-                {/* 2. Direct Sponsorship */}
+            {/* Feature Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* 1. Direct Sponsorship */}
                 <Card title="🎁 Sponsorizare" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Susține financiar ONG-ul sau un proiect specific</p>
@@ -236,7 +211,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     </div>
                 </Card>
 
-                {/* 3. Surveys & Voting */}
+                {/* 2. Surveys & Voting */}
                 <Card title="📊 Sondaje & Voturi" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Sondaje active care așteaptă răspunsul tău</p>
@@ -261,7 +236,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     </div>
                 </Card>
 
-                {/* 4. Certificate Download */}
+                {/* 3. Certificate Download */}
                 <Card title="📜 Adeverințe" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Descarcă adeverințe membru sau voluntar</p>
@@ -286,7 +261,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     </div>
                 </Card>
 
-                {/* 5. CV/Skills Upload */}
+                {/* 4. CV/Skills Upload */}
                 <Card title="📋 CV & Competențe" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Încarcă CV-ul și competențele tale</p>
@@ -313,7 +288,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     </div>
                 </Card>
 
-                {/* 6. Messages/Requests */}
+                {/* 5. Messages/Requests */}
                 <Card title="✉️ Mesaje" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Trimite solicitări către ONG</p>

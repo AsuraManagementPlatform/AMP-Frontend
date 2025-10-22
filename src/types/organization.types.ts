@@ -75,6 +75,14 @@ export interface Organization {
     funding_sources?: string[];
     registration_date?: string;
     tax_exempt_status?: boolean;
+    membership_fee_employee?: number;
+    membership_fee_volunteer?: number;
+    membership_fee_member?: number;
+    fee_grace_period_days?: number;
+    membershipFeeEmployee?: number;
+    membershipFeeVolunteer?: number;
+    membershipFeeMember?: number;
+    feeGracePeriodDays?: number;
     employee_count?: number;
     volunteer_count?: number;
     member_count?: number;

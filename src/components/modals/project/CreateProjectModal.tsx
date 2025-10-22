@@ -4,9 +4,9 @@ import {DynamicForm} from '@/components/forms/DynamicForm';
 import {createProjectFormConfig} from '@/config/project.form.config';
 import {CreateProjectData, createProjectSchema, getCreateProjectDefaultValues} from '@/schemas/project.schema';
 import showToast from '@/components/ui/Toast';
+import toast from 'react-hot-toast';
 import projectService from '@/services/project.service';
 import userService from '@/services/user.service';
-import toast from 'react-hot-toast';
 import {ProjectCreateRequest} from "@/types/project.types.ts";
 
 interface CreateProjectModalProps {
@@ -66,6 +66,8 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             return;
         }
         
+        let loadingToastId: string | undefined;
+        
         const projectData: ProjectCreateRequest = {
             name: data.name,
             description: data.description || '',
@@ -82,26 +84,19 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             budgetNotes: data.budgetNotes || ''
         };
 
-        let loadingToastId: string | undefined;
-        
         try {
             setIsSubmitting(true);
             loadingToastId = showToast.loading('Se creează proiectul...');
 
             const project = await projectService.create(projectData);
             
-            if (loadingToastId) {
-                toast.dismiss(loadingToastId);
-            }
+            if (loadingToastId) toast.dismiss(loadingToastId);
             showToast.success('Proiectul a fost creat cu succes!');
             
             onSuccess?.(project);
             onClose();
         } catch (error: any) {
-            if (loadingToastId) {
-                toast.dismiss(loadingToastId);
-            }
-            
+            if (loadingToastId) toast.dismiss(loadingToastId);
             let errorMessage = 'Crearea proiectului a eșuat';
             if (error?.response?.data?.message) {
                 errorMessage = error.response.data.message;

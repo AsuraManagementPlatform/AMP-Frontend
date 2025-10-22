@@ -10,10 +10,12 @@ import OrganizationDetails from '@/pages/OrganizationDetails.page';
 import ProfilePage from '@/pages/Profile.page';
 import SettingsPage from '@/pages/Settings.page';
 import EntitiesPage from '@/pages/crm/Entities.page';
+import EntityDetailPage from '@/pages/crm/EntityDetail.page';
 import DonationsPage from '@/pages/crm/Donations.page';
 import CommunicationsPage from '@/pages/crm/Communications.page';
 import ProjectPage from "@/pages/project/Project.page.tsx";
 import MembershipFeesPage from "@/pages/MembershipFees.page";
+import TeamManagementPage from "@/pages/organization/TeamManagement.page";
 import {ErrorBoundary} from '@/components/ErrorBoundary';
 import {ToastConfig} from '@/components/ui/Toast';
 import {ROUTES} from '@/utils/constants.utils';
@@ -133,6 +135,14 @@ function App() {
                     }
                   />
                   <Route
+                    path={ROUTES.CRM_ENTITY_DETAIL}
+                    element={
+                      <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]} requireModule="CRM">
+                        <EntityDetailPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
                     path={ROUTES.CRM_DONATIONS}
                     element={
                       <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]} requireModule="CRM">
@@ -145,6 +155,22 @@ function App() {
                     element={
                       <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]} requireModule="CRM">
                         <CommunicationsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path={ROUTES.CRM_ORGANIZATION_TEAM_MANAGEMENT}
+                    element={
+                      <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]} requireModule="CRM">
+                        <TeamManagementPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path={ROUTES.CRM_ORGANIZATION_MEMBER_PROFILE}
+                    element={
+                      <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]} requireModule="CRM">
+                        <ProfilePage />
                       </ProtectedRoute>
                     }
                   />

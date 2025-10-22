@@ -1,7 +1,7 @@
 import { DynamicFormConfig, FieldType } from "@/types/form.types";
-import { RenewPeriod, PaymentMethod } from "@/types/membershipFee.types";
+import { RenewPeriod, PaymentMethod, RateType } from "@/types/membershipFee.types";
 
-export const createMembershipFeeFormConfig = (): DynamicFormConfig => ({
+export const createMembershipFeeFormConfig = (rateOptions: Array<{value: string, label: string}> = []): DynamicFormConfig => ({
     sections: [
         {
             title: "Informații membru",
@@ -22,18 +22,30 @@ export const createMembershipFeeFormConfig = (): DynamicFormConfig => ({
             columns: 2,
             fields: [
                 {
-                    name: 'amount',
-                    label: 'Sumă',
-                    type: FieldType.NUMBER,
-                    placeholder: 'ex: 100',
+                    name: 'rateType',
+                    label: 'Tip cotizație',
+                    type: FieldType.SELECT,
+                    placeholder: 'Selectează tipul cotizației',
                     required: true,
+                    options: rateOptions,
+                    helperText: 'Valoarea finală va fi calculată automat în funcție de perioada selectată (ex: 50 lei/lună × 12 luni = 600 lei anual)'
+                },
+                {
+                    name: 'customAmount',
+                    label: 'Sumă personalizată (per lună)',
+                    type: FieldType.NUMBER,
+                    placeholder: 'ex: 50',
+                    required: false,
                     min: 0.01,
-                    step: 0.01
+                    step: 0.01,
+                    condition: (values: any) => values.rateType === 'CUSTOM',
+                    helperText: 'Introduceți suma lunară dorită'
                 },
                 {
                     name: 'currency',
                     label: 'Monedă',
                     type: FieldType.SELECT,
+                    placeholder: 'Selectează moneda',
                     required: true,
                     options: [
                         { value: 'RON', label: 'Lei Românești (RON)' },

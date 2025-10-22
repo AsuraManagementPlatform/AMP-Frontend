@@ -58,7 +58,7 @@ export const ProcessPaymentModal: React.FC<ProcessPaymentModalProps> = ({
             await membershipFeeService.markAsPaid(membershipFeeId, paymentRequest);
             
             const successMessage = isOwnFee 
-                ? `Plata ta de ${amount} ${currency} a fost înregistrată și va fi verificată!`
+                ? `Plata ta de ${amount} ${currency} a fost trimisă pentru validare! Vei fi notificat când este confirmată.`
                 : `Plata de ${amount} ${currency} pentru ${memberName} a fost confirmată!`;
             
             showToast.success(successMessage);

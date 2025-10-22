@@ -1,55 +1,40 @@
 import { z } from 'zod';
-import { EntityType, EntityStatus } from '@/types/entity.types';
+import { LegalType, EntityType, EntityStatus, EngagementLevel } from '@/types/entity.types';
 
 const ROMANIAN_PHONE_REGEX = /^(\+40|0)[0-9]{9}$/;
 
 export const createEntitySchema = z.object({
+    legalType: z.enum([
+        LegalType.FIZICA,
+        LegalType.JURIDICA
+    ], {
+        message: 'Tipul legal este obligatoriu'
+    }),
+    
     name: z.string()
         .min(2, 'Numele entității trebuie să aibă cel puțin 2 caractere')
         .max(255, 'Numele entității nu poate depăși 255 de caractere'),
     
-    type: z.enum([
-        EntityType.DONATOR,
-        EntityType.SPONSOR,
-        EntityType.PARTNER
-    ], {
-        message: 'Tipul entității este invalid'
-    }),
-    
-    status: z.enum([
-        EntityStatus.ACTIVE,
-        EntityStatus.INACTIVE,
-        EntityStatus.PENDING,
-        EntityStatus.SUSPENDED
-    ], {
-        message: 'Statusul entității este invalid'
-    }),
+    identificationNumber: z.string()
+        .min(1, 'CNP/CUI este obligatoriu')
+        .max(255, 'CNP/CUI nu poate depăși 255 de caractere'),
     
     email: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => {
-                if (!value) return true;
-                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-            },
-            'Email-ul nu este valid'
-        ),
+        .email('Email-ul nu este valid'),
     
-    phoneNumber: z.string()
-        .optional()
-        .or(z.literal(''))
+    phone: z.string()
         .refine(
-            (value) => {
-                if (!value || value.trim() === '') return true;
-                return ROMANIAN_PHONE_REGEX.test(value.replace(/[\s\-\(\)]/g, ''));
-            },
+            (value) => ROMANIAN_PHONE_REGEX.test(value.replace(/[\s\-\(\)]/g, '')),
             {
                 message: 'Numărul de telefon trebuie să fie în format românesc (ex: +40712345678, 0712345678)'
             }
         ),
     
     address: z.string()
+        .min(1, 'Adresa este obligatorie')
+        .max(500, 'Adresa nu poate depăși 500 de caractere'),
+    
+    address2: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
@@ -57,86 +42,59 @@ export const createEntitySchema = z.object({
                 if (!value) return true;
                 return value.length <= 500;
             },
-            'Adresa nu poate depăși 500 de caractere'
+            'Adresa secundară nu poate depăși 500 de caractere'
         ),
     
-    contactPerson: z.string()
+    type: z.enum([
+        EntityType.DONOR,
+        EntityType.SPONSOR,
+        EntityType.PARTNER,
+        EntityType.VOLUNTEER,
+        EntityType.BENEFICIARY,
+        EntityType.OTHER
+    ], {
+        message: 'Tipul entității este invalid'
+    }),
+    
+    status: z.enum([
+        EntityStatus.ACTIV,
+        EntityStatus.INACTIV,
+        EntityStatus.POTENTIAL,
+        EntityStatus.BLOCAT
+    ], {
+        message: 'Statusul entității este invalid'
+    }).optional(),
+    
+    observation: z.string()
         .optional()
         .or(z.literal(''))
         .refine(
             (value) => {
                 if (!value) return true;
-                return value.length <= 255;
+                return value.length <= 511;
             },
-            'Numele persoanei de contact nu poate depăși 255 de caractere'
+            'Observația nu poate depăși 511 caractere'
         ),
     
-    website: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => {
-                if (!value) return true;
-                return /^https?:\/\/.+/.test(value);
-            },
-            'Website-ul trebuie să înceapă cu http:// sau https://'
-        ),
-    
-    description: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => {
-                if (!value) return true;
-                return value.length <= 1000;
-            },
-            'Descrierea nu poate depăși 1000 de caractere'
-        ),
-    
-    organizationId: z.string()
-        .min(1, 'ID-ul organizației este obligatoriu'),
-    
-    userId: z.string()
-        .optional()
-        .or(z.literal('')),
-    
-    taxId: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => {
-                if (!value) return true;
-                return value.length <= 50;
-            },
-            'Codul fiscal nu poate depăși 50 de caractere'
-        ),
-    
-    registrationNumber: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => {
-                if (!value) return true;
-                return value.length <= 50;
-            },
-            'Numărul de înregistrare nu poate depăși 50 de caractere'
-        )
+    engagementLevel: z.enum([
+        EngagementLevel.DELOC,
+        EngagementLevel.PARTIAL,
+        EngagementLevel.TOTAL
+    ]).optional()
 });
 
 export type CreateEntityData = z.infer<typeof createEntitySchema>;
 
 export const getCreateEntityDefaultValues = (): CreateEntityData => ({
+    legalType: LegalType.FIZICA,
     name: '',
-    type: EntityType.DONATOR,
-    status: EntityStatus.ACTIVE,
+    identificationNumber: '',
     email: '',
-    phoneNumber: '',
+    phone: '',
     address: '',
-    contactPerson: '',
-    website: '',
-    description: '',
-    organizationId: '',
-    userId: '',
-    taxId: '',
-    registrationNumber: ''
+    address2: '',
+    type: EntityType.DONOR,
+    status: EntityStatus.ACTIV,
+    observation: '',
+    engagementLevel: EngagementLevel.DELOC
 });

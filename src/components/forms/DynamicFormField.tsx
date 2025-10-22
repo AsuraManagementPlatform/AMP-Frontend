@@ -110,9 +110,12 @@ export const DynamicFormField: React.FC<DynamicFormFieldProps> = ({
                 return (
                     <label className="flex items-center space-x-2 cursor-pointer">
                         <input
-                            {...fieldProps}
                             type="checkbox"
                             checked={fieldProps.value || false}
+                            onChange={(e) => fieldProps.onChange(e.target.checked)}
+                            onBlur={fieldProps.onBlur}
+                            name={fieldProps.name}
+                            ref={fieldProps.ref}
                             disabled={field.disabled}
                             className={`form-checkbox ${error ? 'border-red-500' : ''} ${field.className || ''}`}
                         />

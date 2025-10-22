@@ -1,36 +1,62 @@
 import {DynamicFormConfig, FieldType, SelectOption} from "@/types/form.types.ts";
-import {EntityType, EntityStatus} from "@/types/entity.types.ts";
+import {LegalType, EntityType, EntityStatus, EngagementLevel} from "@/types/entity.types.ts";
+
+const getLegalTypeOptions = (): SelectOption[] => [
+    { value: LegalType.FIZICA, label: 'Persoană Fizică' },
+    { value: LegalType.JURIDICA, label: 'Persoană Juridică' }
+];
 
 const getEntityTypeOptions = (): SelectOption[] => [
-    { value: EntityType.DONATOR, label: 'Donator' },
+    { value: EntityType.DONOR, label: 'Donator' },
     { value: EntityType.SPONSOR, label: 'Sponsor' },
-    { value: EntityType.PARTNER, label: 'Partener' }
+    { value: EntityType.PARTNER, label: 'Partener' },
+    { value: EntityType.VOLUNTEER, label: 'Voluntar' },
+    { value: EntityType.BENEFICIARY, label: 'Beneficiar' },
+    { value: EntityType.OTHER, label: 'Altul' }
 ];
 
 const getEntityStatusOptions = (): SelectOption[] => [
-    { value: EntityStatus.ACTIVE, label: 'Activ' },
-    { value: EntityStatus.INACTIVE, label: 'Inactiv' },
-    { value: EntityStatus.PENDING, label: 'În așteptare' },
-    { value: EntityStatus.SUSPENDED, label: 'Suspendat' }
+    { value: EntityStatus.ACTIV, label: 'Activ' },
+    { value: EntityStatus.INACTIV, label: 'Inactiv' },
+    { value: EntityStatus.POTENTIAL, label: 'Potențial' },
+    { value: EntityStatus.BLOCAT, label: 'Blocat' }
 ];
 
-export const createEntityFormConfig = (
-    _organizationId?: string,
-    availableUsers: { id: string; name: string }[] = []
-): DynamicFormConfig => ({
+const getEngagementLevelOptions = (): SelectOption[] => [
+    { value: EngagementLevel.DELOC, label: 'Deloc' },
+    { value: EngagementLevel.PARTIAL, label: 'Parțial' },
+    { value: EngagementLevel.TOTAL, label: 'Total' }
+];
+
+export const createEntityFormConfig = (): DynamicFormConfig => ({
     sections: [
         {
-            title: "Informații entitate",
+            title: "Informații de bază",
             columns: 2,
             fields: [
                 {
+                    name: 'legalType',
+                    label: 'Tip persoană',
+                    type: FieldType.SELECT,
+                    required: true,
+                    options: getLegalTypeOptions()
+                },
+                {
                     name: 'name',
-                    label: 'Nume entitate',
+                    label: 'Nume',
                     type: FieldType.TEXT,
-                    placeholder: 'ex: Fundația pentru Dezvoltare',
+                    placeholder: 'ex: Ion Popescu sau SC Example SRL',
+                    required: true,
+                    maxLength: 255
+                },
+                {
+                    name: 'identificationNumber',
+                    label: 'CNP/CUI',
+                    type: FieldType.TEXT,
+                    placeholder: 'CNP pentru persoană fizică sau CUI pentru persoană juridică',
                     required: true,
                     maxLength: 255,
-                    gridColumn: 'full'
+                    helperText: 'CNP pentru persoană fizică, CUI pentru persoană juridică'
                 },
                 {
                     name: 'type',
@@ -38,7 +64,52 @@ export const createEntityFormConfig = (
                     type: FieldType.SELECT,
                     required: true,
                     options: getEntityTypeOptions()
+                }
+            ]
+        },
+        {
+            title: "Informații de contact",
+            columns: 2,
+            fields: [
+                {
+                    name: 'email',
+                    label: 'Email',
+                    type: FieldType.EMAIL,
+                    placeholder: 'ex: contact@example.ro',
+                    required: true
                 },
+                {
+                    name: 'phone',
+                    label: 'Telefon',
+                    type: FieldType.TEL,
+                    placeholder: 'ex: +40712345678',
+                    required: true
+                },
+                {
+                    name: 'address',
+                    label: 'Adresă',
+                    type: FieldType.TEXTAREA,
+                    placeholder: 'ex: Strada Principală, nr. 123, București',
+                    required: true,
+                    maxLength: 500,
+                    rows: 2,
+                    gridColumn: 'full'
+                },
+                {
+                    name: 'address2',
+                    label: 'Adresă secundară',
+                    type: FieldType.TEXTAREA,
+                    placeholder: 'Informații suplimentare (opțional)',
+                    maxLength: 500,
+                    rows: 2,
+                    gridColumn: 'full'
+                }
+            ]
+        },
+        {
+            title: "Status și engagement",
+            columns: 2,
+            fields: [
                 {
                     name: 'status',
                     label: 'Status',
@@ -47,73 +118,19 @@ export const createEntityFormConfig = (
                     options: getEntityStatusOptions()
                 },
                 {
-                    name: 'email',
-                    label: 'Email',
-                    type: FieldType.EMAIL,
-                    placeholder: 'contact@entitate.ro'
-                },
-                {
-                    name: 'phoneNumber',
-                    label: 'Telefon',
-                    type: FieldType.TEL,
-                    placeholder: 'ex: +40729669208'
-                },
-                {
-                    name: 'contactPerson',
-                    label: 'Persoana de contact',
-                    type: FieldType.TEXT,
-                    placeholder: 'ex: Ion Popescu',
-                    maxLength: 255
-                },
-                {
-                    name: 'website',
-                    label: 'Website',
-                    type: FieldType.TEXT,
-                    placeholder: 'https://entitatea.ro'
-                },
-                {
-                    name: 'address',
-                    label: 'Adresă',
-                    type: FieldType.TEXTAREA,
-                    placeholder: 'Adresa completă a entității...',
-                    maxLength: 500,
-                    rows: 3,
-                    gridColumn: 'full'
-                },
-                {
-                    name: 'description',
-                    label: 'Descriere',
-                    type: FieldType.TEXTAREA,
-                    placeholder: 'Descriere detaliată a entității...',
-                    maxLength: 1000,
-                    rows: 3,
-                    gridColumn: 'full'
-                },
-                {
-                    name: 'taxId',
-                    label: 'Cod fiscal',
-                    type: FieldType.TEXT,
-                    placeholder: 'ex: RO12345678',
-                    maxLength: 50
-                },
-                {
-                    name: 'registrationNumber',
-                    label: 'Număr înregistrare',
-                    type: FieldType.TEXT,
-                    placeholder: 'ex: J40/12345/2020',
-                    maxLength: 50
-                },
-                {
-                    name: 'userId',
-                    label: 'Cont utilizator asociat (opțional)',
+                    name: 'engagementLevel',
+                    label: 'Nivel de implicare',
                     type: FieldType.SELECT,
-                    options: [
-                        { value: '', label: 'Fără cont asociat' },
-                        ...availableUsers.map(user => ({
-                            value: user.id,
-                            label: user.name
-                        }))
-                    ]
+                    options: getEngagementLevelOptions()
+                },
+                {
+                    name: 'observation',
+                    label: 'Observații',
+                    type: FieldType.TEXTAREA,
+                    placeholder: 'Note sau observații suplimentare (opțional)',
+                    maxLength: 511,
+                    rows: 3,
+                    gridColumn: 'full'
                 }
             ]
         }
@@ -122,10 +139,113 @@ export const createEntityFormConfig = (
     cancelButtonText: 'Anulează'
 });
 
-export const updateEntityFormConfig = (
-    _organizationId?: string,
-    availableUsers: { id: string; name: string }[] = []
-): DynamicFormConfig => ({
-    ...createEntityFormConfig(_organizationId, availableUsers),
-    submitButtonText: 'Actualizează entitate'
+export const updateEntityFormConfig = (): DynamicFormConfig => ({
+    sections: [
+        {
+            title: "Informații de bază",
+            columns: 2,
+            fields: [
+                {
+                    name: 'legalType',
+                    label: 'Tip persoană',
+                    type: FieldType.SELECT,
+                    required: true,
+                    options: getLegalTypeOptions()
+                },
+                {
+                    name: 'name',
+                    label: 'Nume',
+                    type: FieldType.TEXT,
+                    placeholder: 'ex: Ion Popescu sau SC Example SRL',
+                    required: true,
+                    maxLength: 255
+                },
+                {
+                    name: 'identificationNumber',
+                    label: 'CNP/CUI',
+                    type: FieldType.TEXT,
+                    placeholder: 'CNP pentru persoană fizică sau CUI pentru persoană juridică',
+                    required: true,
+                    maxLength: 255,
+                    helperText: 'CNP pentru persoană fizică, CUI pentru persoană juridică'
+                },
+                {
+                    name: 'type',
+                    label: 'Tip entitate',
+                    type: FieldType.SELECT,
+                    required: true,
+                    options: getEntityTypeOptions()
+                }
+            ]
+        },
+        {
+            title: "Informații de contact",
+            columns: 2,
+            fields: [
+                {
+                    name: 'email',
+                    label: 'Email',
+                    type: FieldType.EMAIL,
+                    placeholder: 'ex: contact@example.ro',
+                    required: true
+                },
+                {
+                    name: 'phone',
+                    label: 'Telefon',
+                    type: FieldType.TEL,
+                    placeholder: 'ex: +40712345678',
+                    required: true
+                },
+                {
+                    name: 'address',
+                    label: 'Adresă',
+                    type: FieldType.TEXTAREA,
+                    placeholder: 'ex: Strada Principală, nr. 123, București',
+                    required: true,
+                    maxLength: 500,
+                    rows: 2,
+                    gridColumn: 'full'
+                },
+                {
+                    name: 'address2',
+                    label: 'Adresă secundară',
+                    type: FieldType.TEXTAREA,
+                    placeholder: 'Informații suplimentare (opțional)',
+                    maxLength: 500,
+                    rows: 2,
+                    gridColumn: 'full'
+                }
+            ]
+        },
+        {
+            title: "Status și engagement",
+            columns: 2,
+            fields: [
+                {
+                    name: 'status',
+                    label: 'Status',
+                    type: FieldType.SELECT,
+                    required: true,
+                    options: getEntityStatusOptions()
+                },
+                {
+                    name: 'engagementLevel',
+                    label: 'Nivel de implicare',
+                    type: FieldType.SELECT,
+                    options: getEngagementLevelOptions()
+                },
+                {
+                    name: 'observation',
+                    label: 'Observații',
+                    type: FieldType.TEXTAREA,
+                    placeholder: 'Note sau observații suplimentare (opțional)',
+                    maxLength: 511,
+                    rows: 3,
+                    gridColumn: 'full'
+                }
+            ]
+        }
+    ],
+    submitButtonText: 'Salvează modificări',
+    cancelButtonText: 'Anulează'
 });

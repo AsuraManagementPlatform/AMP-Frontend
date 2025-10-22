@@ -1,28 +1,46 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Card } from "@/components/ui/Card";
 import { PrimaryActionButton } from "@/components/ui/PrimaryActionButton";
 import { SecondaryButton } from "@/components/ui/SecondaryButton";
 import showToast from "@/components/ui/Toast";
-import Calendar from "@/components/calendar/Calendar";
 import { UserGroup } from "@/types/index.types";
 import { Organization } from "@/types/organization.types";
 import { UpdateOrganizationData } from "@/schemas/organization.schema";
 import { organizationService } from "@/services/organization.service";
 import { OrganizationEditForm } from "@/components/forms/OrganizationEditForm";
-import { Table } from "@/components/ui/Table";
 import { CreateUserModal } from "@/components/modals/user/CreateUserModal";
 import { userService } from "@/services/user.service";
+import { ROUTES } from "@/utils/constants.utils";
+import { OrganizationDocumentList } from "@/components/tables/OrganizationDocumentList";
+import { CreateOrganizationDocumentModal } from "@/components/modals/organization/CreateOrganizationDocumentModal";
 
 const OrganizationDetailsPage: React.FC = () => {
     const { user, hasAnyUserGroup } = useAuth();
+    const navigate = useNavigate();
     const [editMode, setEditMode] = useState(false);
     const [selectedTab, setSelectedTab] = useState('profile');
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState<Organization | null>(null);
     const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
-    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [isCreateDocumentModalOpen, setIsCreateDocumentModalOpen] = useState(false);
+    const [documentRefreshTrigger, setDocumentRefreshTrigger] = useState(0);
+
+    const [vatSettings, setVatSettings] = useState({
+        standardRate: 19,
+        reducedRate: 9,
+        superReducedRate: 5
+    });
+
+    const [membershipFees, setMembershipFees] = useState({
+        employee: 0,
+        volunteer: 0,
+        member: 50
+    });
+
+    const [gracePeriodDays, setGracePeriodDays] = useState(30);
 
     const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
@@ -39,6 +57,18 @@ const OrganizationDetailsPage: React.FC = () => {
                 
                 const organization = (orgData as any).organization || orgData;
                 setOrganization(organization);
+                
+                if (organization.membershipFeeEmployee !== undefined) {
+                    setMembershipFees({
+                        employee: organization.membershipFeeEmployee || 0,
+                        volunteer: organization.membershipFeeVolunteer || 0,
+                        member: organization.membershipFeeMember || 50
+                    });
+                }
+                
+                if (organization.feeGracePeriodDays !== undefined) {
+                    setGracePeriodDays(organization.feeGracePeriodDays);
+                }
             } catch (error) {
                 showToast.error("Nu s-au putut încărca datele organizației");
             } finally {
@@ -93,10 +123,8 @@ const OrganizationDetailsPage: React.FC = () => {
     const tabs = [
         { id: 'profile', name: 'Profil organizațional', icon: '🏢' },
         { id: 'team', name: 'Management echipă', icon: '👥' },
-        { id: 'calendar', name: 'Calendar și întâlniri', icon: '📅' },
         { id: 'documents', name: 'Documente oficiale', icon: '📄' },
-        { id: 'financial', name: 'Configurări financiare', icon: '💰' },
-        { id: 'audit', name: 'Audit și istoric', icon: '📋' }
+        { id: 'financial', name: 'Configurări financiare', icon: '💰' }
     ];
 
     const handleSave = async (formData: UpdateOrganizationData) => {
@@ -106,7 +134,21 @@ const OrganizationDetailsPage: React.FC = () => {
         }
 
         try {
-            const updatedOrg = await organizationService.update(user.organizationId, formData);
+            const cleanedData = Object.entries(formData).reduce((acc, [key, value]) => {
+                if (key === 'employee_count' || key === 'volunteer_count' || key === 'member_count') {
+                    return acc;
+                }
+                if (value !== null && value !== undefined && value !== '') {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {} as any);
+
+            if (cleanedData.tax_exempt_status === false && !cleanedData.tax_percentage) {
+                cleanedData.tax_percentage = 0.19;
+            }
+
+            const updatedOrg = await organizationService.update(user.organizationId, cleanedData);
             
             const orgToSet = (updatedOrg as any).organization || updatedOrg;
             
@@ -352,91 +394,40 @@ const OrganizationDetailsPage: React.FC = () => {
         try {
             await userService.create(data);
             showToast.success('Utilizator creat cu succes!');
-            setRefreshTrigger(prev => prev + 1);
         } catch (error) {
             throw error;
         }
     };
 
-    const handleDeleteUser = async (userId: string) => {
-        if (!window.confirm("Ești sigur că vrei să ștergi acest utilizator?")) return;
-        
-        try {
-            await userService.delete(userId);
-            showToast.success("Utilizatorul a fost șters cu succes!");
-            setRefreshTrigger(prev => prev + 1);
-        } catch (error) {
-            showToast.error("Nu s-a putut șterge utilizatorul.");
-        }
-    };
-
     const renderTeamContent = () => {
-        const columns = [
-            {
-                key: 'username' as const,
-                label: 'Username',
-                sortable: true,
-                filterable: true,
-                filterType: 'text' as const,
-            },
-            {
-                key: 'id' as const,
-                label: 'User ID',
-                sortable: true,
-                filterable: true,
-                filterType: 'text' as const,
-            },
-            {
-                key: 'groups' as const,
-                label: 'Groups',
-                sortable: false,
-                filterable: true,
-                filterType: 'text' as const,
-                render: (groups: string) => {
-                    if (!groups) return '-';
-                    const groupList = groups.split(',').map(g => g.trim());
-                    return (
-                        <div className="flex flex-wrap gap-1">
-                            {groupList.map((group, index) => (
-                                <span
-                                    key={index}
-                                    className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
-                                >
-                                    {group}
-                                </span>
-                            ))}
-                        </div>
-                    );
-                },
-            },
-        ];
-
         return (
             <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <h3 className="text-lg font-semibold">Membri organizație</h3>
-                        <p className="text-sm text-gray-600">Gestionează utilizatorii din organizația ta</p>
+                <Card>
+                    <div className="text-center py-12">
+                        <div className="mb-6">
+                            <svg className="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">Management Echipă</h3>
+                        <p className="text-gray-600 mb-6">
+                            Gestionează membri echipei, rolurile lor, proiectele și statusurile acestora
+                        </p>
+                        <div className="flex justify-center gap-4">
+                            <PrimaryActionButton
+                                variant="create"
+                                onClick={() => organization && navigate(
+                                    ROUTES.CRM_ORGANIZATION_TEAM_MANAGEMENT.replace(':organizationId', organization.id)
+                                )}
+                            >
+                                Deschide Management Echipă
+                            </PrimaryActionButton>
+                            <SecondaryButton onClick={handleOpenCreateUser}>
+                                Creează utilizator rapid
+                            </SecondaryButton>
+                        </div>
                     </div>
-                    <PrimaryActionButton variant="create" onClick={handleOpenCreateUser}>
-                        Creează utilizator
-                    </PrimaryActionButton>
-                </div>
-                
-                <Table
-                    endpoint="user/list"
-                    columns={columns}
-                    emptyMessage="Nu au fost găsiți utilizatori. Creează primul utilizator pentru a începe."
-                    refreshTrigger={refreshTrigger}
-                    pageSize={20}
-                    actions={[
-                        {
-                            label: 'Delete',
-                            onClick: (item) => handleDeleteUser(item.id),
-                            className: 'text-red-600 hover:text-red-800',
-                        },
-                    ]}
-                />
+                </Card>
 
                 <CreateUserModal
                     isOpen={isCreateUserModalOpen}
@@ -448,161 +439,289 @@ const OrganizationDetailsPage: React.FC = () => {
         );
     };
 
-    const renderCalendarContent = () => {
-        const sampleEvents = [
-            {
-                id: '1',
-                title: 'Adunarea generală',
-                date: new Date(2025, 9, 15),
-                type: 'meeting' as const,
-                time: '10:00',
-                description: 'Adunarea generală anuală a organizației'
-            },
-            {
-                id: '2',
-                title: 'Vot buget 2026',
-                date: new Date(2025, 9, 22),
-                type: 'voting' as const,
-                time: '14:00',
-                description: 'Votarea bugetului pentru anul 2026'
-            },
-            {
-                id: '3',
-                title: 'Eveniment strângere fonduri',
-                date: new Date(2025, 9, 30),
-                type: 'event' as const,
-                time: '18:00',
-                description: 'Eveniment pentru strângerea de fonduri'
-            }
-        ];
-
-        const handleEventClick = (event: any) => {
-            showToast.info(`Eveniment: ${event.title} - ${event.time || 'Oră nedefinită'}`);
-        };
-
-        const handleDateClick = (date: Date) => {
-            showToast.info(`Ați selectat data: ${date.toLocaleDateString('ro-RO')}`);
+    const renderDocumentsContent = () => {
+        const handleDocumentSuccess = () => {
+            setDocumentRefreshTrigger(prev => prev + 1);
         };
 
         return (
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
-                    <div>
-                        <h3 className="text-lg font-semibold">Calendar organizație</h3>
-                        <p className="text-sm text-gray-600">Programează întâlniri, voturi și evenimente</p>
-                    </div>
-                    <div className="flex space-x-3">
-                        <SecondaryButton onClick={() => showToast.info("Funcționalitate în dezvoltare")}>
-                            Adaugă eveniment
-                        </SecondaryButton>
-                        <PrimaryActionButton variant="create" onClick={() => showToast.info("Funcționalitate în dezvoltare")}>
-                            Programează vot
-                        </PrimaryActionButton>
-                    </div>
+                    <h3 className="text-lg font-semibold">Documente oficiale</h3>
+                    <PrimaryActionButton variant="create" onClick={() => setIsCreateDocumentModalOpen(true)}>
+                        Încarcă document
+                    </PrimaryActionButton>
                 </div>
-                
-                <Calendar 
-                    events={sampleEvents}
-                    onEventClick={handleEventClick}
-                    onDateClick={handleDateClick}
+                <Card>
+                    <OrganizationDocumentList 
+                        organization={organization!.id} 
+                        refreshTrigger={documentRefreshTrigger}
+                        pageSize={10}
+                    />
+                </Card>
+
+                <CreateOrganizationDocumentModal
+                    isOpen={isCreateDocumentModalOpen}
+                    onClose={() => setIsCreateDocumentModalOpen(false)}
+                    onSuccess={handleDocumentSuccess}
+                    organization={organization!.id}
                 />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card title="Evenimente următoare">
-                        <div className="space-y-3">
-                            {sampleEvents.slice(0, 3).map((event) => (
-                                <div key={event.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                    <div>
-                                        <div className="font-medium">{event.title}</div>
-                                        <div className="text-sm text-gray-600">
-                                            {event.date.toLocaleDateString('ro-RO')} {event.time && `• ${event.time}`}
-                                        </div>
-                                    </div>
-                                    <span className={`px-2 py-1 text-xs rounded ${
-                                        event.type === 'voting' 
-                                            ? 'bg-red-100 text-red-800'
-                                            : event.type === 'meeting'
-                                            ? 'bg-blue-100 text-blue-800'
-                                            : 'bg-green-100 text-green-800'
-                                    }`}>
-                                        {event.type === 'voting' ? 'Vot' : event.type === 'meeting' ? 'Întâlnire' : 'Eveniment'}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </Card>
-
-                    <Card title="Acțiuni rapide">
-                        <div className="space-y-3">
-                            <button 
-                                onClick={() => showToast.info("Funcționalitate în dezvoltare")}
-                                className="w-full text-left p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
-                            >
-                                <div className="font-medium text-blue-900">📋 Programează adunare generală</div>
-                                <div className="text-sm text-blue-700">Organizează o întâlnire oficială</div>
-                            </button>
-                            <button 
-                                onClick={() => showToast.info("Funcționalitate în dezvoltare")}
-                                className="w-full text-left p-3 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
-                            >
-                                <div className="font-medium text-red-900">🗳️ Inițiază procedură de vot</div>
-                                <div className="text-sm text-red-700">Creează o sesiune de votare</div>
-                            </button>
-                            <button 
-                                onClick={() => showToast.info("Funcționalitate în dezvoltare")}
-                                className="w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
-                            >
-                                <div className="font-medium text-green-900">🎉 Adaugă eveniment</div>
-                                <div className="text-sm text-green-700">Programează un eveniment social</div>
-                            </button>
-                        </div>
-                    </Card>
-                </div>
             </div>
         );
     };
 
-    const renderDocumentsContent = () => (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Documente oficiale</h3>
-                <PrimaryActionButton variant="create" onClick={() => showToast.info("Funcționalitate în dezvoltare")}>
-                    Încarcă document
-                </PrimaryActionButton>
-            </div>
-            <Card>
-                <div className="text-center py-8 text-gray-500">
-                    <p>Managementul documentelor va fi implementat în versiunea următoare.</p>
-                </div>
-            </Card>
-        </div>
-    );
+    const handleVatSave = async () => {
+        if (!organization) return;
+        
+        try {
+            await organizationService.update(organization.id, {
+                tax_exempt_status: false
+            });
+            showToast.success("Configurările TVA au fost salvate");
+        } catch (error) {
+            showToast.error("Eroare la salvarea configurărilor TVA");
+        }
+    };
 
-    const renderFinancialContent = () => (
-        <div className="space-y-6">
-            <Card title="Configurări financiare">
-                <div className="text-center py-8 text-gray-500">
-                    <p>Configurările financiare vor fi implementate în versiunea următoare.</p>
-                </div>
-            </Card>
-        </div>
-    );
+    const handleMembershipFeesSave = async () => {
+        if (!organization) return;
+        
+        try {
+            await organizationService.update(organization.id, {
+                membership_fee_employee: membershipFees.employee,
+                membership_fee_volunteer: membershipFees.volunteer,
+                membership_fee_member: membershipFees.member,
+                fee_grace_period_days: gracePeriodDays
+            });
+            showToast.success("Cotizațiile membrilor au fost salvate");
+        } catch (error) {
+            showToast.error("Eroare la salvarea cotizațiilor");
+        }
+    };
 
-    const renderAuditContent = () => (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Istoric activități</h3>
-                <SecondaryButton variant="outline" onClick={() => showToast.info("Funcționalitate în dezvoltare")}>
-                    Export raport audit
-                </SecondaryButton>
+    const renderFinancialContent = () => {
+        return (
+            <div className="space-y-6">
+                <Card title="Configurări TVA România">
+                    <div className="space-y-6">
+                        <p className="text-sm text-gray-600 mb-4">
+                            Configurează cotele TVA conform legislației române. Valorile implicite sunt setate conform normelor actuale.
+                        </p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    TVA Standard (%)
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                    value={vatSettings.standardRate}
+                                    onChange={(e) => setVatSettings({...vatSettings, standardRate: parseFloat(e.target.value)})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Produse și servicii standard
+                                </p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    TVA Redus (%)
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                    value={vatSettings.reducedRate}
+                                    onChange={(e) => setVatSettings({...vatSettings, reducedRate: parseFloat(e.target.value)})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Alimente, medicamente, cărți, cazare
+                                </p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    TVA Super-Redus (%)
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                    value={vatSettings.superReducedRate}
+                                    onChange={(e) => setVatSettings({...vatSettings, superReducedRate: parseFloat(e.target.value)})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Locuințe sociale, manuale școlare
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end">
+                            <PrimaryActionButton onClick={handleVatSave}>
+                                Salvează configurări TVA
+                            </PrimaryActionButton>
+                        </div>
+                    </div>
+                </Card>
+
+                <Card title="Cotizații Membri Organizație">
+                    <div className="space-y-6">
+                        <p className="text-sm text-gray-600 mb-4">
+                            Configurează cotizațiile anuale pentru fiecare tip de utilizator din organizație. Aceste valori vor fi folosite pentru facturare și raportare.
+                        </p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <label className="block text-sm font-medium text-blue-900 mb-2">
+                                    💼 Angajat
+                                </label>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={membershipFees.employee}
+                                        onChange={(e) => setMembershipFees({...membershipFees, employee: parseFloat(e.target.value)})}
+                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                    <span className="text-gray-700 font-medium">RON/an</span>
+                                </div>
+                                <p className="text-xs text-gray-600 mt-2">
+                                    Cotizație pentru angajații organizației
+                                </p>
+                            </div>
+
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                                <label className="block text-sm font-medium text-green-900 mb-2">
+                                    🤝 Voluntar
+                                </label>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={membershipFees.volunteer}
+                                        onChange={(e) => setMembershipFees({...membershipFees, volunteer: parseFloat(e.target.value)})}
+                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    />
+                                    <span className="text-gray-700 font-medium">RON/an</span>
+                                </div>
+                                <p className="text-xs text-gray-600 mt-2">
+                                    Cotizație pentru voluntarii organizației
+                                </p>
+                            </div>
+
+                            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                <label className="block text-sm font-medium text-purple-900 mb-2">
+                                    👥 Membru
+                                </label>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={membershipFees.member}
+                                        onChange={(e) => setMembershipFees({...membershipFees, member: parseFloat(e.target.value)})}
+                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    />
+                                    <span className="text-gray-700 font-medium">RON/an</span>
+                                </div>
+                                <p className="text-xs text-gray-600 mt-2">
+                                    Cotizație pentru membrii organizației
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                            <label className="block text-sm font-medium text-orange-900 mb-2">
+                                ⏰ Perioadă de grație pentru cotizații restante
+                            </label>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="365"
+                                    step="1"
+                                    value={gracePeriodDays}
+                                    onChange={(e) => setGracePeriodDays(parseInt(e.target.value))}
+                                    className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                />
+                                <span className="text-gray-700 font-medium">zile</span>
+                            </div>
+                            <p className="text-xs text-gray-600 mt-2">
+                                Numărul de zile după care contul unui membru cu cotizație neplătită va fi dezactivat automat. Valoarea implicită este 30 zile.
+                            </p>
+                        </div>
+
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <h4 className="font-semibold text-yellow-900 mb-3">📊 Estimare venituri anuale din cotizații</h4>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Exemplu de calcul bazat pe 20 angajați, 15 voluntari și 30 membri:
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <p className="text-gray-600">20 angajați × {membershipFees.employee} RON:</p>
+                                    <p className="font-semibold text-blue-900">{(membershipFees.employee * 20).toFixed(2)} RON</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-600">15 voluntari × {membershipFees.volunteer} RON:</p>
+                                    <p className="font-semibold text-green-900">{(membershipFees.volunteer * 15).toFixed(2)} RON</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-600">30 membri × {membershipFees.member} RON:</p>
+                                    <p className="font-semibold text-purple-900">{(membershipFees.member * 30).toFixed(2)} RON</p>
+                                </div>
+                                <div>
+                                    <p className="text-gray-600 font-semibold">Total estimat anual:</p>
+                                    <p className="text-lg font-bold text-yellow-900">
+                                        {(
+                                            membershipFees.employee * 20 + 
+                                            membershipFees.volunteer * 15 + 
+                                            membershipFees.member * 30
+                                        ).toFixed(2)} RON
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end">
+                            <PrimaryActionButton onClick={handleMembershipFeesSave}>
+                                Confirmă configurări
+                            </PrimaryActionButton>
+                        </div>
+                    </div>
+                </Card>
+
+                <Card title="Informații suplimentare">
+                    <div className="space-y-4 text-sm text-gray-600">
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                            <h5 className="font-semibold text-gray-900 mb-2">Note importante:</h5>
+                            <ul className="list-disc list-inside space-y-1">
+                                <li>Tipurile de utilizatori corespund exact categoriilor din sistem: Angajat, Voluntar, Membru</li>
+                                <li>Cotizațiile sunt anuale și se percep de la data aderării</li>
+                                <li>Puteți seta cotizația la 0 RON pentru utilizatorii care nu plătesc cotizație</li>
+                                <li>De obicei, angajații nu plătesc cotizație (0 RON)</li>
+                                <li>Voluntarii pot avea cotizație zero sau redusă</li>
+                                <li>Membrii standard plătesc cotizație de membru</li>
+                                <li>Conturile cu cotizații restante vor fi dezactivate automat după perioada de grație configurată</li>
+                                <li>Reactivarea conturilor necesită plata cotizației restante și aprobarea administratorului organizației</li>
+                                <li>TVA standard (19%) se aplică pentru majoritatea serviciilor organizației</li>
+                                <li>TVA redus (9%) pentru activități educaționale și culturale</li>
+                            </ul>
+                        </div>
+                    </div>
+                </Card>
             </div>
-            <Card>
-                <div className="text-center py-8 text-gray-500">
-                    <p>Auditul și istoricul vor fi implementate în versiunea următoare.</p>
-                </div>
-            </Card>
-        </div>
-    );
+        );
+    };
 
     const renderTabContent = () => {
         switch (selectedTab) {
@@ -610,14 +729,10 @@ const OrganizationDetailsPage: React.FC = () => {
                 return renderProfileContent();
             case 'team':
                 return renderTeamContent();
-            case 'calendar':
-                return renderCalendarContent();
             case 'documents':
                 return renderDocumentsContent();
             case 'financial':
                 return renderFinancialContent();
-            case 'audit':
-                return renderAuditContent();
             default:
                 return renderProfileContent();
         }

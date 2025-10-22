@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Modal } from '@/components/ui/Modal';
-import { DynamicForm } from '@/components/forms/DynamicForm';
+import { DynamicFormField } from '@/components/forms/DynamicFormField';
+import { ModalButton } from '@/components/ui/ModalButton';
 import { createMembershipFeeFormConfig } from '@/config/membershipFee.form.config';
 import { createMembershipFeeSchema, type CreateMembershipFeeData, getCreateMembershipFeeDefaultValues } from '@/schemas/membershipFee.schema';
 import { membershipFeeService } from '@/services/membershipFee.service';
 import { userService } from '@/services/user.service';
+import { organizationService } from '@/services/organization.service';
 import showToast from '@/components/ui/Toast';
 import toast from 'react-hot-toast';
-import { MembershipFeeCreateRequest } from '@/types/membershipFee.types';
+import { MembershipFeeCreateRequest, RateType } from '@/types/membershipFee.types';
 import { useAuth } from '@/hooks/useAuth';
 
 interface CreateMembershipFeeModalProps {
@@ -15,46 +19,123 @@ interface CreateMembershipFeeModalProps {
     onClose: () => void;
     onSuccess: () => void;
     memberId?: string;
+    isAdvancePayment?: boolean;
 }
 
 export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> = ({
     isOpen,
     onClose,
     onSuccess,
-    memberId
+    memberId,
+    isAdvancePayment = false
 }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formConfig, setFormConfig] = useState(createMembershipFeeFormConfig());
+    const [members, setMembers] = useState<any[]>([]);
+    const [organizationData, setOrganizationData] = useState<any>(null);
     const { user } = useAuth();
 
+    const defaultValues = getCreateMembershipFeeDefaultValues(memberId, user?.organizationId);
+    
+    const {
+        control,
+        handleSubmit: handleFormSubmit,
+        formState: { errors },
+        watch
+    } = useForm<CreateMembershipFeeData>({
+        resolver: zodResolver(createMembershipFeeSchema),
+        defaultValues,
+        mode: 'onChange'
+    });
+
+    const selectedMemberId = watch('memberId');
+    const selectedMember = members.find(m => m.id === selectedMemberId);
+
     useEffect(() => {
-        const loadMembers = async () => {
+        const loadData = async () => {
             try {
                 if (!user?.organizationId) return;
 
-                const response = await userService.getList();
-                const members = response.results || [];
-                const memberOptions = members.map((member: any) => ({
-                    value: member.id,
-                    label: `${member.fullName} (${member.email})`
-                }));
-
-                const config = createMembershipFeeFormConfig();
-                const memberField = config.sections[0].fields.find(f => f.name === 'memberId');
-                if (memberField && 'options' in memberField) {
-                    memberField.options = memberOptions;
-                }
-                setFormConfig(config);
+                const [membersResponse, orgData] = await Promise.all([
+                    userService.getList(),
+                    organizationService.getById(user.organizationId)
+                ]);
+                
+                const membersList = membersResponse.results || [];
+                const organization = (orgData as any).organization || orgData;
+                
+                setMembers(membersList);
+                setOrganizationData(organization);
+                
+                console.log('Loaded members:', membersList);
+                console.log('Loaded organization:', organization);
             } catch (error) {
-                console.error('Error loading members:', error);
-                showToast.error('Eroare la încărcarea membrilor');
+                console.error('Error loading data:', error);
+                showToast.error('Eroare la încărcarea datelor');
             }
         };
 
         if (isOpen) {
-            loadMembers();
+            loadData();
         }
     }, [isOpen, user?.organizationId]);
+
+    const getRateOptionsForMember = () => {
+        if (!selectedMember || !organizationData) {
+            return [{
+                value: RateType.CUSTOM,
+                label: 'Sumă personalizată'
+            }];
+        }
+
+        const memberGroups = (selectedMember.groups || []).map((g: string) => g.toUpperCase());
+        const rateOptions = [];
+        
+        const employeeFee = parseFloat(organizationData.membershipFeeEmployee || '0');
+        const volunteerFee = parseFloat(organizationData.membershipFeeVolunteer || '0');
+        const memberFee = parseFloat(organizationData.membershipFeeMember || '0');
+        
+        console.log('Selected member:', selectedMember.fullName, 'Groups:', memberGroups);
+        console.log('Organization fees:', { employeeFee, volunteerFee, memberFee });
+
+        if (memberGroups.includes('EMPLOYEE') && employeeFee > 0) {
+            rateOptions.push({
+                value: RateType.EMPLOYEE,
+                label: `Angajat - ${employeeFee.toFixed(2)} RON/lună`
+            });
+        }
+        
+        if (memberGroups.includes('VOLUNTEER') && volunteerFee > 0) {
+            rateOptions.push({
+                value: RateType.VOLUNTEER,
+                label: `Voluntar - ${volunteerFee.toFixed(2)} RON/lună`
+            });
+        }
+        
+        if (memberGroups.includes('MEMBER') && memberFee > 0) {
+            rateOptions.push({
+                value: RateType.MEMBER,
+                label: `Membru - ${memberFee.toFixed(2)} RON/lună`
+            });
+        }
+
+        rateOptions.push({
+            value: RateType.CUSTOM,
+            label: 'Sumă personalizată'
+        });
+        
+        console.log('Rate options for selected member:', rateOptions);
+        return rateOptions;
+    };
+
+    const formConfig = createMembershipFeeFormConfig(getRateOptionsForMember());
+    
+    const memberField = formConfig.sections[0].fields.find(f => f.name === 'memberId');
+    if (memberField && 'options' in memberField) {
+        memberField.options = members.map((member: any) => ({
+            value: member.id,
+            label: `${member.fullName} (${member.email})`
+        }));
+    }
 
     const handleSubmit = async (data: CreateMembershipFeeData) => {
         let loadingToast: string | undefined;
@@ -66,7 +147,8 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
 
             const membershipFeeCreateRequest: MembershipFeeCreateRequest = {
                 member: data.memberId,
-                amount: data.amount,
+                rate_type: data.rateType,
+                amount: data.rateType === RateType.CUSTOM ? data.customAmount : undefined,
                 currency: data.currency || 'RON',
                 renew_period: data.renewPeriod,
                 started_from: data.startedFrom,
@@ -79,7 +161,7 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
             await membershipFeeService.create(membershipFeeCreateRequest);
             
             if (loadingToast) {
-                toast.dismiss(loadingToast);
+                toast.remove(loadingToast);
             }
             
             showToast.membershipFeeCreated();
@@ -87,7 +169,7 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
             onClose();
         } catch (error: any) {
             if (loadingToast) {
-                toast.dismiss(loadingToast);
+                toast.remove(loadingToast);
             }
             
             const errorMessage = error?.message || 'Eroare la adăugarea cotizației';
@@ -97,7 +179,25 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
         }
     };
 
-    const defaultValues = getCreateMembershipFeeDefaultValues(memberId, user?.organizationId);
+    const formValues = watch();
+
+    const getGridClasses = (columns?: number): string => {
+        switch (columns) {
+            case 1: return 'grid grid-cols-1 gap-4';
+            case 2: return 'grid grid-cols-1 md:grid-cols-2 gap-4';
+            case 3: return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+            case 4: return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4';
+            default: return 'grid grid-cols-1 md:grid-cols-2 gap-4';
+        }
+    };
+
+    const shouldShowField = (field: any): boolean => {
+        if (!field.condition) return true;
+        if (typeof field.condition === 'function') {
+            return field.condition(formValues);
+        }
+        return true;
+    };
 
     return (
         <Modal
@@ -106,14 +206,49 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
             title="Adaugă cotizație membru"
             size="lg"
         >
-            <DynamicForm<CreateMembershipFeeData>
-                config={formConfig}
-                schema={createMembershipFeeSchema}
-                onSubmit={handleSubmit}
-                onCancel={onClose}
-                defaultValues={defaultValues}
-                isSubmitting={isSubmitting}
-            />
+            <form onSubmit={handleFormSubmit(handleSubmit)} className="space-y-6">
+                {formConfig.sections.map((section, sectionIndex) => {
+                    const shouldShowSection = !section.hidden && (!section.condition || section.condition(formValues));
+                    if (!shouldShowSection) return null;
+
+                    const visibleFields = section.fields.filter(shouldShowField);
+                    if (visibleFields.length === 0) return null;
+
+                    return (
+                        <div key={sectionIndex} className="space-y-4">
+                            {section.title && (
+                                <div>
+                                    <h3 className="text-lg font-medium text-gray-900">{section.title}</h3>
+                                    {section.description && (
+                                        <p className="text-sm text-gray-600 mt-1">{section.description}</p>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className={getGridClasses(section.columns)}>
+                                {visibleFields.map((field) => (
+                                    <DynamicFormField
+                                        key={field.name}
+                                        field={field}
+                                        control={control}
+                                        error={errors[field.name as keyof CreateMembershipFeeData]?.message as string}
+                                        formValues={formValues}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
+
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                    <ModalButton variant="secondary" onClick={onClose} disabled={isSubmitting}>
+                        {formConfig.cancelButtonText || 'Anulează'}
+                    </ModalButton>
+                    <ModalButton type="submit" variant="primary" disabled={isSubmitting}>
+                        {isSubmitting ? 'Se procesează...' : (formConfig.submitButtonText || 'Salvează')}
+                    </ModalButton>
+                </div>
+            </form>
         </Modal>
     );
 };

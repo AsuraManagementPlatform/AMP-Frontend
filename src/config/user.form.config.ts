@@ -114,6 +114,20 @@ export const createUserFormConfig = (
                     required: true,
                     options: getUserStatusOptions,
                     condition: () => !isAdmin,
+                },
+                {
+                    name: 'is_contributor',
+                    label: 'Este cotizant?',
+                    type: FieldType.CHECKBOX,
+                    helperText: 'Utilizatorul plătește cotizații către organizație',
+                    condition: () => !isAdmin,
+                },
+                {
+                    name: 'auto_generate_fees',
+                    label: 'Generare automată cotizații',
+                    type: FieldType.CHECKBOX,
+                    helperText: 'Generează automat cotizații recurente pentru acest utilizator',
+                    condition: (formValues: any) => formValues?.is_contributor === true,
                 }
             ]
         }

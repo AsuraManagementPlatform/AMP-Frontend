@@ -15,6 +15,8 @@ export const ROUTES = {
     CRM_ADMIN_PANEL: '/crm/admin',
     CRM_ORGANIZATIONS: '/crm/organizations', 
     CRM_ORGANIZATION_DETAILS: '/crm/organization-details',
+    CRM_ORGANIZATION_TEAM_MANAGEMENT: '/crm/organization/:organizationId/team',
+    CRM_ORGANIZATION_MEMBER_PROFILE: '/crm/organization/:organizationId/team/member/:userId',
     CRM_CREATE_ORGANIZATION: '/crm/organizations/create',
     
     // CRM Module - Entity Management (NEW)

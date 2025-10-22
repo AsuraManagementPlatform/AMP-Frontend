@@ -160,8 +160,13 @@ export const createOrganizationSchema = z.object({
             (value) => !value || value.length <= 1000,
             { message: 'Descrierea nu poate depăși 1000 de caractere' }
         ),
-    budget: z.number()
+    budget: z.union([z.number(), z.string(), z.null()])
         .optional()
+        .transform((val) => {
+            if (val === undefined || val === null || val === '') return undefined;
+            const num = typeof val === 'string' ? parseFloat(val) : val;
+            return isNaN(num) ? undefined : num;
+        })
         .refine(
             (value) => value === undefined || value >= 0,
             { message: 'Bugetul anual trebuie să fie pozitiv' }
@@ -195,26 +200,12 @@ export const createOrganizationSchema = z.object({
             { message: 'Procentul TVA trebuie să fie între 0 și 1 (ex: 0.19 pentru 19%)' }
         ),
     
-    employee_count: z.number()
-        .optional()
-        .refine(
-            (value) => value === undefined || (value >= 0 && Number.isInteger(value)),
-            { message: 'Numărul de angajați trebuie să fie un număr întreg pozitiv' }
-        ),
+    employee_count: z.any().optional(),
     
-    volunteer_count: z.number()
-        .optional()
-        .refine(
-            (value) => value === undefined || (value >= 0 && Number.isInteger(value)),
-            { message: 'Numărul de voluntari trebuie să fie un număr întreg pozitiv' }
-        ),
+    volunteer_count: z.any().optional(),
     
-    member_count: z.number()
-        .optional()
-        .refine(
-            (value) => value === undefined || (value >= 0 && Number.isInteger(value)),
-            { message: 'Numărul de membri trebuie să fie un număr întreg pozitiv' }
-        ),
+    member_count: z.any().optional(),
+    
     status: z.enum([OrganizationStatus.ACTIVE, OrganizationStatus.INACTIVE, OrganizationStatus.PENDING], {
         message: 'Statusul trebuie să fie ACTIVE, INACTIVE sau PENDING'
     }),
@@ -403,8 +394,13 @@ export const updateOrganizationSchema = z.object({
             (value) => !value || value.length <= 1000,
             { message: 'Descrierea nu poate depăși 1000 de caractere' }
         ),
-    budget: z.number()
+    budget: z.union([z.number(), z.string(), z.null()])
         .optional()
+        .transform((val) => {
+            if (val === undefined || val === null || val === '') return undefined;
+            const num = typeof val === 'string' ? parseFloat(val) : val;
+            return isNaN(num) ? undefined : num;
+        })
         .refine(
             (value) => value === undefined || value >= 0,
             { message: 'Bugetul anual trebuie să fie pozitiv' }
@@ -428,26 +424,13 @@ export const updateOrganizationSchema = z.object({
     
     tax_exempt_status: z.boolean()
         .optional(),
-    employee_count: z.number()
-        .optional()
-        .refine(
-            (value) => value === undefined || (value >= 0 && Number.isInteger(value)),
-            { message: 'Numărul de angajați trebuie să fie un număr întreg pozitiv' }
-        ),
     
-    volunteer_count: z.number()
-        .optional()
-        .refine(
-            (value) => value === undefined || (value >= 0 && Number.isInteger(value)),
-            { message: 'Numărul de voluntari trebuie să fie un număr întreg pozitiv' }
-        ),
+    employee_count: z.any().optional(),
     
-    member_count: z.number()
-        .optional()
-        .refine(
-            (value) => value === undefined || (value >= 0 && Number.isInteger(value)),
-            { message: 'Numărul de membri trebuie să fie un număr întreg pozitiv' }
-        ),
+    volunteer_count: z.any().optional(),
+    
+    member_count: z.any().optional(),
+    
     status: z.enum([OrganizationStatus.ACTIVE, OrganizationStatus.INACTIVE, OrganizationStatus.PENDING], {
         message: 'Statusul trebuie să fie ACTIVE, INACTIVE sau PENDING'
     }).optional(),

@@ -1,18 +1,32 @@
 import { z } from 'zod';
-import { RenewPeriod, PaymentMethod } from '@/types/membershipFee.types';
+import { RenewPeriod, PaymentMethod, RateType } from '@/types/membershipFee.types';
 
 export const createMembershipFeeSchema = z.object({
     memberId: z.string().min(1, 'Membrul este obligatoriu').uuid('ID-ul membrului trebuie sa fie valid'),
     organizationId: z.string().optional(),
-    amount: z.coerce.number().min(0.01, 'Suma trebuie sa fie pozitiva').max(999999.99),
+    rateType: z.enum([RateType.EMPLOYEE, RateType.VOLUNTEER, RateType.MEMBER, RateType.CUSTOM]).refine((val) => val !== undefined, {
+        message: 'Tipul cotizației este obligatoriu'
+    }),
+    customAmount: z.coerce.number().min(0.01, 'Suma trebuie sa fie pozitiva').max(999999.99).optional(),
     currency: z.string().default('RON'),
     renewPeriod: z.enum([RenewPeriod.MONTHLY, RenewPeriod.QUARTERLY, RenewPeriod.SEMI_ANNUAL, RenewPeriod.ANNUAL, RenewPeriod.ONE_TIME]),
-    startedFrom: z.string().min(1, 'Data de �nceput este obligatorie'),
-    endedAt: z.string().min(1, 'Data de sf�r?it este obligatorie'),
+    startedFrom: z.string().min(1, 'Data de început este obligatorie'),
+    endedAt: z.string().min(1, 'Data de sfârșit este obligatorie'),
     autoRenew: z.boolean().default(false),
     paymentMethod: z.enum([PaymentMethod.BANK_TRANSFER, PaymentMethod.CREDIT_CARD, PaymentMethod.CASH, PaymentMethod.STRIPE, PaymentMethod.PAYPAL, PaymentMethod.OTHER]).optional(),
     notes: z.string().optional()
-});
+}).refine(
+    (data) => {
+        if (data.rateType === RateType.CUSTOM) {
+            return data.customAmount && data.customAmount > 0;
+        }
+        return true;
+    },
+    {
+        message: 'Suma personalizată este obligatorie când selectezi "Sumă personalizată"',
+        path: ['customAmount']
+    }
+);
 
 export type CreateMembershipFeeData = z.infer<typeof createMembershipFeeSchema>;
 
@@ -34,12 +48,14 @@ export type UpdateMembershipFeeData = z.infer<typeof updateMembershipFeeSchema>;
 export const getCreateMembershipFeeDefaultValues = (memberId?: string, organizationId?: string): Partial<CreateMembershipFeeData> => ({
     memberId: memberId || '',
     organizationId: organizationId || '',
-    amount: undefined,
-    currency: 'RON',
+    rateType: '' as any,
+    customAmount: undefined,
+    currency: '',
     renewPeriod: RenewPeriod.ANNUAL,
     startedFrom: new Date().toISOString().split('T')[0],
     endedAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     autoRenew: false,
+    paymentMethod: undefined,
     notes: ''
 });
 

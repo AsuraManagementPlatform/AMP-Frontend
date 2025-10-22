@@ -1,28 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { User } from '@/types/index.types';
 import { userService } from '@/services/user.service';
 import { toast } from 'react-hot-toast';
 import { getUserRoleLabel } from '@/utils/dashboardUtils';
-import { ROUTES } from '@/utils/constants.utils';
 
 export const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
+    const { userId } = useParams<{ userId: string }>();
     const [user, setUser] = useState<User | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState<Partial<User>>({});
+    
+    const isViewingOtherUser = !!userId;
 
     useEffect(() => {
         loadUserData();
-    }, []);
+    }, [userId]);
 
     const loadUserData = async () => {
         try {
             setLoading(true);
-            const userData = await userService.getCurrentUser();
+            let userData: User;
+            
+            if (userId) {
+                userData = await userService.getById(userId);
+            } else {
+                userData = await userService.getCurrentUser();
+            }
+            
             setUser(userData);
             setFormData(userData);
         } catch (error) {
@@ -80,19 +89,25 @@ export const ProfilePage: React.FC = () => {
         <div className="max-w-5xl mx-auto">
             <div className="mb-4">
                 <button
-                    onClick={() => navigate(ROUTES.DASHBOARD)}
+                    onClick={() => navigate(-1)}
                     className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-orange-500 transition-colors"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                    Înapoi la pagina principală
+                    {isViewingOtherUser ? 'Înapoi la echipă' : 'Înapoi la pagina principală'}
                 </button>
             </div>
 
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">Profilul Meu</h1>
-                {!isEditing ? (
+                <h1 className="text-3xl font-bold text-gray-800">
+                    {isViewingOtherUser ? `Profil Membru: ${user.fullName}` : 'Profilul Meu'}
+                </h1>
+                {isViewingOtherUser ? (
+                    <div className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg">
+                        📖 Vizualizare Read-Only
+                    </div>
+                ) : !isEditing ? (
                     <button
                         onClick={() => setIsEditing(true)}
                         className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"

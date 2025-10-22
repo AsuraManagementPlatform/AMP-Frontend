@@ -5,6 +5,7 @@
 
 export const MembershipFeeStatus = {
     PENDING: 'PENDING',
+    PENDING_VERIFICATION: 'PENDING_VERIFICATION',
     PAID: 'PAID',
     OVERDUE: 'OVERDUE',
     CANCELLED: 'CANCELLED',
@@ -34,10 +35,20 @@ export const PaymentMethod = {
 
 export type PaymentMethod = typeof PaymentMethod[keyof typeof PaymentMethod];
 
+export const RateType = {
+    EMPLOYEE: 'EMPLOYEE',
+    VOLUNTEER: 'VOLUNTEER',
+    MEMBER: 'MEMBER',
+    CUSTOM: 'CUSTOM'
+} as const;
+
+export type RateType = typeof RateType[keyof typeof RateType];
+
 export interface MembershipFee {
     id: string;
     memberId: string;
     memberName?: string;
+    memberGroups?: string[];
     organizationId?: string;
     organizationName?: string;
     processedById?: string;
@@ -63,6 +74,8 @@ export interface MembershipFee {
     isOverdue: boolean;
     daysUntilDue: number;
     totalAmountWithCurrency: string;
+    gracePeriodDays: number;
+    actualDeadline: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -70,7 +83,8 @@ export interface MembershipFee {
 export interface MembershipFeeCreateRequest {
     member: string;
     organization?: string;
-    amount: number;
+    rate_type?: RateType;
+    amount?: number;
     currency?: string;
     renew_period: RenewPeriod;
     started_from: string;
@@ -109,6 +123,8 @@ export interface MembershipFeeDisplayInfo {
     total_amount_with_currency: string;
     is_overdue: boolean;
     days_until_due: number;
+    grace_period_days: number;
+    actual_deadline: string;
     status: MembershipFeeStatus;
     can_send_reminder: boolean;
 }
@@ -162,4 +178,21 @@ export interface FeeCalculation {
     next_due_date: string;
     period_display: string;
 }
+
+export interface MemberContributor {
+    memberId: string;
+    memberName: string;
+    memberType: 'EMPLOYEE' | 'VOLUNTEER' | 'MEMBER';
+    totalPaid: number;
+    totalPending: number;
+    totalPendingVerification: number;
+    totalOverdue: number;
+    hasOverdueFees: boolean;
+    lastPaymentDate?: string;
+    nextDueDate?: string;
+    feeCount: number;
+    currency: string;
+    fees: MembershipFee[];
+}
+
 import { PaginatedResponse } from "@/types/index.types";

@@ -213,6 +213,8 @@ export const createUserSchema = z.object({
     group: z.string().min(1, 'Grupul utilizator este obligatoriu'),
     status: z.string().min(1, 'Statusul este obligatoriu'),
     is_active: z.boolean().default(true),
+    is_contributor: z.boolean().default(false),
+    auto_generate_fees: z.boolean().default(true),
 });
 
 export type UserCreateRequest = z.infer<typeof createUserSchema>;
@@ -234,6 +236,8 @@ export const getCreateUserDefaultValues = (isAdmin: boolean, isOrgAdmin: boolean
         company_number: '',
         company_name: '',
         group: defaultGroup,
-        status: UserStatus.DRAFT
+        status: UserStatus.DRAFT,
+        is_contributor: false,
+        auto_generate_fees: true
     };
 };

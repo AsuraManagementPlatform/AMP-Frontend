@@ -41,6 +41,10 @@ export const membershipFeeService = {
         return apiService.post<MembershipFee>(`membership_fee/${id}/mark-as-paid`, data);
     },
 
+    generateNext: async (memberId: string): Promise<MembershipFee> => {
+        return apiService.post<MembershipFee>(`membership_fee/generate-next/${memberId}`, {});
+    },
+
     getOverdueFees: async (organizationId?: string): Promise<PaginatedResponse<MembershipFee>> => {
         const params: (ListParams & { overdue_only?: boolean }) | undefined = { overdue_only: true };
         if (organizationId) {

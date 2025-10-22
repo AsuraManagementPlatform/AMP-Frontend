@@ -1,46 +1,62 @@
 import {BaseEntity} from "@/types/index.types.ts";
 
+export const LegalType = {
+    FIZICA: 'fizica',
+    JURIDICA: 'juridica'
+} as const;
+
+export type LegalType = typeof LegalType[keyof typeof LegalType];
+
 export const EntityType = {
-    DONATOR: 'DONATOR',
-    SPONSOR: 'SPONSOR',
-    PARTNER: 'PARTNER'
+    DONOR: 'donor',
+    SPONSOR: 'sponsor',
+    PARTNER: 'partner',
+    VOLUNTEER: 'voluntar',
+    BENEFICIARY: 'beneficiar',
+    OTHER: 'altul'
 } as const;
 
 export type EntityType = typeof EntityType[keyof typeof EntityType];
 
 export const EntityStatus = {
-    ACTIVE: 'ACTIVE',
-    INACTIVE: 'INACTIVE',
-    PENDING: 'PENDING',
-    SUSPENDED: 'SUSPENDED'
+    ACTIV: 'activ',
+    INACTIV: 'inactiv',
+    POTENTIAL: 'potential',
+    BLOCAT: 'blocat'
 } as const;
 
 export type EntityStatus = typeof EntityStatus[keyof typeof EntityStatus];
 
+export const EngagementLevel = {
+    DELOC: 'deloc',
+    PARTIAL: 'partial',
+    TOTAL: 'total'
+} as const;
+
+export type EngagementLevel = typeof EngagementLevel[keyof typeof EngagementLevel];
+
 export const ContributionType = {
-    FINANCIAL: 'FINANCIAL',
-    IN_KIND: 'IN_KIND',
-    SERVICES: 'SERVICES',
-    EQUIPMENT: 'EQUIPMENT',
-    VOLUNTEER_TIME: 'VOLUNTEER_TIME'
+    FINANCIAL: 'financiar',
+    IN_KIND: 'in_kind',
+    SERVICES: 'servicii',
+    EQUIPMENT: 'echipament',
+    VOLUNTEER_TIME: 'volunteer_time'
 } as const;
 
 export type ContributionType = typeof ContributionType[keyof typeof ContributionType];
 
 export interface Entity extends BaseEntity {
+    legalType: LegalType;
     name: string;
+    identificationNumber: string;
+    email: string;
+    phone: string;
+    address: string;
+    address2?: string;
     type: EntityType;
     status: EntityStatus;
-    email?: string;
-    phoneNumber?: string;
-    address?: string;
-    contactPerson?: string;
-    website?: string;
-    description?: string;
-    organizationId: string;
-    userId?: string;
-    taxId?: string;
-    registrationNumber?: string;
+    observation?: string;
+    engagementLevel?: EngagementLevel;
 }
 
 export interface EntityContribution extends BaseEntity {
@@ -65,19 +81,17 @@ export interface EntityRelationship extends BaseEntity {
     notes?: string;
 }
 export interface EntityCreateRequest {
+    legalType: LegalType;
     name: string;
+    identificationNumber: string;
+    email: string;
+    phone: string;
+    address: string;
+    address2?: string;
     type: EntityType;
-    status: EntityStatus;
-    email?: string;
-    phoneNumber?: string;
-    address?: string;
-    contactPerson?: string;
-    website?: string;
-    description?: string;
-    organizationId: string;
-    userId?: string;
-    taxId?: string;
-    registrationNumber?: string;
+    status?: EntityStatus;
+    observation?: string;
+    engagementLevel?: EngagementLevel;
 }
 
 export interface EntityUpdateRequest extends Partial<EntityCreateRequest> {}
