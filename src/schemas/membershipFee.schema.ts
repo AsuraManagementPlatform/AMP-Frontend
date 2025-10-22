@@ -8,7 +8,7 @@ export const createMembershipFeeSchema = z.object({
         message: 'Tipul cotizației este obligatoriu'
     }),
     customAmount: z.coerce.number().min(0.01, 'Suma trebuie sa fie pozitiva').max(999999.99).optional(),
-    currency: z.string().default('RON'),
+    currency: z.string().optional(),
     renewPeriod: z.enum([RenewPeriod.MONTHLY, RenewPeriod.QUARTERLY, RenewPeriod.SEMI_ANNUAL, RenewPeriod.ANNUAL, RenewPeriod.ONE_TIME]),
     startedFrom: z.string().min(1, 'Data de început este obligatorie'),
     endedAt: z.string().min(1, 'Data de sfârșit este obligatorie'),
@@ -50,13 +50,13 @@ export const getCreateMembershipFeeDefaultValues = (memberId?: string, organizat
     organizationId: organizationId || '',
     rateType: '' as any,
     customAmount: undefined,
-    currency: '',
+    currency: undefined,
     renewPeriod: RenewPeriod.ANNUAL,
     startedFrom: new Date().toISOString().split('T')[0],
     endedAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     autoRenew: false,
     paymentMethod: undefined,
-    notes: ''
+    notes: undefined
 });
 
 export const processPaymentSchema = z.object({

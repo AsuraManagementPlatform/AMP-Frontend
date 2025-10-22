@@ -1,5 +1,5 @@
 import { DynamicFormConfig, FieldType } from "@/types/form.types";
-import { RenewPeriod, PaymentMethod, RateType } from "@/types/membershipFee.types";
+import { RenewPeriod, PaymentMethod } from "@/types/membershipFee.types";
 
 export const createMembershipFeeFormConfig = (rateOptions: Array<{value: string, label: string}> = []): DynamicFormConfig => ({
     sections: [

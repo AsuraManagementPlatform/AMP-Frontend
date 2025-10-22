@@ -26,8 +26,7 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
     isOpen,
     onClose,
     onSuccess,
-    memberId,
-    isAdvancePayment = false
+    memberId
 }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [members, setMembers] = useState<any[]>([]);
@@ -42,7 +41,7 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
         formState: { errors },
         watch
     } = useForm<CreateMembershipFeeData>({
-        resolver: zodResolver(createMembershipFeeSchema),
+        resolver: zodResolver(createMembershipFeeSchema) as any,
         defaultValues,
         mode: 'onChange'
     });
@@ -206,7 +205,7 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
             title="Adaugă cotizație membru"
             size="lg"
         >
-            <form onSubmit={handleFormSubmit(handleSubmit)} className="space-y-6">
+            <form onSubmit={handleFormSubmit(handleSubmit as any)} className="space-y-6">
                 {formConfig.sections.map((section, sectionIndex) => {
                     const shouldShowSection = !section.hidden && (!section.condition || section.condition(formValues));
                     if (!shouldShowSection) return null;
