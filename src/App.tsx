@@ -1,21 +1,7 @@
+import {lazy, Suspense} from 'react';
 import {BrowserRouter as Router, Navigate, Route, Routes} from 'react-router-dom';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {ReactQueryDevtools} from '@tanstack/react-query-devtools';
-
-import Home from '@/pages/Home.page';
-import AdminPanel from '@/pages/AdminPanel.page';
-import Projects from '@/pages/Projects.page';
-import Calendar from '@/pages/Calendar.page';
-import OrganizationDetails from '@/pages/OrganizationDetails.page';
-import ProfilePage from '@/pages/Profile.page';
-import SettingsPage from '@/pages/Settings.page';
-import EntitiesPage from '@/pages/crm/Entities.page';
-import EntityDetailPage from '@/pages/crm/EntityDetail.page';
-import DonationsPage from '@/pages/crm/Donations.page';
-import CommunicationsPage from '@/pages/crm/Communications.page';
-import ProjectPage from "@/pages/project/Project.page.tsx";
-import MembershipFeesPage from "@/pages/MembershipFees.page";
-import TeamManagementPage from "@/pages/organization/TeamManagement.page";
 import {ErrorBoundary} from '@/components/ErrorBoundary';
 import {ToastConfig} from '@/components/ui/Toast';
 import {ROUTES} from '@/utils/constants.utils';
@@ -24,11 +10,36 @@ import {ProtectedRoute} from '@/components/auth/ProtectedRoute';
 import {UserGroup} from '@/types/index.types';
 import {ConfirmDialogProvider} from "@/components/ui/ConfirmDialog.tsx";
 
+const Home = lazy(() => import('@/pages/Home.page'));
+const AdminPanel = lazy(() => import('@/pages/AdminPanel.page'));
+const Projects = lazy(() => import('@/pages/Projects.page'));
+const Calendar = lazy(() => import('@/pages/Calendar.page'));
+const OrganizationDetails = lazy(() => import('@/pages/OrganizationDetails.page'));
+const ProfilePage = lazy(() => import('@/pages/Profile.page'));
+const SettingsPage = lazy(() => import('@/pages/Settings.page'));
+const EntitiesPage = lazy(() => import('@/pages/crm/Entities.page'));
+const EntityDetailPage = lazy(() => import('@/pages/crm/EntityDetail.page'));
+const DonationsPage = lazy(() => import('@/pages/crm/Donations.page'));
+const CommunicationsPage = lazy(() => import('@/pages/crm/Communications.page'));
+const ProjectPage = lazy(() => import("@/pages/project/Project.page.tsx"));
+const MembershipFeesPage = lazy(() => import("@/pages/MembershipFees.page"));
+const TeamManagementPage = lazy(() => import("@/pages/organization/TeamManagement.page"));
+
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
+);
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
     },
   },
 });
@@ -41,9 +52,10 @@ function App() {
           <AuthProvider>
             <Router>
               <div className="App">
-                <Routes>
-                  <Route path={ROUTES.HOME} element={<Navigate to={ROUTES.DASHBOARD} replace />} />
-                  <Route path={ROUTES.DASHBOARD} element={<Home />} />
+                <Suspense fallback={<LoadingFallback />}>
+                  <Routes>
+                    <Route path={ROUTES.HOME} element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+                    <Route path={ROUTES.DASHBOARD} element={<Home />} />
                   <Route
                     path={ROUTES.PROFILE}
                     element={
@@ -183,12 +195,13 @@ function App() {
 
                   <Route path={ROUTES.NOT_FOUND} element={<div>Page Not Found</div>} />
                   <Route path="*" element={<Navigate to={ROUTES.NOT_FOUND} replace />} />
-                </Routes>
+                  </Routes>
+                </Suspense>
                 <ToastConfig />
               </div>
             </Router>
           </AuthProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
+          {import.meta.env.MODE === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
         </QueryClientProvider>
       </ErrorBoundary>
     </ConfirmDialogProvider>

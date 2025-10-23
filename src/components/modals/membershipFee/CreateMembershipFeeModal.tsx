@@ -64,11 +64,7 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
                 
                 setMembers(membersList);
                 setOrganizationData(organization);
-                
-                console.log('Loaded members:', membersList);
-                console.log('Loaded organization:', organization);
             } catch (error) {
-                console.error('Error loading data:', error);
                 showToast.error('Eroare la încărcarea datelor');
             }
         };
@@ -92,9 +88,6 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
         const employeeFee = parseFloat(organizationData.membershipFeeEmployee || '0');
         const volunteerFee = parseFloat(organizationData.membershipFeeVolunteer || '0');
         const memberFee = parseFloat(organizationData.membershipFeeMember || '0');
-        
-        console.log('Selected member:', selectedMember.fullName, 'Groups:', memberGroups);
-        console.log('Organization fees:', { employeeFee, volunteerFee, memberFee });
 
         if (memberGroups.includes('EMPLOYEE') && employeeFee > 0) {
             rateOptions.push({
@@ -122,7 +115,6 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
             label: 'Sumă personalizată'
         });
         
-        console.log('Rate options for selected member:', rateOptions);
         return rateOptions;
     };
 

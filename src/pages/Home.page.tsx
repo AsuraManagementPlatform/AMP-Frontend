@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import {useAuth} from '@/hooks/useAuth';
 import {Button} from "@/components/ui/Button.tsx";
 import {AuthState} from "@/types/auth.types.ts";
 import {LoadingSpinner} from "@/components/ui/LoadingSpinner.tsx";
 import LandingPage from "@/pages/Landing.page.tsx";
-import DashboardPage from "@/pages/Dashboard.page.tsx";
+
+const DashboardPage = lazy(() => import("@/pages/Dashboard.page.tsx"));
 
 const Home: React.FC = () => {
     const { authState, isAuthenticated, error } = useAuth();
@@ -43,7 +44,22 @@ const Home: React.FC = () => {
         );
     }
 
-    return isAuthenticated ? <DashboardPage /> : <LandingPage />;
+    if (isAuthenticated) {
+        return (
+            <Suspense fallback={
+                <div className="flex justify-center items-center min-h-screen bg-gray-100">
+                    <LoadingSpinner size="lg" />
+                    <div className="ml-4">
+                        <p className="text-gray-600">Se încarcă dashboard-ul...</p>
+                    </div>
+                </div>
+            }>
+                <DashboardPage />
+            </Suspense>
+        );
+    }
+
+    return <LandingPage />;
 };
 
 export default Home;

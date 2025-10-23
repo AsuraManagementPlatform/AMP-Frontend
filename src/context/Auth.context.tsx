@@ -3,16 +3,20 @@ import {AuthContextType, AuthState, User} from '@/types/index.types';
 import * as React from "react";
 import keycloakService, {keycloakInitOptions} from "@/services/keycloak.service";
 import userService from "@/services/user.service";
+import { organizationService } from "@/services/organization.service";
 
 interface AuthProviderProps {
     children: ReactNode;
 }
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+let authInitialized = false;
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthProviderProps) => {
     const [authState, setAuthState] = useState<AuthState>(AuthState.LOADING);
     const [user, setUser] = useState<User | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [organizationModules, setOrganizationModules] = useState<string[]>([]);
 
     const initializingRef = useRef<boolean>(false);
     const tokenRefreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -33,6 +37,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             };
 
             setUser(newUserData);
+
+            if (userData.organizationId) {
+                try {
+                    const response = await organizationService.getById(userData.organizationId);
+                    const organization = (response as any).organization || response;
+                    setOrganizationModules(organization.activeModules || []);
+                } catch {
+                    setOrganizationModules([]);
+                }
+            } else {
+                setOrganizationModules([]);
+            }
         } catch (error: any) {
             if (error?.response?.status === 401 || 
                 (error?.message && error.message.includes('Utilizatorul este dezactivat'))) {
@@ -41,7 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
                 setUser(null);
                 if (keycloakService.authenticated) {
                     await keycloakService.logout({ 
-                        redirectUri: window.location.origin + window.location.pathname 
+                        redirectUri: window.location.origin + '/' 
                     });
                 }
                 throw error;
@@ -51,8 +67,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     }, []);
 
     const initializeAuth = useCallback(async (): Promise<void> => {
-        if (initializingRef.current) return;
+        if (initializingRef.current || authInitialized) {
+            return;
+        }
         initializingRef.current = true;
+        authInitialized = true;
 
         try {
             setError(null);
@@ -66,9 +85,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             } else {
                 setUser(null);
                 setAuthState(AuthState.UNAUTHENTICATED);
-                await keycloakService.login({ 
-                    redirectUri: window.location.href 
-                });
             }
         } catch (initError) {
             const errorMessage = initError instanceof Error
@@ -92,7 +108,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
                 try {
                     await keycloakService.updateToken(30);
                 } catch (refreshError) {
-                    console.error(refreshError);
                     logout();
                 }
             }
@@ -100,18 +115,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     }, []);
 
     useEffect(() => {
-        const initAuth = async () => {
-            await initializeAuth();
-        };
-
-        initAuth();
+        initializeAuth();
 
         return () => {
             if (tokenRefreshIntervalRef.current) {
                 clearInterval(tokenRefreshIntervalRef.current);
             }
         };
-    }, [initializeAuth]);
+    }, []);
 
     const login = useCallback(async (redirectUri?: string): Promise<void> => {
         const finalRedirectUri = redirectUri || `${window.location.origin}/`;
@@ -135,7 +146,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
                 initializingRef.current = false;
             }
         } catch (error) {
-            console.error('[Auth] Logout error:', error);
             setUser(null);
             setAuthState(AuthState.UNAUTHENTICATED);
             setError(null);
@@ -152,7 +162,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         try {
             return await keycloakService.updateToken(30);
         } catch (error) {
-            console.error(error);
             return false;
         }
     }, []);
@@ -177,6 +186,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         return userGroups.every(userGroup => user.groups.includes(userGroup));
     }, [authState, user]);
 
+    const refreshOrganizationModules = useCallback(async (): Promise<void> => {
+        if (!user?.organizationId) {
+            setOrganizationModules([]);
+            return;
+        }
+
+        try {
+            const response = await organizationService.getById(user.organizationId);
+            const organization = (response as any).organization || response;
+            setOrganizationModules(organization.activeModules || []);
+        } catch {
+            setOrganizationModules([]);
+        }
+    }, [user?.organizationId]);
+
     const contextValue: AuthContextType = {
         authState,
         user,
@@ -190,7 +214,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         isAuthenticated: authState === AuthState.AUTHENTICATED,
         isLoading: authState === AuthState.LOADING,
         hasError: authState === AuthState.ERROR,
-        getAccessToken
+        getAccessToken,
+        hasERP: organizationModules.includes('ERP'),
+        hasCRM: organizationModules.includes('CRM'),
+        refreshOrganizationModules
     };
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

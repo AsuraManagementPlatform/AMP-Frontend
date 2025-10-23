@@ -32,7 +32,6 @@ export const UpdateEntityModal: React.FC<UpdateEntityModalProps> = ({
                 const entity = await entityService.getById(entityId);
                 setCurrentEntity(entity);
             } catch (error) {
-                console.error('Error loading entity:', error);
                 showToast.error('Eroare la încărcarea entității');
             } finally {
                 setIsLoading(false);

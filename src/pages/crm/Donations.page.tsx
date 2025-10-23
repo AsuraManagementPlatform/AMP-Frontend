@@ -37,7 +37,6 @@ const DonationsPage: React.FC = () => {
             setDonations(donationsData.results || []);
             setEntities(entitiesData.results || []);
         } catch (error) {
-            console.error('Error loading data:', error);
             showToast.error('Eroare la încărcarea datelor');
         } finally {
             setIsLoading(false);

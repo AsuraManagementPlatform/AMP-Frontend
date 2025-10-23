@@ -10,11 +10,15 @@ export const useOrganizationModules = () => {
     const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
-        const fetchOrganizationModules = async () => {
+        const fetchOrganizationModules = async (isInitialLoad = true) => {
             if (!user?.organizationId) {
                 setActiveModules([]);
                 setLoading(false);
                 return;
+            }
+
+            if (isInitialLoad) {
+                setLoading(true);
             }
 
             try {
@@ -22,16 +26,17 @@ export const useOrganizationModules = () => {
                 const organization = (response as any).organization || response;
                 setActiveModules(organization.activeModules || []);
             } catch (error) {
-                console.error('❌ [useOrganizationModules] Error fetching organization modules:', error);
                 setActiveModules([]);
             } finally {
-                setLoading(false);
+                if (isInitialLoad) {
+                    setLoading(false);
+                }
             }
         };
 
-        fetchOrganizationModules();
+        fetchOrganizationModules(true);
 
-        const pollInterval = setInterval(fetchOrganizationModules, 30000);
+        const pollInterval = setInterval(() => fetchOrganizationModules(false), 30000);
 
         return () => clearInterval(pollInterval);
     }, [user?.organizationId, refreshKey]);

@@ -38,6 +38,10 @@ export interface AuthContextType {
     hasError: boolean;
 
     getAccessToken: () => string | null;
+
+    hasERP: boolean;
+    hasCRM: boolean;
+    refreshOrganizationModules: () => Promise<void>;
 }
 
 export interface KeycloakConfig {

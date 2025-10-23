@@ -3,7 +3,6 @@ import {Link, useLocation} from 'react-router-dom';
 import {BaseComponentProps, UserGroup} from "@/types/index.types.ts";
 import {ROUTES} from "@/utils/constants.utils.ts";
 import {useAuth} from "@/hooks/useAuth.ts";
-import {useOrganizationModules} from "@/hooks/useOrganizationModules.ts";
 import logoImage from '@/assets/img/logo.png';
 
 interface LayoutProps extends BaseComponentProps {
@@ -16,10 +15,10 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
         isAuthenticated,
         login,
         logout,
-        hasAnyUserGroup
+        hasAnyUserGroup,
+        hasERP,
+        hasCRM
     } = useAuth();
-
-    const { hasERP, hasCRM } = useOrganizationModules();
 
     const location = useLocation();
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -277,4 +276,4 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
     );
 };
 
-export default Layout;
+export default React.memo(Layout);

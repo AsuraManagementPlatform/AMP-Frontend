@@ -52,7 +52,6 @@ export const UpdateCommunicationModal: React.FC<UpdateCommunicationModalProps> =
             const data = await communicationService.getById(communicationId);
             setCommunication(data);
         } catch (error) {
-            console.error('Error loading communication:', error);
             showToast.error('Nu s-au putut încărca datele comunicării');
             onClose();
         } finally {

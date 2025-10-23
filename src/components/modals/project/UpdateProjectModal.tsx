@@ -48,7 +48,6 @@ export const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
                     })) || [];
                 setAvailableManagers(managers);
             } catch (error) {
-                console.error('Error loading managers:', error);
                 showToast.error('Eroare la încărcarea managerilor');
             } finally {
                 setIsLoadingManagers(false);

@@ -35,7 +35,6 @@ const TeamManagementPage: React.FC = () => {
             );
             setTeamMembers(filtered);
         } catch (error) {
-            console.error('Error loading team members:', error);
             showToast.error('Eroare la încărcarea membrilor echipei');
         } finally {
             setIsLoading(false);

@@ -15,8 +15,10 @@ export const ReactivationNotifications: React.FC = () => {
             setLoading(true);
             const response = await userReactivationService.getPendingReactivations();
             setPendingUsers(response.users);
-        } catch (error) {
-            console.error('Error loading pending reactivations:', error);
+        } catch (error: any) {
+            if (error?.status !== 404) {
+                setPendingUsers([]);
+            }
         } finally {
             setLoading(false);
         }

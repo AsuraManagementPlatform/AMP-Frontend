@@ -39,7 +39,6 @@ export const UpdateDonationModal: React.FC<UpdateDonationModalProps> = ({
                 const donation = await donationService.getById(donationId);
                 setCurrentDonation(donation);
             } catch (error) {
-                console.error('Error loading donation:', error);
                 showToast.error('Eroare la încărcarea donației');
             } finally {
                 setIsLoading(false);

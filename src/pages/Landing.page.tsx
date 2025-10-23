@@ -1,8 +1,16 @@
 import React from "react";
 import Layout from "@/components/layout/Layout.tsx";
 import {Card} from "@/components/ui/Card.tsx";
+import {Button} from "@/components/ui/Button.tsx";
+import {useAuth} from "@/hooks/useAuth";
 
 const LandingPage: React.FC = () => {
+    const { login } = useAuth();
+
+    const handleLogin = () => {
+        login(window.location.href);
+    };
+
     return (
         <Layout showNavigation={false}>
             <div className="text-center py-16">
@@ -23,8 +31,15 @@ const LandingPage: React.FC = () => {
                         AsuraPlatform ajută organizațiile să își gestioneze structura, proiectele și activitățile eficient.
                         Te rugăm să te autentifici pentru a accesa panoul tău personalizat.
                     </p>
+                    <Button 
+                        onClick={handleLogin}
+                        variant="primary"
+                        className="mb-4"
+                    >
+                        Autentifică-te
+                    </Button>
                     <div className="mt-4 p-4 bg-orange-100 rounded-md border border-orange-200 text-gray-700">
-                        <p className="flex items-center">
+                        <p className="flex items-center justify-center">
                             <svg className="w-5 h-5 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>

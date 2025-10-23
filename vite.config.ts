@@ -39,6 +39,16 @@ export default defineConfig({
   },
   build: {
     sourcemap: false,
-    minify: 'terser'
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'query-vendor': ['@tanstack/react-query'],
+          'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          'ui-vendor': ['react-hot-toast'],
+        }
+      }
+    }
   }
 })

@@ -83,7 +83,6 @@ export const useDashboardData = ({
                         setMembers(organizationAdmins);
                         setOrganizations(organizations);
                     } catch (error) {
-                        console.error('Error fetching admin data:', error);
                         setMembers([]);
                         setOrganizations([]);
                     } finally {
@@ -127,7 +126,6 @@ export const useDashboardData = ({
                             volunteers: volunteers
                         });
                     } catch (error) {
-                        console.error('Error fetching org admin data:', error);
                         setMembers([]);
                     } finally {
                         setMembersLoading(false);
@@ -141,7 +139,6 @@ export const useDashboardData = ({
                         setProjects(projectsResponse.results || []);
                         setActivities([]);
                     } catch (error) {
-                        console.error('Error fetching member data:', error);
                         setProjects([]);
                         setActivities([]);
                     } finally {
@@ -157,7 +154,6 @@ export const useDashboardData = ({
                 }
                 
             } catch (error) {
-                console.error('Error loading dashboard data:', error);
                 setStats({
                     totalActivities: 0,
                     totalProjects: 0,
@@ -176,7 +172,7 @@ export const useDashboardData = ({
 
     useEffect(() => {
         loadDashboardData();
-    }, [isAdmin, isOrgAdmin, isMember, organizationId, setStats, setLoading, setProjectsLoading, setActivitiesLoading, setMembersLoading, setProjects, setActivities, setMembers, setOrganizations, setOrganizationsLoading]);
+    }, [isAdmin, isOrgAdmin, isMember, organizationId]);
 
     const refreshOrganizations = async () => {
         if (isAdmin) {
@@ -186,7 +182,6 @@ export const useDashboardData = ({
                 const organizationsData = (organizationsResponse as any).organizations || organizationsResponse.results || [];
                 setOrganizations(organizationsData);
             } catch (error) {
-                console.error('Error refreshing organizations:', error);
             } finally {
                 setOrganizationsLoading(false);
             }
@@ -203,7 +198,6 @@ export const useDashboardData = ({
                 ) || [];
                 setMembers(organizationAdmins);
             } catch (error) {
-                console.error('Error refreshing users:', error);
             } finally {
                 setMembersLoading(false);
             }

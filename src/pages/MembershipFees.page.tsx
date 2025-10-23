@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import Layout from "@/components/layout/Layout";
 import { Card } from "@/components/ui/Card";
@@ -25,11 +25,7 @@ const MembershipFeesPage: React.FC = () => {
 
     const canManageFees = isOrgAdmin && hasOrganization;
 
-    useEffect(() => {
-        loadContributors();
-    }, [user?.organizationId]);
-
-    const loadContributors = async () => {
+    const loadContributors = useCallback(async () => {
         if (!user?.organizationId) {
             setLoading(false);
             return;
@@ -54,7 +50,11 @@ const MembershipFeesPage: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user?.organizationId]);
+
+    useEffect(() => {
+        loadContributors();
+    }, [loadContributors]);
 
     const aggregateFeesByMember = (fees: MembershipFee[]): MemberContributor[] => {
         const memberMap = new Map<string, MemberContributor>();
@@ -119,28 +119,20 @@ const MembershipFeesPage: React.FC = () => {
         setIsCreateModalOpen(false);
     };
 
-    const handleRefreshModal = async () => {
+    const handleRefreshModal = useCallback(async () => {
         if (!user?.organizationId) return;
         
         await loadContributors();
+        
         if (selectedContributor) {
-            const response = await membershipFeeService.getList({
-                organization_id: user.organizationId
-            });
-            const fees = response.results || [];
-            const membersOnlyFees = fees.filter(fee => {
-                const groups = fee.memberGroups || [];
-                return !groups.includes('ADMIN') && !groups.includes('ORG_ADMIN');
-            });
-            const aggregated = aggregateFeesByMember(membersOnlyFees);
-            const updatedContributor = aggregated.find(c => c.memberId === selectedContributor.memberId);
+            const updatedContributor = contributors.find(c => c.memberId === selectedContributor.memberId);
             if (updatedContributor) {
                 setSelectedContributor(updatedContributor);
             } else {
                 setSelectedContributor(null);
             }
         }
-    };
+    }, [user?.organizationId, selectedContributor, contributors, loadContributors]);
 
     const handleMemberClick = (contributor: MemberContributor) => {
         setSelectedContributor(contributor);

@@ -47,7 +47,6 @@ export const dashboardService = {
                 activeOrganizations: activeOrganizationsResponse.count || 0
             };
         } catch (error) {
-            console.error('Error fetching global dashboard stats:', error);
             return {
                 totalActivities: 0,
                 totalProjects: 0,
@@ -78,7 +77,6 @@ export const dashboardService = {
                 activeOrganizations: 1
             };
         } catch (error) {
-            console.error('Error fetching organization dashboard stats:', error);
             return {
                 totalActivities: 0,
                 totalProjects: 0,

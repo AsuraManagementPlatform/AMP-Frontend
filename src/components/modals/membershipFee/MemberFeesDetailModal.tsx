@@ -111,7 +111,6 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
             showToast.success('Cotizația a fost ștearsă cu succes');
             onRefresh();
         } catch (error: any) {
-            console.error('Delete error:', error);
             const errorMessage = error?.message || 'Eroare la ștergerea cotizației';
             showToast.error(errorMessage);
         }

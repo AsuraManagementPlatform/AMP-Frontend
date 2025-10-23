@@ -4,7 +4,6 @@ import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import { Project, Activity, User, TableColumn, TableAction } from '@/types/index.types';
 import { getUserRoleLabel } from '@/utils/dashboardUtils';
 import Table from '@/components/ui/Table';
-import { ReactivationNotifications } from './ReactivationNotifications';
 import { MyCotizatii } from './MyCotizatii';
 
 interface OrgAdminDashboardProps {
@@ -240,8 +239,6 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
 
     return (
         <>
-            <ReactivationNotifications />
-            
             {/* Cotizațiile mele - Secțiune dedicată */}
             <div className="mb-6">
                 <MyCotizatii />

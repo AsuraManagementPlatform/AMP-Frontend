@@ -33,7 +33,6 @@ const EntitiesPage: React.FC = () => {
             const entitiesData = response.results || [];
             setEntities(entitiesData);
         } catch (error) {
-            console.error('Error loading entities:', error);
             showToast.error('Eroare la încărcarea entităților');
         } finally {
             setIsLoading(false);

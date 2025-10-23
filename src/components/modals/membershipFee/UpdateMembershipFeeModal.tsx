@@ -63,7 +63,6 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
                 
                 setFormConfig(config);
             } catch (error) {
-                console.error('Error loading data:', error);
                 showToast.error('Eroare la încărcarea datelor');
             } finally {
                 setIsLoading(false);

@@ -3,6 +3,7 @@ import { organizationService } from "@/services/organization.service";
 import { userService } from "@/services/user.service";
 import showToast from "@/components/ui/Toast";
 import { cacheInvalidation, CACHE_KEYS } from "@/utils/cacheInvalidation";
+import { useAuth } from "@/hooks/useAuth";
 
 interface DashboardHandlersProps {
     setIsCreateUserModalOpen: (open: boolean) => void;
@@ -39,6 +40,7 @@ export const useDashboardHandlers = ({
     refreshOrganizations,
     refreshUsers
 }: DashboardHandlersProps) => {
+    const { refreshOrganizationModules } = useAuth();
 
     const handleCreateUser = async (data: UserCreateRequest) => {
         try {
@@ -59,7 +61,6 @@ export const useDashboardHandlers = ({
                 refreshUsers();
             }
         } catch (error: any) {
-            console.error('Error creating user:', error);
             showToast.error('Eroare la crearea utilizatorului');
         }
     };
@@ -125,7 +126,6 @@ export const useDashboardHandlers = ({
                 refreshUsers();
             }
         } catch (error) {
-            console.error('Error activating organization:', error);
             showToast.error('Eroare la activarea organizației');
         }
     };
@@ -141,7 +141,6 @@ export const useDashboardHandlers = ({
                 refreshUsers();
             }
         } catch (error) {
-            console.error('Error deactivating organization:', error);
             showToast.error('Eroare la dezactivarea organizației');
         }
     };
@@ -152,14 +151,13 @@ export const useDashboardHandlers = ({
             
             showToast.success(`Modulul ${module} a fost ${currentlyEnabled ? 'dezactivat' : 'activat'} cu succes!`);
             
-            cacheInvalidation.invalidate(CACHE_KEYS.ORGANIZATION_MODULES);
+            await refreshOrganizationModules();
             cacheInvalidation.invalidate(CACHE_KEYS.ORGANIZATIONS);
             
             if (refreshOrganizations) {
                 await refreshOrganizations();
             }
         } catch (error) {
-            console.error(`Error toggling ${module} module:`, error);
             showToast.error(`Eroare la ${module === 'ERP' ? 'activarea/dezactivarea' : 'activarea/dezactivarea'} modulului ${module}`);
         }
     };
@@ -172,7 +170,6 @@ export const useDashboardHandlers = ({
                 refreshUsers();
             }
         } catch (error) {
-            console.error('Error deactivating user:', error);
             showToast.error('Eroare la dezactivarea utilizatorului');
         }
     };
@@ -185,7 +182,6 @@ export const useDashboardHandlers = ({
                 refreshUsers();
             }
         } catch (error) {
-            console.error('Error reactivating user:', error);
             showToast.error('Eroare la reactivarea utilizatorului');
         }
     };
@@ -199,7 +195,6 @@ export const useDashboardHandlers = ({
             const result = await userService.resetPassword(userId);
             showToast.success(`Email de resetare parolă trimis cu succes la ${result.email}!`);
         } catch (error) {
-            console.error('Error resetting password:', error);
             showToast.error('Eroare la trimiterea emailului de resetare parolă');
         }
     };
@@ -228,7 +223,6 @@ export const useDashboardHandlers = ({
             setIsEditUserModalOpen(false);
             setSelectedUser(null);
         } catch (error) {
-            console.error('Error updating user:', error);
             throw error;
         }
     };
