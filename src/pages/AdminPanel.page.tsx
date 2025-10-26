@@ -60,17 +60,13 @@ const AdminPanel: React.FC = () => {
     };
 
     const handleCreateUser = async (data: UserCreateRequest): Promise<void> => {
-        try {
-            const newUser = await userService.create(data);
-            showToast.success('Utilizator creat cu succes!');
-            await fetchUsers();
-            
-            if (data.isLegalEntity) {
-                setCreatedUser(newUser as UserMeResponse);
-                setIsLinkOrgModalOpen(true);
-            }
-        } catch (error) {
-            throw error;
+        const newUser = await userService.create(data);
+        showToast.success('Utilizator creat cu succes!');
+        await fetchUsers();
+
+        if (data.isLegalEntity) {
+            setCreatedUser(newUser as UserMeResponse);
+            setIsLinkOrgModalOpen(true);
         }
     };
 
@@ -117,15 +113,11 @@ const AdminPanel: React.FC = () => {
     const handleUpdateUser = async (data: UserCreateRequest): Promise<void> => {
         if (!selectedUser) return;
 
-        try {
-            await userService.update(selectedUser.id, data);
-            showToast.success('Utilizator actualizat cu succes!');
-            await fetchUsers();
-            setIsEditUserModalOpen(false);
-            setIsPasswordResetModalOpen(true);
-        } catch (error) {
-            throw error;
-        }
+        await userService.update(selectedUser.id, data);
+        showToast.success('Utilizator actualizat cu succes!');
+        await fetchUsers();
+        setIsEditUserModalOpen(false);
+        setIsPasswordResetModalOpen(true);
     };
 
     const handleClosePasswordResetModal = () => {
@@ -161,7 +153,7 @@ const AdminPanel: React.FC = () => {
 
     const columns: TableColumn<UserMeResponse>[] = [
         {
-            key: 'username',
+            key: 'email',
             label: 'User',
             render: (email: string, user: UserMeResponse) => (
                 <div>
@@ -180,7 +172,7 @@ const AdminPanel: React.FC = () => {
             )
         },
         {
-            key: 'userGroups',
+            key: 'groups',
             label: 'Groups',
             render: (groups: string[]) => (
                 <div className="flex flex-wrap gap-1">
@@ -271,9 +263,8 @@ const AdminPanel: React.FC = () => {
                     </div>
 
                     <Table
-                        data={users}
+                        endpoint="user/list"
                         columns={columns}
-                        loading={loading}
                         emptyMessage="Nu au fost găsiți utilizatori. Creează primul utilizator pentru a începe."
                     />
                 </Card>

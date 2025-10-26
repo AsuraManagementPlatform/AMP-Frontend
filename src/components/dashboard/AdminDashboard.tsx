@@ -29,9 +29,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     searchTerm,
     setSearchTerm,
     filteredMembers,
-    membersLoading,
-    filteredOrganizations,
-    organizationsLoading,
     handleOpenCreateUser,
     openCreateOrganizationModal,
     handleActivateOrganization,
@@ -152,7 +149,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             )
         },
         {
-            key: 'adminUserId',
+            key: 'adminUser',
             label: 'Administrator',
             sortable: false,
             render: (adminUserId: string) => (
@@ -290,14 +287,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </div>
                     
                     <Table<User>
-                        data={filteredMembers}
+                        endpoint="user/list"
                         columns={getUserColumns()}
                         actions={getUserActions()}
-                        loading={membersLoading}
                         emptyMessage="Nu au fost găsiți administratori de organizații în sistem. Folosește butonul de mai sus pentru a crea primul utilizator."
                         showFilters={false}
                         showPagination={false}
-                        className=""
                     />
                 </div>
             ) : (
@@ -330,14 +325,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </div>
                     
                     <Table<Organization>
-                        data={filteredOrganizations}
+                        endpoint="organization/list"
                         columns={getOrganizationColumns()}
                         actions={getOrganizationActions()}
-                        loading={organizationsLoading}
                         emptyMessage="Nu au fost găsite organizații. Folosește butonul de mai sus pentru a crea prima organizație."
                         showFilters={false}
                         showPagination={false}
-                        className=""
                     />
                 </div>
             )}

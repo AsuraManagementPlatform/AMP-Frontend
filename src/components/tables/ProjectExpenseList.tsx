@@ -1,9 +1,8 @@
-import {TableAction, TableColumn, TransactionStatus} from '@/types/index.types';
+import {TableAction, TableColumn, ProjectExpenseStatus, ProjectExpense, ExpenseCategory} from '@/types/index.types';
 import React, {useState} from "react";
 import Table from "@/components/ui/Table.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
-import {ExpenseCategory, ProjectExpense} from '@/types/project-expense.types';
 import {UpdateProjectExpenseModal} from '@/components/modals/project-expense/UpdateProjectExpenseModal';
 import projectExpenseService from '@/services/project-expense.service';
 import showToast from '@/components/ui/Toast';
@@ -13,14 +12,12 @@ import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react'
 interface ProjectExpenseListProps {
     project: string;
     refreshTrigger?: number;
-    className?: string;
     pageSize?: number;
 }
 
 export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                                                                           project,
                                                                           refreshTrigger = 0,
-                                                                          className = '',
                                                                           pageSize = 10
                                                                       }) => {
     const confirm = useConfirmDialog();
@@ -66,13 +63,13 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             key: 'name',
             label: 'Nume',
             sortable: true,
-            width: '200px',
+            size: 'lg',
         },
         {
             key: 'activityTitle',
             label: 'Activitate',
             sortable: false,
-            width: '180px',
+            size: 'sm',
         },
         {
             key: 'category',
@@ -91,7 +88,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                 { label: 'Administrative', value: ExpenseCategory.ADMINISTRATIVE },
                 { label: 'Altele', value: ExpenseCategory.OTHER }
             ],
-            width: '120px',
+            size: 'sm',
             render: (category: string) => {
                 const categoryLabels = {
                     'PERSONNEL': 'Personal',
@@ -108,34 +105,10 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             }
         },
         {
-            key: 'quantity',
-            label: 'Cantitate',
-            sortable: true,
-            width: '100px',
-            render: (quantity: number, row: ProjectExpense) => {
-                const unitLabels = {
-                    'HOUR': 'ore',
-                    'DAY': 'zile',
-                    'NUMBER': 'buc',
-                    'BATCH': 'loturi'
-                };
-                return `${quantity} ${unitLabels[row.unitType as keyof typeof unitLabels] || ''}`;
-            }
-        },
-        {
-            key: 'unitPrice',
-            label: 'Preț unitar',
-            sortable: true,
-            width: '120px',
-            render: (price: number, row: ProjectExpense) => {
-                return `${price.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${row.currency}`;
-            }
-        },
-        {
             key: 'vatAmount',
             label: 'TVA',
             sortable: true,
-            width: '120px',
+            size: 'sm',
             render: (vatAmount: number, row: ProjectExpense) => {
                 return `${vatAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${row.currency}`;
             }
@@ -144,7 +117,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             key: 'totalAmount',
             label: 'Total',
             sortable: true,
-            width: '120px',
+            size: 'md',
             render: (amount: number, row: ProjectExpense) => {
                 return `${amount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${row.currency}`;
             }
@@ -156,14 +129,11 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             filterable: true,
             filterType: 'select',
             filterOptions: [
-                { label: 'Draft', value: TransactionStatus.DRAFT },
-                { label: 'În aprobare', value: TransactionStatus.PENDING_APPROVAL },
-                { label: 'Aprobat', value: TransactionStatus.APPROVED },
-                { label: 'Plătit', value: TransactionStatus.PAID },
-                { label: 'Respins', value: TransactionStatus.REJECTED },
-                { label: 'Anulat', value: TransactionStatus.CANCELLED }
+                { label: 'Planificat', value: ProjectExpenseStatus.PLANNED },
+                { label: 'Plătit', value: ProjectExpenseStatus.PAID },
+                { label: 'Anulat', value: ProjectExpenseStatus.CANCELLED }
             ],
-            width: '120px',
+        size: 'md',
             render: (status: string) => {
                 const statusColors = {
                     'DRAFT': 'bg-gray-100 text-gray-800',
@@ -213,13 +183,11 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                 endpoint={`project_expense/list?project_id=${project}`}
                 columns={getColumns()}
                 actions={getActions()}
-                pageSize={pageSize}
+                initialPageSize={pageSize}
                 initialSort={{ field: 'created_at', direction: 'desc' }}
-                showSearch={false}
                 showFilters={true}
                 showPagination={true}
                 emptyMessage="Nu există cheltuieli pentru acest proiect."
-                className={className}
                 refreshTrigger={refreshTrigger + localRefresh}
             />
 

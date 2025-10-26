@@ -13,18 +13,16 @@ import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
 interface ActivityListProps {
     project: string;
     refreshTrigger?: number;
-    className?: string;
     pageSize?: number;
 }
 
 export const ActivityList: React.FC<ActivityListProps> = ({
                                                               project,
                                                               refreshTrigger = 0,
-                                                              className = '',
-                                                              pageSize = 10
+                                                              pageSize = 10,
                                                           }) => {
-  const confirm = useConfirmDialog();
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+    const confirm = useConfirmDialog();
+    const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
 
@@ -34,18 +32,18 @@ export const ActivityList: React.FC<ActivityListProps> = ({
     };
 
     const handleDelete = async (activity: Activity) => {
-      const isConfirmed = await confirm({
-        title: 'Șterge activitatea',
-        message: `Sigur doriți să ștergeți activitatea "${activity.title}"?`,
-        confirmText: 'Confirmă',
-        cancelText: 'Renunță',
-        confirmButtonVariant: 'primary',
-        icon: (<IconWarning></IconWarning>)
-      });
+        const isConfirmed = await confirm({
+            title: 'Șterge activitatea',
+            message: `Sigur doriți să ștergeți activitatea "${activity.title}"?`,
+            confirmText: 'Confirmă',
+            cancelText: 'Renunță',
+            confirmButtonVariant: 'primary',
+            icon: (<IconWarning></IconWarning>)
+        });
 
-      if (!isConfirmed) {
-        return;
-      }
+        if (!isConfirmed) {
+            return;
+        }
 
         try {
             await activityService.delete(activity.id);
@@ -66,7 +64,7 @@ export const ActivityList: React.FC<ActivityListProps> = ({
             key: 'title',
             label: 'Titlu',
             sortable: true,
-            width: '250px',
+            size: 'lg',
             filterable: true,
             filterType: 'text',
         },
@@ -76,6 +74,7 @@ export const ActivityList: React.FC<ActivityListProps> = ({
             sortable: true,
             filterable: true,
             filterType: 'select',
+            size: 'md',
             filterOptions: [
                 { label: 'Întâlnire', value: 'MEETING' },
                 { label: 'Workshop', value: 'WORKSHOP' },
@@ -88,7 +87,6 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                 { label: 'Revizuire', value: 'REVIEW' },
                 { label: 'Altele', value: 'OTHER' }
             ],
-            width: '120px',
             render: (type: string) => {
                 const typeLabels: Record<string, string> = {
                     'MEETING': 'Întâlnire',
@@ -111,6 +109,7 @@ export const ActivityList: React.FC<ActivityListProps> = ({
             sortable: true,
             filterable: true,
             filterType: 'select',
+            size: 'md',
             filterOptions: [
                 { label: 'Planificat', value: ActivityStatus.PLANNED },
                 { label: 'În progres', value: ActivityStatus.IN_PROGRESS },
@@ -118,7 +117,6 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                 { label: 'Anulat', value: ActivityStatus.CANCELLED },
                 { label: 'Amânat', value: ActivityStatus.POSTPONED }
             ],
-            width: '120px',
             render: (status: string) => {
                 const statusColors = {
                     'PLANNED': 'bg-blue-100 text-blue-800',
@@ -138,34 +136,16 @@ export const ActivityList: React.FC<ActivityListProps> = ({
 
                 return (
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800'}`}>
-                    {statusLabels[status as keyof typeof statusLabels] || status}
-                </span>
+                        {statusLabels[status as keyof typeof statusLabels] || status}
+                    </span>
                 );
-            }
-        },
-        {
-            key: 'starting_date',
-            label: 'Data început',
-            sortable: true,
-            width: '120px',
-            render: (date: string) => {
-                return date ? new Date(date).toLocaleDateString('ro-RO') : '-';
-            }
-        },
-        {
-            key: 'estimated_ending_date',
-            label: 'Data estimată',
-            sortable: true,
-            width: '120px',
-            render: (date: string) => {
-                return date ? new Date(date).toLocaleDateString('ro-RO') : '-';
             }
         },
         {
             key: 'totalActivityExpensesAmount',
             label: 'Total cheltuieli',
             sortable: false,
-            width: '120px',
+            size: 'sm',
             render: (amount: number) => {
                 return amount ? `${amount.toLocaleString('ro-RO')} RON` : '0 RON';
             }
@@ -193,13 +173,11 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                 endpoint={`activity/list?project_id=${project}`}
                 columns={getColumns()}
                 actions={getActions()}
-                pageSize={pageSize}
+                initialPageSize={pageSize}
                 initialSort={{ field: 'starting_date', direction: 'desc' }}
-                showSearch={true}
                 showFilters={true}
                 showPagination={true}
                 emptyMessage="Nu există activități pentru acest proiect."
-                className={className}
                 refreshTrigger={refreshTrigger + localRefresh}
             />
 

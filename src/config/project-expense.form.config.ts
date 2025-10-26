@@ -1,7 +1,12 @@
-﻿import { DynamicFormConfig, FieldType, SelectOption } from "@/types/form.types.ts";
-import { ExpenseCategory, UnitType } from "@/types/project-expense.types.ts";
-import {TransactionStatus} from "@/types/transaction.types.ts";
-import {Activity} from "@/types/activity.types.ts";
+﻿import {
+    Activity,
+    DynamicFormConfig,
+    ExpenseCategory, FieldType,
+    ProjectExpenseStatus,
+    SelectOption,
+    Unit, Vat
+} from "@/types/index.types.ts";
+import {t} from "i18next";
 
 const getExpenseCategoryOptions = (): SelectOption[] => [
     { value: ExpenseCategory.PERSONNEL, label: 'Personal' },
@@ -16,22 +21,19 @@ const getExpenseCategoryOptions = (): SelectOption[] => [
 ];
 
 const getUnitTypeOptions = (): SelectOption[] => [
-    { value: UnitType.HOUR, label: 'Oră' },
-    { value: UnitType.DAY, label: 'Zi' },
-    { value: UnitType.NUMBER, label: 'Bucată' },
-    { value: UnitType.BATCH, label: 'Lot' }
+    { value: Unit.HOUR, label: 'Oră' },
+    { value: Unit.DAY, label: 'Zi' },
+    { value: Unit.NUMBER, label: 'Bucată' },
+    { value: Unit.BATCH, label: 'Lot' }
 ];
 
 const getTransactionStatusOptions = (): SelectOption[] => [
-    { value: TransactionStatus.DRAFT, label: 'Draft' },
-    { value: TransactionStatus.PENDING_APPROVAL, label: 'În aprobare' },
-    { value: TransactionStatus.APPROVED, label: 'Aprobat' },
-    { value: TransactionStatus.PAID, label: 'Plătit' },
-    { value: TransactionStatus.REJECTED, label: 'Respins' },
-    { value: TransactionStatus.CANCELLED, label: 'Anulat' }
+    { value: ProjectExpenseStatus.PLANNED, label: `${t('label.project_expense.planned')}` },
+    { value: ProjectExpenseStatus.PAID, label: `${t('label.project_expense.paid')}` },
+    { value: ProjectExpenseStatus.CANCELLED, label: `${t('label.project_expense.cancelled')}` }
 ];
 
-export const createProjectExpenseFormConfig = (activities: Activity[] = []): DynamicFormConfig => ({
+export const createProjectExpenseFormConfig = (activities: Activity[] = [], vats: Vat[]): DynamicFormConfig => ({
     sections: [
         {
             title: "Informații cheltuială",
@@ -53,6 +55,19 @@ export const createProjectExpenseFormConfig = (activities: Activity[] = []): Dyn
                         ...activities.map(activity => ({
                             value: activity.id,
                             label: activity.title
+                        }))
+                    ]
+                },
+                {
+                    name: 'vat',
+                    label: 'TVA',
+                    type: FieldType.SELECT,
+                    required: true,
+                    options: [
+                        { value: '', label: 'Selectează o opțiune' },
+                        ...vats.map(vat => ({
+                            value: vat.id,
+                            label: vat.name
                         }))
                     ]
                 },
@@ -127,7 +142,7 @@ export const createProjectExpenseFormConfig = (activities: Activity[] = []): Dyn
     cancelButtonText: 'Anulează'
 });
 
-export const updateProjectExpenseFormConfig = (activities: Activity[] = []): DynamicFormConfig => ({
-    ...createProjectExpenseFormConfig(activities),
+export const updateProjectExpenseFormConfig = (activities: Activity[] = [], vats: Vat[]): DynamicFormConfig => ({
+    ...createProjectExpenseFormConfig(activities, vats),
     submitButtonText: 'Actualizează cheltuială'
 });

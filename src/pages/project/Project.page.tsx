@@ -16,6 +16,7 @@ import {ProjectFundList} from '@/components/tables/ProjectFundList';
 import {CreateProjectFundModal} from "@/components/modals/project-fund/CreateProjectFundModal.tsx";
 import ProjectMemberList from "@/components/tables/ProjectMemberList.tsx";
 import {CreateProjectMemberModal} from "@/components/modals/project-member/CreateProjectMemberModal.tsx";
+import {t} from "i18next";
 
 type TabType = 'details' | 'activities' | 'expenses' | 'funds' | 'members';
 
@@ -197,10 +198,10 @@ const ProjectPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-600 mb-1">
-                            Buget total
+                            {t('label.project.planned_budget')}
                         </label>
                         <p className="text-gray-900 text-2xl font-semibold">
-                            {project.budget?.toLocaleString('ro-RO')} {project.currency || 'RON'}
+                            {project.budget?.toLocaleString('ro-RO')}
                         </p>
                     </div>
 
@@ -220,6 +221,82 @@ const ProjectPage: React.FC = () => {
                         </div>
                     )}
                 </div>
+                {project.activeFunds !== 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">
+                                {t('label.project.active_funds')}
+                            </label>
+                            <p className="text-gray-900 text-2xl font-semibold">
+                                {project.activeFunds?.toLocaleString('ro-RO')} {project.currency || 'RON'}
+                            </p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">
+                                {t('label.project.active_funds_on_planned_budget')}
+                            </label>
+                            {(() => {
+                                const percentage = project.budget ? (project.activeFunds / project.budget * 100).toFixed(1) : 0;
+                                const isAdequate = project.activeFunds >= project.budget;
+                                return (
+                                    <p className={`text-2xl font-semibold ${isAdequate ? 'text-green-600' : 'text-red-600'}`}>
+                                        {percentage}%
+                                    </p>
+                                );
+                            })()}
+                        </div>
+                    </div>
+                )}
+                {project.activeExpenses !== 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">
+                                {t('label.project.active_expenses')}
+                            </label>
+                            <p className="text-gray-900 text-2xl font-semibold">
+                                {project.activeExpenses?.toLocaleString('ro-RO')} {project.currency || 'RON'}
+                            </p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">
+                                {t('label.project.active_expenses_on_active_funds')}
+                            </label>
+                            {(() => {
+                                const percentage = project.activeFunds ? (project.activeExpenses / project.activeFunds * 100).toFixed(1) : 0;
+                                const isWithinBudget = project.activeExpenses < project.activeFunds;
+                                return (
+                                    <p className={`text-2xl font-semibold ${isWithinBudget ? 'text-green-600' : 'text-red-600'}`}>
+                                        {percentage}%
+                                    </p>
+                                );
+                            })()}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">
+                                {t('label.project.active_expenses_on_planned_budget')}
+                            </label>
+                            {(() => {
+                                const percentage = project.budget ? (project.activeExpenses / project.budget * 100).toFixed(1) : '0';
+                                const percentageNum = parseFloat(percentage);
+                                let colorClass = 'text-blue-600';
+
+                                if (percentageNum >= 90) {
+                                    colorClass = 'text-orange-600';
+                                } else if (percentageNum >= 75) {
+                                    colorClass = 'text-amber-600';
+                                } else if (percentageNum >= 50) {
+                                    colorClass = 'text-yellow-600';
+                                }
+
+                                return (
+                                    <p className={`text-2xl font-semibold ${colorClass}`}>
+                                        {percentage}%
+                                    </p>
+                                );
+                            })()}
+                        </div>
+                    </div>
+                )}
             </Card>
         </>
     );
@@ -255,7 +332,7 @@ const ProjectPage: React.FC = () => {
 
     const renderExpensesTab = () => (
         <Card
-            title="Cheltuieli proiect"
+            title={t('tab.project_expenses')}
             className="mb-6"
             headerActions={
                 <PrimaryActionButton

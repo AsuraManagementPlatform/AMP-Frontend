@@ -14,12 +14,14 @@ interface ProjectListProps {
 }
 
 const ProjectList: React.FC<ProjectListProps> = ({
-    onRowClick,
-    className = ''
+                                                     onRowClick,
+                                                     className = '',
+                                                     refreshTrigger = 0,
 }) => {
-    const { data: projects = [], loading, error } = useTableData<Project>({
+    const {data: projects = [], loading, error } = useTableData<Project>({
         endpoint: "project/list",
-        initialPageSize: 20
+        initialPageSize: 20,
+        refreshTrigger: refreshTrigger,
     });
 
     if (loading) {

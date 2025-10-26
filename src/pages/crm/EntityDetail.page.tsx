@@ -373,9 +373,8 @@ const EntityDetailPage: React.FC = () => {
                 <Card title={`Donații (Total: ${totalDonations.toLocaleString()} RON)`} className="p-6">
                     {donations.length > 0 ? (
                         <Table<EntityDonation>
-                            data={donations}
+                            endpoint="entity_donation/list"
                             columns={getDonationColumns()}
-                            showSearch={false}
                             showFilters={false}
                             showPagination={false}
                         />
@@ -474,10 +473,9 @@ const EntityDetailPage: React.FC = () => {
                     
                     {communications.length > 0 ? (
                         <Table<EntityCommunication>
-                            data={communications}
+                            endpoint="entity_communication/list"
                             columns={getCommunicationColumns()}
                             actions={getCommunicationActions()}
-                            showSearch={false}
                             showFilters={true}
                             showPagination={false}
                         />

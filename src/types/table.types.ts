@@ -9,16 +9,19 @@ export interface SortConfig {
     direction: 'asc' | 'desc';
 }
 
+export type ColumnSize = 'sm' | 'md' | 'lg';
+
 export interface TableColumn<T> {
-    key: keyof T | string;
+    key: keyof T;
     label: string;
-    render?: (value: any, item: T, index: number) => React.ReactNode;
-    className?: string;
     sortable?: boolean;
     filterable?: boolean;
-    filterType?: 'text' | 'select' | 'date' | 'number';
-    filterOptions?: Array<{ label: string; value: any }>;
+    filterType?: 'text' | 'number' | 'date' | 'select';
+    filterOptions?: { value: string; label: string }[];
+    render?: (value: any, item: T, index: number) => React.ReactNode;
     width?: string;
+    className?: string;
+    size?: ColumnSize;
 }
 
 export interface TableAction<T> {

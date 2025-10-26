@@ -16,7 +16,6 @@ interface MembershipFeeListProps {
     organizationId?: string;
     memberId?: string;
     refreshTrigger?: number;
-    className?: string;
     pageSize?: number;
 }
 
@@ -24,7 +23,6 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
     organizationId,
     memberId,
     refreshTrigger = 0,
-    className = '',
     pageSize = 10
 }) => {
     const confirm = useConfirmDialog();
@@ -82,7 +80,8 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
             sortable: true,
             render: (memberName: string) => {
                 return memberName || '-';
-            }
+            },
+            size: 'lg',
         },
         {
             key: 'amount',
@@ -90,7 +89,8 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
             sortable: true,
             render: (amount: number, row: MembershipFee) => {
                 return `${amount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${row.currency}`;
-            }
+            },
+            size: 'md',
         },
         {
             key: 'renewPeriod',
@@ -114,7 +114,8 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
                     'ONE_TIME': 'O singură dată'
                 };
                 return periodLabels[period as keyof typeof periodLabels] || period;
-            }
+            },
+            size: 'sm',
         },
         {
             key: 'startedFrom',
@@ -123,7 +124,8 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
             render: (date: string) => {
                 if (!date) return '-';
                 return new Date(date).toLocaleDateString('ro-RO');
-            }
+            },
+            size: 'sm',
         },
         {
             key: 'endedAt',
@@ -132,7 +134,8 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
             render: (date: string) => {
                 if (!date) return '-';
                 return new Date(date).toLocaleDateString('ro-RO');
-            }
+            },
+            size: 'sm',
         },
         {
             key: 'status',
@@ -160,7 +163,8 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
                         {config.label}
                     </span>
                 );
-            }
+            },
+            size: 'md',
         },
         {
             key: 'daysUntilDue',
@@ -186,7 +190,8 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
                 } else {
                     return <span className="text-gray-600">{days} zile</span>;
                 }
-            }
+            },
+            size: 'sm',
         },
         {
             key: 'paymentMethod',
@@ -203,7 +208,8 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
                     'OTHER': 'Altă metodă'
                 };
                 return methodLabels[method as keyof typeof methodLabels] || method;
-            }
+            },
+            size: 'sm',
         }
     ];
 
@@ -251,13 +257,11 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
                 endpoint={buildEndpoint()}
                 columns={getColumns()}
                 actions={getActions()}
-                pageSize={pageSize}
+                initialPageSize={pageSize}
                 initialSort={{ field: 'created_at', direction: 'desc' }}
-                showSearch={false}
                 showFilters={true}
                 showPagination={true}
                 emptyMessage="Nu există cotizații pentru această organizație."
-                className={className}
                 refreshTrigger={refreshTrigger + localRefresh}
             />
 

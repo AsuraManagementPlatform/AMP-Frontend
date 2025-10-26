@@ -37,6 +37,8 @@ export interface Project extends BaseEntity {
     budgetNotes?: string;
     teamSize?: number;
     activitiesCount?: number;
+    activeFunds: number;
+    activeExpenses: number;
 }
 
 export interface ProjectCreateRequest {

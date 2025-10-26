@@ -17,9 +17,7 @@ interface UserListProps {
         view?: boolean;
     };
     canDeleteUser?: (user: User) => boolean;
-    className?: string;
     pageSize?: number;
-    showSearch?: boolean;
     showFilters?: boolean;
     showPagination?: boolean;
     showAllMembers?: boolean;
@@ -33,9 +31,7 @@ export const UserList: React.FC<UserListProps> = ({
                                                       refreshTrigger = 0,
                                                       showActions = { edit: true, delete: true, view: false },
                                                       canDeleteUser,
-                                                      className = '',
                                                       pageSize = 20,
-                                                      showSearch = true,
                                                       showFilters = true,
                                                       showPagination = true,
                                                       showAllMembers = false
@@ -48,7 +44,7 @@ export const UserList: React.FC<UserListProps> = ({
             sortable: true,
             filterable: true,
             filterType: 'text',
-            width: '250px',
+            size: 'lg',
         },
         {
             key: 'status',
@@ -61,7 +57,7 @@ export const UserList: React.FC<UserListProps> = ({
                 { label: UserStatus.INACTIVE, value: UserStatus.INACTIVE },
                 { label: UserStatus.DRAFT, value: UserStatus.DRAFT }
             ],
-            width: '120px',
+            size: 'sm',
             render: (status: string) => {
                 const statusColors = {
                     'ACTIVE': 'bg-green-100 text-green-800',
@@ -118,18 +114,16 @@ export const UserList: React.FC<UserListProps> = ({
             columns={getColumns()}
             actions={getActions()}
             onRowClick={onRowClick}
-            pageSize={pageSize}
+            initialPageSize={pageSize}
             initialSort={{ field: 'email', direction: 'asc' }}
             initialFilters={showAllMembers ? [
-                { field: 'status', operator: 'in', value: [UserStatus.DRAFT, UserStatus.ACTIVE] }
+                { field: 'status', operator: 'exact', value: [UserStatus.DRAFT, UserStatus.ACTIVE] }
             ] : [
                 { field: 'status', operator: 'exact', value: UserStatus.DRAFT }
             ]}
-            showSearch={showSearch}
             showFilters={showFilters}
             showPagination={showPagination}
             emptyMessage="Nu au fost găsiți utilizatori. Creează primul utilizator pentru a începe."
-            className={className}
             refreshTrigger={refreshTrigger}
         />
     );

@@ -35,11 +35,8 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
     searchTerm,
     setSearchTerm,
     filteredMembers,
-    membersLoading,
     projects,
     activities,
-    projectsLoading,
-    activitiesLoading,
     selectedProject,
     handleProjectClick,
     getProjectStatusColor,
@@ -306,14 +303,12 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                     </div>
                     
                     <Table<User>
-                        data={filteredMembers}
+                        endpoint="user/list"
                         columns={getMemberColumns()}
                         actions={getMemberActions()}
-                        loading={membersLoading}
                         emptyMessage="Nu au fost găsiți utilizatori în sistem. Creează primul utilizator pentru a începe."
                         showFilters={false}
                         showPagination={false}
-                        className=""
                     />
                 </div>
             ) : (
@@ -331,14 +326,12 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                             )}
                         </div>
                         <Table<Project>
-                            data={projects}
+                            endpoint="project/list"
                             columns={getProjectColumns()}
-                            loading={projectsLoading}
                             onRowClick={(project: Project) => handleProjectClick(project.id)}
                             emptyMessage="Nu există proiecte disponibile"
                             showFilters={false}
                             showPagination={false}
-                            className=""
                         />
                     </div>
                     
@@ -357,13 +350,11 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                             )}
                         </div>
                         <Table<Activity>
-                            data={activities}
+                            endpoint="activity/list"
                             columns={getActivityColumns()}
-                            loading={activitiesLoading}
                             emptyMessage="Nu există activități disponibile"
                             showFilters={false}
                             showPagination={false}
-                            className=""
                         />
                     </div>
                 </div>

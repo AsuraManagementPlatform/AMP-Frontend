@@ -24,6 +24,7 @@ const CommunicationsPage = lazy(() => import('@/pages/crm/Communications.page'))
 const ProjectPage = lazy(() => import("@/pages/project/Project.page.tsx"));
 const MembershipFeesPage = lazy(() => import("@/pages/MembershipFees.page"));
 const TeamManagementPage = lazy(() => import("@/pages/organization/TeamManagement.page"));
+const Vats = lazy(() => import("@/pages/vat/Vats.page"));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center h-screen">
@@ -185,6 +186,14 @@ function App() {
                         <ProfilePage />
                       </ProtectedRoute>
                     }
+                  />
+                  <Route
+                      path={ROUTES.ERP_VATS}
+                      element={
+                          <ProtectedRoute allowedRoles={[UserGroup.ADMIN]}>
+                              <Vats />
+                          </ProtectedRoute>
+                      }
                   />
 
                   <Route path={ROUTES.PROJECTS} element={<Navigate to={ROUTES.ERP_PROJECTS} replace />} />

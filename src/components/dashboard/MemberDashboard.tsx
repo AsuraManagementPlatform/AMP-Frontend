@@ -23,13 +23,7 @@ const MOCK_MESSAGES = [
     { id: '2', subject: 'Sugestie eveniment', date: '2025-03-05', status: 'ÎN AȘTEPTARE', from: 'Tu' },
 ];
 
-export const MemberDashboard: React.FC<MemberDashboardProps> = ({
-    user,
-    projects,
-    activities,
-    projectsLoading,
-    activitiesLoading
-}) => {
+export const MemberDashboard: React.FC<MemberDashboardProps> = ({user}) => {
     const [showSponsorshipModal, setShowSponsorshipModal] = useState(false);
     const [showProposalModal, setShowProposalModal] = useState(false);
     const [showMessageModal, setShowMessageModal] = useState(false);
@@ -127,22 +121,18 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                             <div>
                                 <h4 className="font-semibold text-gray-800 mb-3">Proiectele mele</h4>
                                 <Table<Project>
-                                    data={projects}
+                                    endpoint="project/list"
                                     columns={getProjectColumns()}
-                                    loading={projectsLoading}
                                     emptyMessage="Nu participi la niciun proiect în acest moment"
-                                    className=""
                                 />
                             </div>
                             
                             <div>
                                 <h4 className="font-semibold text-gray-800 mb-3">Activitățile mele</h4>
                                 <Table<Activity>
-                                    data={activities}
+                                    endpoint="activity/list"
                                     columns={getActivityColumns()}
-                                    loading={activitiesLoading}
                                     emptyMessage="Nu ai activități asignate în acest moment"
-                                    className=""
                                 />
                                 <div className="mt-4 flex items-center justify-between bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border border-yellow-200">
                                     <div className="flex-1">

@@ -10,7 +10,8 @@ export const ROUTES = {
     ERP_PROJECT_DETAILS: '/erp/project/:project_id',
     ERP_ACTIVITIES: '/erp/activities',
     ERP_MEMBERSHIP_FEES: '/erp/membership-fees',
-    
+    ERP_VATS: '/erp/vats',
+
     // CRM Module (Users & Organization Management)
     CRM_ADMIN_PANEL: '/crm/admin',
     CRM_ORGANIZATIONS: '/crm/organizations', 
