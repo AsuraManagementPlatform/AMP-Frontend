@@ -56,15 +56,8 @@ export const createProjectFundFormConfig = (): DynamicFormConfig => ({
                     type: FieldType.NUMBER,
                     placeholder: 'ex: 50000',
                     required: true,
-                    min: 0
-                },
-                {
-                    name: 'amount',
-                    label: 'Sumă reală',
-                    type: FieldType.NUMBER,
-                    placeholder: 'ex: 48000',
-                    required: true,
-                    min: 0
+                    min: 0,
+                    step: 0.01
                 },
                 {
                     name: 'currency',
@@ -84,25 +77,12 @@ export const createProjectFundFormConfig = (): DynamicFormConfig => ({
                     placeholder: 'ex: Transfer bancar, Cec',
                     required: true,
                     maxLength: 255
-                }
-            ]
-        },
-        {
-            title: "Perioada",
-            columns: 2,
-            fields: [
+                },
                 {
                     name: 'estimatedDate',
                     label: 'Data estimată',
                     type: FieldType.DATE,
                     placeholder: 'Selectează data estimată',
-                    required: true
-                },
-                {
-                    name: 'date',
-                    label: 'Data efectivă',
-                    type: FieldType.DATE,
-                    placeholder: 'Selectează data efectivă',
                     required: true
                 }
             ]

@@ -26,28 +26,27 @@ export const UpdateProjectFundModal: React.FC<UpdateProjectFundModalProps> = ({
 
   const handleSubmit = async (data: UpdateProjectFundData) => {
     try {
-      setIsSubmitting(true);
+        setIsSubmitting(true);
 
-      const projectFundUpdateRequest: ProjectFundUpdateRequest = {
-        project: data.project,
-        estimatedAmount: data.estimatedAmount,
-        amount: data.amount,
-        source: data.source,
-        category: data.category,
-        sourceName: data.sourceName,
-        currency: data.currency,
-        estimatedDate: data.estimatedDate,
-        date: data.date,
-        paymentMethod: data.paymentMethod,
-        scope: data.scope,
-        documentReference: data.documentReference,
-        notes: data.notes,
-      };
+        const projectFundUpdateRequest: ProjectFundUpdateRequest = {
+            id: data.id,
+            project: data.project,
+            estimatedAmount: data.estimatedAmount,
+            source: data.source,
+            category: data.category,
+            sourceName: data.sourceName,
+            currency: data.currency,
+            estimatedDate: data.estimatedDate,
+            paymentMethod: data.paymentMethod,
+            scope: data.scope,
+            documentReference: data.documentReference,
+            notes: data.notes,
+        };
 
-      await projectFundService.update(fund.id, projectFundUpdateRequest);
-      showToast.success('Finanțarea a fost actualizată cu succes!');
-      onSuccess();
-      onClose();
+        await projectFundService.update(fund.id, projectFundUpdateRequest);
+        showToast.success('Finanțarea a fost actualizată cu succes!');
+        onSuccess();
+        onClose();
     } catch (error: any) {
       const errorMessage = error?.message || 'Eroare la actualizarea finanțării';
       showToast.error(errorMessage);
@@ -58,21 +57,20 @@ export const UpdateProjectFundModal: React.FC<UpdateProjectFundModalProps> = ({
 
   const formConfig = updateProjectFundFormConfig();
 
-  const defaultValues: UpdateProjectFundData = {
-    project: fund.project || project,
-    estimatedAmount: fund.estimatedAmount,
-    amount: fund.amount,
-    source: fund.source || '',
-    category: fund.category || '',
-    sourceName: fund.sourceName || '',
-    currency: fund.currency || 'RON',
-    estimatedDate: fund.estimatedDate || '',
-    date: fund.date || '',
-    paymentMethod: fund.paymentMethod || '',
-    scope: fund.scope || '',
-    documentReference: fund.documentReference || '',
-    notes: fund.notes || ''
-  };
+    const defaultValues: UpdateProjectFundData = {
+        id: fund.id,
+        project: fund.project || project,
+        estimatedAmount: fund.estimatedAmount,
+        source: fund.source || '',
+        category: fund.category || '',
+        sourceName: fund.sourceName || '',
+        currency: fund.currency || 'RON',
+        estimatedDate: fund.estimatedDate || '',
+        paymentMethod: fund.paymentMethod || '',
+        scope: fund.scope || '',
+        documentReference: fund.documentReference || '',
+        notes: fund.notes || ''
+    };
 
   return (
     <Modal

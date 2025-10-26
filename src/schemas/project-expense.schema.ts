@@ -13,7 +13,7 @@ export const PROJECT_EXPENSE_STATUSES = Object.values(ProjectExpenseStatus);
 
 const validateMaxTwoDecimals = (value?: number) => {
     if (value === undefined) {
-        throw new Error(`Nu poate avea mai mult de 2 zecimale`);
+        return true;
     }
 
     const decimalPlaces = (value.toString().split('.')[1] || '').length;

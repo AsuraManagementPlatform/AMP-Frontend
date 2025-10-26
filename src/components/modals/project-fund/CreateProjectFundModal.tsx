@@ -29,13 +29,11 @@ export const CreateProjectFundModal: React.FC<CreateProjectFundModalProps> = ({
             const projectFundCreateRequest: ProjectFundCreateRequest = {
                 project: data.project,
                 estimatedAmount: data.estimatedAmount,
-                amount: data.amount,
                 source: data.source,
                 category: data.category,
                 sourceName: data.sourceName,
                 currency: data.currency,
                 estimatedDate: data.estimatedDate,
-                date: data.date,
                 paymentMethod: data.paymentMethod,
                 scope: data.scope,
                 documentReference: data.documentReference,

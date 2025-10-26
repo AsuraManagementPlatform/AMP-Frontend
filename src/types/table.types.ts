@@ -32,6 +32,7 @@ export interface TableAction<T> {
     variant?: 'primary' | 'secondary' | 'danger';
     show?: (item: T) => boolean;
     tooltip?: string;
+    hidden?: boolean;
 }
 
 export interface TableState {

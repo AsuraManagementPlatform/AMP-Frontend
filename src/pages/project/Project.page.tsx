@@ -272,6 +272,9 @@ const ProjectPage: React.FC = () => {
                             })()}
                         </div>
                         <div>
+
+                        </div>
+                        <div>
                             <label className="block text-sm font-medium text-gray-600 mb-1">
                                 {t('label.project.active_expenses_on_planned_budget')}
                             </label>

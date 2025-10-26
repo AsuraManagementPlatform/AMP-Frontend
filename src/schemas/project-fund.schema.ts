@@ -1,5 +1,17 @@
 import { z } from 'zod';
 
+const validateMaxTwoDecimals = (value?: number) => {
+    if (value === undefined) {
+        return true;
+    }
+
+    const decimalPlaces = (value.toString().split('.')[1] || '').length;
+    if (decimalPlaces > 2) {
+        throw new Error(`Nu poate avea mai mult de 2 zecimale`);
+    }
+    return true;
+};
+
 export const createProjectFundSchema = z.object({
     project: z.string()
         .min(1, 'Proiectul este obligatoriu'),
@@ -22,26 +34,9 @@ export const createProjectFundSchema = z.object({
     }).refine(
         (value) => value >= 0,
         'Suma estimată nu poate fi negativă'
-    ),
-
-    amount: z.union([
-        z.number(),
-        z.string()
-    ]).transform((value) => {
-        if (typeof value === 'string') {
-            if (value === '' || value === null || value === undefined) {
-                throw new Error('Suma este obligatorie');
-            }
-            const num = parseFloat(value);
-            if (isNaN(num)) {
-                throw new Error('Suma trebuie să fie un număr valid');
-            }
-            return num;
-        }
-        return value;
-    }).refine(
-        (value) => value >= 0,
-        'Suma nu poate fi negativă'
+    ).refine(
+        (value) => validateMaxTwoDecimals(value),
+        'Suma estimată nu poate avea mai mult de 2 zecimale'
     ),
 
     source: z.string()
@@ -65,13 +60,6 @@ export const createProjectFundSchema = z.object({
         .refine(
             (value) => !isNaN(Date.parse(value)),
             'Data estimată nu este validă'
-        ),
-
-    date: z.string()
-        .min(1, 'Data este obligatorie')
-        .refine(
-            (value) => !isNaN(Date.parse(value)),
-            'Data nu este validă'
         ),
 
     paymentMethod: z.string()
@@ -105,24 +93,13 @@ export const createProjectFundSchema = z.object({
             (value) => !value || value.length <= 511,
             'Notele nu pot depăși 511 caractere'
         )
-}).refine((data) => {
-    if (data.estimatedDate && data.date) {
-        const estimatedDate = new Date(data.estimatedDate);
-        const actualDate = new Date(data.date);
-        if (isNaN(estimatedDate.getTime()) || isNaN(actualDate.getTime())) {
-            return false;
-        }
-        return actualDate >= estimatedDate;
-    }
-    return true;
-}, {
-    message: 'Data actuală nu poate fi înainte de data estimată',
-    path: ['date']
 });
 
 export type CreateProjectFundData = z.infer<typeof createProjectFundSchema>;
 
 export const updateProjectFundSchema = z.object({
+    id: z.string(),
+
     project: z.string()
         .optional()
         .or(z.literal('')),
@@ -145,26 +122,9 @@ export const updateProjectFundSchema = z.object({
     }).refine(
         (value) => value === undefined || value >= 0,
         'Suma estimată nu poate fi negativă'
-    ),
-
-    amount: z.union([
-        z.number(),
-        z.string()
-    ]).optional().transform((value) => {
-        if (value === undefined || value === null || value === '') {
-            return undefined;
-        }
-        if (typeof value === 'string') {
-            const num = parseFloat(value);
-            if (isNaN(num)) {
-                throw new Error('Suma trebuie să fie un număr valid');
-            }
-            return num;
-        }
-        return value;
-    }).refine(
-        (value) => value === undefined || value >= 0,
-        'Suma nu poate fi negativă'
+    ).refine(
+        (value) => validateMaxTwoDecimals(value),
+        'Suma estimată nu poate avea mai mult de 2 zecimale'
     ),
 
     source: z.string()
@@ -201,14 +161,6 @@ export const updateProjectFundSchema = z.object({
         .refine(
             (value) => !value || !isNaN(Date.parse(value)),
             'Data estimată nu este validă'
-        ),
-
-    date: z.string()
-        .optional()
-        .or(z.literal(''))
-        .refine(
-            (value) => !value || !isNaN(Date.parse(value)),
-            'Data nu este validă'
         ),
 
     paymentMethod: z.string()
@@ -250,19 +202,6 @@ export const updateProjectFundSchema = z.object({
             (value) => !value || value.length <= 511,
             'Notele nu pot depăși 511 caractere'
         )
-}).refine((data) => {
-    if (data.estimatedDate && data.date) {
-        const estimatedDate = new Date(data.estimatedDate);
-        const actualDate = new Date(data.date);
-        if (isNaN(estimatedDate.getTime()) || isNaN(actualDate.getTime())) {
-            return true;
-        }
-        return actualDate >= estimatedDate;
-    }
-    return true;
-}, {
-    message: 'Data actuală nu poate fi înainte de data estimată',
-    path: ['date']
 });
 
 export type UpdateProjectFundData = z.infer<typeof updateProjectFundSchema>;
@@ -270,13 +209,11 @@ export type UpdateProjectFundData = z.infer<typeof updateProjectFundSchema>;
 export const getCreateProjectFundDefaultValues = (projectId?: string): CreateProjectFundData => ({
     project: projectId || '',
     estimatedAmount: 0,
-    amount: 0,
     source: '',
     category: '',
     sourceName: '',
     currency: 'RON',
     estimatedDate: '',
-    date: '',
     paymentMethod: '',
     scope: '',
     documentReference: '',
