@@ -23,7 +23,7 @@ export interface ProjectMember extends BaseEntity {
     project: string;
     projectName?: string;
     member: string;
-    memberName?: string;
+    memberFullName?: string;
     memberEmail?: string;
     userRole: string;
     addedToProject: string;
@@ -46,7 +46,9 @@ export interface ProjectMemberCreateRequest {
     activeTo: string;
 }
 
-export interface ProjectMemberUpdateRequest extends Partial<ProjectMemberCreateRequest> {}
+export interface ProjectMemberUpdateRequest extends Partial<ProjectMemberCreateRequest> {
+    id: string;
+}
 
 export interface ProjectMemberFilter {
     projectId?: string;

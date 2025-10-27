@@ -49,6 +49,9 @@ const resources = {
                     allocated_on: "Allocated on",
                     remaining_amount: "Remaining Amount",
                     allocated_amount: "Allocated Amount",
+                    total_planned_funds: "Total Planned Funds",
+                    total_paid_remaining: "Total Paid / Remaining",
+                    remaining: "Remaining"
                 },
                 project_expense: {
                     planned: "Planned",
@@ -88,7 +91,9 @@ const resources = {
                     details: "Expense Details",
                     funded_by: "Funded By",
                     cancelled_funding: "Cancelled Funding",
-                    funded_on: "Funded on"
+                    funded_on: "Funded on",
+                    total_planned_expenses: "Total Planned Expenses",
+                    total_paid_expenses: "Total Paid Expenses"
                 },
                 vat: {
                     name: "Unique name",
@@ -278,6 +283,9 @@ const resources = {
                     allocated_on: "Alocat la data de",
                     remaining_amount: "Suma rămasă",
                     allocated_amount: "Suma alocată",
+                    total_planned_funds: "Total Fonduri Planificate",
+                    total_paid_remaining: "Total Plătit / Rămas",
+                    remaining: "Rămas"
                 },
                 project_expense: {
                     planned: "Planificat",
@@ -317,7 +325,9 @@ const resources = {
                     details: "Detalii cheltuială",
                     funded_by: "Finanțat de",
                     cancelled_funding: "Finanțare anulată",
-                    funded_on: "Finanțat la data de"
+                    funded_on: "Finanțat la data de",
+                    total_planned_expenses: "Total Cheltuieli Planificate",
+                    total_paid_expenses: "Total Cheltuieli Plătite"
                 },
                 vat: {
                     name: "Denumire unica",

@@ -36,7 +36,7 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
     const handleDelete = async (member: ProjectMember) => {
       const isConfirmed = await confirm({
         title: 'Elimină membru din echipa proiectului',
-        message: `Sigur doriți să eliminați membrul "${member.memberName}" din proiect?`,
+        message: `Sigur doriți să eliminați membrul "${member.memberFullName}" din proiect?`,
         confirmText: 'Confirmă',
         cancelText: 'Renunță',
         confirmButtonVariant: 'primary',
@@ -63,21 +63,27 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
 
     const getColumns = (): TableColumn<ProjectMember>[] => [
         {
-            key: 'memberName',
+            key: 'memberFullName',
             label: 'Nume',
-            sortable: false,
+            sortable: true,
+            filterable: true,
+            filterType: 'text',
             size: 'lg'
         },
         {
             key: 'memberEmail',
             label: 'Email',
-            sortable: false,
+            sortable: true,
+            filterable: true,
+            filterType: 'text',
             size: 'md',
         },
         {
             key: 'userRole',
             label: 'Rol',
             sortable: true,
+            filterable: true,
+            filterType: 'text',
             size: 'sm',
         },
         {

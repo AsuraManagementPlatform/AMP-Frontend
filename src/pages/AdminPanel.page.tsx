@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import React, {useEffect, useState} from 'react';
+import {useAuth} from '@/hooks/useAuth';
 import Layout from '@/components/layout/Layout';
 import {Card} from "@/components/ui/Card.tsx";
 import {Alert} from "@/components/ui/Alert.tsx";
@@ -7,15 +7,15 @@ import {Button} from "@/components/ui/Button.tsx";
 import userService from "@/services/user.service.ts";
 import organizationService from "@/services/organization.service.ts";
 import {User, UserMeResponse} from "@/types/user.types.ts";
-import {Activity, PaginatedResponse, TableAction, TableColumn} from "@/types/index.types.ts";
+import {PaginatedResponse, TableColumn} from "@/types/index.types.ts";
 import Table from "@/components/ui/Table.tsx";
-import { CreateUserModal } from "@/components/modals/user/CreateUserModal.tsx";
-import { EditUserModal } from "@/components/modals/user/EditUserModal.tsx";
-import { PasswordResetConfirmModal } from "@/components/modals/user/PasswordResetConfirmModal.tsx";
-import { LinkOrganizationModal } from "@/components/modals/organization/LinkOrganizationModal.tsx";
-import { OrganizationCreationModal } from "@/components/organization/OrganizationCreationModal.tsx";
-import { UserCreateRequest } from "@/schemas/user.schema.ts";
-import { CreateOrganizationData } from "@/schemas/organization.schema.ts";
+import {CreateUserModal} from "@/components/modals/user/CreateUserModal.tsx";
+import {EditUserModal} from "@/components/modals/user/EditUserModal.tsx";
+import {PasswordResetConfirmModal} from "@/components/modals/user/PasswordResetConfirmModal.tsx";
+import {LinkOrganizationModal} from "@/components/modals/organization/LinkOrganizationModal.tsx";
+import {OrganizationCreationModal} from "@/components/organization/OrganizationCreationModal.tsx";
+import {UserCreateRequest} from "@/schemas/user.schema.ts";
+import {CreateOrganizationData} from "@/schemas/organization.schema.ts";
 import showToast from "@/components/ui/Toast.tsx";
 
 const AdminPanel: React.FC = () => {

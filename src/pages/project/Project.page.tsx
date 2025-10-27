@@ -347,6 +347,8 @@ const ProjectPage: React.FC = () => {
         >
             <ProjectExpenseList
                 project={project.id}
+                projectBudget={project.budget || 0}
+                projectCurrency={project.currency || 'RON'}
                 refreshTrigger={refreshExpenses}
             />
 
@@ -376,6 +378,8 @@ const ProjectPage: React.FC = () => {
         >
             <ProjectFundList
                 project={project.id}
+                projectBudget={project.budget || 0}
+                projectCurrency={project.currency || 'RON'}
                 refreshTrigger={refreshFunds}
             />
 

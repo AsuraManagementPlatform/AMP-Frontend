@@ -69,6 +69,8 @@ export const createProjectMemberSchema = z.object({
 export type CreateProjectMemberData = z.infer<typeof createProjectMemberSchema>;
 
 export const updateProjectMemberSchema = z.object({
+    id: z.string(),
+
     project: z.string()
         .optional()
         .or(z.literal('')),

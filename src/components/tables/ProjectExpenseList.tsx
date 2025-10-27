@@ -8,22 +8,27 @@ import IconX from "@/assets/icons/iconmonstr-x.svg?react";
 import {ProjectExpense} from '@/types/project-expense.types';
 import {UpdateProjectExpenseModal} from '@/components/modals/project-expense/UpdateProjectExpenseModal';
 import {ExecuteProjectExpenseModal} from '@/components/modals/project-expense/ExecuteProjectExpenseModal';
+import {ExpenseDetailsModal} from '@/components/modals/project-expense/ExpenseDetailsModal';
 import projectExpenseService from '@/services/project-expense.service';
 import showToast from '@/components/ui/Toast';
 import {useConfirmDialog} from "@/components/ui/ConfirmDialog";
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
-import {t} from 'i18next';
+import { t } from 'i18next';
 import projectFundService from "@/services/project-fund.service.ts";
-import {ExpenseDetailsModal} from "@/components/modals/project-expense/ExpenseDetailsModal.tsx";
+import { Card } from '@/components/ui/Card';
 
 interface ProjectExpenseListProps {
     project: string;
+    projectBudget?: number;
+    projectCurrency?: string;
     refreshTrigger?: number;
     pageSize?: number;
 }
 
 export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                                                                           project,
+                                                                          projectBudget = 0,
+                                                                          projectCurrency = 'RON',
                                                                           refreshTrigger = 0,
                                                                           pageSize = 10
                                                                       }) => {
@@ -35,17 +40,18 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
     const [localRefresh, setLocalRefresh] = useState(0);
     const [hasPaidFunds, setHasPaidFunds] = useState<boolean>(true);
 
+    const [totalPlannedExpenses, setTotalPlannedExpenses] = useState<number>(0);
+    const [totalPaidExpenses, setTotalPaidExpenses] = useState<number>(0);
+    const [loadingStats, setLoadingStats] = useState(true);
+
     const handleRowClick = async (expense: ProjectExpense) => {
         try {
             const fullExpense = await projectExpenseService.getById(expense.id);
             setSelectedExpense(fullExpense);
             setIsDetailsModalOpen(true);
         } catch (error) {
-            if (error instanceof Error) {
-                showToast.error(error.message);
-            } else {
-                showToast.error(t('toast.project_expense.load_error'));
-            }
+            const errorMessage = error instanceof Error ? error.message : t('toast.project_expense.load_error');
+            showToast.error(errorMessage);
         }
     };
 
@@ -84,8 +90,10 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
     };
 
     useEffect(() => {
-        const checkPaidFunds = async () => {
+        const fetchData = async () => {
             try {
+                setLoadingStats(true);
+
                 const fundsResponse = await projectFundService.getList({
                     pageSize: 100,
                     filters: {
@@ -99,12 +107,35 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                 );
 
                 setHasPaidFunds(fundsWithRemaining.length > 0);
+
+                const expensesResponse = await projectExpenseService.getList({
+                    pageSize: 1000,
+                    filters: {
+                        project_id: project
+                    }
+                });
+
+                const expenses = expensesResponse.results || [];
+
+                const plannedTotal = expenses
+                    .filter(exp => exp.status === ProjectExpenseStatus.PLANNED)
+                    .reduce((sum, exp) => sum + (exp.totalAmount || 0), 0);
+
+                const paidTotal = expenses
+                    .filter(exp => exp.status === ProjectExpenseStatus.PAID)
+                    .reduce((sum, exp) => sum + (exp.totalAmount || 0), 0);
+
+                setTotalPlannedExpenses(plannedTotal);
+                setTotalPaidExpenses(paidTotal);
             } catch (error) {
-                console.error('Error checking paid funds:', error);
+                const errorMessage = error instanceof Error ? error.message : 'Error fetching expense stats';
+                console.error(errorMessage);
+            } finally {
+                setLoadingStats(false);
             }
         };
 
-        checkPaidFunds();
+        fetchData();
     }, [project, localRefresh]);
 
     const handleDelete = async (expense: ProjectExpense) => {
@@ -144,14 +175,13 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             key: 'name',
             label: t('label.project_expense.name'),
             sortable: true,
+            filterable: true,
+            filterType: 'text',
             size: 'lg',
         },
         {
             key: 'activityTitle',
             label: t('label.project_expense.activity'),
-            sortable: true,
-            filterable: true,
-            filterType: 'text',
             size: 'sm',
         },
         {
@@ -168,7 +198,12 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             label: t('label.project_expense.status'),
             sortable: true,
             filterable: true,
-            filterType: 'text',
+            filterType: 'select',
+            filterOptions: [
+                { label: t('label.project_expense.planned'), value: ProjectExpenseStatus.PLANNED},
+                { label: t('label.project_expense.paid'), value: ProjectExpenseStatus.PAID},
+                { label: t('label.project_expense.cancelled'), value: ProjectExpenseStatus.CANCELLED},
+            ],
             size: 'sm',
             render: (status: string) => {
                 const statusColors: Record<string, string> = {
@@ -224,6 +259,35 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
 
     return (
         <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <Card className="text-center">
+                    <div className="text-sm text-gray-600 mb-2">
+                        {t('label.project_expense.total_planned_expenses')}
+                    </div>
+                    <div className="text-2xl font-bold text-yellow-600">
+                        {loadingStats ? '...' : `${totalPlannedExpenses.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${projectCurrency}`}
+                    </div>
+                </Card>
+
+                <Card className="text-center">
+                    <div className="text-sm text-gray-600 mb-2">
+                        {t('label.project_expense.total_paid_expenses')}
+                    </div>
+                    <div className="text-2xl font-bold text-green-600">
+                        {loadingStats ? '...' : `${totalPaidExpenses.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${projectCurrency}`}
+                    </div>
+                </Card>
+
+                <Card className="text-center">
+                    <div className="text-sm text-gray-600 mb-2">
+                        {t('label.project.planned_budget')}
+                    </div>
+                    <div className="text-2xl font-bold text-blue-600">
+                        {projectBudget.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}
+                    </div>
+                </Card>
+            </div>
+
             <Table<ProjectExpense>
                 endpoint={`project_expense/list?project_id=${project}`}
                 columns={getColumns()}

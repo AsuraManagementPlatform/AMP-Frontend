@@ -22,7 +22,7 @@ const FilterInput: React.FC<FilterInputProps> = ({ column, currentFilter, onFilt
         }
         return currentFilter?.value || '';
     });
-    const [operator, setOperator] = useState(currentFilter?.operator || 'icontains');
+    const [operator, setOperator] = useState(currentFilter?.operator || 'exact');
 
     if (!column.filterable) return null;
 
