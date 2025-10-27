@@ -135,7 +135,8 @@ const resources = {
                 }
             },
             tab: {
-                project_expenses: "Project expenses"
+                project_expenses: "Project expenses",
+                project_funds: "Project funds",
             },
             schema: {
                 max_decimals: "Cannot have more than 2 decimals",
@@ -248,7 +249,7 @@ const resources = {
                     active_funds: "Fonduri disponibile",
                     active_expenses: "Fonduri utilizate",
                     active_funds_on_planned_budget: "Procent din bugetul planificat",
-                    active_expenses_on_active_funds: "Procent din fonduri",
+                    active_expenses_on_active_funds: "Procent din fondurile disponibile",
                     active_expenses_on_planned_budget: "Procent din bugetul planificat",
                 },
                 project_fund: {
@@ -369,7 +370,8 @@ const resources = {
                 }
             },
             tab: {
-                project_expenses: "Buget Proiect"
+                project_expenses: "Buget Proiect",
+                project_funds: "Finanțare proiect",
             },
             schema: {
                 max_decimals: "Nu poate avea mai mult de 2 zecimale",

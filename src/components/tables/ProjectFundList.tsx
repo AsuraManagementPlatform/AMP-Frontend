@@ -4,7 +4,6 @@ import Table from "@/components/ui/Table.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
 import IconWallet from "@/assets/icons/iconmonstr-wallet.svg?react";
-import IconX from "@/assets/icons/iconmonstr-x.svg?react";
 import {ProjectFund} from '@/types/project-fund.types';
 import {UpdateProjectFundModal} from '@/components/modals/project-fund/UpdateProjectFundModal';
 import {PayProjectFundModal} from '@/components/modals/project-fund/PayProjectFundModal';
@@ -13,8 +12,8 @@ import projectFundService from '@/services/project-fund.service';
 import showToast from '@/components/ui/Toast';
 import {useConfirmDialog} from "@/components/ui/ConfirmDialog";
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
-import { t } from 'i18next';
-import { Card } from '@/components/ui/Card';
+import {t} from 'i18next';
+import {Card} from '@/components/ui/Card';
 
 interface ProjectFundListProps {
     project: string;
@@ -65,6 +64,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
     };
 
     const handleCancel = async (fund: ProjectFund) => {
+        setIsDetailsModalOpen(false);
         const isConfirmed = await confirm({
             title: t('label.project_fund.cancel_fund_title'),
             message: `${t('label.project_fund.cancel_fund_message')} "${fund.sourceName}"?\n\n${t('label.project_fund.cancel_fund_warning')}`,
@@ -247,13 +247,6 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
             show: (fund: ProjectFund) => fund.status === ProjectFundStatus.PLANNED
         },
         {
-            label: t('action.cancel_fund'),
-            variant: 'danger',
-            onClick: handleCancel,
-            icon: <IconX />,
-            show: (fund: ProjectFund) => fund.status === ProjectFundStatus.PLANNED
-        },
-        {
             label: t('action.delete'),
             variant: 'danger',
             onClick: handleDelete,
@@ -345,6 +338,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                         setIsDetailsModalOpen(false);
                         setSelectedFund(null);
                     }}
+                    onCancel={handleCancel}
                     fund={selectedFund}
                 />
             )}

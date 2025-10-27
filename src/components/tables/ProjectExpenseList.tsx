@@ -4,7 +4,6 @@ import Table from "@/components/ui/Table.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
 import IconCheckList from "@/assets/icons/iconmonstr-ckeck-list.svg?react";
-import IconX from "@/assets/icons/iconmonstr-x.svg?react";
 import {ProjectExpense} from '@/types/project-expense.types';
 import {UpdateProjectExpenseModal} from '@/components/modals/project-expense/UpdateProjectExpenseModal';
 import {ExecuteProjectExpenseModal} from '@/components/modals/project-expense/ExecuteProjectExpenseModal';
@@ -13,9 +12,9 @@ import projectExpenseService from '@/services/project-expense.service';
 import showToast from '@/components/ui/Toast';
 import {useConfirmDialog} from "@/components/ui/ConfirmDialog";
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
-import { t } from 'i18next';
+import {t} from 'i18next';
 import projectFundService from "@/services/project-fund.service.ts";
-import { Card } from '@/components/ui/Card';
+import {Card} from '@/components/ui/Card';
 
 interface ProjectExpenseListProps {
     project: string;
@@ -66,6 +65,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
     };
 
     const handleCancel = async (expense: ProjectExpense) => {
+        setIsDetailsModalOpen(false);
         const isConfirmed = await confirm({
             title: t('label.project_expense.cancel_expense_title'),
             message: `${t('label.project_expense.cancel_expense_message')} "${expense.name}"?\n\n${t('label.project_expense.cancel_expense_warning')}`,
@@ -242,13 +242,6 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             show: (expense: ProjectExpense) => expense.status === ProjectExpenseStatus.PLANNED
         },
         {
-            label: t('action.cancel_expense'),
-            variant: 'danger',
-            onClick: handleCancel,
-            icon: <IconX />,
-            show: (expense: ProjectExpense) => expense.status === ProjectExpenseStatus.PAID
-        },
-        {
             label: t('action.delete'),
             variant: 'danger',
             onClick: handleDelete,
@@ -334,6 +327,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                         setIsDetailsModalOpen(false);
                         setSelectedExpense(null);
                     }}
+                    onCancel={handleCancel}
                     expense={selectedExpense}
                 />
             )}

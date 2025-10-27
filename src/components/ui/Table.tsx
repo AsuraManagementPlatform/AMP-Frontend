@@ -363,32 +363,43 @@ function Table<T extends Record<string, any>>({
                                 </td>
                             </tr>
                         ) : (
-                            data.map((item, index) => (
-                                <tr
-                                    key={item.id || index}
-                                    onClick={() => onRowClick?.(item, index)}
-                                    className={`${
-                                        onRowClick ? 'cursor-pointer hover:bg-blue-50' : 'hover:bg-gray-50'
-                                    } ${loading ? 'opacity-50' : ''} transition-colors duration-150 ease-in-out`}
-                                >
-                                    {allColumns.map((column) => {
-                                        const widthClass = getColumnWidthClass(column.size as ColumnSize);
-                                        return (
-                                            <td
-                                                key={String(column.key)}
-                                                className={`px-6 py-4 text-sm text-gray-900 ${widthClass}`}
-                                            >
-                                                <div className="truncate">
-                                                    {column.render
-                                                        ? column.render(item[column.key], item, index)
-                                                        : item[column.key] || '-'
-                                                    }
-                                                </div>
+                            <>
+                                {data.map((item, index) => (
+                                    <tr
+                                        key={item.id || index}
+                                        onClick={() => onRowClick?.(item, index)}
+                                        className={`${
+                                            onRowClick ? 'cursor-pointer hover:bg-blue-50' : 'hover:bg-gray-50'
+                                        } ${loading ? 'opacity-50' : ''} transition-colors duration-150 ease-in-out`}
+                                    >
+                                        {allColumns.map((column) => {
+                                            const widthClass = getColumnWidthClass(column.size as ColumnSize);
+                                            return (
+                                                <td
+                                                    key={String(column.key)}
+                                                    className={`px-6 py-4 text-sm text-gray-900 ${widthClass}`}
+                                                >
+                                                    <div className="truncate">
+                                                        {column.render
+                                                            ? column.render(item[column.key], item, index)
+                                                            : item[column.key] || '-'
+                                                        }
+                                                    </div>
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ))}
+                                {Array.from({ length: 1 }).map((_, i) => (
+                                    <tr key={`empty-${i}`}>
+                                        {allColumns.map((column) => (
+                                            <td key={String(column.key)} className="px-6 py-4 text-sm text-gray-900">
+                                                <div className="h-5"></div>
                                             </td>
-                                        );
-                                    })}
-                                </tr>
-                            ))
+                                        ))}
+                                    </tr>
+                                ))}
+                            </>
                         )}
                         </tbody>
                     </table>

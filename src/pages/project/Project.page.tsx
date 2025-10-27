@@ -50,7 +50,8 @@ const ProjectPage: React.FC = () => {
                 const data = await projectService.getById(project_id);
                 setProject(data);
             } catch (error) {
-                showToast.error('Eroare la încărcarea proiectului');
+                const errorMessage = error instanceof Error ? error.message : 'Eroare la încărcarea proiectului';
+                showToast.error(errorMessage);
             } finally {
                 setLoading(false);
             }
@@ -365,7 +366,7 @@ const ProjectPage: React.FC = () => {
 
     const renderFundsTab = () => (
         <Card
-            title="Finanțare proiect"
+            title={t('tab.project_funds')}
             className="mb-6"
             headerActions={
                 <PrimaryActionButton
@@ -476,7 +477,7 @@ const ProjectPage: React.FC = () => {
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                         >
-                            Cheltuieli
+                            {t('tab.project_expenses')}
                         </button>
                         <button
                             onClick={() => setActiveTab('funds')}
@@ -486,7 +487,7 @@ const ProjectPage: React.FC = () => {
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                         >
-                            Finanțare
+                            {t('tab.project_funds')}
                         </button>
                         <button
                             onClick={() => setActiveTab('members')}

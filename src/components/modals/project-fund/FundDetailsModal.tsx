@@ -1,6 +1,6 @@
 import React from 'react';
 import {Modal} from '@/components/ui/Modal';
-import {FundAllocationStatus, ProjectFund} from '@/types/index.types';
+import {FundAllocationStatus, ProjectFund, ProjectFundStatus} from '@/types/index.types';
 import {t} from 'i18next';
 import {Card} from '@/components/ui/Card';
 import {Alert} from '@/components/ui/Alert';
@@ -9,12 +9,14 @@ import {ModalButton} from '@/components/ui/ModalButton';
 interface FundDetailsModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onCancel?: (fund: ProjectFund) => void;
     fund: ProjectFund;
 }
 
 export const FundDetailsModal: React.FC<FundDetailsModalProps> = ({
                                                                       isOpen,
                                                                       onClose,
+                                                                      onCancel,
                                                                       fund
                                                                   }) => {
     const activeAllocations = fund.allocations?.filter(
@@ -25,12 +27,15 @@ export const FundDetailsModal: React.FC<FundDetailsModalProps> = ({
         a => a.status === FundAllocationStatus.CANCELLED
     ) || [];
 
+    const canCancel = fund.status === ProjectFundStatus.PLANNED && onCancel;
+
     return (
         <Modal
             isOpen={isOpen}
             onClose={onClose}
             title={`${t('label.project_fund.details')} - ${fund.sourceName}`}
             size="lg"
+            showCloseButton={false}
         >
             <div className="space-y-6">
                 <Card title={t('label.project_fund.fund_info')} padding="md">
@@ -140,8 +145,15 @@ export const FundDetailsModal: React.FC<FundDetailsModalProps> = ({
                     </Alert>
                 )}
 
-                <div className="flex justify-end pt-4 border-t">
-                    <ModalButton onClick={onClose} variant="cancel">
+                <div className="flex justify-between pt-4 border-t">
+                    <div>
+                        {canCancel && (
+                            <ModalButton onClick={() => onCancel(fund)} variant="danger">
+                                {t('action.cancel_fund')}
+                            </ModalButton>
+                        )}
+                    </div>
+                    <ModalButton onClick={onClose} variant="secondary">
                         {t('action.close')}
                     </ModalButton>
                 </div>

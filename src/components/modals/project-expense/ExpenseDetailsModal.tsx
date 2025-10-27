@@ -1,6 +1,6 @@
 import React from 'react';
 import {Modal} from '@/components/ui/Modal';
-import {FundAllocationStatus, ProjectExpense} from '@/types/index.types';
+import {FundAllocationStatus, ProjectExpense, ProjectExpenseStatus} from '@/types/index.types';
 import {t} from 'i18next';
 import {Card} from '@/components/ui/Card';
 import {Alert} from '@/components/ui/Alert';
@@ -9,12 +9,14 @@ import {ModalButton} from '@/components/ui/ModalButton';
 interface ExpenseDetailsModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onCancel?: (expense: ProjectExpense) => void;
     expense: ProjectExpense;
 }
 
 export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
                                                                             isOpen,
                                                                             onClose,
+                                                                            onCancel,
                                                                             expense
                                                                         }) => {
     const activeAllocations = expense.fundAllocations?.filter(
@@ -25,12 +27,15 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
         a => a.status === FundAllocationStatus.CANCELLED
     ) || [];
 
+    const canCancel = expense.status === ProjectExpenseStatus.PAID && onCancel;
+
     return (
         <Modal
             isOpen={isOpen}
             onClose={onClose}
             title={`${t('label.project_expense.details')} - ${expense.name}`}
             size="lg"
+            showCloseButton={false}
         >
             <div className="space-y-6">
                 <Card title={t('label.project_expense.expense_info')} padding="md">
@@ -137,8 +142,15 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
                     </Card>
                 )}
 
-                <div className="flex justify-end pt-4 border-t">
-                    <ModalButton onClick={onClose} variant="cancel">
+                <div className="flex justify-between pt-4 border-t">
+                    <div>
+                        {canCancel && (
+                            <ModalButton onClick={() => onCancel(expense)} variant="danger">
+                                {t('action.cancel_expense')}
+                            </ModalButton>
+                        )}
+                    </div>
+                    <ModalButton onClick={onClose} variant="secondary">
                         {t('action.close')}
                     </ModalButton>
                 </div>
