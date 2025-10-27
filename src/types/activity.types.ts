@@ -58,7 +58,9 @@ export interface ActivityCreateRequest {
     indicators?: string;
 }
 
-export interface ActivityUpdateRequest extends Partial<ActivityCreateRequest> {}
+export interface ActivityUpdateRequest extends Partial<ActivityCreateRequest> {
+    id: string;
+}
 
 export interface ActivityStats {
     totalActivities: number;

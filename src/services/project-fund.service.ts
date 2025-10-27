@@ -9,7 +9,7 @@ import {apiService} from "@/services/api.service.ts";
 
 export const projectFundService = {
     getList: async (params?: ListParams): Promise<PaginatedResponse<ProjectFund>> => {
-        return apiService.getPaginatedList<ProjectFund>('project-fund/list', params);
+        return apiService.getPaginatedList<ProjectFund>('project_fund/list', params);
     },
 
     getById: async (id: string): Promise<ProjectFund> => {

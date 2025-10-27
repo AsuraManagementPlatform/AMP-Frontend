@@ -1,7 +1,10 @@
 import {
     ListParams,
     PaginatedResponse,
-    ProjectExpense, ProjectExpenseCreateRequest, ProjectExpenseUpdateRequest,
+    ProjectExpense,
+    ProjectExpenseCreateRequest,
+    ProjectExpenseUpdateRequest,
+    ProjectExpenseExecuteRequest,
 } from "@/types/index.types.ts";
 import {apiService} from "@/services/api.service.ts";
 
@@ -20,6 +23,14 @@ export const projectExpenseService = {
 
     update: async (id: string, data: Partial<ProjectExpenseUpdateRequest>): Promise<ProjectExpense> => {
         return apiService.put<ProjectExpense>(`project_expense/update/${id}`, data);
+    },
+
+    execute: async (id: string, data: ProjectExpenseExecuteRequest): Promise<ProjectExpense> => {
+        return apiService.put<ProjectExpense>(`project_expense/execute/${id}`, data);
+    },
+
+    cancel: async (id: string): Promise<ProjectExpense> => {
+        return apiService.put<ProjectExpense>(`project_expense/cancel/${id}`, {});
     },
 
     delete: async (id: string): Promise<void> => {

@@ -21,6 +21,9 @@ export interface ProjectFund extends BaseEntity {
     documentReference?: string;
     notes?: string;
     status: string;
+    allocatedAmount?: number;
+    remainingAmount?: number;
+    allocations?: ProjectFundAllocation[];
 }
 
 export interface ProjectFundCreateRequest {
@@ -50,4 +53,22 @@ export interface ProjectFundPayRequest {
 
 export interface ProjectFundCancelRequest {
     id: string;
+}
+
+export const FundAllocationStatus = {
+    ACTIVE: 'ACTIVE',
+    CANCELLED: 'CANCELLED'
+} as const;
+
+export type FundAllocationStatusType = typeof FundAllocationStatus[keyof typeof FundAllocationStatus];
+
+export interface ProjectFundAllocation {
+    id: string;
+    projectFund: string;
+    projectExpense: string;
+    allocatedAmount: number;
+    status: FundAllocationStatusType;
+    createdAt: string;
+    expenseName?: string;
+    fundSourceName?: string;
 }

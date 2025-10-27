@@ -13,7 +13,7 @@ import { ROUTES } from '@/utils/constants.utils';
 const EntitiesPage: React.FC = () => {
     const navigate = useNavigate();
     const [entities, setEntities] = useState<Entity[]>([]);
-    const [_isLoading, setIsLoading] = useState(true);
+    //const [_isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState<string>('all');
     const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -28,14 +28,18 @@ const EntitiesPage: React.FC = () => {
 
     const loadEntities = async () => {
         try {
-            setIsLoading(true);
+            //setIsLoading(true);
             const response = await entityService.getList();
             const entitiesData = response.results || [];
             setEntities(entitiesData);
         } catch (error) {
-            showToast.error('Eroare la încărcarea entităților');
+            if (error instanceof Error) {
+                showToast.error(error.message);
+            } else {
+                showToast.error('Eroare la încărcarea entităților');
+            }
         } finally {
-            setIsLoading(false);
+            //setIsLoading(false);
         }
     };
 

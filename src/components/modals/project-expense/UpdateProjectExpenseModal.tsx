@@ -42,7 +42,11 @@ export const UpdateProjectExpenseModal: React.FC<UpdateProjectExpenseModalProps>
                 });
                 setActivities(response.results || []);
             } catch (error) {
-                showToast.error('Eroare la încărcarea activităților');
+                if (error instanceof Error) {
+                    showToast.error(error.message);
+                } else {
+                    showToast.error('Eroare la încărcarea activităților');
+                }
             } finally {
                 setLoadingActivities(false);
             }
@@ -85,7 +89,6 @@ export const UpdateProjectExpenseModal: React.FC<UpdateProjectExpenseModalProps>
                 unitPrice: data.unitPrice,
                 category: data.category,
                 currency: data.currency,
-                status: data.status,
             }
 
             await projectExpenseService.update(expense.id, projectExpenseUpdateRequest);
@@ -113,7 +116,6 @@ export const UpdateProjectExpenseModal: React.FC<UpdateProjectExpenseModalProps>
         unitPrice: expense.unitPrice,
         category: expense.category,
         currency: expense.currency,
-        status: expense.status
     };
 
     if (loadingActivities || loadingVats) {

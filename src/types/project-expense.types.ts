@@ -1,4 +1,4 @@
-import {BaseEntity, Currency} from "@/types/index.types";
+import {BaseEntity, Currency, ProjectFundAllocation} from "@/types/index.types";
 
 export const ProjectExpenseStatus = {
   PLANNED: 'PLANNED',
@@ -46,6 +46,7 @@ export interface ProjectExpense extends BaseEntity {
     category: ExpenseCategoryType;
     currency: Currency;
     status: ProjectExpenseStatusType;
+    fundAllocations?: ProjectFundAllocation[];
 }
 
 export interface ProjectExpenseCreateRequest {
@@ -58,9 +59,26 @@ export interface ProjectExpenseCreateRequest {
     unitPrice: number;
     category: ExpenseCategoryType;
     currency: Currency;
-    status: ProjectExpenseStatusType;
 }
 
 export interface ProjectExpenseUpdateRequest extends Partial<ProjectExpenseCreateRequest> {
   id: string;
+}
+
+export interface ProjectExpenseExecuteRequest {
+    vat: string;
+    quantity: number;
+    unitPrice: number;
+    date: string;
+    fundAllocations: {
+        fundId: string;
+        amount: number;
+    }[];
+}
+
+export interface FundAllocationSuggestion {
+    fundId: string;
+    fundName: string;
+    remainingAmount: number;
+    allocatedAmount: number;
 }

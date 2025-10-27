@@ -71,7 +71,8 @@ const ProjectPage: React.FC = () => {
             setProject(updatedProject);
             showToast.success('Proiectul a fost actualizat cu succes!');
         } catch (error) {
-            showToast.error('Eroare la reîncărcarea proiectului');
+            const errorMessage = error instanceof Error ? error.message : 'Eroare la reîncărcarea proiectului';
+            showToast.error(errorMessage);
         }
     };
 
@@ -194,7 +195,7 @@ const ProjectPage: React.FC = () => {
                 </div>
             </Card>
 
-            <Card title="Buget" className="mb-6">
+            <Card title="Buget" className="mb-6 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-600 mb-1">
@@ -271,9 +272,7 @@ const ProjectPage: React.FC = () => {
                                 );
                             })()}
                         </div>
-                        <div>
-
-                        </div>
+                        <div></div>
                         <div>
                             <label className="block text-sm font-medium text-gray-600 mb-1">
                                 {t('label.project.active_expenses_on_planned_budget')}

@@ -117,6 +117,8 @@ export const createActivitySchema = z.object({
 export type CreateActivityData = z.infer<typeof createActivitySchema>;
 
 export const updateActivitySchema = z.object({
+    id: z.string(),
+
     project: z.string()
         .optional()
         .or(z.literal('')),

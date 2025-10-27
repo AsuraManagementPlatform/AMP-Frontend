@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import React, {useEffect, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
+import {useAuth} from "@/hooks/useAuth";
 import Layout from "@/components/layout/Layout";
-import { Card } from "@/components/ui/Card";
-import { PrimaryActionButton } from "@/components/ui/PrimaryActionButton";
-import { SecondaryButton } from "@/components/ui/SecondaryButton";
-import Table from "@/components/ui/Table.tsx";
+import {Card} from "@/components/ui/Card";
+import {PrimaryActionButton} from "@/components/ui/PrimaryActionButton";
+import {SecondaryButton} from "@/components/ui/SecondaryButton";
 import showToast from "@/components/ui/Toast";
-import { UserGroup, TableColumn, TableAction } from "@/types/index.types";
+import {TableAction, TableColumn, UserGroup} from "@/types/index.types";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
-import { Entity, EntityStatus, EngagementLevel, LegalType, EntityType } from "@/types/entity.types";
-import { EntityDonation } from "@/types/donation.types";
-import { EntityCommunication, CommunicationType, CommunicationStatus } from "@/types/communication.types";
-import { entityService } from "@/services/entity.service";
-import { donationService } from "@/services/donation.service";
-import { communicationService } from "@/services/communication.service";
-import { UpdateEntityModal } from "@/components/modals/entity/UpdateEntityModal";
-import { CreateCommunicationModal } from "@/components/modals/entity/CreateCommunicationModal";
-import { UpdateCommunicationModal } from "@/components/modals/entity/UpdateCommunicationModal";
-import { ROUTES } from "@/utils/constants.utils";
+import {EngagementLevel, Entity, EntityStatus, EntityType, LegalType} from "@/types/entity.types";
+import {EntityDonation} from "@/types/donation.types";
+import {CommunicationStatus, CommunicationType, EntityCommunication} from "@/types/communication.types";
+import {entityService} from "@/services/entity.service";
+import {donationService} from "@/services/donation.service";
+import {communicationService} from "@/services/communication.service";
+import {UpdateEntityModal} from "@/components/modals/entity/UpdateEntityModal";
+import {CreateCommunicationModal} from "@/components/modals/entity/CreateCommunicationModal";
+import {UpdateCommunicationModal} from "@/components/modals/entity/UpdateCommunicationModal";
+import {ROUTES} from "@/utils/constants.utils";
+import DataTable from "@/components/ui/DataTable.tsx";
 
 const EntityDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -58,7 +58,8 @@ const EntityDetailPage: React.FC = () => {
                 setDonations(donationsData.results || []);
                 setCommunications(communicationsData.results || []);
             } catch (error) {
-                showToast.error("Nu s-au putut încărca datele entității");
+                const errorMessage = error instanceof Error ? error.message : 'Nu s-au putut încărca datele entității'
+                showToast.error(errorMessage);
                 navigate(ROUTES.CRM_ENTITIES);
             } finally {
                 setLoading(false);
@@ -183,7 +184,8 @@ const EntityDetailPage: React.FC = () => {
             showToast.success('Entitatea a fost ștearsă cu succes');
             navigate(ROUTES.CRM_ENTITIES);
         } catch (error) {
-            showToast.error('Nu s-a putut șterge entitatea');
+            const errorMessage = error instanceof Error ? error.message : 'Nu s-a putut șterge entitatea'
+            showToast.error(errorMessage);
         }
     };
 
@@ -217,7 +219,8 @@ const EntityDetailPage: React.FC = () => {
             showToast.success('Comunicarea a fost ștearsă cu succes');
             setRefreshTrigger(prev => prev + 1);
         } catch (error) {
-            showToast.error('Nu s-a putut șterge comunicarea');
+            const errorMessage = error instanceof Error ? error.message : 'Nu s-a putut șterge comunicarea'
+            showToast.error(errorMessage);
         }
     };
 
@@ -372,8 +375,8 @@ const EntityDetailPage: React.FC = () => {
             <div className="space-y-6">
                 <Card title={`Donații (Total: ${totalDonations.toLocaleString()} RON)`} className="p-6">
                     {donations.length > 0 ? (
-                        <Table<EntityDonation>
-                            endpoint="entity_donation/list"
+                        <DataTable<EntityDonation>
+                            data={donations}
                             columns={getDonationColumns()}
                             showFilters={false}
                             showPagination={false}
@@ -472,8 +475,8 @@ const EntityDetailPage: React.FC = () => {
                     </div>
                     
                     {communications.length > 0 ? (
-                        <Table<EntityCommunication>
-                            endpoint="entity_communication/list"
+                        <DataTable<EntityCommunication>
+                            data={communications}
                             columns={getCommunicationColumns()}
                             actions={getCommunicationActions()}
                             showFilters={true}

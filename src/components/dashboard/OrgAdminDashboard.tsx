@@ -3,8 +3,8 @@ import { Card } from '@/components/ui/Card';
 import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import { Project, Activity, User, TableColumn, TableAction } from '@/types/index.types';
 import { getUserRoleLabel } from '@/utils/dashboardUtils';
-import Table from '@/components/ui/Table';
 import { MyCotizatii } from './MyCotizatii';
+import DataTable from "@/components/ui/DataTable.tsx";
 
 interface OrgAdminDashboardProps {
     searchTerm: string;
@@ -35,8 +35,11 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
     searchTerm,
     setSearchTerm,
     filteredMembers,
+    membersLoading,
     projects,
     activities,
+    projectsLoading,
+    activitiesLoading,
     selectedProject,
     handleProjectClick,
     getProjectStatusColor,
@@ -302,10 +305,11 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                         )}
                     </div>
                     
-                    <Table<User>
-                        endpoint="user/list"
+                    <DataTable<User>
+                        data={filteredMembers}
                         columns={getMemberColumns()}
                         actions={getMemberActions()}
+                        loading={membersLoading}
                         emptyMessage="Nu au fost găsiți utilizatori în sistem. Creează primul utilizator pentru a începe."
                         showFilters={false}
                         showPagination={false}
@@ -325,9 +329,10 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                 </PrimaryActionButton>
                             )}
                         </div>
-                        <Table<Project>
-                            endpoint="project/list"
+                        <DataTable<Project>
+                            data={projects}
                             columns={getProjectColumns()}
+                            loading={projectsLoading}
                             onRowClick={(project: Project) => handleProjectClick(project.id)}
                             emptyMessage="Nu există proiecte disponibile"
                             showFilters={false}
@@ -349,9 +354,10 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                 </PrimaryActionButton>
                             )}
                         </div>
-                        <Table<Activity>
-                            endpoint="activity/list"
+                        <DataTable<Activity>
+                            data={activities}
                             columns={getActivityColumns()}
+                            loading={activitiesLoading}
                             emptyMessage="Nu există activități disponibile"
                             showFilters={false}
                             showPagination={false}

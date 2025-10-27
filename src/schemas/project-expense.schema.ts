@@ -1,15 +1,13 @@
 import {z} from 'zod';
 import {
-  ExpenseCategory,
-  ExpenseCategoryType,
-  ProjectExpenseStatus,
-  ProjectExpenseStatusType,
-  Unit, UnitType
+    ExpenseCategory,
+    ExpenseCategoryType,
+    Unit, UnitType
 } from "@/types/index.types.ts";
+import {t} from "i18next";
 
 export const EXPENSE_CATEGORIES = Object.values(ExpenseCategory);
 export const UNIT_TYPES = Object.values(Unit);
-export const PROJECT_EXPENSE_STATUSES = Object.values(ProjectExpenseStatus);
 
 const validateMaxTwoDecimals = (value?: number) => {
     if (value === undefined) {
@@ -17,10 +15,7 @@ const validateMaxTwoDecimals = (value?: number) => {
     }
 
     const decimalPlaces = (value.toString().split('.')[1] || '').length;
-    if (decimalPlaces > 2) {
-        throw new Error(`Nu poate avea mai mult de 2 zecimale`);
-    }
-    return true;
+    return decimalPlaces <= 2;
 };
 
 export const createProjectExpenseSchema = z.object({
@@ -93,11 +88,7 @@ export const createProjectExpenseSchema = z.object({
 
     currency: z.enum(['RON', 'EUR', 'USD'], {
         message: 'Moneda selectată nu este validă'
-    }),
-
-    status: z.enum(PROJECT_EXPENSE_STATUSES as [ProjectExpenseStatusType, ...ProjectExpenseStatusType[]], {
-        message: 'Statusul selectat nu este valid'
-    }).default(ProjectExpenseStatus.PLANNED)
+    })
 });
 
 export type CreateProjectExpenseData = z.infer<typeof createProjectExpenseSchema>;
@@ -181,10 +172,6 @@ export const updateProjectExpenseSchema = z.object({
 
     currency: z.enum(['RON', 'EUR', 'USD'], {
         message: 'Moneda selectată nu este validă'
-    }).optional(),
-
-    status: z.enum(PROJECT_EXPENSE_STATUSES as [ProjectExpenseStatusType, ...ProjectExpenseStatusType[]], {
-        message: 'Statusul selectat nu este valid'
     }).optional()
 });
 
@@ -199,6 +186,72 @@ export const getCreateProjectExpenseDefaultValues = (projectId?: string, activit
     quantity: 1,
     unitPrice: 0,
     category: ExpenseCategory.OTHER,
-    currency: 'RON',
-    status: ProjectExpenseStatus.PLANNED
+    currency: 'RON'
+});
+
+export const executeProjectExpenseSchema = z.object({
+    vat: z.string()
+        .min(1, t('schema.project_expense.vat_required')),
+
+    quantity: z.union([
+        z.number(),
+        z.string()
+    ]).transform((value) => {
+        if (typeof value === 'string') {
+            if (value === '' || value === null || value === undefined) {
+                throw new Error(t('schema.project_expense.quantity_required'));
+            }
+            const num = parseFloat(value);
+            if (isNaN(num)) {
+                throw new Error(t('schema.project_expense.quantity_must_be_number'));
+            }
+            return num;
+        }
+        return value;
+    }).refine(
+        (value) => value > 0,
+        t('schema.project_expense.quantity_must_be_positive')
+    ).refine(
+        (value) => validateMaxTwoDecimals(value),
+        t('schema.project_expense.quantity_max_decimals')
+    ),
+
+    unitPrice: z.union([
+        z.number(),
+        z.string()
+    ]).transform((value) => {
+        if (typeof value === 'string') {
+            if (value === '' || value === null || value === undefined) {
+                throw new Error(t('schema.project_expense.unit_price_required'));
+            }
+            const num = parseFloat(value);
+            if (isNaN(num)) {
+                throw new Error(t('schema.project_expense.unit_price_must_be_number'));
+            }
+            return num;
+        }
+        return value;
+    }).refine(
+        (value) => value > 0,
+        t('schema.project_expense.unit_price_must_be_positive')
+    ).refine(
+        (value) => validateMaxTwoDecimals(value),
+        t('schema.project_expense.unit_price_max_decimals')
+    ),
+
+    date: z.string()
+        .min(1, t('schema.project_expense.date_required'))
+        .refine(
+            (value) => !isNaN(Date.parse(value)),
+            t('schema.project_expense.date_invalid')
+        )
+});
+
+export type ExecuteProjectExpenseData = z.infer<typeof executeProjectExpenseSchema>;
+
+export const getExecuteProjectExpenseDefaultValues = (expense: any): ExecuteProjectExpenseData => ({
+    vat: expense.vat || '',
+    quantity: expense.quantity || 1,
+    unitPrice: expense.unitPrice || 0,
+    date: new Date().toISOString().split('T')[0]
 });

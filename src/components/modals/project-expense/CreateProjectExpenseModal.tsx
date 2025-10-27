@@ -46,7 +46,11 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
                 });
                 setActivities(response.results || []);
             } catch (error) {
-                showToast.error('Eroare la încărcarea activităților');
+                if (error instanceof Error) {
+                    showToast.error(error.message);
+                } else {
+                    showToast.error('Eroare la încărcarea activităților');
+                }
             } finally {
                 setLoadingActivities(false);
             }
@@ -90,7 +94,6 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
                 unitPrice: data.unitPrice,
                 category: data.category,
                 currency: data.currency,
-                status: data.status,
             }
 
             await projectExpenseService.create(projectExpenseCreateRequest);

@@ -13,6 +13,7 @@ import showToast from '@/components/ui/Toast';
 import {useConfirmDialog} from "@/components/ui/ConfirmDialog";
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
 import { t } from 'i18next';
+import {FundDetailsModal} from "@/components/modals/project-fund/FundDetailsModal.tsx";
 
 interface ProjectFundListProps {
     project: string;
@@ -29,6 +30,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
     const [selectedFund, setSelectedFund] = useState<ProjectFund | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
 
     const handleEdit = (fund: ProjectFund) => {
@@ -95,6 +97,20 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
 
     const handlePaySuccess = () => {
         setLocalRefresh(prev => prev + 1);
+    };
+
+    const handleRowClick = async (fund: ProjectFund) => {
+        try {
+            const fullFund = await projectFundService.getById(fund.id);
+            setSelectedFund(fullFund);
+            setIsDetailsModalOpen(true);
+        } catch (error) {
+            if (error instanceof Error) {
+                showToast.error(error.message);
+            } else {
+                showToast.error(t('toast.project_fund.load_error'));
+            }
+        }
     };
 
     const getColumns = (): TableColumn<ProjectFund>[] => [
@@ -201,6 +217,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                 showPagination={true}
                 emptyMessage={t('label.project_fund.empty_list')}
                 refreshTrigger={refreshTrigger + localRefresh}
+                onRowClick={handleRowClick}
             />
 
             {isUpdateModalOpen && selectedFund && (
@@ -224,6 +241,17 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                         setSelectedFund(null);
                     }}
                     onSuccess={handlePaySuccess}
+                    fund={selectedFund}
+                />
+            )}
+
+            {isDetailsModalOpen && selectedFund && (
+                <FundDetailsModal
+                    isOpen={isDetailsModalOpen}
+                    onClose={() => {
+                        setIsDetailsModalOpen(false);
+                        setSelectedFund(null);
+                    }}
                     fund={selectedFund}
                 />
             )}

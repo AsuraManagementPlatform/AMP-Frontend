@@ -1,16 +1,16 @@
 import React, {useState} from 'react';
 import {Modal} from '@/components/ui/Modal';
 import {DynamicForm} from '@/components/forms/DynamicForm';
-import {payProjectFundFormConfig} from '@/config/project-fund-pay.form.config';
-import {
-    getPayProjectFundDefaultValues,
-    PayProjectFundData,
-    payProjectFundSchema
-} from '@/schemas/project-fund-pay.schema';
 import projectFundService from '@/services/project-fund.service';
 import showToast from '@/components/ui/Toast';
 import {ProjectFund, ProjectFundPayRequest, ProjectFundStatus} from '@/types/index.types';
 import {t} from 'i18next';
+import {payProjectFundFormConfig} from "@/config/project-fund.form.config.ts";
+import {
+    getPayProjectFundDefaultValues,
+    PayProjectFundData,
+    payProjectFundSchema
+} from "@/schemas/project-fund.schema.ts";
 
 interface PayProjectFundModalProps {
     isOpen: boolean;

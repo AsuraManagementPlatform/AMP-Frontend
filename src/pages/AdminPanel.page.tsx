@@ -7,7 +7,7 @@ import {Button} from "@/components/ui/Button.tsx";
 import userService from "@/services/user.service.ts";
 import organizationService from "@/services/organization.service.ts";
 import {User, UserMeResponse} from "@/types/user.types.ts";
-import {PaginatedResponse, TableColumn} from "@/types/index.types.ts";
+import {Activity, PaginatedResponse, TableAction, TableColumn} from "@/types/index.types.ts";
 import Table from "@/components/ui/Table.tsx";
 import { CreateUserModal } from "@/components/modals/user/CreateUserModal.tsx";
 import { EditUserModal } from "@/components/modals/user/EditUserModal.tsx";
@@ -45,7 +45,8 @@ const AdminPanel: React.FC = () => {
             setUsers(data);
 
         } catch (error) {
-            setError('Failed to load users. Please try again.');
+            const errorMessage = error instanceof Error ? error.message : 'Failed to load users. Please try again.';
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -134,7 +135,8 @@ const AdminPanel: React.FC = () => {
             setIsPasswordResetModalOpen(false);
             setSelectedUser(null);
         } catch (error) {
-            showToast.error('Eroare la trimiterea emailului de resetare parolă');
+            const errorMessage = error instanceof Error ? error.message : 'Eroare la trimiterea emailului de resetare parolă';
+            showToast.error(errorMessage);
         }
     };
 
@@ -147,7 +149,8 @@ const AdminPanel: React.FC = () => {
             const result = await userService.resetPassword(userId);
             showToast.success(`Email de resetare parolă trimis cu succes la ${result.email}!`);
         } catch (error) {
-            showToast.error('Eroare la trimiterea emailului de resetare parolă');
+            const errorMessage = error instanceof Error ? error.message : 'Eroare la trimiterea emailului de resetare parolă';
+            showToast.error(errorMessage);
         }
     };
 

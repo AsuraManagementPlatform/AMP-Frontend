@@ -4,7 +4,7 @@ import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import { User, TableColumn, TableAction } from '@/types/index.types';
 import { Organization } from '@/types/organization.types';
 import { useTranslation } from 'react-i18next';
-import Table from '@/components/ui/Table';
+import DataTable from "@/components/ui/DataTable.tsx";
 
 interface AdminDashboardProps {
     searchTerm: string;
@@ -29,6 +29,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     searchTerm,
     setSearchTerm,
     filteredMembers,
+    membersLoading,
+    filteredOrganizations,
+    organizationsLoading,
     handleOpenCreateUser,
     openCreateOrganizationModal,
     handleActivateOrganization,
@@ -286,10 +289,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
                     </div>
                     
-                    <Table<User>
-                        endpoint="user/list"
+                    <DataTable<User>
+                        data={filteredMembers}
                         columns={getUserColumns()}
                         actions={getUserActions()}
+                        loading={membersLoading}
                         emptyMessage="Nu au fost găsiți administratori de organizații în sistem. Folosește butonul de mai sus pentru a crea primul utilizator."
                         showFilters={false}
                         showPagination={false}
@@ -324,13 +328,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
                     </div>
                     
-                    <Table<Organization>
-                        endpoint="organization/list"
+                    <DataTable<Organization>
+                        data={filteredOrganizations}
                         columns={getOrganizationColumns()}
                         actions={getOrganizationActions()}
+                        loading={organizationsLoading}
                         emptyMessage="Nu au fost găsite organizații. Folosește butonul de mai sus pentru a crea prima organizație."
                         showFilters={false}
                         showPagination={false}
+                        className=""
                     />
                 </div>
             )}

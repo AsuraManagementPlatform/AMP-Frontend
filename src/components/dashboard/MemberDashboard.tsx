@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Project, Activity, User, TableColumn } from '@/types/index.types';
 import toast from 'react-hot-toast';
-import Table from '@/components/ui/Table';
 import { MyCotizatii } from './MyCotizatii';
+import DataTable from "@/components/ui/DataTable.tsx";
 
 interface MemberDashboardProps {
     user: User | null;
@@ -23,7 +23,13 @@ const MOCK_MESSAGES = [
     { id: '2', subject: 'Sugestie eveniment', date: '2025-03-05', status: 'ÎN AȘTEPTARE', from: 'Tu' },
 ];
 
-export const MemberDashboard: React.FC<MemberDashboardProps> = ({user}) => {
+export const MemberDashboard: React.FC<MemberDashboardProps> = ({
+    user,
+    projects,
+    activities,
+    projectsLoading,
+    activitiesLoading
+}) => {
     const [showSponsorshipModal, setShowSponsorshipModal] = useState(false);
     const [showProposalModal, setShowProposalModal] = useState(false);
     const [showMessageModal, setShowMessageModal] = useState(false);
@@ -120,18 +126,20 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({user}) => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <h4 className="font-semibold text-gray-800 mb-3">Proiectele mele</h4>
-                                <Table<Project>
-                                    endpoint="project/list"
+                                <DataTable<Project>
+                                    data={projects}
                                     columns={getProjectColumns()}
+                                    loading={projectsLoading}
                                     emptyMessage="Nu participi la niciun proiect în acest moment"
                                 />
                             </div>
                             
                             <div>
                                 <h4 className="font-semibold text-gray-800 mb-3">Activitățile mele</h4>
-                                <Table<Activity>
-                                    endpoint="activity/list"
+                                <DataTable<Activity>
+                                    data={activities}
                                     columns={getActivityColumns()}
+                                    loading={activitiesLoading}
                                     emptyMessage="Nu ai activități asignate în acest moment"
                                 />
                                 <div className="mt-4 flex items-center justify-between bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border border-yellow-200">
