@@ -22,7 +22,7 @@ type TabType = 'details' | 'activities' | 'expenses' | 'funds' | 'members';
 
 
 const ProjectPage: React.FC = () => {
-    const { project_id } = useParams<{ project_id: string }>();
+    const { projectId } = useParams<{ projectId: string }>();
     const navigate = useNavigate();
     const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
@@ -39,7 +39,7 @@ const ProjectPage: React.FC = () => {
 
     useEffect(() => {
         const loadProject = async () => {
-            if (!project_id) {
+            if (!projectId) {
                 showToast.error('ID proiect lipsă');
                 navigate(ROUTES.ERP_PROJECTS);
                 return;
@@ -47,7 +47,7 @@ const ProjectPage: React.FC = () => {
 
             try {
                 setLoading(true);
-                const data = await projectService.getById(project_id);
+                const data = await projectService.getById(projectId);
                 setProject(data);
             } catch (error) {
                 const errorMessage = error instanceof Error ? error.message : 'Eroare la încărcarea proiectului';
@@ -58,17 +58,17 @@ const ProjectPage: React.FC = () => {
         };
 
         loadProject();
-    }, [project_id, navigate]);
+    }, [projectId, navigate]);
 
     const handleEdit = () => {
         setIsEditModalOpen(true);
     };
 
     const handleUpdateSuccess = async () => {
-        if (!project_id) return;
+        if (!projectId) return;
 
         try {
-            const updatedProject = await projectService.getById(project_id);
+            const updatedProject = await projectService.getById(projectId);
             setProject(updatedProject);
             showToast.success('Proiectul a fost actualizat cu succes!');
         } catch (error) {

@@ -237,6 +237,8 @@ export const showToast = {
     vatUpdated: () => showToast.success(`${t('toast.vat.updated')}`),
     vatDeleted: () => showToast.success(`${t('toast.vat.deleted')}`),
 
+    accessForbidden: () => showToast.info(`${t('toast.access_forbidden')}`),
+
     confirm: (message: string): Promise<boolean> => {
         return new Promise((resolve) => {
             const toastId = toast.custom(

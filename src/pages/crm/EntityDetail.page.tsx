@@ -22,12 +22,12 @@ import {ROUTES} from "@/utils/constants.utils";
 import DataTable from "@/components/ui/DataTable.tsx";
 
 const EntityDetailPage: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+    const { entityId } = useParams<{ entityId: string }>();
+    const [entity, setEntity] = useState<Entity | null>(null);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const { hasAnyUserGroup } = useAuth();
     const [selectedTab, setSelectedTab] = useState('info');
-    const [loading, setLoading] = useState(true);
-    const [entity, setEntity] = useState<Entity | null>(null);
     const [donations, setDonations] = useState<EntityDonation[]>([]);
     const [communications, setCommunications] = useState<EntityCommunication[]>([]);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -36,22 +36,22 @@ const EntityDetailPage: React.FC = () => {
     const [selectedCommunicationId, setSelectedCommunicationId] = useState<string>('');
     const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-    const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
-
     useEffect(() => {
         const loadEntityData = async () => {
-            if (!id) {
+            if (!entityId) {
                 navigate(ROUTES.CRM_ENTITIES);
                 return;
             }
+
+            console.log(entityId);
 
             try {
                 setLoading(true);
                 
                 const [entityData, donationsData, communicationsData] = await Promise.all([
-                    entityService.getById(id),
-                    donationService.getList({ search: '', entityId: id } as any),
-                    communicationService.getByEntity(id)
+                    entityService.getById(entityId),
+                    donationService.getList({filters: {entity: entityId}}),
+                    communicationService.getList({filters: {entity: entityId}})
                 ]);
                 
                 setEntity(entityData);
@@ -67,9 +67,9 @@ const EntityDetailPage: React.FC = () => {
         };
 
         loadEntityData();
-    }, [id, navigate, refreshTrigger]);
+    }, [entityId, navigate, refreshTrigger]);
 
-    if (!isOrgAdmin) {
+    if (!hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN])) {
         return (
             <Layout>
                 <div className="container mx-auto">
@@ -355,12 +355,6 @@ const EntityDetailPage: React.FC = () => {
             render: (amount: number, row: EntityDonation) => `${amount.toLocaleString()} ${row.currency}`
         },
         {
-            key: 'destination',
-            label: 'Destinație',
-            sortable: false,
-            render: (_: any, row: EntityDonation) => row.projectId ? 'Proiect' : (row.activityId ? 'Activitate' : '-')
-        },
-        {
             key: 'date',
             label: 'Dată',
             sortable: true,
@@ -567,7 +561,7 @@ const EntityDetailPage: React.FC = () => {
                         isOpen={isUpdateModalOpen}
                         onClose={() => setIsUpdateModalOpen(false)}
                         onSuccess={handleUpdateSuccess}
-                        entityId={entity.id}
+                        entity={entity}
                     />
                 )}
 

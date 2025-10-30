@@ -95,7 +95,7 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
                                 <Alert key={allocation.id} variant="info">
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1">
-                                            <p className="font-medium text-gray-900">{allocation.fundSourceName}</p>
+                                            <p className="font-medium text-gray-900">{allocation.fundSource}</p>
                                             <p className="text-sm text-gray-600 mt-1">
                                                 {t('label.project_expense.funded_on')}: {new Date(allocation.createdAt).toLocaleDateString('ro-RO')}
                                             </p>
@@ -122,7 +122,7 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
                                 <Alert key={allocation.id} variant="error">
                                     <div className="flex justify-between items-start opacity-75">
                                         <div className="flex-1">
-                                            <p className="font-medium text-gray-900">{allocation.fundSourceName}</p>
+                                            <p className="font-medium text-gray-900">{allocation.fundSource}</p>
                                             <p className="text-sm text-gray-600 mt-1">
                                                 {t('label.project_expense.funded_on')}: {new Date(allocation.createdAt).toLocaleDateString('ro-RO')}
                                             </p>

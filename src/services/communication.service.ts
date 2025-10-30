@@ -17,11 +17,6 @@ export const communicationService = {
         return apiService.get<EntityCommunication>(`entity-communication/${id}`);
     },
 
-    getByEntity: async (entityId: string, params?: ListParams): Promise<PaginatedResponse<EntityCommunication>> => {
-        const queryParams = { ...params, entityId };
-        return apiService.getPaginatedList<EntityCommunication>('entity-communication/list', queryParams);
-    },
-
     create: async (data: EntityCommunicationCreateRequest): Promise<EntityCommunication> => {
         return apiService.post<EntityCommunication>('entity-communication/create', data);
     },

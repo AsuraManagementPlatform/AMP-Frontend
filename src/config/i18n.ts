@@ -132,6 +132,41 @@ const resources = {
                 allocation_status: {
                     active: "Active",
                     cancelled: "Cancelled"
+                },
+                entity: {
+                    page_title: "Entities (CRM)",
+                    page_subtitle: "Manage donors, sponsors and partners",
+                    add_entity: "+ Add Entity",
+                    identification_number: "CUI",
+                    name: "Name",
+                    organization: "Organization",
+                    legal_type: "Legal Type",
+                    legal_type_fizica: "Individual",
+                    legal_type_juridica: "Legal Entity",
+                    entity_type: "Entity Type",
+                    type_donor: "Donor",
+                    type_sponsor: "Sponsor",
+                    type_partner: "Partner",
+                    type_voluntar: "Volunteer",
+                    type_beneficiar: "Beneficiary",
+                    type_altul: "Other",
+                    contact: "Contact",
+                    status: "Status",
+                    status_activ: "Active",
+                    status_inactiv: "Inactive",
+                    status_potential: "Potential",
+                    status_blocat: "Blocked",
+                    engagement: "Engagement Level",
+                    engagement_total: "Total",
+                    engagement_partial: "Partial",
+                    engagement_deloc: "None",
+                    total_entities: "Total Entities",
+                    active_entities: "Active",
+                    juridical_entities: "Legal Entities",
+                    total_engagement: "Total Engagement",
+                    empty_list: "No entities found matching the selected filters.",
+                    delete_entity_title: "Delete Entity",
+                    delete_entity_message: "Are you sure you want to delete the entity",
                 }
             },
             tab: {
@@ -191,10 +226,14 @@ const resources = {
                     section_execute: "Execute Expense",
                     submit_execute: "Execute Expense",
                     execute_title: "Execute Expense"
-                }
+                },
+                entity: {
+                    submit_update: "Save Changes",
+                },
             },
             toast: {
                 default_error_message: "An error occurred.",
+                access_forbidden: "You don't have access to this page.",
                 vat: {
                     created: "Vat created",
                     updated: "Vat updated",
@@ -219,7 +258,11 @@ const resources = {
                     deleted: "Expense deleted successfully!",
                     delete_error: "Error deleting expense",
                     load_error: "Error loading expense details"
-                }
+                },
+                entity: {
+                    deleted: "Entity deleted successfully!",
+                    delete_error: "Error deleting entity"
+                },
             },
             nav: {
                 vats: "Vats",
@@ -233,7 +276,8 @@ const resources = {
                 cancel_fund: "Cancel Funding",
                 execute_expense: "Execute Expense",
                 close: "Close",
-                cancel_expense: "Cancel Expense"
+                cancel_expense: "Cancel Expense",
+                reset_password: "Reset password",
             }
         }
     },
@@ -367,6 +411,41 @@ const resources = {
                 allocation_status: {
                     active: "Activ",
                     cancelled: "Anulat"
+                },
+                entity: {
+                    page_title: "Entități (CRM)",
+                    page_subtitle: "Gestionează donatori, sponsori și parteneri",
+                    add_entity: "+ Adaugă Entitate",
+                    identification_number: "CUI",
+                    name: "Nume",
+                    organization: "Organizație",
+                    legal_type: "Tip Persoană",
+                    legal_type_fizica: "Persoană Fizică",
+                    legal_type_juridica: "Persoană Juridică",
+                    entity_type: "Tip Entitate",
+                    type_donor: "Donator",
+                    type_sponsor: "Sponsor",
+                    type_partner: "Partener",
+                    type_voluntar: "Voluntar",
+                    type_beneficiar: "Beneficiar",
+                    type_altul: "Altul",
+                    contact: "Contact",
+                    status: "Status",
+                    status_activ: "Activ",
+                    status_inactiv: "Inactiv",
+                    status_potential: "Potențial",
+                    status_blocat: "Blocat",
+                    engagement: "Nivel Implicare",
+                    engagement_total: "Total",
+                    engagement_partial: "Parțial",
+                    engagement_deloc: "Deloc",
+                    total_entities: "Total Entități",
+                    active_entities: "Active",
+                    juridical_entities: "Persoane Juridice",
+                    total_engagement: "Implicare Totală",
+                    empty_list: "Nu au fost găsite entități care să corespundă filtrelor selectate.",
+                    delete_entity_title: "Șterge entitatea",
+                    delete_entity_message: "Sigur doriți să ștergeți entitatea",
                 }
             },
             tab: {
@@ -426,10 +505,14 @@ const resources = {
                     section_execute: "Execută cheltuiala",
                     submit_execute: "Execută cheltuiala",
                     execute_title: "Execută cheltuiala"
-                }
+                },
+                entity: {
+                    submit_update: "Salvează modificări",
+                },
             },
             toast: {
                 default_error_message: "A apărut o eroare",
+                access_forbidden: "Nu aveți acces la această pagină",
                 vat: {
                     created: "TVA-ul a fost adăugat",
                     updated: "TVA-ul a fost actualizat",
@@ -454,6 +537,10 @@ const resources = {
                     deleted: "Cheltuiala a fost ștearsă cu succes!",
                     delete_error: "Eroare la ștergerea cheltuielii",
                     load_error: "Eroare la încărcarea detaliilor cheltuielii"
+                },
+                entity: {
+                    deleted: "Entitatea a fost ștearsă cu succes!",
+                    delete_error: "Eroare la ștergerea entității"
                 }
             },
             nav: {
@@ -468,7 +555,8 @@ const resources = {
                 cancel_fund: "Anulează finanțarea",
                 execute_expense: "Execută cheltuiala",
                 close: "Închide",
-                cancel_expense: "Anulează cheltuiala"
+                cancel_expense: "Anulează cheltuiala",
+                reset_password: "Resetare Parolă",
             }
         }
     }

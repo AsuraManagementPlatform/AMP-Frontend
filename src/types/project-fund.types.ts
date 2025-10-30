@@ -70,5 +70,5 @@ export interface ProjectFundAllocation {
     status: FundAllocationStatusType;
     createdAt: string;
     expenseName?: string;
-    fundSourceName?: string;
+    fundSource?: string;
 }

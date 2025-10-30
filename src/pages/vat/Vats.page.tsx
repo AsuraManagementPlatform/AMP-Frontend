@@ -48,7 +48,6 @@ const VatsPage: React.FC = () => {
                 <Card title={t('label.vat.vat_list')} className="mb-6">
                     <VatList
                         refreshTrigger={refreshVats}
-                        className="flex gap-4, flex-col"
                     />
                 </Card>
 

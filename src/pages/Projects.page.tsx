@@ -42,7 +42,7 @@ const ProjectsPage: React.FC = () => {
     };
 
     const handleProjectRowClick = (project: Project) => {
-        navigate(ROUTES.ERP_PROJECT_DETAILS.replace(':project_id', project.id));
+        navigate(ROUTES.ERP_PROJECT_DETAILS.replace(':projectId', project.id));
     };
 
     return (

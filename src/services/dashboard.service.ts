@@ -69,10 +69,10 @@ export const dashboardService = {
             });
 
             return {
-                totalActivities: orgStats.ongoing_activities || 0,
-                totalProjects: projectsResponse.count || orgStats.active_projects || 0,
+                totalActivities: orgStats.ongoingActivities || 0,
+                totalProjects: projectsResponse.count || orgStats.activeProjects || 0,
                 totalOrganizations: 1,
-                activeProjects: orgStats.active_projects || 0,
+                activeProjects: orgStats.activeProjects || 0,
                 completedActivities: 0,
                 activeOrganizations: 1
             };

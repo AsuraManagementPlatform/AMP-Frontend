@@ -11,23 +11,23 @@ import { apiService } from '@/services/api.service';
 
 export const donationService = {
     getList: async (params?: ListParams): Promise<PaginatedResponse<EntityDonation>> => {
-        return apiService.getPaginatedList<EntityDonation>('entity/donation/list', params);
+        return apiService.getPaginatedList<EntityDonation>('entity-donation/list', params);
     },
 
     getById: async (id: string): Promise<EntityDonation> => {
-        return apiService.get<EntityDonation>(`entity/donation/${id}`);
+        return apiService.get<EntityDonation>(`entity-donation/${id}`);
     },
 
     create: async (data: EntityDonationCreateRequest): Promise<EntityDonation> => {
-        return apiService.post<EntityDonation>('entity/donation/create', data);
+        return apiService.post<EntityDonation>('entity-donation/create', data);
     },
 
     update: async (id: string, data: EntityDonationUpdateRequest): Promise<EntityDonation> => {
-        return apiService.put<EntityDonation>(`entity/donation/update/${id}`, data);
+        return apiService.put<EntityDonation>(`entity-donation/update/${id}`, data);
     },
 
     delete: async (id: string): Promise<void> => {
-        return apiService.delete(`entity/donation/delete/${id}`);
+        return apiService.delete(`entity-donation/delete/${id}`);
     },
 
     getStats: async (filters?: DonationFilters): Promise<DonationStats> => {
@@ -40,12 +40,12 @@ export const donationService = {
             });
         }
         const queryString = params.toString();
-        const url = queryString ? `entity/donation/stats?${queryString}` : 'entity/donation/stats';
+        const url = queryString ? `entity-donation/stats?${queryString}` : 'entity-donation/stats';
         return apiService.get<DonationStats>(url);
     },
 
     getSponsorshipTargets: async (): Promise<SponsorshipTarget[]> => {
-        return apiService.get<SponsorshipTarget[]>('entity/donation/sponsorship-targets');
+        return apiService.get<SponsorshipTarget[]>('entity-donation/sponsorship-targets');
     },
 
     createDirectSponsorship: async (data: {
@@ -58,7 +58,7 @@ export const donationService = {
         paymentMethod: string;
         notes?: string;
     }): Promise<EntityDonation> => {
-        return apiService.post<EntityDonation>('entity/donation/direct-sponsorship', data);
+        return apiService.post<EntityDonation>('entity-donation/direct-sponsorship', data);
     }
 };
 

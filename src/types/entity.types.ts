@@ -46,6 +46,8 @@ export const ContributionType = {
 export type ContributionType = typeof ContributionType[keyof typeof ContributionType];
 
 export interface Entity extends BaseEntity {
+    organization: string;
+    organizationName: string;
     legalType: LegalType;
     name: string;
     identificationNumber: string;
@@ -80,7 +82,9 @@ export interface EntityRelationship extends BaseEntity {
     terms?: string;
     notes?: string;
 }
+
 export interface EntityCreateRequest {
+    organization: string;
     legalType: LegalType;
     name: string;
     identificationNumber: string;
@@ -94,7 +98,9 @@ export interface EntityCreateRequest {
     engagementLevel?: EngagementLevel;
 }
 
-export interface EntityUpdateRequest extends Partial<EntityCreateRequest> {}
+export interface EntityUpdateRequest extends Partial<EntityCreateRequest> {
+    id: string;
+}
 
 export interface EntityContributionCreateRequest {
     entityId: string;
@@ -107,7 +113,9 @@ export interface EntityContributionCreateRequest {
     notes?: string;
 }
 
-export interface EntityContributionUpdateRequest extends Partial<EntityContributionCreateRequest> {}
+export interface EntityContributionUpdateRequest extends Partial<EntityContributionCreateRequest> {
+    id: string;
+}
 
 export interface EntityRelationshipCreateRequest {
     entityId: string;

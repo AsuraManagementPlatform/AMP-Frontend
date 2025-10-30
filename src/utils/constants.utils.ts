@@ -7,7 +7,7 @@ export const ROUTES = {
     
     // ERP Module (Projects & Activities)
     ERP_PROJECTS: '/erp/projects',
-    ERP_PROJECT_DETAILS: '/erp/project/:project_id',
+    ERP_PROJECT_DETAILS: '/erp/project/:projectId',
     ERP_ACTIVITIES: '/erp/activities',
     ERP_MEMBERSHIP_FEES: '/erp/membership-fees',
     ERP_VATS: '/erp/vats',
@@ -23,7 +23,7 @@ export const ROUTES = {
     // CRM Module - Entity Management (NEW)
     CRM_ENTITIES: '/crm/entities',
     CRM_ENTITY_CREATE: '/crm/entities/create',
-    CRM_ENTITY_DETAIL: '/crm/entities/:id',
+    CRM_ENTITY_DETAIL: '/crm/entity/:entityId',
     CRM_DONATIONS: '/crm/donations',
     CRM_COMMUNICATIONS: '/crm/communications',
     

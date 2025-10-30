@@ -1,9 +1,11 @@
-import { z } from 'zod';
-import { LegalType, EntityType, EntityStatus, EngagementLevel } from '@/types/entity.types';
+import {z} from 'zod';
+import {EngagementLevel, EntityStatus, EntityType, LegalType} from '@/types/entity.types';
 
 const ROMANIAN_PHONE_REGEX = /^(\+40|0)[0-9]{9}$/;
 
 export const createEntitySchema = z.object({
+    organization: z.string().min(1),
+
     legalType: z.enum([
         LegalType.FIZICA,
         LegalType.JURIDICA
@@ -85,7 +87,15 @@ export const createEntitySchema = z.object({
 
 export type CreateEntityData = z.infer<typeof createEntitySchema>;
 
-export const getCreateEntityDefaultValues = (): CreateEntityData => ({
+export const updateEntitySchema = createEntitySchema.partial().extend({
+    id: z.string()
+});
+
+export type UpdateEntityData = z.infer<typeof updateEntitySchema>;
+
+
+export const getCreateEntityDefaultValues = (organization: string): CreateEntityData => ({
+    organization: organization,
     legalType: LegalType.FIZICA,
     name: '',
     identificationNumber: '',
