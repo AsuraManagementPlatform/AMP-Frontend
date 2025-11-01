@@ -23,7 +23,9 @@ export const createProjectExpenseSchema = z.object({
         .min(1, 'Proiectul este obligatoriu'),
 
     activity: z.string()
-        .min(1, 'Activitatea este obligatorie'),
+        .optional()
+        .nullable()
+        .transform((val) => val === '' ? null : val),
 
     vat: z.string()
         .min(1, 'TVA-ul este obligatorie'),
@@ -102,7 +104,8 @@ export const updateProjectExpenseSchema = z.object({
 
     activity: z.string()
         .optional()
-        .or(z.literal('')),
+        .nullable()
+        .transform((val) => val === '' ? null : val),
 
     vat: z.string()
         .optional()
@@ -177,9 +180,9 @@ export const updateProjectExpenseSchema = z.object({
 
 export type UpdateProjectExpenseData = z.infer<typeof updateProjectExpenseSchema>;
 
-export const getCreateProjectExpenseDefaultValues = (projectId?: string, activityId?: string, vatId?: string): CreateProjectExpenseData => ({
+export const getCreateProjectExpenseDefaultValues = (projectId?: string, activityId?: string | null, vatId?: string): CreateProjectExpenseData => ({
     project: projectId || '',
-    activity: activityId || '',
+    activity: activityId || null,
     vat: vatId || '',
     name: '',
     unitType: Unit.NUMBER,

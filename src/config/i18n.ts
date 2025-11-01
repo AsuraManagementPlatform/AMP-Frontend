@@ -80,6 +80,7 @@ const resources = {
                     insufficient_funds_warning: "Insufficient funds! Still need: {{remaining}} {{currency}}",
                     no_allocations: "Enter values to see fund allocation",
                     execute_expense: "Execute Expense",
+                    amount: "Amount",
                     total_amount: "Total Amount",
                     status: "Status",
                     cancel_expense_title: "Cancel Expense",
@@ -93,7 +94,13 @@ const resources = {
                     cancelled_funding: "Cancelled Funding",
                     funded_on: "Funded on",
                     total_planned_expenses: "Total Planned Expenses",
-                    total_paid_expenses: "Total Paid Expenses"
+                    total_paid_expenses: "Total Paid Expenses",
+                    transaction_history: "Transaction History",
+                    transaction_created: "Created",
+                    transaction_updated: "Updated",
+                    transaction_executed: "Executed",
+                    transaction_cancelled: "Cancelled",
+                    no_transactions: "No transactions"
                 },
                 vat: {
                     name: "Unique name",
@@ -359,6 +366,7 @@ const resources = {
                     insufficient_funds_warning: "Fonduri insuficiente! Mai sunt necesare: {{remaining}} {{currency}}",
                     no_allocations: "Introduceți valorile pentru a vedea alocarea fondurilor",
                     execute_expense: "Execută cheltuiala",
+                    amount: "Preț fără TVA",
                     total_amount: "Total",
                     status: "Status",
                     cancel_expense_title: "Anulează cheltuiala",
@@ -372,7 +380,13 @@ const resources = {
                     cancelled_funding: "Finanțare anulată",
                     funded_on: "Finanțat la data de",
                     total_planned_expenses: "Total Cheltuieli Planificate",
-                    total_paid_expenses: "Total Cheltuieli Plătite"
+                    total_paid_expenses: "Total Cheltuieli Plătite",
+                    transaction_history: "Istoric Tranzacții",
+                    transaction_created: "Creat",
+                    transaction_updated: "Actualizat",
+                    transaction_executed: "Executat",
+                    transaction_cancelled: "Anulat",
+                    no_transactions: "Nu există tranzacții"
                 },
                 vat: {
                     name: "Denumire unica",

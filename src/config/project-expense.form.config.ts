@@ -42,7 +42,7 @@ export const createProjectExpenseFormConfig = (activities: Activity[] = [], vats
                     name: 'activity',
                     label: t('label.project_expense.activity'),
                     type: FieldType.SELECT,
-                    required: true,
+                    required: false,
                     options: [
                         { value: '', label: t('label.project_expense.select_activity') },
                         ...activities.map(activity => ({

@@ -101,7 +101,7 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
             if (toAllocate > 0) {
                 allocations.push({
                     fundId: fund.id,
-                    amount: toAllocate
+                    amount: Number(toAllocate.toFixed(5))
                 });
                 remainingAmount -= toAllocate;
             }

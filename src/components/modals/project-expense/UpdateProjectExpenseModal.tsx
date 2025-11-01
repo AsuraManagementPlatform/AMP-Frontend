@@ -82,7 +82,8 @@ export const UpdateProjectExpenseModal: React.FC<UpdateProjectExpenseModalProps>
             const projectExpenseUpdateRequest: ProjectExpenseUpdateRequest = {
                 id: data.id,
                 project: data.project,
-                activity: data.activity,
+                activity: data.activity || null,
+                vat: data.vat,
                 name: data.name,
                 unitType: data.unitType,
                 quantity: data.quantity,
@@ -108,7 +109,7 @@ export const UpdateProjectExpenseModal: React.FC<UpdateProjectExpenseModalProps>
     const defaultValues: UpdateProjectExpenseData = {
         id: expense.id,
         project: expense.project,
-        activity: expense.activity,
+        activity: expense.activity || null,
         vat: expense.vat,
         name: expense.name,
         unitType: expense.unitType,

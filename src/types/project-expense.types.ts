@@ -1,9 +1,9 @@
 import {BaseEntity, Currency, ProjectFundAllocation} from "@/types/index.types";
 
 export const ProjectExpenseStatus = {
-  PLANNED: 'PLANNED',
-  PAID: 'PAID',
-  CANCELLED: 'CANCELLED'
+    PLANNED: 'PLANNED',
+    PAID: 'PAID',
+    CANCELLED: 'CANCELLED'
 } as const;
 
 export type ProjectExpenseStatusType = typeof ProjectExpenseStatus[keyof typeof ProjectExpenseStatus];
@@ -31,11 +31,34 @@ export const Unit = {
 
 export type UnitType = typeof Unit[keyof typeof Unit];
 
+export const ProjectExpenseTransactionSource = {
+    CREATED: 'CREATED',
+    UPDATED: 'UPDATED',
+    EXECUTED: 'EXECUTED',
+    CANCELLED: 'CANCELLED'
+} as const;
+
+export type ProjectExpenseTransactionSourceType = typeof ProjectExpenseTransactionSource[keyof typeof ProjectExpenseTransactionSource];
+
+export interface ProjectExpenseTransaction extends BaseEntity {
+    projectExpense: string;
+    source: ProjectExpenseTransactionSourceType;
+    vatValue: number;
+    name: string;
+    unitType: UnitType;
+    quantity: number;
+    unitPrice: number;
+    amount: number;
+    vatAmount: number;
+    totalAmount: number;
+    currency: Currency;
+}
+
 export interface ProjectExpense extends BaseEntity {
     project: string;
-    activity: string;
+    activity: string | null;
     vat: string;
-    activityTitle?: string;
+    activityTitle?: string | null;
     name: string;
     unitType: UnitType;
     quantity: number;
@@ -47,11 +70,12 @@ export interface ProjectExpense extends BaseEntity {
     currency: Currency;
     status: ProjectExpenseStatusType;
     fundAllocations?: ProjectFundAllocation[];
+    transactions?: ProjectExpenseTransaction[];
 }
 
 export interface ProjectExpenseCreateRequest {
     project: string;
-    activity: string;
+    activity?: string | null;
     vat: string;
     name: string;
     unitType: UnitType;
@@ -62,7 +86,7 @@ export interface ProjectExpenseCreateRequest {
 }
 
 export interface ProjectExpenseUpdateRequest extends Partial<ProjectExpenseCreateRequest> {
-  id: string;
+    id: string;
 }
 
 export interface ProjectExpenseExecuteRequest {
