@@ -30,7 +30,7 @@ const TeamManagementPage: React.FC = () => {
         try {
             setIsLoading(true);
             const response = await organizationMemberService.getList();
-            const filtered = (response.organization_members_list || []).filter(
+            const filtered = (response.organizationMembersList || []).filter(
                 m => m.organization === organizationId
             );
             setTeamMembers(filtered);
