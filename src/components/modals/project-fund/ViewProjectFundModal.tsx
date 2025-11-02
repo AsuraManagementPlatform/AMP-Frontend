@@ -13,7 +13,7 @@ interface FundDetailsModalProps {
     fund: ProjectFund;
 }
 
-export const FundDetailsModal: React.FC<FundDetailsModalProps> = ({
+export const ViewProjectFundModal: React.FC<FundDetailsModalProps> = ({
                                                                       isOpen,
                                                                       onClose,
                                                                       onCancel,

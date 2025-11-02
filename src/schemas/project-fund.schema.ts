@@ -1,15 +1,7 @@
 import { z } from 'zod';
 import {t} from "i18next";
 import {ProjectFund} from "@/types/project-fund.types.ts";
-
-const validateMaxTwoDecimals = (value?: number) => {
-    if (value === undefined) {
-        return true;
-    }
-
-    const decimalPlaces = (value.toString().split('.')[1] || '').length;
-    return decimalPlaces <= 2;
-};
+import {validateMaxTwoDecimals} from "@/utils/validateTwoDegits.ts";
 
 export const createProjectFundSchema = z.object({
     project: z.string()

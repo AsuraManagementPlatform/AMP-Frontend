@@ -174,11 +174,99 @@ const resources = {
                     empty_list: "No entities found matching the selected filters.",
                     delete_entity_title: "Delete Entity",
                     delete_entity_message: "Are you sure you want to delete the entity",
-                }
+                    basic_info: "Basic Information",
+                    contact_info: "Contact Information",
+                    observations: "Observations",
+                    phone: "Phone",
+                    address: "Address",
+                },
+                entity_donation: {
+                    date: "Donation Date",
+                    amount: "Amount",
+                    currency: "Currency",
+                    type: "Donation Type",
+                    payment_method: "Payment Method",
+                    scope: "Purpose/Scope",
+                    document_reference: "Document Reference",
+                    notes: "Notes",
+                    entity: "Donor",
+                    project: "Project",
+                    activity: "Activity",
+                    select_entity: "Select donor",
+                    select_project: "Select project (optional)",
+                    select_activity: "Select activity (optional)",
+                    empty_list: "No donations found",
+                    details: "Donation Details",
+                    donation_info: "Donation Information",
+                    total_donations: "Total Donations",
+                    delete_donation_title: "Delete Donation",
+                    delete_donation_message: "Are you sure you want to delete this entity-donation?",
+                    entity_helper: "Select the entity making the entity-donation",
+                    amount_placeholder: "e.g., 1000",
+                    project_helper: "Optional - select destination project",
+                    activity_helper: "Optional - select destination activity",
+                    document_reference_placeholder: "e.g., https://drive.google.com/file/...",
+                    document_reference_helper: "Link to entity-donation document (receipt, contract, etc.)",
+                    notes_placeholder: "Notes or observations about the entity-donation",
+                    page_title: "Donation Management",
+                    page_subtitle: "Track and manage all donations",
+                    add_donation: "Add Donation",
+                    total_donations_count: "Total Donations",
+                    unique_entities: "Unique Donors",
+                    average_donation: "Average Donation",
+                    total_amount: "Total Amount",
+                    donations_for_entity: "Donations from {{name}}"
+                },
+                entity_communication: {
+                    communications_for_entity: "Communications with {{name}}",
+                    add_communication: "Add Communication",
+                    coming_soon: "Communications feature coming soon",
+                    feature_description: "Track emails, calls, meetings and other interactions with entities",
+                    date: "Date",
+                    type: "Type",
+                    topic: "Topic",
+                    status: "Status",
+                    contact_person: "Contact Person",
+                    notes: "Notes",
+                    document_reference: "Document Reference",
+                    empty_list: "No communications found",
+                    delete_communication_title: "Delete Communication",
+                    delete_communication_message: "Are you sure you want to delete this communication",
+                },
+                donation_type: {
+                    monetary: "Monetary Donation",
+                    in_kind: "In-Kind Donation",
+                    service: "Service Donation",
+                    sponsorship: "Sponsorship",
+                    other: "Other"
+                },
+                payment_method: {
+                    cash: "Cash",
+                    bank_transfer: "Bank Transfer",
+                    card: "Card Payment",
+                    other: "Other"
+                },
+                donation_scope: {
+                    general: "General Support",
+                    project: "Project-Specific",
+                    activity: "Activity-Specific",
+                    emergency: "Emergency Fund"
+                },
+                communication_type: {
+                    email: "Email",
+                    phone: "Phone Call",
+                    meeting: "Meeting",
+                    letter: "Letter",
+                    newsletter: "Newsletter",
+                    other: "Other"
+                },
             },
             tab: {
                 project_expenses: "Project expenses",
                 project_funds: "Project funds",
+                entity_details: "Entity Details",
+                entity_donations: "Donations",
+                entity_communications: "Communications"
             },
             schema: {
                 max_decimals: "Cannot have more than 2 decimals",
@@ -209,6 +297,24 @@ const resources = {
                     date_invalid: "Date is not valid",
                     funds_required: "At least one fund allocation is required",
                     max_decimals: "Cannot have more than 2 decimals"
+                },
+                entity_donation: {
+                    entity_required: "Donor is required",
+                    entity_invalid: "Donor ID must be valid",
+                    type_invalid: "Donation type is invalid",
+                    scope_invalid: "Donation scope is invalid",
+                    date_required: "Date is required",
+                    date_invalid: "Date is not valid",
+                    amount_required: "Amount is required",
+                    amount_must_be_number: "Amount must be a valid number",
+                    amount_must_be_positive: "Amount must be positive",
+                    amount_max_decimals: "Amount cannot have more than 2 decimals",
+                    currency_invalid: "Currency is invalid",
+                    payment_method_invalid: "Payment method is invalid",
+                    project_invalid: "Project ID must be valid",
+                    activity_invalid: "Activity ID must be valid",
+                    document_reference_invalid: "Reference must be a valid URL (e.g., https://...)",
+                    notes_max_length: "Notes cannot exceed 511 characters",
                 }
             },
             form: {
@@ -236,6 +342,17 @@ const resources = {
                 },
                 entity: {
                     submit_update: "Save Changes",
+                },
+                entity_donation: {
+                    section_info: "Donation Information",
+                    submit_create: "Add Donation",
+                    submit_update: "Update Donation",
+                    cancel: "Cancel",
+                    section_financial: "Amount & Payment",
+                    section_destination: "Destination (Optional)",
+                    section_additional: "Additional Details",
+                    create_title: "Register New Donation",
+                    update_title: "Update Donation",
                 },
             },
             toast: {
@@ -268,8 +385,25 @@ const resources = {
                 },
                 entity: {
                     deleted: "Entity deleted successfully!",
-                    delete_error: "Error deleting entity"
+                    delete_error: "Error deleting entity",
+                    id_missing: "Entity ID missing",
+                    not_found: "Entity not found",
+                    updated: "Entity updated successfully"
                 },
+                entity_donation: {
+                    created: "Donation added successfully!",
+                    updated: "Donation updated successfully!",
+                    deleted: "Donation deleted successfully!",
+                    create_error: "Error adding entity-donation",
+                    update_error: "Error updating entity-donation",
+                    delete_error: "Error deleting entity-donation",
+                    load_error: "Error loading donations",
+                },
+                entity_communication: {
+                    deleted: "Communication deleted successfully!",
+                    delete_error: "Error deleting communication",
+                    load_error: "Error loading communication details"
+                }
             },
             nav: {
                 vats: "Vats",
@@ -285,6 +419,9 @@ const resources = {
                 close: "Close",
                 cancel_expense: "Cancel Expense",
                 reset_password: "Reset password",
+                back_to_list: "Back to list",
+                back_to_entities: "Back to entities",
+                edit_entity: "Edit Entity"
             }
         }
     },
@@ -460,11 +597,105 @@ const resources = {
                     empty_list: "Nu au fost găsite entități care să corespundă filtrelor selectate.",
                     delete_entity_title: "Șterge entitatea",
                     delete_entity_message: "Sigur doriți să ștergeți entitatea",
+                    basic_info: "Informații de bază",
+                    contact_info: "Informații contact",
+                    observations: "Observații",
+                    phone: "Telefon",
+                    address: "Adresă",
+                },
+                entity_donation: {
+                    date: "Data donației",
+                    amount: "Sumă",
+                    currency: "Moneda",
+                    type: "Tip donație",
+                    payment_method: "Metodă de plată",
+                    scope: "Scop/Destinație",
+                    document_reference: "Referință document",
+                    notes: "Observații",
+                    entity: "Donator",
+                    project: "Proiect",
+                    activity: "Activitate",
+                    select_entity: "Selectează donatorul",
+                    select_project: "Selectează proiectul (opțional)",
+                    select_activity: "Selectează activitatea (opțional)",
+                    empty_list: "Nu există donații",
+                    details: "Detalii donație",
+                    donation_info: "Informații donație",
+                    total_donations: "Total donații",
+                    delete_donation_title: "Șterge donația",
+                    delete_donation_message: "Sigur doriți să ștergeți această donație?",
+                    entity_helper: "Selectează entitatea care face donația",
+                    amount_placeholder: "ex: 1000",
+                    project_helper: "Opțional - selectează proiectul destinatar",
+                    activity_helper: "Opțional - selectează activitatea destinatară",
+                    document_reference_placeholder: "ex: https://drive.google.com/file/...",
+                    document_reference_helper: "Link către documentul donației (chitanță, contract, etc.)",
+                    notes_placeholder: "Note sau observații despre donație",
+                    page_title: "Gestiune Donații",
+                    page_subtitle: "Urmărește și gestionează toate donațiile",
+                    add_donation: "Adaugă Donație",
+                    total_donations_count: "Număr Donații",
+                    unique_entities: "Donatori Unici",
+                    average_donation: "Medie Donație",
+                    total_amount: "Sumă Totală",
+                    donations_for_entity: "Donații de la {{name}}"
+                },
+                entity_communication: {
+                    communications_for_entity: "Comunicări cu {{name}}",
+                    add_communication: "Adaugă comunicare",
+                    coming_soon: "Funcționalitatea de comunicări vine în curând",
+                    feature_description: "Urmărește emailuri, apeluri, întâlniri și alte interacțiuni cu entitățile",
+                    date: "Data",
+                    type: "Tip",
+                    topic: "Subiect",
+                    status: "Status",
+                    contact_person: "Persoană de contact",
+                    notes: "Notițe",
+                    document_reference: "Referință document",
+                    empty_list: "Nu există comunicări",
+                    delete_communication_title: "Șterge comunicarea",
+                    delete_communication_message: "Sigur doriți să ștergeți această comunicare",
+
+                },
+                donation_type: {
+                    monetary: "Donație bănească",
+                    in_kind: "Donație în natură",
+                    service: "Donație servicii",
+                    sponsorship: "Sponsorizare",
+                    other: "Altele"
+                },
+                payment_method: {
+                    cash: "Numerar",
+                    bank_transfer: "Transfer bancar",
+                    card: "Card",
+                    other: "Altele"
+                },
+                donation_scope: {
+                    general: "Suport general",
+                    project: "Specific proiect",
+                    activity: "Specific activitate",
+                    emergency: "Fond de urgență"
+                },
+                communication_type: {
+                    email: "Email",
+                    phone: "Apel telefonic",
+                    meeting: "Întâlnire",
+                    letter: "Scrisoare",
+                    newsletter: "Newsletter",
+                    other: "Altele"
+                },
+                communication_status: {
+                    planned: "Planificat",
+                    completed: "Finalizat",
+                    cancelled: "Anulat"
                 }
             },
             tab: {
                 project_expenses: "Buget Proiect",
                 project_funds: "Finanțare proiect",
+                entity_details: "Detalii Entitate",
+                entity_donations: "Donații",
+                entity_communications: "Comunicări",
             },
             schema: {
                 max_decimals: "Nu poate avea mai mult de 2 zecimale",
@@ -495,6 +726,24 @@ const resources = {
                     date_invalid: "Data nu este validă",
                     funds_required: "Este necesară cel puțin o alocare de fonduri",
                     max_decimals: "Nu poate avea mai mult de 2 zecimale"
+                },
+                entity_donation: {
+                    entity_required: "Donatorul este obligatoriu",
+                    entity_invalid: "ID-ul donatorului trebuie să fie valid",
+                    type_invalid: "Tipul donației este invalid",
+                    scope_invalid: "Scopul donației este invalid",
+                    date_required: "Data este obligatorie",
+                    date_invalid: "Data nu este validă",
+                    amount_required: "Suma este obligatorie",
+                    amount_must_be_number: "Suma trebuie să fie un număr valid",
+                    amount_must_be_positive: "Suma trebuie să fie pozitivă",
+                    amount_max_decimals: "Suma nu poate avea mai mult de 2 zecimale",
+                    currency_invalid: "Moneda este invalidă",
+                    payment_method_invalid: "Metoda de plată este invalidă",
+                    project_invalid: "ID-ul proiectului trebuie să fie valid",
+                    activity_invalid: "ID-ul activității trebuie să fie valid",
+                    document_reference_invalid: "Referința trebuie să fie un URL valid (ex: https://...)",
+                    notes_max_length: "Notele nu pot depăși 511 caractere",
                 }
             },
             form: {
@@ -522,6 +771,17 @@ const resources = {
                 },
                 entity: {
                     submit_update: "Salvează modificări",
+                },
+                entity_donation: {
+                    section_info: "Informații donație",
+                    submit_create: "Adaugă donație",
+                    submit_update: "Actualizează donația",
+                    cancel: "Anulează",
+                    section_financial: "Sumă și plată",
+                    section_destination: "Destinație (opțional)",
+                    section_additional: "Detalii suplimentare",
+                    create_title: "Înregistrează donație nouă",
+                    update_title: "Actualizează donație",
                 },
             },
             toast: {
@@ -554,7 +814,24 @@ const resources = {
                 },
                 entity: {
                     deleted: "Entitatea a fost ștearsă cu succes!",
-                    delete_error: "Eroare la ștergerea entității"
+                    delete_error: "Eroare la ștergerea entității",
+                    id_missing: "ID entitate lipsă",
+                    not_found: "Entitatea nu a fost găsită",
+                    updated: "Entitatea a fost actualizată cu succes",
+                },
+                entity_donation: {
+                    created: "Donația a fost adăugată cu succes!",
+                    updated: "Donația a fost actualizată cu succes!",
+                    deleted: "Donația a fost ștearsă cu succes!",
+                    create_error: "Eroare la adăugarea donației",
+                    update_error: "Eroare la actualizarea donației",
+                    delete_error: "Eroare la ștergerea donației",
+                    load_error: "Eroare la încărcarea donațiilor"
+                },
+                entity_communication: {
+                    deleted: "Comunicarea a fost ștearsă cu succes!",
+                    delete_error: "Eroare la ștergerea comunicării",
+                    load_error: "Eroare la încărcarea detaliilor comunicării"
                 }
             },
             nav: {
@@ -571,6 +848,9 @@ const resources = {
                 close: "Închide",
                 cancel_expense: "Anulează cheltuiala",
                 reset_password: "Resetare Parolă",
+                back_to_list: "Înapoi la listă",
+                back_to_entities: "Înapoi la entități",
+                edit_entity: "Editează entitatea",
             }
         }
     }

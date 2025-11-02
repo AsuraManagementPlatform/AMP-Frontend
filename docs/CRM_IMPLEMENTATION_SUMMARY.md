@@ -167,7 +167,7 @@ Complete implementation of CRM Entity Management functionality for the Asura Pla
 - handleEdit(entityId): Open update modal with entity ID
 ```
 
-### 8. **Donation Types** (`donation.types.ts`)
+### 8. **Donation Types** (`entity-donation.types.ts`)
 **Status**: ✅ Complete
 
 **Enums:**
@@ -183,7 +183,7 @@ Complete implementation of CRM Entity Management functionality for the Asura Pla
 - `DonationStats` - Statistics data
 - `SponsorshipTarget` - Sponsorship targets
 
-### 9. **Donation Service** (`donation.service.ts`)
+### 9. **Donation Service** (`entity-donation.service.ts`)
 **Status**: ✅ Complete
 
 **Methods:**
@@ -276,9 +276,9 @@ Similar CRUD endpoints exist for entity_communication app
 ### Phase 1: Donations Management (IN PROGRESS)
 - [ ] Create donation form configuration
 - [ ] Create donation validation schema
-- [ ] Build CreateDonationModal component
-- [ ] Build UpdateDonationModal component
-- [ ] Create Donations.page.tsx
+- [ ] Build CreateEntityDonationModal component
+- [ ] Build UpdateEntityDonationModal component
+- [ ] Create OrganizationDonations.page.tsx
 - [ ] Wire up donation CRUD operations
 - [ ] Test donation lifecycle
 
@@ -295,8 +295,8 @@ Similar CRUD endpoints exist for entity_communication app
 - [ ] Create communication types
 - [ ] Create communication service
 - [ ] Build communication form configuration
-- [ ] Build CreateCommunicationModal
-- [ ] Build UpdateCommunicationModal
+- [ ] Build CreateEntityCommunicationModal
+- [ ] Build UpdateEntityCommunicationModal
 - [ ] Integrate communications in entity detail view
 
 ### Phase 4: Advanced Features
@@ -316,8 +316,8 @@ Similar CRUD endpoints exist for entity_communication app
 4. `src/schemas/entity.schema.ts` - Zod validation schemas
 5. `src/components/modals/entity/CreateEntityModal.tsx` - Create modal
 6. `src/components/modals/entity/UpdateEntityModal.tsx` - Update modal
-7. `src/types/donation.types.ts` - Donation type definitions
-8. `src/services/donation.service.ts` - Donation API service
+7. `src/types/entity-donation.types.ts` - Donation type definitions
+8. `src/services/entity-donation.service.ts` - Donation API service
 9. This file: `IMPLEMENTATION_SUMMARY.md`
 
 ### Modified Files (1 total)

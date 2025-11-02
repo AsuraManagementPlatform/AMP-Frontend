@@ -61,28 +61,6 @@ export interface Entity extends BaseEntity {
     engagementLevel?: EngagementLevel;
 }
 
-export interface EntityContribution extends BaseEntity {
-    entityId: string;
-    projectId?: string;
-    type: ContributionType;
-    description: string;
-    value?: number;
-    currency?: string;
-    date: string;
-    notes?: string;
-}
-
-export interface EntityRelationship extends BaseEntity {
-    entityId: string;
-    projectId?: string;
-    organizationId: string;
-    relationshipType: 'PRIMARY' | 'SECONDARY';
-    startDate: string;
-    endDate?: string;
-    terms?: string;
-    notes?: string;
-}
-
 export interface EntityCreateRequest {
     organization: string;
     legalType: LegalType;
@@ -111,37 +89,4 @@ export interface EntityContributionCreateRequest {
     currency?: string;
     date: string;
     notes?: string;
-}
-
-export interface EntityContributionUpdateRequest extends Partial<EntityContributionCreateRequest> {
-    id: string;
-}
-
-export interface EntityRelationshipCreateRequest {
-    entityId: string;
-    projectId?: string;
-    organizationId: string;
-    relationshipType: 'PRIMARY' | 'SECONDARY';
-    startDate: string;
-    endDate?: string;
-    terms?: string;
-    notes?: string;
-}
-
-export interface EntityStats {
-    totalEntities: number;
-    totalDonators: number;
-    totalSponsors: number;
-    totalPartners: number;
-    totalContributions: number;
-    totalContributionValue: number;
-    activeRelationships: number;
-}
-
-export interface EntityFilter {
-    type?: EntityType;
-    status?: EntityStatus;
-    organizationId?: string;
-    hasUser?: boolean;
-    search?: string;
 }

@@ -7,7 +7,7 @@ import IconWallet from "@/assets/icons/iconmonstr-wallet.svg?react";
 import {ProjectFund} from '@/types/project-fund.types';
 import {UpdateProjectFundModal} from '@/components/modals/project-fund/UpdateProjectFundModal';
 import {PayProjectFundModal} from '@/components/modals/project-fund/PayProjectFundModal';
-import {FundDetailsModal} from '@/components/modals/project-fund/FundDetailsModal';
+import {ViewProjectFundModal} from '@/components/modals/project-fund/ViewProjectFundModal.tsx';
 import projectFundService from '@/services/project-fund.service';
 import showToast from '@/components/ui/Toast';
 import {useConfirmDialog} from "@/components/ui/ConfirmDialog";
@@ -332,7 +332,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
             )}
 
             {isDetailsModalOpen && selectedFund && (
-                <FundDetailsModal
+                <ViewProjectFundModal
                     isOpen={isDetailsModalOpen}
                     onClose={() => {
                         setIsDetailsModalOpen(false);

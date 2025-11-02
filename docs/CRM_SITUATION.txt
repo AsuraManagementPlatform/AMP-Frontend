@@ -140,12 +140,12 @@
 >>  TASK 7: Create Donation Types and Service
 >> -----------------------------------
 >> Files:
->> - src/types/donation.types.ts (102 lines)
->> - src/services/donation.service.ts (56 lines)
+>> - src/types/entity-donation.types.ts (102 lines)
+>> - src/services/entity-donation.service.ts (56 lines)
 >>
 >> Status: COMPLETED
 >> Description:
->> donation.types.ts:
+>> entity-donation.types.ts:
 >> - Core type: EntityDonation with all donation fields
 >> - Request types: EntityDonationCreateRequest, EntityDonationUpdateRequest
 >> - Supporting types: DonationFilters, DonationStats, SponsorshipTarget
@@ -154,7 +154,7 @@
 >>   * PaymentMethod: 'cash' | 'bank_transfer' | 'card' | 'other'
 >>   * DonationScope: 'general' | 'project' | 'activity' | 'emergency'
 >>
->> donation.service.ts:
+>> entity-donation.service.ts:
 >> - Full CRUD: getList, getById, create, update, delete
 >> - Stats endpoint: getStats (returns DonationStats)
 >> - Sponsorship: getSponsorshipTargets, createDirectSponsorship
@@ -165,26 +165,26 @@
 >>  TASK 8: Build Donation Form Components
 >> -----------------------------------
 >> Files:
->> - src/config/donation.form.config.ts (259 lines)
->> - src/schemas/donation.schema.ts (99 lines)
->> - src/components/modals/entity/CreateDonationModal.tsx (93 lines)
->> - src/components/modals/entity/UpdateDonationModal.tsx (128 lines)
+>> - src/config/entity-donation.form.config.ts (259 lines)
+>> - src/schemas/entity-donation.schema.ts (99 lines)
+>> - src/components/modals/entity/CreateEntityDonationModal.tsx (93 lines)
+>> - src/components/modals/entity/UpdateEntityDonationModal.tsx (128 lines)
 >>
 >> Status: COMPLETED
 >> Description:
->> donation.form.config.ts:
+>> entity-donation.form.config.ts:
 >> - 4 sections: Informații donație, Sumă și plată, Destinație opțională, Detalii suplimentare
 >> - Dynamic options: entity dropdown, project dropdown (optional), activity dropdown (optional)
 >> - Field types: SELECT, NUMBER, TEXT, DATE, TEXTAREA
 >> - 12 total fields with proper configuration
 >>
->> donation.schema.ts:
+>> entity-donation.schema.ts:
 >> - Required: entityId (UUID), type, scope, amount, currency, date, paymentMethod
 >> - Optional: projectId, activityId, documentReference (URL), notes
 >> - Defaults: currency='RON', date=today, paymentMethod='bank_transfer'
 >> - Validations: amount (0-999,999,999), currency (ISO format), URL format for docs
 >>
->> CreateDonationModal & UpdateDonationModal:
+>> CreateEntityDonationModal & UpdateEntityDonationModal:
 >> - Both use DynamicForm with donation form config
 >> - Accept entities[], projects[], activities[] as SelectOption arrays
 >> - Zod validation
@@ -195,7 +195,7 @@
 >>
 >>  TASK 9: Build Donations Page
 >> -----------------------------------
->> File: src/pages/crm/Donations.page.tsx (~300 lines)
+>> File: src/pages/crm/OrganizationDonations.page.tsx (~300 lines)
 >> Status: COMPLETED
 >> Description:
 >> Complete donations management page with:
@@ -222,9 +222,9 @@
 >> - Acțiuni (Edit + Delete buttons)
 >>
 >> Features:
->> - Real API integration via donationService and entityService
+>> - Real API integration via entityDonationService and entityService
 >> - Loading states with spinner
->> - CreateDonationModal and UpdateDonationModal wired
+>> - CreateEntityDonationModal and UpdateEntityDonationModal wired
 >> - Color-coded badges for type and scope
 >> - Responsive layout
 >> - Error handling with toast notifications
@@ -269,7 +269,7 @@
 >>
 >> API Integration:
 >> - Loads entity data via entityService.getById
->> - Loads donations via donationService.getList (filtered by entityId)
+>> - Loads donations via entityDonationService.getList (filtered by entityId)
 >> - Loads contributions via entityService.getContributions
 >> - Loads history via entityService.getHistory
 >> - Parallel loading with Promise.all
@@ -290,7 +290,7 @@
 >> Estimated Time: 4-6 hours
 >>
 >> Files to Create:
->> 1. src/types/communication.types.ts
+>> 1. src/types/entity-communication.types.ts
 >>    - EntityCommunication interface
 >>    - CommunicationType enum (email, phone, meeting, letter, other)
 >>    - CommunicationStatus enum (planned, completed, cancelled)
@@ -302,17 +302,17 @@
 >>    - Filter by entity, type, status, date range
 >>    - Stats endpoint
 >>
->> 3. src/config/communication.form.config.ts
+>> 3. src/config/entity-communication.form.config.ts
 >>    - Form configuration for DynamicForm
 >>    - Fields: entityId, type, subject, content, date, status, notes
 >>
->> 4. src/schemas/communication.schema.ts
+>> 4. src/schemas/entity-communication.schema.ts
 >>    - Zod validation for communication forms
 >>
->> 5. src/components/modals/entity/CreateCommunicationModal.tsx
+>> 5. src/components/modals/entity/CreateEntityCommunicationModal.tsx
 >>    - Modal for creating new communication
 >>
->> 6. src/components/modals/entity/UpdateCommunicationModal.tsx
+>> 6. src/components/modals/entity/UpdateEntityCommunicationModal.tsx
 >>    - Modal for editing communication
 >>
 >> 7. Update EntityDetail.page.tsx - Communications Tab
@@ -407,12 +407,12 @@
 >> 4. src/schemas/entity.schema.ts (99 lines)
 >> 5. src/components/modals/entity/CreateEntityModal.tsx (84 lines)
 >> 6. src/components/modals/entity/UpdateEntityModal.tsx (117 lines)
->> 7. src/types/donation.types.ts (102 lines)
->> 8. src/services/donation.service.ts (56 lines)
->> 9. src/config/donation.form.config.ts (259 lines)
->> 10. src/schemas/donation.schema.ts (99 lines)
->> 11. src/components/modals/entity/CreateDonationModal.tsx (93 lines)
->> 12. src/components/modals/entity/UpdateDonationModal.tsx (128 lines)
+>> 7. src/types/entity-donation.types.ts (102 lines)
+>> 8. src/services/entity-donation.service.ts (56 lines)
+>> 9. src/config/entity-donation.form.config.ts (259 lines)
+>> 10. src/schemas/entity-donation.schema.ts (99 lines)
+>> 11. src/components/modals/entity/CreateEntityDonationModal.tsx (93 lines)
+>> 12. src/components/modals/entity/UpdateEntityDonationModal.tsx (128 lines)
 >> 13. src/pages/crm/EntityDetail.page.tsx (NEEDS RECREATION - ~400 lines)
 >>
 >> MODIFIED FILES (3):
@@ -429,7 +429,7 @@
 >>    - Already had CRM_ENTITY_DETAIL route defined
 >>
 >> EXISTING FILES (2):
->> 1. src/pages/crm/Donations.page.tsx (created fresh with real API)
+>> 1. src/pages/crm/OrganizationDonations.page.tsx (created fresh with real API)
 >> 2. src/pages/crm/Communications.page.tsx (placeholder, needs implementation)
 >>
 >> Total Lines of Code: ~2,000+ lines
@@ -496,14 +496,14 @@
 >>  entity.schema.ts - No errors (assumed)
 >>  CreateEntityModal.tsx - No errors (assumed)
 >>  UpdateEntityModal.tsx - No errors (assumed)
->>  donation.types.ts - No errors
->>  donation.service.ts - No errors
->>  donation.form.config.ts - No errors
->>  donation.schema.ts - No errors
->>  CreateDonationModal.tsx - No errors
->>  UpdateDonationModal.tsx - No errors
+>>  entity-donation.types.ts - No errors
+>>  entity-donation.service.ts - No errors
+>>  entity-donation.form.config.ts - No errors
+>>  entity-donation.schema.ts - No errors
+>>  CreateEntityDonationModal.tsx - No errors
+>>  UpdateEntityDonationModal.tsx - No errors
 >>  Entities.page.tsx - Minor unused import warnings only
->>  Donations.page.tsx - No errors
+>>  OrganizationDonations.page.tsx - No errors
 >>  App.tsx - No errors
 >>  EntityDetail.page.tsx - NEEDS RECREATION
 >>

@@ -15,6 +15,8 @@ export * from './project-member.types.ts';
 export * from './project-fund.types.ts';
 export * from './project-expense.types.ts';
 export * from './vat.types.ts';
+export * from './entity-donation.types.ts';
+export * from './entity-communication.types.ts'
 
 export const Currency = {
     RON: 'RON',

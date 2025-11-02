@@ -99,10 +99,3 @@ export interface ProjectExpenseExecuteRequest {
         amount: number;
     }[];
 }
-
-export interface FundAllocationSuggestion {
-    fundId: string;
-    fundName: string;
-    remainingAmount: number;
-    allocatedAmount: number;
-}

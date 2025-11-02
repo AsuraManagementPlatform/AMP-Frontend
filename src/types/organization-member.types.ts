@@ -30,7 +30,7 @@ export interface OrganizationMember {
 }
 
 export interface OrganizationMemberWithDetails extends OrganizationMember {
-    memberDetails?: {
+    memberDetails: {
         id: string;
         fullName: string;
         email: string;

@@ -41,7 +41,7 @@ const EntitiesPage: React.FC = () => {
     };
 
     const handleRowClick = (entity: Entity) => {
-        navigate(ROUTES.CRM_ENTITY_DETAIL.replace(':entityId', entity.id));
+        navigate(ROUTES.CRM_ENTITY_DETAILS.replace(':entityId', entity.id));
     };
 
     return (

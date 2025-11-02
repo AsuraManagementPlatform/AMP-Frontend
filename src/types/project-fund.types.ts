@@ -51,10 +51,6 @@ export interface ProjectFundPayRequest {
     status: string;
 }
 
-export interface ProjectFundCancelRequest {
-    id: string;
-}
-
 export const FundAllocationStatus = {
     ACTIVE: 'ACTIVE',
     CANCELLED: 'CANCELLED'
