@@ -11,7 +11,8 @@ export const userService = {
     },
 
     getById: async (id: string): Promise<User> => {
-        return apiService.get<User>(`user/${id}`);
+        const response: any = await apiService.get(`user/${id}`);
+        return response.users || response;
     },
 
     getCurrentUser: async (): Promise<User> => {

@@ -33,6 +33,7 @@ const TeamManagementPage: React.FC = () => {
             const filtered = (response.organizationMembersList || []).filter(
                 m => m.organization === organizationId
             );
+            
             setTeamMembers(filtered);
         } catch (error) {
             showToast.error('Eroare la încărcarea membrilor echipei');
@@ -278,7 +279,15 @@ const TeamManagementPage: React.FC = () => {
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     <div className="text-sm text-gray-700">
-                                                        {member.currentProject?.name || '-'}
+                                                        {member.currentProjects && member.currentProjects.length > 0 ? (
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-gray-900">
+                                                                    📂 {member.currentProjects.length} {member.currentProjects.length === 1 ? 'proiect' : 'proiecte'}
+                                                                </span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-gray-400 italic">Fără proiect</span>
+                                                        )}
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-4">
