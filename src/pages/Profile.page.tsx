@@ -50,7 +50,7 @@ export const ProfilePage: React.FC = () => {
     const loadUserProjectsAndActivities = async (targetUserId: string) => {
         try {
             const response = await organizationMemberService.getList();
-            const membersList = (response as any).organizationMembersList || response.organization_members_list || [];
+            const membersList = (response as any).organizationMembersList || response.organizationMembersList || [];
             
             const memberData = membersList.find((m: any) => m.member === targetUserId);
             
