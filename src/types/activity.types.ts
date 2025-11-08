@@ -62,6 +62,16 @@ export interface ActivityUpdateRequest extends Partial<ActivityCreateRequest> {
     id: string;
 }
 
+export interface ActivityChangeStatusRequest {
+    id: string;
+    status: ActivityStatus;
+}
+
+export interface ActivityCompleteRequest {
+    id: string;
+    endingDate: string;
+}
+
 export interface ActivityStats {
     totalActivities: number;
     completedActivities: number;

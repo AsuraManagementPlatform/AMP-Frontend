@@ -239,7 +239,6 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
 
     return (
         <>
-            {/* Cotizațiile mele - Secțiune dedicată */}
             <div className="mb-6">
                 <MyCotizatii />
             </div>

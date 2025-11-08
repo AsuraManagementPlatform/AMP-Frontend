@@ -1,119 +1,155 @@
 import {DynamicFormConfig, FieldType, SelectOption} from "@/types/form.types.ts";
 import {ActivityType} from "@/types/activity.types.ts";
+import i18next from 'i18next';
+
+const t = (key: string) => i18next.t(key);
 
 const getActivityTypeOptions = (): SelectOption[] => [
-    { value: ActivityType.MEETING, label: 'Întâlnire' },
-    { value: ActivityType.WORKSHOP, label: 'Workshop' },
-    { value: ActivityType.TRAINING, label: 'Training' },
-    { value: ActivityType.CONFERENCE, label: 'Conferință' },
-    { value: ActivityType.PRESENTATION, label: 'Prezentare' },
-    { value: ActivityType.EVENT, label: 'Eveniment' },
-    { value: ActivityType.TASK, label: 'Sarcină' },
-    { value: ActivityType.MILESTONE, label: 'Obiectiv' },
-    { value: ActivityType.REVIEW, label: 'Revizuire' },
-    { value: ActivityType.OTHER, label: 'Altele' }
+    { value: ActivityType.MEETING, label: t('label.activity.type_meeting') },
+    { value: ActivityType.WORKSHOP, label: t('label.activity.type_workshop') },
+    { value: ActivityType.TRAINING, label: t('label.activity.type_training') },
+    { value: ActivityType.CONFERENCE, label: t('label.activity.type_conference') },
+    { value: ActivityType.PRESENTATION, label: t('label.activity.type_presentation') },
+    { value: ActivityType.EVENT, label: t('label.activity.type_event') },
+    { value: ActivityType.TASK, label: t('label.activity.type_task') },
+    { value: ActivityType.MILESTONE, label: t('label.activity.type_milestone') },
+    { value: ActivityType.REVIEW, label: t('label.activity.type_review') },
+    { value: ActivityType.OTHER, label: t('label.activity.type_other') }
 ];
 
 export const createActivityFormConfig = (): DynamicFormConfig => ({
     sections: [
         {
-            title: "Informații activitate",
+            title: t('label.activity.section_info'),
             columns: 1,
             fields: [
                 {
                     name: 'project',
-                    label: 'Proiect',
+                    label: t('label.activity.project'),
                     type: FieldType.HIDDEN,
                     required: true
                 },
                 {
                     name: 'title',
-                    label: 'Titlu activitate',
+                    label: t('label.activity.title'),
                     type: FieldType.TEXT,
-                    placeholder: 'ex: Workshop educație civică',
+                    placeholder: t('label.activity.title_placeholder'),
                     required: true,
                     maxLength: 255
                 },
                 {
                     name: 'type',
-                    label: 'Tip activitate',
+                    label: t('label.activity.type'),
                     type: FieldType.SELECT,
                     required: true,
                     options: getActivityTypeOptions()
                 },
                 {
                     name: 'description',
-                    label: 'Descriere',
+                    label: t('label.activity.description'),
                     type: FieldType.TEXTAREA,
-                    placeholder: 'Descriere detaliată a activității...',
+                    placeholder: t('label.activity.description_placeholder'),
                     maxLength: 511,
                     rows: 3
                 },
                 {
                     name: 'location',
-                    label: 'Locație',
+                    label: t('label.activity.location'),
                     type: FieldType.TEXT,
-                    placeholder: 'ex: Sala de conferințe, București',
+                    placeholder: t('label.activity.location_placeholder'),
                     maxLength: 255
                 }
             ]
         },
         {
-            title: "Planificare",
+            title: t('label.activity.section_planning'),
             columns: 2,
             fields: [
                 {
                     name: 'startingDate',
-                    label: 'Data de început',
+                    label: t('label.activity.starting_date'),
                     type: FieldType.DATE,
-                    placeholder: 'Selectează data de început',
+                    placeholder: t('label.activity.starting_date_placeholder'),
                     required: true
                 },
                 {
                     name: 'estimatedEndingDate',
-                    label: 'Data estimată de sfârșit',
+                    label: t('label.activity.estimated_ending_date'),
                     type: FieldType.DATE,
-                    placeholder: 'Selectează data estimată',
+                    placeholder: t('label.activity.estimated_ending_date_placeholder'),
                     required: true
                 }
             ]
         },
         {
-            title: "Detalii suplimentare",
+            title: t('label.activity.section_additional'),
             columns: 1,
             fields: [
                 {
                     name: 'results',
-                    label: 'Rezultate',
+                    label: t('label.activity.results'),
                     type: FieldType.TEXTAREA,
-                    placeholder: 'Rezultatele activității...',
+                    placeholder: t('label.activity.results_placeholder'),
                     maxLength: 511,
                     rows: 3
                 },
                 {
                     name: 'indicators',
-                    label: 'Indicatori',
+                    label: t('label.activity.indicators'),
                     type: FieldType.TEXTAREA,
-                    placeholder: 'Indicatorii de performanță...',
+                    placeholder: t('label.activity.indicators_placeholder'),
                     maxLength: 511,
                     rows: 3
                 },
                 {
                     name: 'observation',
-                    label: 'Observații',
+                    label: t('label.activity.observation'),
                     type: FieldType.TEXTAREA,
-                    placeholder: 'Note sau observații despre activitate...',
+                    placeholder: t('label.activity.observation_placeholder'),
                     maxLength: 511,
                     rows: 2
                 }
             ]
         }
     ],
-    submitButtonText: 'Creează activitate',
-    cancelButtonText: 'Anulează'
+    submitButtonText: t('form.activity.submit_create'),
+    cancelButtonText: t('form.activity.cancel')
 });
 
 export const updateActivityFormConfig = (): DynamicFormConfig => ({
     ...createActivityFormConfig(),
-    submitButtonText: 'Actualizează activitate'
+    submitButtonText: t('form.activity.submit_update')
+});
+
+export const completeActivityFormConfig = (): DynamicFormConfig => ({
+    sections: [
+        {
+            title: t('label.activity.section_complete'),
+            columns: 1,
+            fields: [
+                {
+                    name: 'project',
+                    label: t('label.activity.project'),
+                    type: FieldType.HIDDEN,
+                    required: true
+                },
+                {
+                    name: 'startingDate',
+                    label: t('label.activity.starting_date'),
+                    type: FieldType.HIDDEN,
+                    required: true
+                },
+                {
+                    name: 'endingDate',
+                    label: t('label.activity.ending_date'),
+                    type: FieldType.DATE,
+                    placeholder: t('label.activity.ending_date_placeholder'),
+                    required: true,
+                    helperText: t('label.activity.ending_date_helper')
+                },
+            ]
+        },
+    ],
+    submitButtonText: t('form.activity.submit_complete'),
+    cancelButtonText: t('form.activity.cancel')
 });

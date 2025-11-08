@@ -58,6 +58,7 @@ export interface User {
     groups: string[];
     status: string;
     organizationId?: string;
+    organizationName: string;
     lastLogin?: string;
     registrationDate?: string;
     isActive: boolean;

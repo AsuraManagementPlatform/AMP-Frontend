@@ -4,6 +4,8 @@ import { Project, Activity, User, TableColumn } from '@/types/index.types';
 import toast from 'react-hot-toast';
 import { MyCotizatii } from './MyCotizatii';
 import DataTable from "@/components/ui/DataTable.tsx";
+import {ROUTES} from "@/utils/constants.utils.ts";
+import {useNavigate} from "react-router-dom";
 
 interface MemberDashboardProps {
     user: User | null;
@@ -33,6 +35,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
     const [showSponsorshipModal, setShowSponsorshipModal] = useState(false);
     const [showProposalModal, setShowProposalModal] = useState(false);
     const [showMessageModal, setShowMessageModal] = useState(false);
+    const navigate = useNavigate();
 
     const getProjectColumns = (): TableColumn<Project>[] => [
         {
@@ -114,6 +117,10 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
         setShowMessageModal(true);
     };
 
+    const handleProjectRowClick = (project: Project) => {
+        navigate(ROUTES.ERP_PROJECT_DETAILS.replace(':projectId', project.id));
+    };
+
     return (
         <>
             <div className="mb-6">
@@ -129,6 +136,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                                 <DataTable<Project>
                                     data={projects}
                                     columns={getProjectColumns()}
+                                    onRowClick={handleProjectRowClick}
                                     loading={projectsLoading}
                                     emptyMessage="Nu participi la niciun proiect în acest moment"
                                 />
@@ -171,7 +179,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                                 </div>
                                 <div>
                                     <span className="text-gray-600">Organizație:</span> 
-                                    <span className="ml-2 font-medium">N/A</span>
+                                    <span className="ml-2 font-medium">{user?.organizationName || 'N/A'}</span>
                                 </div>
                                 <div>
                                     <span className="text-gray-600">Status:</span> 

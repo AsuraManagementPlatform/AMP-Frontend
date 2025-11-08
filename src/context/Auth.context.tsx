@@ -32,6 +32,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
                 groups: userData.groups,
                 status: userData.status,
                 organizationId: userData.organizationId,
+                organizationName: userData.organizationName,
                 isActive: userData.isActive || true,
                 isContributor: userData.isContributor
             };

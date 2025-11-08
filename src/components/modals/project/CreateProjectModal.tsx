@@ -36,23 +36,17 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     const loadAvailableManagers = async () => {
         try {
             if (organizationId) {
-                let response;
-                try {
-                    response = await userService.getManagers({
-                        pageSize: 100
-                    });
-                } catch (managersError) {
-                    response = await userService.getList({
-                        pageSize: 100
-                    });
-                }
+                const response = await userService.getList({
+                    filters: {organization: organizationId},
+                    pageSize: 100
+                });
                 
-                const managers = response.results?.map(user => ({
+                const organization_members = response.results.map(user => ({
                     id: user.id,
                     name: user.fullName || user.email
-                })) || [];
+                }));
                 
-                setAvailableManagers(managers);
+                setAvailableManagers(organization_members);
                 setFormKey(prev => prev + 1);
             }
         } catch (error) {

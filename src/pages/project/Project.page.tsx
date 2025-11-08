@@ -13,16 +13,21 @@ import { ProjectExpensesTab } from '@/components/project-tabs/ProjectExpensesTab
 import { ProjectFundsTab } from '@/components/project-tabs/ProjectFundsTab';
 import { ProjectMembersTab } from '@/components/project-tabs/ProjectMembersTab';
 import { t } from 'i18next';
+import IconBack from "@/assets/icons/iconmonstr-back.svg?react";
+import {useAuth} from "@/hooks/useAuth.ts";
+import {UserGroup} from "@/types/auth.types.ts";
 
 type TabType = 'details' | 'activities' | 'expenses' | 'funds' | 'members';
 
 const ProjectPage: React.FC = () => {
+    const authContext = useAuth();
     const { projectId } = useParams<{ projectId: string }>();
     const navigate = useNavigate();
     const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<TabType>('details');
+    const [isProjectResponsible, setIsProjectResponsible] = useState<boolean>(false);
 
     useEffect(() => {
         const loadProject = async () => {
@@ -36,6 +41,10 @@ const ProjectPage: React.FC = () => {
                 setLoading(true);
                 const data = await projectService.getById(projectId);
                 setProject(data);
+
+                if (data.budgetResponsible === authContext.user?.id) {
+                    setIsProjectResponsible(true);
+                }
             } catch (error) {
                 const errorMessage = error instanceof Error ? error.message : 'Eroare la încărcarea proiectului';
                 showToast.error(errorMessage);
@@ -94,17 +103,20 @@ const ProjectPage: React.FC = () => {
     return (
         <Layout showNavigation={true}>
             <div className="container mx-auto">
+                <div className="mb-6 flex gap-2">
+                    <button
+                        onClick={() => navigate(ROUTES.ERP_PROJECTS)}
+                        className="text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                        <IconBack/>
+                    </button>
+                    <p>Înapoi</p>
+                </div>
                 <div className="mb-6 flex justify-between items-center">
                     <div>
                         <h1 className="text-3xl font-bold mb-2">{project.name}</h1>
-                        <button
-                            onClick={() => navigate(ROUTES.ERP_PROJECTS)}
-                            className="text-blue-600 hover:text-blue-800 text-sm"
-                        >
-                            ← Înapoi la lista de proiecte
-                        </button>
                     </div>
-                    {activeTab === 'details' && (
+                    {activeTab === 'details' && authContext.hasAllUserGroups([UserGroup.ORGANIZATION_ADMIN]) && (
                         <PrimaryActionButton onClick={handleEdit}>
                             Editează proiect
                         </PrimaryActionButton>
@@ -133,36 +145,40 @@ const ProjectPage: React.FC = () => {
                         >
                             Activități
                         </button>
-                        <button
-                            onClick={() => setActiveTab('expenses')}
-                            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                                activeTab === 'expenses'
-                                    ? 'border-blue-500 text-blue-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }`}
-                        >
-                            {t('tab.project_expenses')}
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('funds')}
-                            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                                activeTab === 'funds'
-                                    ? 'border-blue-500 text-blue-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }`}
-                        >
-                            {t('tab.project_funds')}
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('members')}
-                            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                                activeTab === 'members'
-                                    ? 'border-blue-500 text-blue-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }`}
-                        >
-                            Membri
-                        </button>
+                        {isProjectResponsible && (
+                            <>
+                                <button
+                                    onClick={() => setActiveTab('expenses')}
+                                    className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                                        activeTab === 'expenses'
+                                            ? 'border-blue-500 text-blue-600'
+                                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    }`}
+                                >
+                                    {t('tab.project_expenses')}
+                                </button>
+                            </>
+                        )}
+                        {authContext.hasAnyUserGroup([UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN]) && (
+                            <>
+                                <button
+                                    onClick={() => setActiveTab('funds')}
+                                    className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'funds'
+                                        ? 'border-blue-500 text-blue-600'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                                >
+                                    {t('tab.project_funds')}
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('members')}
+                                    className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'members'
+                                        ? 'border-blue-500 text-blue-600'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                                >
+                                    Membri
+                                </button>
+                            </>
+                        )}
                     </nav>
                 </div>
 

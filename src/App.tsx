@@ -113,7 +113,7 @@ function App() {
                                         <Route
                                             path={ROUTES.ERP_PROJECT_DETAILS}
                                             element={
-                                                <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]}>
+                                                <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN, UserGroup.MEMBER, UserGroup.EMPLOYEE, UserGroup.VOLUNTEER, UserGroup.MANAGER]}>
                                                     <ProjectPage />
                                                 </ProtectedRoute>
                                             }
