@@ -274,9 +274,9 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                     <div className="text-lg font-bold text-green-600">
                         {loadingStats ? '...' : (
                             <>
-                                <div>{totalPaidFunds.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}</div>
+                                <div>{t('label.project_fund.remaining')}: {totalRemainingFunds.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}</div>
                                 <div className="text-sm text-gray-600 font-normal mt-1">
-                                    {t('label.project_fund.remaining')}: {totalRemainingFunds.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}
+                                    {totalPaidFunds.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}
                                 </div>
                             </>
                         )}

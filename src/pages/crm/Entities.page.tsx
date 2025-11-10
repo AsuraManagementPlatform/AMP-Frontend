@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { CreateEntityModal } from '@/components/modals/entity/CreateEntityModal';
 import { ROUTES } from '@/utils/constants.utils';
-import {EngagementLevel, Entity, EntityStatus, LegalType, UserGroup} from '@/types/index.types';
+import {Entity, EntityStatus, LegalType, UserGroup} from '@/types/index.types';
 import { useTableData } from '@/hooks/useTableData';
 import { t } from 'i18next';
 import { useAuth } from "@/hooks/useAuth.ts";
@@ -76,12 +76,6 @@ const EntitiesPage: React.FC = () => {
                             <div className="text-sm text-gray-600">{t('label.entity.juridical_entities')}</div>
                             <div className="text-2xl font-bold text-purple-600">
                                 {entities.filter(e => e.legalType === LegalType.JURIDICA).length}
-                            </div>
-                        </div>
-                        <div className="bg-orange-50 p-4 rounded-lg">
-                            <div className="text-sm text-gray-600">{t('label.entity.total_engagement')}</div>
-                            <div className="text-2xl font-bold text-orange-600">
-                                {entities.filter(e => e.engagementLevel === EngagementLevel.TOTAL).length}
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,5 @@
 import {BaseEntity, Currency} from "@/types/index.types.ts";
+import {EngagementLevel} from "@/types/project-partner.types.ts";
 
 export const DonationType = {
     MONETARY: 'monetary',
@@ -45,12 +46,13 @@ export interface EntityDonation extends BaseEntity {
     scope: DonationScope;
     documentReference?: string;
     notes?: string;
+    projectFund?: string;
 }
 
 export interface EntityDonationCreateRequest {
     entity: string;
-    project?: string | null;
-    activity?: string | null;
+    project?: string;
+    activity?: string;
     date: string;
     amount: number;
     currency: Currency;
@@ -59,9 +61,10 @@ export interface EntityDonationCreateRequest {
     scope: DonationScope;
     documentReference?: string;
     notes?: string;
+    engagementLevel?: EngagementLevel;
 }
 
-export interface EntityDonationUpdateRequest extends Partial<EntityDonationCreateRequest> {
+export interface EntityDonationUpdateRequest extends Partial<Omit<EntityDonationCreateRequest, 'engagementLevel'>> {
     id: string;
 }
 
@@ -70,4 +73,13 @@ export interface EntityDonationStats {
     totalCount: number;
     averageAmount: number;
     uniqueEntities: number;
+}
+
+export interface EntityPartnershipProject {
+    project: string;
+    projectName: string;
+    engagementLevel: string | null;
+    totalDonations: number;
+    donationsCount: number;
+    donations: EntityDonation[];
 }

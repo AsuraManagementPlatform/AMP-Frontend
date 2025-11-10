@@ -6,19 +6,25 @@ import { createProjectFundSchema, CreateProjectFundData, getCreateProjectFundDef
 import projectFundService from '@/services/project-fund.service';
 import showToast from '@/components/ui/Toast';
 import {ProjectFundCreateRequest} from "@/types/project-fund.types.ts";
+import {SelectOption} from "@/types/form.types.ts";
+import {t} from "i18next";
 
 interface CreateProjectFundModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
     project: string;
+    activities?: SelectOption[];
+    entities?: SelectOption[];
 }
 
 export const CreateProjectFundModal: React.FC<CreateProjectFundModalProps> = ({
                                                                                   isOpen,
                                                                                   onClose,
                                                                                   onSuccess,
-                                                                                  project
+                                                                                  project,
+                                                                                  activities = [],
+                                                                                  entities = []
                                                                               }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -28,6 +34,8 @@ export const CreateProjectFundModal: React.FC<CreateProjectFundModalProps> = ({
 
             const projectFundCreateRequest: ProjectFundCreateRequest = {
                 project: data.project,
+                activity: data.activity,
+                entity: data.entity,
                 estimatedAmount: data.estimatedAmount,
                 source: data.source,
                 category: data.category,
@@ -41,25 +49,25 @@ export const CreateProjectFundModal: React.FC<CreateProjectFundModalProps> = ({
             };
 
             await projectFundService.create(projectFundCreateRequest);
-            showToast.success('Finanțarea a fost adăugată cu succes!');
+            showToast.success(t('toast.project_fund.created'));
             onSuccess();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.message || 'Eroare la adăugarea finanțării';
+            const errorMessage = error?.message || t('toast.project_fund.create_error');
             showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const formConfig = createProjectFundFormConfig();
+    const formConfig = createProjectFundFormConfig(activities, entities);
     const defaultValues = getCreateProjectFundDefaultValues(project);
 
     return (
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Adaugă sursă de finanțare"
+            title={t('form.project_fund.create_title')}
             size="lg"
         >
             <DynamicForm<CreateProjectFundData>

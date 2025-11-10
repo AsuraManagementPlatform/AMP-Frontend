@@ -34,7 +34,6 @@ const createAmountValidation = () => z.union([
     t('schema.entity_donation.amount_max_decimals')
 );
 
-
 export const createDonationSchema = z.object({
     entity: z.uuid(t('schema.entity_donation.entity_invalid'))
         .min(1, t('schema.entity_donation.entity_required')),

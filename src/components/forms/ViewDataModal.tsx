@@ -26,7 +26,8 @@ interface ViewDataModalProps {
     onClose: () => void;
     title: string;
     config: ViewDataConfig;
-    size?: 'sm' | 'md' | 'lg' | 'xl' ;
+    size?: 'sm' | 'md' | 'lg' | 'xl';
+    children?: React.ReactNode;
 }
 
 export const ViewDataModal: React.FC<ViewDataModalProps> = ({
@@ -34,7 +35,8 @@ export const ViewDataModal: React.FC<ViewDataModalProps> = ({
                                                                 onClose,
                                                                 title,
                                                                 config,
-                                                                size = 'lg'
+                                                                size = 'lg',
+                                                                children
                                                             }) => {
     const { t } = useTranslation();
 
@@ -101,6 +103,8 @@ export const ViewDataModal: React.FC<ViewDataModalProps> = ({
                         </div>
                     );
                 })}
+
+                {children}
 
                 <div className="flex justify-end pt-4">
                     <button

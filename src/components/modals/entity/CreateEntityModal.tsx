@@ -49,7 +49,6 @@ export const CreateEntityModal: React.FC<CreateEntityModalProps> = ({
                 type: data.type,
                 status: data.status || 'activ',
                 observation: data.observation || '',
-                engagementLevel: data.engagementLevel
             };
 
             const entity = await entityService.create(entityData);

@@ -6,33 +6,40 @@ export const ProjectFundStatus = {
     CANCELLED: 'CANCELLED'
 } as const;
 
+export type ProjectFundStatus = typeof ProjectFundStatus[keyof typeof ProjectFundStatus];
+
 export interface ProjectFund extends BaseEntity {
     project: string;
+    activity?: string;
+    activityTitle?: string;
+    entityDonation?: string;
     estimatedAmount: number;
     amount: number;
+    allocatedAmount: number;
+    remainingAmount: number;
     source: string;
     category: string;
     sourceName: string;
     currency: Currency;
     estimatedDate: string;
-    date: string;
+    date?: string;
     paymentMethod: string;
     scope: string;
     documentReference?: string;
     notes?: string;
-    status: string;
-    allocatedAmount?: number;
-    remainingAmount?: number;
-    allocations?: ProjectFundAllocation[];
+    status: ProjectFundStatus;
+    allocations: ProjectFundAllocation[];
 }
 
 export interface ProjectFundCreateRequest {
     project: string;
+    activity?: string;
+    entity?: string;
     estimatedAmount: number;
     source: string;
     category: string;
     sourceName: string;
-    currency: string;
+    currency: Currency;
     estimatedDate: string;
     paymentMethod: string;
     scope: string;
@@ -48,7 +55,6 @@ export interface ProjectFundPayRequest {
     id: string;
     amount: number;
     date: string;
-    status: string;
 }
 
 export const FundAllocationStatus = {
@@ -56,14 +62,14 @@ export const FundAllocationStatus = {
     CANCELLED: 'CANCELLED'
 } as const;
 
-export type FundAllocationStatusType = typeof FundAllocationStatus[keyof typeof FundAllocationStatus];
+export type FundAllocationStatus = typeof FundAllocationStatus[keyof typeof FundAllocationStatus];
 
 export interface ProjectFundAllocation {
     id: string;
     projectFund: string;
     projectExpense: string;
     allocatedAmount: number;
-    status: FundAllocationStatusType;
+    status: FundAllocationStatus;
     createdAt: string;
     expenseName?: string;
     fundSource?: string;

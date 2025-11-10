@@ -3,7 +3,7 @@ import {Modal} from '@/components/ui/Modal';
 import {DynamicForm} from '@/components/forms/DynamicForm';
 import projectFundService from '@/services/project-fund.service';
 import showToast from '@/components/ui/Toast';
-import {ProjectFund, ProjectFundPayRequest, ProjectFundStatus} from '@/types/index.types';
+import {ProjectFund, ProjectFundPayRequest} from '@/types/project-fund.types.ts';
 import {t} from 'i18next';
 import {payProjectFundFormConfig} from "@/config/project-fund.form.config.ts";
 import {
@@ -34,8 +34,7 @@ export const PayProjectFundModal: React.FC<PayProjectFundModalProps> = ({
             const projectFundPayRequest: ProjectFundPayRequest = {
                 id: data.id,
                 amount: data.amount,
-                date: data.date,
-                status: ProjectFundStatus.PAID
+                date: data.date
             };
 
             await projectFundService.pay(projectFundPayRequest);
@@ -71,12 +70,12 @@ export const PayProjectFundModal: React.FC<PayProjectFundModalProps> = ({
                     <div>
                         <span className="text-gray-600">{t('label.project_fund.estimated_amount')}:</span>
                         <p className="font-semibold">
-                            {fund.estimatedAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {fund.currency}
+                            {fund.estimatedAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {fund.currency}
                         </p>
                     </div>
                     <div>
-                        <span className="text-gray-600">{t('label.project_fund.receipt_date')}:</span>
-                        <p className="font-semibold">{fund.estimatedDate}</p>
+                        <span className="text-gray-600">{t('label.project_fund.estimated_date')}:</span>
+                        <p className="font-semibold">{new Date(fund.estimatedDate).toLocaleDateString('ro-RO')}</p>
                     </div>
                 </div>
             </div>

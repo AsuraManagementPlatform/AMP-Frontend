@@ -136,7 +136,7 @@ export const EntityDonationList: React.FC<EntityDonationListProps> = ({
     return (
         <>
             <Table<EntityDonation>
-                endpoint={entityId ? `entity-donation/list?entity_id=${entityId}` : 'entity-donation/list'}
+                endpoint={entityId ? `entity_donation/list?entity_id=${entityId}` : 'entity-donation/list'}
                 columns={getColumns()}
                 actions={getActions()}
                 initialPageSize={pageSize}

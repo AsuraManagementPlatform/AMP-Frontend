@@ -39,7 +39,6 @@ export const UpdateEntityModal: React.FC<UpdateEntityModalProps> = ({
                 type: data.type,
                 status: data.status || 'activ',
                 observation: data.observation || '',
-                engagementLevel: data.engagementLevel
             };
 
             await entityService.update(updateRequest);
@@ -68,7 +67,6 @@ export const UpdateEntityModal: React.FC<UpdateEntityModalProps> = ({
         type: entity.type,
         status: entity.status,
         observation: entity.observation || '',
-        engagementLevel: entity.engagementLevel
     };
 
     const formConfig = updateEntityFormConfig();

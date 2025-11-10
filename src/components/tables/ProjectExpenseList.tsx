@@ -7,7 +7,7 @@ import IconCheckList from "@/assets/icons/iconmonstr-ckeck-list.svg?react";
 import {ProjectExpense} from '@/types/project-expense.types';
 import {UpdateProjectExpenseModal} from '@/components/modals/project-expense/UpdateProjectExpenseModal';
 import {ExecuteProjectExpenseModal} from '@/components/modals/project-expense/ExecuteProjectExpenseModal';
-import {ExpenseDetailsModal} from '@/components/modals/project-expense/ExpenseDetailsModal';
+import {ProjectExpenseDetailsModal} from '@/components/modals/project-expense/ProjectExpenseDetailsModal.tsx';
 import projectExpenseService from '@/services/project-expense.service';
 import showToast from '@/components/ui/Toast';
 import {useConfirmDialog} from "@/components/ui/ConfirmDialog";
@@ -321,7 +321,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             )}
 
             {isDetailsModalOpen && selectedExpense && (
-                <ExpenseDetailsModal
+                <ProjectExpenseDetailsModal
                     isOpen={isDetailsModalOpen}
                     onClose={() => {
                         setIsDetailsModalOpen(false);

@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {EngagementLevel, EntityStatus, EntityType, LegalType} from '@/types/entity.types';
+import {EntityStatus, EntityType, LegalType} from '@/types/entity.types';
 
 const ROMANIAN_PHONE_REGEX = /^(\+40|0)[0-9]{9}$/;
 
@@ -77,12 +77,6 @@ export const createEntitySchema = z.object({
             },
             'Observația nu poate depăși 511 caractere'
         ),
-    
-    engagementLevel: z.enum([
-        EngagementLevel.DELOC,
-        EngagementLevel.PARTIAL,
-        EngagementLevel.TOTAL
-    ]).optional()
 });
 
 export type CreateEntityData = z.infer<typeof createEntitySchema>;
@@ -106,5 +100,4 @@ export const getCreateEntityDefaultValues = (organization: string): CreateEntity
     type: EntityType.DONOR,
     status: EntityStatus.ACTIV,
     observation: '',
-    engagementLevel: EngagementLevel.DELOC
 });

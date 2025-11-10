@@ -16,8 +16,9 @@ import { t } from 'i18next';
 import IconBack from "@/assets/icons/iconmonstr-back.svg?react";
 import {useAuth} from "@/hooks/useAuth.ts";
 import {UserGroup} from "@/types/auth.types.ts";
+import {ProjectPartnersTab} from "@/components/project-tabs/ProjectPartnerTab.tsx";
 
-type TabType = 'details' | 'activities' | 'expenses' | 'funds' | 'members';
+type TabType = 'details' | 'activities' | 'funds' | 'expenses' | 'members' | 'partners';
 
 const ProjectPage: React.FC = () => {
     const authContext = useAuth();
@@ -145,7 +146,7 @@ const ProjectPage: React.FC = () => {
                         >
                             Activități
                         </button>
-                        {isProjectResponsible && (
+                        {isProjectResponsible || authContext.hasAllUserGroups([UserGroup.ORGANIZATION_ADMIN]) && (
                             <>
                                 <button
                                     onClick={() => setActiveTab('expenses')}
@@ -175,7 +176,15 @@ const ProjectPage: React.FC = () => {
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
                                 >
-                                    Membri
+                                    {t('tab.project_members')}
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('partners')}
+                                    className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'partners'
+                                        ? 'border-blue-500 text-blue-600'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                                >
+                                    {t('tab.project_partners')}
                                 </button>
                             </>
                         )}
@@ -184,15 +193,15 @@ const ProjectPage: React.FC = () => {
 
                 {activeTab === 'details' && <ProjectDetailsTab project={project} />}
                 {activeTab === 'activities' && <ProjectActivitiesTab projectId={project.id} />}
-                {activeTab === 'expenses' && (
-                    <ProjectExpensesTab
+                {activeTab === 'funds' && (
+                    <ProjectFundsTab
                         projectId={project.id}
                         projectBudget={project.budget || 0}
                         projectCurrency={project.currency || 'RON'}
                     />
                 )}
-                {activeTab === 'funds' && (
-                    <ProjectFundsTab
+                {activeTab === 'expenses' && (
+                    <ProjectExpensesTab
                         projectId={project.id}
                         projectBudget={project.budget || 0}
                         projectCurrency={project.currency || 'RON'}
@@ -202,6 +211,11 @@ const ProjectPage: React.FC = () => {
                     <ProjectMembersTab
                         projectId={project.id}
                         organizationId={project.organization}
+                    />
+                )}
+                {activeTab === 'partners' && (
+                    <ProjectPartnersTab
+                        projectId={project.id}
                     />
                 )}
 

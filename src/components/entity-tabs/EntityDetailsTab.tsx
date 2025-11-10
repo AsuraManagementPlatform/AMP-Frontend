@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from '@/components/ui/Card';
-import { Entity, LegalType, EntityType, EntityStatus, EngagementLevel } from '@/types/entity.types';
+import { Entity, LegalType, EntityType, EntityStatus } from '@/types/entity.types';
 import { t } from 'i18next';
 
 interface EntityDetailsTabProps {
@@ -48,26 +48,6 @@ export const EntityDetailsTab: React.FC<EntityDetailsTabProps> = ({ entity }) =>
         return labels[type] || type;
     };
 
-    const getEngagementLabel = (engagement?: EngagementLevel) => {
-        if (!engagement) return 'N/A';
-        const labels: Record<EngagementLevel, string> = {
-            [EngagementLevel.TOTAL]: t('label.entity.engagement_total'),
-            [EngagementLevel.PARTIAL]: t('label.entity.engagement_partial'),
-            [EngagementLevel.DELOC]: t('label.entity.engagement_deloc')
-        };
-        return labels[engagement] || engagement;
-    };
-
-    const getEngagementBadgeColor = (engagement?: EngagementLevel) => {
-        if (!engagement) return 'bg-gray-100 text-gray-800';
-        const colors: Record<EngagementLevel, string> = {
-            [EngagementLevel.TOTAL]: 'bg-green-100 text-green-800',
-            [EngagementLevel.PARTIAL]: 'bg-yellow-100 text-yellow-800',
-            [EngagementLevel.DELOC]: 'bg-red-100 text-red-800'
-        };
-        return colors[engagement] || 'bg-gray-100 text-gray-800';
-    };
-
     return (
         <>
             <Card title={t('label.entity.basic_info')} className="mb-6">
@@ -107,19 +87,6 @@ export const EntityDetailsTab: React.FC<EntityDetailsTabProps> = ({ entity }) =>
                         <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(entity.status)}`}>
                             {getStatusLabel(entity.status)}
                         </span>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">
-                            {t('label.entity.engagement')}
-                        </label>
-                        {entity.engagementLevel ? (
-                            <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getEngagementBadgeColor(entity.engagementLevel)}`}>
-                                {getEngagementLabel(entity.engagementLevel)}
-                            </span>
-                        ) : (
-                            <span className="text-gray-400">N/A</span>
-                        )}
                     </div>
 
                     <div>

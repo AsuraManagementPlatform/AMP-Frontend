@@ -56,9 +56,11 @@ export interface ProjectExpenseTransaction extends BaseEntity {
 
 export interface ProjectExpense extends BaseEntity {
     project: string;
-    activity: string | null;
+    activity?: string;
+    activityTitle?: string;
     vat: string;
-    activityTitle?: string | null;
+    vatName: string;
+    vatValue: number;
     name: string;
     unitType: UnitType;
     quantity: number;
@@ -69,8 +71,8 @@ export interface ProjectExpense extends BaseEntity {
     category: ExpenseCategoryType;
     currency: Currency;
     status: ProjectExpenseStatusType;
-    fundAllocations?: ProjectFundAllocation[];
-    transactions?: ProjectExpenseTransaction[];
+    fundAllocations: ProjectFundAllocation[];
+    transactions: ProjectExpenseTransaction[];
 }
 
 export interface ProjectExpenseCreateRequest {

@@ -1,15 +1,15 @@
-import { TableAction, TableColumn } from '@/types/index.types';
-import React, { useState } from "react";
+import {TableAction, TableColumn} from '@/types/index.types';
+import React, {useState} from "react";
 import Table from "@/components/ui/Table.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
-import { Entity, EntityStatus, EngagementLevel, LegalType, EntityType } from '@/types/entity.types';
-import { UpdateEntityModal } from '@/components/modals/entity/UpdateEntityModal';
+import {Entity, EntityType} from '@/types/entity.types';
+import {UpdateEntityModal} from '@/components/modals/entity/UpdateEntityModal';
 import entityService from '@/services/entity.service';
 import showToast from '@/components/ui/Toast';
-import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
+import {useConfirmDialog} from '@/components/ui/ConfirmDialog';
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
-import { t } from 'i18next';
+import {t} from 'i18next';
 
 interface EntityListProps {
     organizationId: string;
@@ -64,37 +64,12 @@ export const EntityList: React.FC<EntityListProps> = ({
 
     const getColumns = (): TableColumn<Entity>[] => [
         {
-            key: 'identificationNumber',
-            label: t('label.entity.identification_number'),
-            sortable: true,
-            filterable: true,
-            filterType: 'text',
-            size: 'sm',
-        },
-        {
             key: 'name',
             label: t('label.entity.name'),
             sortable: true,
             filterable: true,
             filterType: 'text',
             size: 'lg',
-        },
-        {
-            key: 'legalType',
-            label: t('label.entity.legal_type'),
-            sortable: true,
-            filterable: true,
-            filterType: 'select',
-            filterOptions: [
-                { label: t('label.entity.legal_type_fizica'), value: LegalType.FIZICA },
-                { label: t('label.entity.legal_type_juridica'), value: LegalType.JURIDICA },
-            ],
-            size: 'sm',
-            render: (legalType: string) => {
-                return legalType === LegalType.FIZICA
-                    ? t('label.entity.legal_type_fizica')
-                    : t('label.entity.legal_type_juridica');
-            }
         },
         {
             key: 'type',
@@ -133,69 +108,6 @@ export const EntityList: React.FC<EntityListProps> = ({
                     <div className="text-sm text-gray-500">{entity.phone}</div>
                 </div>
             )
-        },
-        {
-            key: 'status',
-            label: t('label.entity.status'),
-            sortable: true,
-            filterable: true,
-            filterType: 'select',
-            filterOptions: [
-                { label: t('label.entity.status_activ'), value: EntityStatus.ACTIV },
-                { label: t('label.entity.status_inactiv'), value: EntityStatus.INACTIV },
-                { label: t('label.entity.status_potential'), value: EntityStatus.POTENTIAL },
-                { label: t('label.entity.status_blocat'), value: EntityStatus.BLOCAT },
-            ],
-            size: 'sm',
-            render: (status: string) => {
-                const statusColors: Record<string, string> = {
-                    [EntityStatus.ACTIV]: 'bg-green-100 text-green-800',
-                    [EntityStatus.INACTIV]: 'bg-gray-100 text-gray-800',
-                    [EntityStatus.POTENTIAL]: 'bg-blue-100 text-blue-800',
-                    [EntityStatus.BLOCAT]: 'bg-red-100 text-red-800'
-                };
-                const statusLabels: Record<string, string> = {
-                    [EntityStatus.ACTIV]: t('label.entity.status_activ'),
-                    [EntityStatus.INACTIV]: t('label.entity.status_inactiv'),
-                    [EntityStatus.POTENTIAL]: t('label.entity.status_potential'),
-                    [EntityStatus.BLOCAT]: t('label.entity.status_blocat')
-                };
-                return (
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[status]}`}>
-                        {statusLabels[status]}
-                    </span>
-                );
-            }
-        },
-        {
-            key: 'engagementLevel',
-            label: t('label.entity.engagement'),
-            sortable: true,
-            filterable: true,
-            filterType: 'select',
-            filterOptions: [
-                { label: t('label.entity.engagement_total'), value: EngagementLevel.TOTAL },
-                { label: t('label.entity.engagement_partial'), value: EngagementLevel.PARTIAL },
-                { label: t('label.entity.engagement_deloc'), value: EngagementLevel.DELOC },
-            ],
-            size: 'sm',
-            render: (level: string) => {
-                const badges: Record<string, string> = {
-                    [EngagementLevel.TOTAL]: 'bg-green-100 text-green-800',
-                    [EngagementLevel.PARTIAL]: 'bg-yellow-100 text-yellow-800',
-                    [EngagementLevel.DELOC]: 'bg-gray-100 text-gray-800'
-                };
-                const labels: Record<string, string> = {
-                    [EngagementLevel.TOTAL]: t('label.entity.engagement_total'),
-                    [EngagementLevel.PARTIAL]: t('label.entity.engagement_partial'),
-                    [EngagementLevel.DELOC]: t('label.entity.engagement_deloc')
-                };
-                return (
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badges[level || EngagementLevel.DELOC]}`}>
-                        {labels[level || EngagementLevel.DELOC]}
-                    </span>
-                );
-            }
         },
     ];
 

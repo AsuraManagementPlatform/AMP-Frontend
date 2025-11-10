@@ -1,14 +1,9 @@
-import {
-    ProjectMember,
-    ProjectMemberCreateRequest,
-    ProjectMemberFilter,
-    ProjectMemberUpdateRequest
-} from '@/types/project-member.types';
+import {ProjectMember, ProjectMemberCreateRequest, ProjectMemberUpdateRequest} from '@/types/project-member.types';
 import {ListParams, PaginatedResponse} from '@/types/index.types';
 import {apiService} from "@/services/api.service.ts";
 
 const projectMemberService = {
-    getList: async (params?: ListParams & ProjectMemberFilter): Promise<PaginatedResponse<ProjectMember>> => {
+    getList: async (params?: ListParams): Promise<PaginatedResponse<ProjectMember>> => {
         return apiService.getPaginatedList<ProjectMember>('project_member/list', params);
     },
 

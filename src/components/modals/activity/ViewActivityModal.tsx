@@ -57,7 +57,8 @@ export const ViewActivityModal: React.FC<ViewActivityModalProps> = ({
                     },
                     {
                         label: t('label.activity.location'),
-                        value: activity.location
+                        value: activity.location || 'N/A',
+                        show: !!activity.location
                     },
                     {
                         label: t('label.activity.description'),
@@ -83,6 +84,24 @@ export const ViewActivityModal: React.FC<ViewActivityModalProps> = ({
                         label: t('label.activity.ending_date'),
                         value: activity.endingDate ? formatDate(activity.endingDate) : 'N/A',
                         show: !!activity.endingDate
+                    }
+                ]
+            },
+            {
+                title: t('label.project.planned_budget'),
+                columns: 3,
+                fields: [
+                    {
+                        label: t('label.project_expense.total_planned_expenses'),
+                        value: `${activity.totalActivityExpensesAmount} RON`
+                    },
+                    {
+                        label: t('label.project_fund.total_amount'),
+                        value: `${activity.totalFundsAmount} RON`
+                    },
+                    {
+                        label: t('label.entity_donation.total_donations'),
+                        value: `${activity.totalDonationsAmount} RON`
                     }
                 ]
             },

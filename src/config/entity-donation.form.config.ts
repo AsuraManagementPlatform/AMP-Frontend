@@ -34,7 +34,7 @@ const getCurrencyOptions = (): SelectOption[] => [
 export const createDonationFormConfig = (
     entities: SelectOption[] = [],
     projects: SelectOption[] = [],
-    activities: SelectOption[] = []
+    activities: SelectOption[] = [],
 ): DynamicFormConfig => ({
     sections: [
         {
@@ -128,7 +128,7 @@ export const createDonationFormConfig = (
                         ...activities
                     ],
                     helperText: t('label.entity_donation.activity_helper')
-                }
+                },
             ]
         },
         {
@@ -162,7 +162,7 @@ export const createDonationFormConfig = (
 export const updateDonationFormConfig = (
     entities: SelectOption[] = [],
     projects: SelectOption[] = [],
-    activities: SelectOption[] = []
+    activities: SelectOption[] = [],
 ): DynamicFormConfig => ({
     ...createDonationFormConfig(entities, projects, activities),
     submitButtonText: t('form.entity_donation.submit_update')

@@ -22,6 +22,11 @@ interface ExecuteProjectExpenseModalProps {
     project: string;
 }
 
+interface GroupedFunds {
+    activityFunds: ProjectFund[];
+    projectFunds: ProjectFund[];
+}
+
 export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProps> = ({
                                                                                           isOpen,
                                                                                           onClose,
@@ -56,6 +61,7 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
                 const fundsWithRemaining = (fundsResponse.results || []).filter(
                     fund => fund.remainingAmount && fund.remainingAmount > 0
                 );
+
                 setAvailableFunds(fundsWithRemaining);
 
             } catch (error) {
@@ -75,6 +81,24 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
         }
     }, [isOpen, project]);
 
+    const groupedFunds: GroupedFunds = useMemo(() => {
+        if (expense.activity) {
+            return {
+                activityFunds: availableFunds.filter(fund => fund.activity === expense.activity),
+                projectFunds: availableFunds.filter(fund => fund.activity === null)
+            };
+        } else {
+            return {
+                activityFunds: [],
+                projectFunds: availableFunds.filter(fund => fund.activity === null)
+            };
+        }
+    }, [availableFunds, expense.activity]);
+
+    const prioritizedFunds = useMemo(() => {
+        return [...groupedFunds.activityFunds, ...groupedFunds.projectFunds];
+    }, [groupedFunds]);
+
     const totalAmountNeeded = useMemo(() => {
         if (!formValues) return expense.totalAmount || 0;
 
@@ -92,7 +116,7 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
         let remainingAmount = totalAmountNeeded;
         const allocations: { fundId: string; amount: number }[] = [];
 
-        for (const fund of availableFunds) {
+        for (const fund of prioritizedFunds) {
             if (remainingAmount <= 0) break;
 
             const availableFromFund = fund.remainingAmount || 0;
@@ -101,7 +125,7 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
             if (toAllocate > 0) {
                 allocations.push({
                     fundId: fund.id,
-                    amount: Number(toAllocate.toFixed(5))
+                    amount: Number(toAllocate.toFixed(2))
                 });
                 remainingAmount -= toAllocate;
             }
@@ -158,12 +182,17 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
         );
     }
 
-    if (availableFunds.length === 0) {
+    if (prioritizedFunds.length === 0) {
         return (
             <Modal isOpen={isOpen} onClose={onClose} title={t('form.project_expense.execute_title')} size="md">
                 <div className="p-4">
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
                         <p className="text-yellow-800">{t('label.project_expense.no_available_funds')}</p>
+                        {expense.activity && (
+                            <p className="text-yellow-700 text-sm mt-2">
+                                {t('label.project_expense.no_activity_funds_hint')}
+                            </p>
+                        )}
                     </div>
                     <button
                         onClick={onClose}
@@ -186,6 +215,17 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
             title={`${t('form.project_expense.execute_title')} - ${expense.name}`}
             size="lg"
         >
+            {expense.activity && (
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-900">
+                        <span className="font-semibold">{t('label.project_expense.activity')}:</span> {expense.activityTitle}
+                    </p>
+                    <p className="text-xs text-blue-700 mt-1">
+                        {t('label.project_expense.fund_priority_info')}
+                    </p>
+                </div>
+            )}
+
             <div className="mb-4 p-4 bg-gray-50 rounded-lg">
                 <h4 className="text-sm font-semibold text-gray-700 mb-3">
                     {t('label.project_expense.expense_info')}
@@ -221,18 +261,59 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
                     {t('label.project_expense.fund_allocation_preview')}
                 </h4>
                 {allocations.length > 0 ? (
-                    <div className="space-y-2">
-                        {allocations.map((allocation, index) => {
-                            const fund = availableFunds.find(f => f.id === allocation.fundId);
-                            return (
-                                <div key={index} className="flex justify-between text-sm">
-                                    <span className="text-gray-700">{fund?.sourceName}</span>
-                                    <span className="font-semibold text-blue-900">
-                                        {allocation.amount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {expense.currency}
+                    <div className="space-y-3">
+                        {groupedFunds.activityFunds.length > 0 && (
+                            <div>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded">
+                                        {t('label.project_expense.priority_high')}
+                                    </span>
+                                    <span className="text-xs text-gray-600">
+                                        {t('label.project_expense.activity_funds')}
                                     </span>
                                 </div>
-                            );
-                        })}
+                                {allocations
+                                    .filter(alloc => groupedFunds.activityFunds.some(f => f.id === alloc.fundId))
+                                    .map((allocation, index) => {
+                                        const fund = prioritizedFunds.find(f => f.id === allocation.fundId);
+                                        return (
+                                            <div key={index} className="flex justify-between text-sm pl-4 border-l-2 border-green-300">
+                                                <span className="text-gray-700">{fund?.sourceName}</span>
+                                                <span className="font-semibold text-green-900">
+                                                    {allocation.amount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {expense.currency}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                            </div>
+                        )}
+
+                        {allocations.filter(alloc => groupedFunds.projectFunds.some(f => f.id === alloc.fundId)).length > 0 && (
+                            <div>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-xs font-semibold text-blue-700 bg-blue-100 px-2 py-1 rounded">
+                                        {t('label.project_expense.priority_normal')}
+                                    </span>
+                                    <span className="text-xs text-gray-600">
+                                        {t('label.project_expense.project_funds')}
+                                    </span>
+                                </div>
+                                {allocations
+                                    .filter(alloc => groupedFunds.projectFunds.some(f => f.id === alloc.fundId))
+                                    .map((allocation, index) => {
+                                        const fund = prioritizedFunds.find(f => f.id === allocation.fundId);
+                                        return (
+                                            <div key={index} className="flex justify-between text-sm pl-4 border-l-2 border-blue-300">
+                                                <span className="text-gray-700">{fund?.sourceName}</span>
+                                                <span className="font-semibold text-blue-900">
+                                                    {allocation.amount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {expense.currency}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                            </div>
+                        )}
+
                         {!hasEnoughFunds && (
                             <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
                                 <p className="text-red-800 text-sm">

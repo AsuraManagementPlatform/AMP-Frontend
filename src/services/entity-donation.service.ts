@@ -2,7 +2,7 @@ import {
     EntityDonation,
     EntityDonationCreateRequest,
     EntityDonationStats,
-    EntityDonationUpdateRequest,
+    EntityDonationUpdateRequest, EntityPartnershipProject,
     ListParams,
     PaginatedResponse
 } from '@/types/index.types.ts';
@@ -14,23 +14,23 @@ export interface EntityDonationStatsParams {
 
 export const entityDonationService = {
     getList: async (params?: ListParams): Promise<PaginatedResponse<EntityDonation>> => {
-        return apiService.getPaginatedList<EntityDonation>('entity-donation/list', params);
+        return apiService.getPaginatedList<EntityDonation>('entity_donation/list', params);
     },
 
     getById: async (id: string): Promise<EntityDonation> => {
-        return apiService.get<EntityDonation>(`entity-donation/${id}`);
+        return apiService.get<EntityDonation>(`entity_donation/${id}`);
     },
 
     create: async (data: EntityDonationCreateRequest): Promise<EntityDonation> => {
-        return apiService.post<EntityDonation>('entity-donation/create', data);
+        return apiService.post<EntityDonation>('entity_donation/create', data);
     },
 
     update: async (data: EntityDonationUpdateRequest): Promise<EntityDonation> => {
-        return apiService.put<EntityDonation>(`entity-donation/update/${data.id}`, data);
+        return apiService.put<EntityDonation>(`entity_donation/update/${data.id}`, data);
     },
 
     delete: async (id: string): Promise<void> => {
-        return apiService.delete(`entity-donation/delete/${id}`);
+        return apiService.delete(`entity_donation/delete/${id}`);
     },
 
     getStats: async (params?: EntityDonationStatsParams): Promise<EntityDonationStats> => {
@@ -41,10 +41,14 @@ export const entityDonationService = {
         }
 
         const queryString = searchParams.toString();
-        const url = queryString ? `entity-donation/stats?${queryString}` : 'entity-donation/stats';
+        const url = queryString ? `entity_donation/stats?${queryString}` : 'entity_donation/stats';
 
         return apiService.get<EntityDonationStats>(url);
-    }
+    },
+
+    getPartnerships: async (entityId: string): Promise<EntityPartnershipProject[]> => {
+        return apiService.get<EntityPartnershipProject[]>(`entity_donation/partnerships?entity_id=${entityId}`);
+    },
 };
 
 export default entityDonationService;

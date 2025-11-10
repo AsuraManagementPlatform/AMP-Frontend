@@ -1,121 +1,159 @@
-import { DynamicFormConfig, FieldType } from "@/types/form.types.ts";
+import { DynamicFormConfig, FieldType, SelectOption } from "@/types/form.types.ts";
 import {t} from "i18next";
+import {Currency} from "@/types/index.types.ts";
 
-export const createProjectFundFormConfig = (): DynamicFormConfig => ({
+const getCurrencyOptions = (): SelectOption[] => [
+    { value: Currency.RON, label: t('label.currency.ron') },
+    { value: Currency.EUR, label: t('label.currency.eur') },
+    { value: Currency.USD, label: t('label.currency.usd') }
+];
+
+export const createProjectFundFormConfig = (
+    activities: SelectOption[] = [],
+    entities: SelectOption[] = []
+): DynamicFormConfig => ({
     sections: [
         {
-            title: "Informații finanțare",
+            title: t('form.project_fund.section_basic'),
             columns: 1,
             fields: [
                 {
                     name: 'project',
-                    label: 'Proiect',
+                    label: t('label.project_fund.project'),
                     type: FieldType.HIDDEN,
                     required: true
                 },
                 {
                     name: 'sourceName',
-                    label: 'Nume sursă',
+                    label: t('label.project_fund.source_name'),
                     type: FieldType.TEXT,
-                    placeholder: 'ex: Ministerul Fondurilor Europene',
+                    placeholder: t('label.project_fund.source_name_placeholder'),
                     required: true,
                     maxLength: 255
                 },
                 {
                     name: 'source',
-                    label: 'Tip sursă',
+                    label: t('label.project_fund.source_type'),
                     type: FieldType.TEXT,
-                    placeholder: 'ex: Grant, Sponsorizare, Donație',
+                    placeholder: t('label.project_fund.source_type_placeholder'),
                     required: true,
                     maxLength: 255
                 },
                 {
                     name: 'category',
-                    label: 'Categorie',
+                    label: t('label.project_fund.category'),
                     type: FieldType.TEXT,
-                    placeholder: 'ex: Fonduri europene, Finanțare privată',
+                    placeholder: t('label.project_fund.category_placeholder'),
                     required: true,
                     maxLength: 255
                 },
                 {
                     name: 'scope',
-                    label: 'Scop',
+                    label: t('label.project_fund.scope'),
                     type: FieldType.TEXT,
-                    placeholder: 'ex: Echipamente, Training, Infrastructură',
+                    placeholder: t('label.project_fund.scope_placeholder'),
                     required: true,
                     maxLength: 255
                 }
             ]
         },
         {
-            title: "Detalii financiare",
+            title: t('form.project_fund.section_financial'),
             columns: 2,
             fields: [
                 {
                     name: 'estimatedAmount',
-                    label: 'Sumă estimată',
+                    label: t('label.project_fund.estimated_amount'),
                     type: FieldType.NUMBER,
-                    placeholder: 'ex: 50000',
+                    placeholder: t('label.project_fund.estimated_amount_placeholder'),
                     required: true,
                     min: 0,
                     step: 0.01
                 },
                 {
                     name: 'currency',
-                    label: 'Moneda',
+                    label: t('label.project_fund.currency'),
                     type: FieldType.SELECT,
                     required: true,
-                    options: [
-                        { value: 'RON', label: 'Lei Românești (RON)' },
-                        { value: 'EUR', label: 'Euro (EUR)' },
-                        { value: 'USD', label: 'Dolari Americani (USD)' }
-                    ]
+                    options: getCurrencyOptions()
                 },
                 {
                     name: 'paymentMethod',
-                    label: 'Metodă de plată',
+                    label: t('label.project_fund.payment_method'),
                     type: FieldType.TEXT,
-                    placeholder: 'ex: Transfer bancar, Cec',
+                    placeholder: t('label.project_fund.payment_method_placeholder'),
                     required: true,
                     maxLength: 255
                 },
                 {
                     name: 'estimatedDate',
-                    label: 'Data estimată',
+                    label: t('label.project_fund.estimated_date'),
                     type: FieldType.DATE,
-                    placeholder: 'Selectează data estimată',
+                    placeholder: t('label.project_fund.estimated_date_placeholder'),
                     required: true
                 }
             ]
         },
         {
-            title: "Detalii suplimentare",
+            title: t('form.project_fund.section_links'),
+            columns: 2,
+            fields: [
+                {
+                    name: 'activity',
+                    label: t('label.project_fund.activity'),
+                    type: FieldType.SELECT,
+                    required: false,
+                    options: [
+                        { value: '', label: t('label.project_fund.select_activity') },
+                        ...activities
+                    ],
+                    helperText: t('label.project_fund.activity_helper')
+                },
+                {
+                    name: 'entity',
+                    label: t('label.project_fund.entity'),
+                    type: FieldType.SELECT,
+                    required: false,
+                    options: [
+                        { value: '', label: t('label.project_fund.select_entity') },
+                        ...entities
+                    ],
+                    helperText: t('label.project_fund.entity_helper')
+                }
+            ]
+        },
+        {
+            title: t('form.project_fund.section_additional'),
             columns: 1,
             fields: [
                 {
                     name: 'documentReference',
-                    label: 'Referință document',
+                    label: t('label.project_fund.document_reference'),
                     type: FieldType.TEXT,
-                    placeholder: 'https://example.com/contract.pdf'
+                    placeholder: t('label.project_fund.document_reference_placeholder'),
+                    helperText: t('label.project_fund.document_reference_helper')
                 },
                 {
                     name: 'notes',
-                    label: 'Note',
+                    label: t('label.project_fund.notes'),
                     type: FieldType.TEXTAREA,
-                    placeholder: 'Note despre finanțare...',
+                    placeholder: t('label.project_fund.notes_placeholder'),
                     maxLength: 511,
                     rows: 3
                 }
             ]
         }
     ],
-    submitButtonText: 'Adaugă finanțare',
-    cancelButtonText: 'Anulează'
+    submitButtonText: t('form.project_fund.submit_create'),
+    cancelButtonText: t('form.project_fund.cancel')
 });
 
-export const updateProjectFundFormConfig = (): DynamicFormConfig => ({
-    ...createProjectFundFormConfig(),
-    submitButtonText: 'Actualizează finanțare'
+export const updateProjectFundFormConfig = (
+    activities: SelectOption[] = [],
+    entities: SelectOption[] = []
+): DynamicFormConfig => ({
+    ...createProjectFundFormConfig(activities, entities),
+    submitButtonText: t('form.project_fund.submit_update')
 });
 
 export const payProjectFundFormConfig = (): DynamicFormConfig => ({
@@ -128,7 +166,7 @@ export const payProjectFundFormConfig = (): DynamicFormConfig => ({
                     name: 'amount',
                     label: t('label.project_fund.received_amount_label'),
                     type: FieldType.NUMBER,
-                    placeholder: 'ex: 50000',
+                    placeholder: t('label.project_fund.amount_placeholder'),
                     required: true,
                     min: 0,
                     step: 0.01
@@ -137,7 +175,7 @@ export const payProjectFundFormConfig = (): DynamicFormConfig => ({
                     name: 'date',
                     label: t('label.project_fund.receipt_date'),
                     type: FieldType.DATE,
-                    placeholder: t('label.project_fund.receipt_date'),
+                    placeholder: t('label.project_fund.receipt_date_placeholder'),
                     required: true
                 }
             ]

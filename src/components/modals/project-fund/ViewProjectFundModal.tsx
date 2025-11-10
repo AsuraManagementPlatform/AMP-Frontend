@@ -1,6 +1,6 @@
 import React from 'react';
 import {Modal} from '@/components/ui/Modal';
-import {FundAllocationStatus, ProjectFund, ProjectFundStatus} from '@/types/index.types';
+import {FundAllocationStatus, ProjectFund, ProjectFundStatus} from '@/types/project-fund.types.ts';
 import {t} from 'i18next';
 import {Card} from '@/components/ui/Card';
 import {Alert} from '@/components/ui/Alert';
@@ -14,11 +14,11 @@ interface FundDetailsModalProps {
 }
 
 export const ViewProjectFundModal: React.FC<FundDetailsModalProps> = ({
-                                                                      isOpen,
-                                                                      onClose,
-                                                                      onCancel,
-                                                                      fund
-                                                                  }) => {
+                                                                          isOpen,
+                                                                          onClose,
+                                                                          onCancel,
+                                                                          fund
+                                                                      }) => {
     const activeAllocations = fund.allocations?.filter(
         a => a.status === FundAllocationStatus.ACTIVE
     ) || [];
@@ -27,7 +27,20 @@ export const ViewProjectFundModal: React.FC<FundDetailsModalProps> = ({
         a => a.status === FundAllocationStatus.CANCELLED
     ) || [];
 
-    const canCancel = fund.status === ProjectFundStatus.PLANNED && onCancel;
+    const canCancel = fund.status === ProjectFundStatus.PAID && onCancel;
+
+    const getStatusColor = (status: ProjectFundStatus) => {
+        const colors = {
+            [ProjectFundStatus.PAID]: 'bg-green-100 text-green-800',
+            [ProjectFundStatus.CANCELLED]: 'bg-red-100 text-red-800',
+            [ProjectFundStatus.PLANNED]: 'bg-yellow-100 text-yellow-800'
+        };
+        return colors[status] || 'bg-gray-100 text-gray-800';
+    };
+
+    const getStatusLabel = (status: ProjectFundStatus) => {
+        return t(`label.project_fund.${status.toLowerCase()}`);
+    };
 
     return (
         <Modal
@@ -41,39 +54,59 @@ export const ViewProjectFundModal: React.FC<FundDetailsModalProps> = ({
                 <Card title={t('label.project_fund.fund_info')} padding="md">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <span className="text-sm text-gray-600">{t('label.project_fund.source')}:</span>
+                            <span className="text-sm text-gray-600">{t('label.project_fund.source_name')}:</span>
                             <p className="font-medium">{fund.sourceName}</p>
+                        </div>
+                        <div>
+                            <span className="text-sm text-gray-600">{t('label.project_fund.source_type')}:</span>
+                            <p className="font-medium">{fund.source}</p>
                         </div>
                         <div>
                             <span className="text-sm text-gray-600">{t('label.project_fund.category')}:</span>
                             <p className="font-medium">{fund.category}</p>
                         </div>
                         <div>
-                            <span className="text-sm text-gray-600">{t('label.project_fund.total_amount')}:</span>
+                            <span className="text-sm text-gray-600">{t('label.project_fund.scope')}:</span>
+                            <p className="font-medium">{fund.scope}</p>
+                        </div>
+                        {fund.activityTitle && (
+                            <div>
+                                <span className="text-sm text-gray-600">{t('label.project_fund.activity')}:</span>
+                                <p className="font-medium">{fund.activityTitle}</p>
+                            </div>
+                        )}
+                        <div>
+                            <span className="text-sm text-gray-600">{t('label.project_fund.status')}:</span>
                             <p className="font-medium">
-                                {fund.amount?.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {fund.currency}
+                                <span className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(fund.status)}`}>
+                                    {getStatusLabel(fund.status)}
+                                </span>
                             </p>
                         </div>
                         <div>
+                            <span className="text-sm text-gray-600">{t('label.project_fund.estimated_amount')}:</span>
+                            <p className="font-medium text-blue-600">
+                                {fund.estimatedAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {fund.currency}
+                            </p>
+                        </div>
+                        {fund.amount > 0 && (
+                            <div>
+                                <span className="text-sm text-gray-600">{t('label.project_fund.total_amount')}:</span>
+                                <p className="font-medium text-lg text-blue-700">
+                                    {fund.amount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {fund.currency}
+                                </p>
+                            </div>
+                        )}
+                        <div>
                             <span className="text-sm text-gray-600">{t('label.project_fund.allocated_amount')}:</span>
                             <p className="font-medium text-orange-600">
-                                {fund.allocatedAmount?.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {fund.currency}
+                                {fund.allocatedAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {fund.currency}
                             </p>
                         </div>
                         <div>
                             <span className="text-sm text-gray-600">{t('label.project_fund.remaining_amount')}:</span>
                             <p className="font-medium text-green-600">
-                                {fund.remainingAmount?.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {fund.currency}
-                            </p>
-                        </div>
-                        <div>
-                            <span className="text-sm text-gray-600">{t('label.project_fund.status')}:</span>
-                            <p className="font-medium">
-                                <span className={`px-2 py-1 rounded-full text-xs ${
-                                    fund.status === 'PAID' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                    {fund.status}
-                                </span>
+                                {fund.remainingAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {fund.currency}
                             </p>
                         </div>
                     </div>
@@ -96,7 +129,7 @@ export const ViewProjectFundModal: React.FC<FundDetailsModalProps> = ({
                                         </div>
                                         <div className="text-right ml-4">
                                             <p className="text-lg font-semibold text-green-700">
-                                                {allocation.allocatedAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {fund.currency}
+                                                {allocation.allocatedAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {fund.currency}
                                             </p>
                                             <span className="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full mt-1">
                                                 {t('label.allocation_status.active')}
@@ -126,7 +159,7 @@ export const ViewProjectFundModal: React.FC<FundDetailsModalProps> = ({
                                         </div>
                                         <div className="text-right ml-4">
                                             <p className="text-lg font-semibold text-red-700 line-through">
-                                                {allocation.allocatedAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {fund.currency}
+                                                {allocation.allocatedAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {fund.currency}
                                             </p>
                                             <span className="inline-block px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full mt-1">
                                                 {t('label.allocation_status.cancelled')}

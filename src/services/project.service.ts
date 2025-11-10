@@ -27,8 +27,8 @@ export const projectService = {
         return apiService.post<Project>('project/create', data);
     },
 
-    update: async (id: string, data: ProjectUpdateRequest): Promise<Project> => {
-        return apiService.put<Project>(`project/update/${id}`, data);
+    update: async (data: ProjectUpdateRequest): Promise<Project> => {
+        return apiService.put<Project>(`project/update/${data.id}`, data);
     },
 
     delete: async (id: string): Promise<void> => {

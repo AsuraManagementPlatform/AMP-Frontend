@@ -27,14 +27,6 @@ export const EntityStatus = {
 
 export type EntityStatus = typeof EntityStatus[keyof typeof EntityStatus];
 
-export const EngagementLevel = {
-    DELOC: 'deloc',
-    PARTIAL: 'partial',
-    TOTAL: 'total'
-} as const;
-
-export type EngagementLevel = typeof EngagementLevel[keyof typeof EngagementLevel];
-
 export const ContributionType = {
     FINANCIAL: 'financiar',
     IN_KIND: 'in_kind',
@@ -58,7 +50,6 @@ export interface Entity extends BaseEntity {
     type: EntityType;
     status: EntityStatus;
     observation?: string;
-    engagementLevel?: EngagementLevel;
 }
 
 export interface EntityCreateRequest {
@@ -73,7 +64,6 @@ export interface EntityCreateRequest {
     type: EntityType;
     status?: EntityStatus;
     observation?: string;
-    engagementLevel?: EngagementLevel;
 }
 
 export interface EntityUpdateRequest extends Partial<EntityCreateRequest> {

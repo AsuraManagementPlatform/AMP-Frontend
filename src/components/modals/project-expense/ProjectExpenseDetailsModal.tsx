@@ -1,6 +1,9 @@
 import React from 'react';
 import {Modal} from '@/components/ui/Modal';
-import {FundAllocationStatus, ProjectExpense, ProjectExpenseStatus, ProjectExpenseTransactionSource} from '@/types/index.types';
+import {
+    FundAllocationStatus, ProjectExpense, ProjectExpenseStatus,
+    ProjectExpenseStatusType, ProjectExpenseTransactionSource
+} from '@/types/index.types';
 import {t} from 'i18next';
 import {Card} from '@/components/ui/Card';
 import {Alert} from '@/components/ui/Alert';
@@ -13,17 +16,34 @@ interface ExpenseDetailsModalProps {
     expense: ProjectExpense;
 }
 
-export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
-                                                                            isOpen,
-                                                                            onClose,
-                                                                            onCancel,
-                                                                            expense
-                                                                        }) => {
+export const ProjectExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
+                                                                                   isOpen,
+                                                                                   onClose,
+                                                                                   onCancel,
+                                                                                   expense
+                                                                               }) => {
     const activeAllocations = expense.fundAllocations?.filter(
         a => a.status === FundAllocationStatus.ACTIVE
     ) || [];
 
+    const cancelledAllocations = expense.fundAllocations?.filter(
+        a => a.status === FundAllocationStatus.CANCELLED
+    ) || [];
+
     const canCancel = expense.status === ProjectExpenseStatus.PAID && onCancel;
+
+    const getStatusColor = (status: ProjectExpenseStatusType) => {
+        const colors = {
+            [ProjectExpenseStatus.PAID]: 'bg-green-100 text-green-800',
+            [ProjectExpenseStatus.CANCELLED]: 'bg-red-100 text-red-800',
+            [ProjectExpenseStatus.PLANNED]: 'bg-yellow-100 text-yellow-800'
+        };
+        return colors[status] || 'bg-gray-100 text-gray-800';
+    };
+
+    const getStatusLabel = (status: ProjectExpenseStatusType) => {
+        return t(`label.project_expense.${status.toLowerCase()}`);
+    };
 
     const getTransactionSourceLabel = (source: string) => {
         const labels: Record<string, string> = {
@@ -45,6 +65,14 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
         return colors[source] || 'bg-gray-100 text-gray-800';
     };
 
+    const getCategoryLabel = (category: string) => {
+        return t(`label.expense_category.${category.toLowerCase()}`);
+    };
+
+    const getUnitTypeLabel = (unitType: string) => {
+        return t(`label.unit_type.${unitType.toLowerCase()}`);
+    };
+
     return (
         <Modal
             isOpen={isOpen}
@@ -62,16 +90,24 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
                                 <p className="font-medium">{expense.name}</p>
                             </div>
                             <div>
+                                <span className="text-sm text-gray-600">{t('label.project_expense.status')}:</span>
+                                <p className="font-medium">
+                                    <span className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(expense.status)}`}>
+                                        {getStatusLabel(expense.status)}
+                                    </span>
+                                </p>
+                            </div>
+                            <div>
                                 <span className="text-sm text-gray-600">{t('label.project_expense.activity')}:</span>
                                 <p className="font-medium">{expense.activityTitle || '-'}</p>
                             </div>
                             <div>
                                 <span className="text-sm text-gray-600">{t('label.project_expense.category')}:</span>
-                                <p className="font-medium">{expense.category}</p>
+                                <p className="font-medium">{getCategoryLabel(expense.category)}</p>
                             </div>
                             <div>
                                 <span className="text-sm text-gray-600">{t('label.project_expense.quantity')}:</span>
-                                <p className="font-medium">{expense.quantity} {expense.unitType}</p>
+                                <p className="font-medium">{expense.quantity} {getUnitTypeLabel(expense.unitType)}</p>
                             </div>
                             <div>
                                 <span className="text-sm text-gray-600">{t('label.project_expense.unit_price')}:</span>
@@ -80,23 +116,21 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
                                 </p>
                             </div>
                             <div>
-                                <span className="text-sm text-gray-600">{t('label.project_expense.total_amount')}:</span>
-                                <p className="font-medium text-lg">
-                                    {expense.totalAmount?.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {expense.currency}
+                                <span className="text-sm text-gray-600">{t('label.project_expense.amount')}:</span>
+                                <p className="font-medium">
+                                    {expense.amount?.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {expense.currency}
                                 </p>
                             </div>
                             <div>
-                                <span className="text-sm text-gray-600">{t('label.project_expense.status')}:</span>
-                            </div>
-                            <div>
+                                <span className="text-sm text-gray-600">{t('label.project_expense.vat')} ({expense.vatValue}%):</span>
                                 <p className="font-medium">
-                                    <span className={`px-2 py-1 rounded-full text-xs ${
-                                        expense.status === 'PAID' ? 'bg-green-100 text-green-800' :
-                                            expense.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
-                                                'bg-yellow-100 text-yellow-800'
-                                    }`}>
-                                        {expense.status}
-                                    </span>
+                                    {expense.vatAmount?.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {expense.currency}
+                                </p>
+                            </div>
+                            <div className="col-span-2 pt-2 border-t border-gray-200">
+                                <span className="text-sm text-gray-600">{t('label.project_expense.total_amount')}:</span>
+                                <p className="font-bold text-xl text-blue-700">
+                                    {expense.totalAmount?.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {expense.currency}
                                 </p>
                             </div>
                         </div>
@@ -119,7 +153,34 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
                                             </div>
                                             <div className="text-right ml-4">
                                                 <p className="text-lg font-semibold text-blue-700">
-                                                    {allocation.allocatedAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {expense.currency}
+                                                    {allocation.allocatedAmount} {expense.currency}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </Alert>
+                                ))}
+                            </div>
+                        </Card>
+                    )}
+
+                    {cancelledAllocations.length > 0 && (
+                        <Card
+                            title={`${t('label.project_expense.cancelled_funding')} (${cancelledAllocations.length})`}
+                            padding="sm"
+                        >
+                            <div className="space-y-2">
+                                {cancelledAllocations.map((allocation) => (
+                                    <Alert key={allocation.id} variant="warning">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex-1">
+                                                <p className="font-medium text-gray-900">{allocation.fundSource}</p>
+                                                <p className="text-sm text-gray-600 mt-1">
+                                                    {t('label.project_expense.funded_on')}: {new Date(allocation.createdAt).toLocaleDateString('ro-RO')}
+                                                </p>
+                                            </div>
+                                            <div className="text-right ml-4">
+                                                <p className="text-lg font-semibold text-gray-700 line-through">
+                                                    {allocation.allocatedAmount} {expense.currency}
                                                 </p>
                                             </div>
                                         </div>

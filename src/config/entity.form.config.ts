@@ -1,5 +1,5 @@
 import {DynamicFormConfig, FieldType, SelectOption} from "@/types/form.types.ts";
-import {LegalType, EntityType, EntityStatus, EngagementLevel} from "@/types/entity.types.ts";
+import {LegalType, EntityType, EntityStatus} from "@/types/entity.types.ts";
 import {t} from "i18next";
 
 const getLegalTypeOptions = (): SelectOption[] => [
@@ -21,12 +21,6 @@ const getEntityStatusOptions = (): SelectOption[] => [
     { value: EntityStatus.INACTIV, label: 'Inactiv' },
     { value: EntityStatus.POTENTIAL, label: 'Potențial' },
     { value: EntityStatus.BLOCAT, label: 'Blocat' }
-];
-
-const getEngagementLevelOptions = (): SelectOption[] => [
-    { value: EngagementLevel.DELOC, label: 'Deloc' },
-    { value: EngagementLevel.PARTIAL, label: 'Parțial' },
-    { value: EngagementLevel.TOTAL, label: 'Total' }
 ];
 
 export const createEntityFormConfig = (): DynamicFormConfig => ({
@@ -114,7 +108,7 @@ export const createEntityFormConfig = (): DynamicFormConfig => ({
             ]
         },
         {
-            title: "Status și engagement",
+            title: "Status",
             columns: 2,
             fields: [
                 {
@@ -123,12 +117,6 @@ export const createEntityFormConfig = (): DynamicFormConfig => ({
                     type: FieldType.SELECT,
                     required: true,
                     options: getEntityStatusOptions()
-                },
-                {
-                    name: 'engagementLevel',
-                    label: 'Nivel de implicare',
-                    type: FieldType.SELECT,
-                    options: getEngagementLevelOptions()
                 },
                 {
                     name: 'observation',

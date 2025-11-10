@@ -39,7 +39,9 @@ export interface Activity extends BaseEntity {
     observation?: string;
     results?: string;
     indicators?: string;
-    totalActivityExpensesAmount?: number;
+    totalActivityExpensesAmount: number;
+    totalFundsAmount: number;
+    totalDonationsAmount: number;
 }
 
 export interface ActivityCreateRequest {
