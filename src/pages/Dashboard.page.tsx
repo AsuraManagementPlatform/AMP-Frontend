@@ -7,6 +7,8 @@ import { MemberDashboard } from "@/components/dashboard/MemberDashboard";
 import { StatsSection } from "@/components/dashboard/SharedComponents";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardModals } from "@/components/dashboard/DashboardModals";
+import { GlobalBroadcastModal } from "@/components/modals/communication/GlobalBroadcastModal";
+import { Button } from "@/components/ui/Button";
 import { useDashboardState } from "@/hooks/useDashboardState";
 import { useDashboardHandlers } from "@/hooks/useDashboardHandlers";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -54,7 +56,21 @@ const DashboardPage: React.FC = () => {
     return (
         <Layout showNavigation={true}>
             <div className="container mx-auto">
-                <DashboardHeader userName={getUserDisplayName(state.user)} />
+                <DashboardHeader 
+                    userName={getUserDisplayName(state.user)}
+                    actionButton={
+                        state.isAdmin ? (
+                            <Button
+                                onClick={() => state.setIsGlobalBroadcastModalOpen(true)}
+                                variant="ghost"
+                                size="sm"
+                                leftIcon={<span className="text-lg">📢</span>}
+                            >
+                                Mesaj Global
+                            </Button>
+                        ) : undefined
+                    }
+                />
 
                 {state.isAdmin && (
                     <AdminDashboard
@@ -214,6 +230,11 @@ const DashboardPage: React.FC = () => {
                     handleCloseEditUser={handlers.handleCloseEditUser}
                     handleUpdateUser={handlers.handleUpdateUser}
                     selectedUser={state.selectedUser}
+                />
+
+                <GlobalBroadcastModal
+                    isOpen={state.isGlobalBroadcastModalOpen}
+                    onClose={() => state.setIsGlobalBroadcastModalOpen(false)}
                 />
             </div>
         </Layout>

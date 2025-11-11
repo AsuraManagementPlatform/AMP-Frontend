@@ -51,6 +51,7 @@ export interface SelectFieldConfig extends BaseFieldConfig {
     type: typeof FieldType.SELECT;
     options: SelectOption[] | (() => SelectOption[]);
     multiple?: boolean;
+    searchable?: boolean;
 }
 
 export interface CheckboxFieldConfig extends BaseFieldConfig {

@@ -6,6 +6,14 @@ export const userService = {
         return apiService.getPaginatedList<User>('user/list', params);
     },
 
+    getManagers: async (params?: ListParams): Promise<PaginatedResponse<User>> => {
+        return apiService.getPaginatedList<User>('user/managers', params);
+    },
+
+    getOrganizationMembers: async (params?: ListParams): Promise<PaginatedResponse<User>> => {
+        return apiService.getPaginatedList<User>('user/organization/members', params);
+    },
+
     getById: async (id: string): Promise<User> => {
         const response: any = await apiService.get(`user/${id}`);
         return response.users || response;
