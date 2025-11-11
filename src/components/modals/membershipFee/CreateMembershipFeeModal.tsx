@@ -39,7 +39,8 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
         control,
         handleSubmit: handleFormSubmit,
         formState: { errors },
-        watch
+        watch,
+        setValue
     } = useForm<CreateMembershipFeeData>({
         resolver: zodResolver(createMembershipFeeSchema) as any,
         defaultValues,
@@ -47,7 +48,40 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
     });
 
     const selectedMemberId = watch('memberId');
+    const renewPeriod = watch('renewPeriod');
+    const startedFrom = watch('startedFrom');
     const selectedMember = members.find(m => m.id === selectedMemberId);
+
+    useEffect(() => {
+        if (!startedFrom || !renewPeriod) return;
+
+        const [year, month] = startedFrom.split('-').map(Number);
+        const startDate = new Date(year, month - 1, 1);
+        
+        let endDate = new Date(startDate);
+
+        switch (renewPeriod) {
+            case 'MONTHLY':
+                endDate.setMonth(endDate.getMonth() + 1);
+                break;
+            case 'QUARTERLY':
+                endDate.setMonth(endDate.getMonth() + 3);
+                break;
+            case 'SEMI_ANNUAL':
+                endDate.setMonth(endDate.getMonth() + 6);
+                break;
+            case 'ANNUAL':
+                endDate.setMonth(endDate.getMonth() + 12);
+                break;
+            case 'ONE_TIME':
+                endDate.setMonth(endDate.getMonth() + 1);
+                break;
+        }
+
+        endDate.setDate(0);
+
+        setValue('endedAt', endDate.toISOString().split('T')[0]);
+    }, [renewPeriod, startedFrom, setValue]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -136,13 +170,17 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
             
             loadingToast = showToast.creatingMembershipFee();
 
+            const [year, month] = data.startedFrom.split('-').map(Number);
+            const startDate = new Date(year, month - 1, 1);
+            const startedFromDate = startDate.toISOString().split('T')[0];
+
             const membershipFeeCreateRequest: MembershipFeeCreateRequest = {
                 member: data.memberId,
                 rate_type: data.rateType,
                 amount: data.rateType === RateType.CUSTOM ? data.customAmount : undefined,
                 currency: data.currency || 'RON',
                 renew_period: data.renewPeriod,
-                started_from: data.startedFrom,
+                started_from: startedFromDate,
                 ended_at: data.endedAt,
                 auto_renew: data.autoRenew || false,
                 payment_method: data.paymentMethod,

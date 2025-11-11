@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import { SecondaryButton } from '@/components/ui/SecondaryButton';
+import { ActionButton } from '@/components/ui/ActionButton';
+import { ActionButtonGroup } from '@/components/ui/ActionButtonGroup';
 import { MembershipFee, MembershipFeeStatus } from '@/types/membershipFee.types';
 import { membershipFeeService } from '@/services/membershipFee.service';
 import showToast from '@/components/ui/Toast';
@@ -11,7 +13,7 @@ import { UpdateMembershipFeeModal } from './UpdateMembershipFeeModal';
 import { ProcessPaymentModal } from './ProcessPaymentModal';
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
-import IconMoneyBag from "@/assets/icons/iconmonstr-money-bag.svg?react";
+import IconWallet from "@/assets/icons/iconmonstr-wallet.svg?react";
 
 interface MemberFeesDetailModalProps {
     isOpen: boolean;
@@ -36,6 +38,25 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
     const [selectedFeeId, setSelectedFeeId] = useState<string>('');
     const [selectedFee, setSelectedFee] = useState<MembershipFee | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
+
+    useEffect(() => {
+        const checkAndGenerateRenewals = async () => {
+            if (!isOpen || !memberId) return;
+
+            try {
+                const result = await membershipFeeService.autoCheckRenewal(memberId);
+                
+                if (result.shouldRefresh && result.renewalsCreated.length > 0) {
+                    showToast.success(`${result.renewalsCreated.length} cotizație nouă generată automat`);
+                    onRefresh();
+                }
+            } catch (error: any) {
+                console.error('Error checking renewals:', error);
+            }
+        };
+
+        checkAndGenerateRenewals();
+    }, [isOpen, memberId, onRefresh]);
 
     const sortedFees = [...fees].sort((a, b) => 
         new Date(b.startedFrom).getTime() - new Date(a.startedFrom).getTime()
@@ -268,31 +289,30 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <button
+                                                <ActionButtonGroup>
+                                                    <ActionButton
+                                                        variant="edit"
+                                                        icon={IconEdit}
                                                         onClick={() => handleEdit(fee)}
-                                                        className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
                                                         title="Editează"
-                                                    >
-                                                        <IconEdit className="w-5 h-5" />
-                                                    </button>
-                                                    {fee.status === MembershipFeeStatus.PENDING_VERIFICATION && (
-                                                        <button
+                                                    />
+                                                    {(fee.status === MembershipFeeStatus.PENDING || 
+                                                      fee.status === MembershipFeeStatus.PENDING_VERIFICATION ||
+                                                      fee.status === MembershipFeeStatus.OVERDUE) && (
+                                                        <ActionButton
+                                                            variant="payment"
+                                                            icon={IconWallet}
                                                             onClick={() => handleProcessPayment(fee)}
-                                                            className="p-1 text-green-600 hover:text-green-800 transition-colors"
-                                                            title="Validează plată"
-                                                        >
-                                                            <IconMoneyBag className="w-5 h-5" />
-                                                        </button>
+                                                            title={fee.status === MembershipFeeStatus.PENDING_VERIFICATION ? 'Validează plată' : 'Procesează plată'}
+                                                        />
                                                     )}
-                                                    <button
+                                                    <ActionButton
+                                                        variant="delete"
+                                                        icon={IconDelete}
                                                         onClick={() => handleDelete(fee.id)}
-                                                        className="p-1 text-red-600 hover:text-red-800 transition-colors"
                                                         title="Șterge"
-                                                    >
-                                                        <IconDelete className="w-5 h-5" />
-                                                    </button>
-                                                </div>
+                                                    />
+                                                </ActionButtonGroup>
                                             </td>
                                         </tr>
                                     ))

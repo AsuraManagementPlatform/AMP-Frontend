@@ -80,17 +80,20 @@ export const createMembershipFeeFormConfig = (rateOptions: Array<{value: string,
             fields: [
                 {
                     name: 'startedFrom',
-                    label: 'Data început',
-                    type: FieldType.DATE,
-                    placeholder: 'Selectează data de început',
-                    required: true
+                    label: 'Luna de început',
+                    type: FieldType.MONTH,
+                    placeholder: 'Selectează luna',
+                    required: true,
+                    helperText: 'Selectați luna de început a cotizației'
                 },
                 {
                     name: 'endedAt',
                     label: 'Data sfârșit',
                     type: FieldType.DATE,
-                    placeholder: 'Selectează data de sfârșit',
-                    required: true
+                    placeholder: 'Calculat automat',
+                    required: true,
+                    disabled: true,
+                    helperText: 'Se calculează automat bazat pe perioada de reînnoire'
                 }
             ]
         },
@@ -134,9 +137,140 @@ export const createMembershipFeeFormConfig = (rateOptions: Array<{value: string,
     cancelButtonText: 'Anulează'
 });
 
-export const updateMembershipFeeFormConfig = (): DynamicFormConfig => ({
-    ...createMembershipFeeFormConfig(),
-    submitButtonText: 'Actualizează cotizație'
+export const updateMembershipFeeFormConfig = (rateOptions: Array<{value: string, label: string}> = []): DynamicFormConfig => ({
+    sections: [
+        {
+            title: "Informații membru",
+            columns: 1,
+            fields: [
+                {
+                    name: 'memberId',
+                    label: 'Membru',
+                    type: FieldType.SELECT,
+                    placeholder: 'Selectează membrul',
+                    required: true,
+                    options: []
+                }
+            ]
+        },
+        {
+            title: "Detalii cotizație",
+            columns: 2,
+            fields: [
+                {
+                    name: 'rateType',
+                    label: 'Tip cotizație',
+                    type: FieldType.SELECT,
+                    placeholder: 'Selectează tipul cotizației',
+                    required: true,
+                    options: rateOptions,
+                    helperText: 'Valoarea finală va fi calculată automat în funcție de perioada selectată'
+                },
+                {
+                    name: 'customAmount',
+                    label: 'Sumă personalizată (per lună)',
+                    type: FieldType.NUMBER,
+                    placeholder: 'ex: 50',
+                    required: false,
+                    min: 0.01,
+                    step: 0.01,
+                    condition: (values: any) => values.rateType === 'CUSTOM',
+                    helperText: 'Introduceți suma lunară dorită'
+                },
+                {
+                    name: 'currency',
+                    label: 'Monedă',
+                    type: FieldType.SELECT,
+                    placeholder: 'Selectează moneda',
+                    required: true,
+                    options: [
+                        { value: 'RON', label: 'Lei Românești (RON)' },
+                        { value: 'EUR', label: 'Euro (EUR)' },
+                        { value: 'USD', label: 'Dolari Americani (USD)' }
+                    ]
+                },
+                {
+                    name: 'renewPeriod',
+                    label: 'Perioadă reînnoire',
+                    type: FieldType.SELECT,
+                    required: true,
+                    options: [
+                        { value: RenewPeriod.MONTHLY, label: 'Lunar' },
+                        { value: RenewPeriod.QUARTERLY, label: 'Trimestrial' },
+                        { value: RenewPeriod.SEMI_ANNUAL, label: 'Semestrial' },
+                        { value: RenewPeriod.ANNUAL, label: 'Anual' },
+                        { value: RenewPeriod.ONE_TIME, label: 'O singură dată' }
+                    ]
+                },
+                {
+                    name: 'autoRenew',
+                    label: 'Reînnoire automată',
+                    type: FieldType.CHECKBOX,
+                    required: false
+                }
+            ]
+        },
+        {
+            title: "Perioada",
+            columns: 2,
+            fields: [
+                {
+                    name: 'startedFrom',
+                    label: 'Luna de început',
+                    type: FieldType.MONTH,
+                    placeholder: 'Selectează luna',
+                    required: true,
+                    helperText: 'Selectați luna de început a cotizației'
+                },
+                {
+                    name: 'endedAt',
+                    label: 'Data sfârșit',
+                    type: FieldType.DATE,
+                    placeholder: 'Calculat automat',
+                    required: true,
+                    disabled: true,
+                    helperText: 'Se calculează automat bazat pe perioada de reînnoire'
+                }
+            ]
+        },
+        {
+            title: "Detalii plată (opțional)",
+            columns: 2,
+            fields: [
+                {
+                    name: 'paymentMethod',
+                    label: 'Metodă de plată',
+                    type: FieldType.SELECT,
+                    required: false,
+                    options: [
+                        { value: PaymentMethod.BANK_TRANSFER, label: 'Transfer bancar' },
+                        { value: PaymentMethod.CREDIT_CARD, label: 'Card de credit' },
+                        { value: PaymentMethod.CASH, label: 'Numerar' },
+                        { value: PaymentMethod.STRIPE, label: 'Stripe' },
+                        { value: PaymentMethod.PAYPAL, label: 'PayPal' },
+                        { value: PaymentMethod.OTHER, label: 'Altă metodă' }
+                    ]
+                }
+            ]
+        },
+        {
+            title: "Note",
+            columns: 1,
+            fields: [
+                {
+                    name: 'notes',
+                    label: 'Note suplimentare',
+                    type: FieldType.TEXTAREA,
+                    placeholder: 'Note despre cotizație...',
+                    maxLength: 1000,
+                    rows: 3,
+                    required: false
+                }
+            ]
+        }
+    ],
+    submitButtonText: 'Actualizează cotizație',
+    cancelButtonText: 'Anulează'
 });
 
 export const processPaymentFormConfig = (): DynamicFormConfig => ({
