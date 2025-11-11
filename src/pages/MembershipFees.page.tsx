@@ -28,7 +28,7 @@ const MembershipFeesPage: React.FC = () => {
     const loadContributors = useCallback(async () => {
         if (!user?.organizationId) {
             setLoading(false);
-            return;
+            return [];
         }
 
         try {
@@ -45,8 +45,10 @@ const MembershipFeesPage: React.FC = () => {
             
             const aggregated = aggregateFeesByMember(membersOnlyFees);
             setContributors(aggregated);
+            return aggregated;
         } catch (error) {
             showToast.error("Eroare la încărcarea datelor cotizanților");
+            return [];
         } finally {
             setLoading(false);
         }
@@ -122,17 +124,17 @@ const MembershipFeesPage: React.FC = () => {
     const handleRefreshModal = useCallback(async () => {
         if (!user?.organizationId) return;
         
-        await loadContributors();
+        const currentMemberId = selectedContributor?.memberId;
         
-        if (selectedContributor) {
-            const updatedContributor = contributors.find(c => c.memberId === selectedContributor.memberId);
+        const updatedContributors = await loadContributors();
+        
+        if (currentMemberId && updatedContributors.length > 0) {
+            const updatedContributor = updatedContributors.find(c => c.memberId === currentMemberId);
             if (updatedContributor) {
                 setSelectedContributor(updatedContributor);
-            } else {
-                setSelectedContributor(null);
             }
         }
-    }, [user?.organizationId, selectedContributor, contributors, loadContributors]);
+    }, [user?.organizationId, selectedContributor?.memberId, loadContributors]);
 
     const handleMemberClick = (contributor: MemberContributor) => {
         setSelectedContributor(contributor);

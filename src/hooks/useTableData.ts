@@ -35,6 +35,10 @@ interface UseTableDataReturn<T> {
     tableState: TableState;
 }
 
+const toSnakeCase = (str: string): string => {
+    return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+};
+
 export function useTableData<T>({
                                     endpoint,
                                     initialPageSize = 20,
@@ -70,10 +74,12 @@ export function useTableData<T>({
 
         tableState.filters.forEach(filter => {
             if (filter.value !== '' && filter.value != null) {
-                const paramKey = filter.operator === 'exact'
-                    ? filter.field
-                    : `${filter.field}__${filter.operator}`;
-                
+                const operator = filter.operator || 'exact';
+                const snakeField = toSnakeCase(filter.field);
+                const paramKey = operator === 'exact'
+                    ? snakeField
+                    : `${snakeField}__${operator}`;
+
                 if (Array.isArray(filter.value)) {
                     filter.value.forEach(val => {
                         params.append(paramKey, val.toString());
@@ -85,7 +91,7 @@ export function useTableData<T>({
         });
 
         if (tableState.sort) {
-            params.append('sort_by', tableState.sort.field);
+            params.append('sort_by', toSnakeCase(tableState.sort.field));
             params.append('sort_direction', tableState.sort.direction);
         }
 

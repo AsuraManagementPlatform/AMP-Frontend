@@ -41,6 +41,7 @@ export const UpdateActivityModal: React.FC<UpdateActivityModalProps> = ({
     const formConfig = updateActivityFormConfig();
 
     const defaultValues: UpdateActivityData = {
+        id: activity.id,
         project: activity.project,
         projectObjective: activity.projectObjective || '',
         title: activity.title,

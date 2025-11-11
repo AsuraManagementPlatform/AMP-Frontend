@@ -30,7 +30,7 @@ export interface OrganizationMember {
 }
 
 export interface OrganizationMemberWithDetails extends OrganizationMember {
-    memberDetails?: {
+    memberDetails: {
         id: string;
         fullName: string;
         email: string;
@@ -40,9 +40,18 @@ export interface OrganizationMemberWithDetails extends OrganizationMember {
         id: string;
         name: string;
     };
-    currentProject?: {
+    currentProjects?: Array<{
         id: string;
         name: string;
-    };
+        role: string;
+        status: string;
+    }>;
+    currentActivities?: Array<{
+        id: string;
+        title: string;
+        role: string;
+        projectName?: string;
+        projectId?: string;
+    }>;
     isFeePayer?: boolean;
 }

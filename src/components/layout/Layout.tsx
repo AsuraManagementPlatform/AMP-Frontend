@@ -4,6 +4,7 @@ import {BaseComponentProps, UserGroup} from "@/types/index.types.ts";
 import {ROUTES} from "@/utils/constants.utils.ts";
 import {useAuth} from "@/hooks/useAuth.ts";
 import logoImage from '@/assets/img/logo.png';
+import {t} from "i18next";
 
 interface LayoutProps extends BaseComponentProps {
     showNavigation?: boolean;
@@ -77,6 +78,21 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                             Pagina Principală
                                         </Link>
                                     </li>
+
+                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ADMIN]) && (
+                                        <li className="relative flex items-center">
+                                            <Link
+                                                to={ROUTES.ERP_VATS}
+                                                className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                                                    location.pathname === ROUTES.ERP_VATS
+                                                    ? 'font-bold text-orange-500'
+                                                        : 'text-gray-700 hover:text-orange-500 hover:font-semibold'
+                                                }`}
+                                            >
+                                                {t('nav.vats')}
+                                            </Link>
+                                        </li>
+                                    )}
 
                                     {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && hasERP && (
                                         <li className="relative flex items-center">

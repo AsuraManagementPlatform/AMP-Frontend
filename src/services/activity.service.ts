@@ -1,4 +1,9 @@
-import {ListParams, PaginatedResponse} from "@/types/index.types.ts";
+import {
+    ActivityChangeStatusRequest,
+    ActivityCompleteRequest,
+    ListParams,
+    PaginatedResponse
+} from "@/types/index.types.ts";
 import {Activity, ActivityCreateRequest, ActivityUpdateRequest, ActivityStats} from "@/types/activity.types.ts";
 import {apiService} from "@/services/api.service.ts";
 
@@ -9,10 +14,6 @@ export const activityService = {
 
     getById: async (id: string): Promise<Activity> => {
         return apiService.get<Activity>(`activity/${id}`);
-    },
-
-    getByProjectId: async (project: string, params?: ListParams): Promise<PaginatedResponse<Activity>> => {
-        return apiService.getPaginatedList<Activity>(`activity/project/${project}`, params);
     },
 
     getActivityStats: async (project?: string): Promise<ActivityStats> => {
@@ -30,6 +31,14 @@ export const activityService = {
 
     delete: async (id: string): Promise<void> => {
         return apiService.delete<void>(`activity/delete/${id}`);
+    },
+
+    changeStatus: async (data: ActivityChangeStatusRequest): Promise<Activity> => {
+        return apiService.patch<Activity>(`activity/status_change/${data.id}`, data);
+    },
+
+    complete: async (data: ActivityCompleteRequest): Promise<Activity> => {
+        return apiService.patch<Activity>(`activity/complete/${data.id}`, data);
     },
 };
 

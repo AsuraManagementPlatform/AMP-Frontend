@@ -1,8 +1,7 @@
 import React, {useState} from 'react';
 import {LoadingSpinner} from '@/components/ui/LoadingSpinner';
-import {FilterConfig, SortConfig, TableAction, TableColumn} from '@/types/index.types';
+import {ColumnSize, FilterConfig, SortConfig, TableAction, TableColumn} from '@/types/index.types';
 import {useTableData} from '@/hooks/useTableData';
-import {Button} from "@/components/ui/Button.tsx";
 import {SecondaryButton} from "@/components/ui/SecondaryButton.tsx";
 import ArrowUp from '@/assets/icons/iconmonstr-arrow-up.svg?react';
 import ArrowDown from '@/assets/icons/iconmonstr-arrow-down.svg?react';
@@ -23,7 +22,7 @@ const FilterInput: React.FC<FilterInputProps> = ({ column, currentFilter, onFilt
         }
         return currentFilter?.value || '';
     });
-    const [operator, setOperator] = useState(currentFilter?.operator || 'icontains');
+    const [operator, setOperator] = useState(currentFilter?.operator || 'exact');
 
     if (!column.filterable) return null;
 
@@ -53,6 +52,7 @@ const FilterInput: React.FC<FilterInputProps> = ({ column, currentFilter, onFilt
             case 'text':
                 return [
                     { value: 'icontains', label: 'Contains' },
+                    { value: 'exact', label: 'Equal' },
                 ];
             case 'number':
             case 'date':
@@ -168,190 +168,184 @@ const ActionButton = <T,>({ action, item, index }: ActionButtonProps<T>) => {
     );
 };
 
-interface Table<T> {
-    endpoint?: string;
-    data?: T[];
+const getColumnWidthClass = (size?: ColumnSize): string => {
+    switch (size) {
+        case 'sm':
+            return 'w-[8%]';
+        case 'md':
+            return 'w-[15%]';
+        case 'lg':
+            return 'w-[25%]';
+        default:
+            return 'w-auto';
+    }
+};
+
+interface TableProps<T> {
     columns: TableColumn<T>[];
+    endpoint: string;
     actions?: TableAction<T>[];
-    onRowClick?: (item: T, index: number) => void;
-    emptyMessage?: string;
-    initialFilters?: FilterConfig[];
-    initialSort?: SortConfig;
-    pageSize?: number;
-    autoFetch?: boolean;
-    refreshTrigger?: number;
-    showSearch?: boolean;
     showFilters?: boolean;
     showPagination?: boolean;
-    className?: string;
-    loading?: boolean;
+    initialPageSize?: number;
+    initialSort?: SortConfig;
+    initialFilters?: FilterConfig[];
+    onRowClick?: (item: T, index: number) => void;
+    emptyMessage?: string;
+    refreshTrigger?: number;
 }
 
-export function Table<T extends Record<string, any>>({
-                                                         endpoint,
-                                                         data: staticData,
-                                                         columns,
-                                                         actions = [],
-                                                         onRowClick,
-                                                         emptyMessage = 'No data available',
-                                                         initialFilters = [],
-                                                         initialSort,
-                                                         pageSize = 20,
-                                                         autoFetch = true,
-                                                         refreshTrigger = 0,
-                                                         className = 'flex gap-4',
-                                                         showFilters = true,
-                                                         showPagination = true,
-                                                         loading: staticLoading = false
-                                                     }: Table<T>) {
+function Table<T extends Record<string, any>>({
+                                                  columns,
+                                                  endpoint,
+                                                  actions = [],
+                                                  showFilters = true,
+                                                  showPagination = true,
+                                                  initialPageSize = 20,
+                                                  initialSort,
+                                                  initialFilters = [],
+                                                  onRowClick,
+                                                  emptyMessage = 'No data available',
+                                                  refreshTrigger
+                                              }: TableProps<T>) {
     const [openFilterColumn, setOpenFilterColumn] = useState<string | null>(null);
 
-    const useApi = !!endpoint && !staticData;
-
-    const apiData = useTableData<T>({
-        endpoint: endpoint || '',
-        initialFilters,
+    const {
+        data,
+        loading,
+        currentPage,
+        totalCount,
+        totalPages,
+        hasNext,
+        hasPrevious,
+        tableState,
+        setPage,
+        setSort,
+        setFilters,
+        refresh
+    } = useTableData<T>({
+        endpoint,
+        initialPageSize,
         initialSort,
-        initialPageSize: pageSize,
-        autoFetch: useApi && autoFetch,
+        initialFilters,
         refreshTrigger
     });
 
-    const data = staticData || apiData.data;
-    const loading = staticData ? staticLoading : apiData.loading;
-    const error = useApi ? apiData.error : null;
-    const totalCount = staticData ? staticData.length : apiData.totalCount;
-    const currentPage = useApi ? apiData.currentPage : 1;
-    const totalPages = staticData ? Math.ceil(staticData.length / pageSize) : apiData.totalPages;
-    const hasNext = useApi ? apiData.hasNext : false;
-    const hasPrevious = useApi ? apiData.hasPrevious : false;
-    const setPage = useApi ? apiData.setPage : () => {};
-    const addFilter = useApi ? apiData.addFilter : () => {};
-    const removeFilter = useApi ? apiData.removeFilter : () => {};
-    const setSort = useApi ? apiData.setSort : () => {};
-    const refresh = useApi ? apiData.refresh : () => {};
-    const tableState = useApi ? apiData.tableState : { filters: initialFilters || [], sort: initialSort, page: 1, pageSize };
-
-    const allColumns = [...columns];
-
-    if (actions.length > 0) {
-        allColumns.push({
-            key: 'actions',
-            label: 'Actions',
-            className: 'w-40',
-            render: (_, item: T, index: number) => (
-                <div className="flex space-x-2 justify-center">
-                    {actions.map((action, actionIndex) => (
-                        <ActionButton
-                            key={actionIndex}
-                            action={action}
-                            item={item}
-                            index={index}
-                        />
-                    ))}
-                </div>
-            )
-        });
-    }
+    React.useEffect(() => {
+        if (refreshTrigger !== undefined) {
+            refresh();
+        }
+    }, [refreshTrigger, refresh]);
 
     const handleSort = (field: string) => {
-        const column = columns.find(col => col.key === field);
-        if (!column?.sortable) return;
-
         const currentSort = tableState.sort;
+        let newDirection: 'asc' | 'desc' = 'asc';
+
         if (currentSort?.field === field) {
-            if (currentSort.direction === 'asc') {
-                setSort({ field, direction: 'desc' });
-            } else {
-                setSort(undefined);
-            }
-        } else {
-            setSort({ field, direction: 'asc' });
+            newDirection = currentSort.direction === 'asc' ? 'desc' : 'asc';
         }
+
+        setSort({ field, direction: newDirection });
     };
 
     const handleFilterChange = (field: string, filter: FilterConfig | null) => {
+        const newFilters = tableState.filters.filter(f => f.field !== field);
         if (filter) {
-            addFilter(filter);
-        } else {
-            removeFilter(field);
+            newFilters.push(filter);
         }
+        setFilters(newFilters);
+        setPage(1);
+    };
+
+    const toggleFilterDropdown = (columnKey: string) => {
+        setOpenFilterColumn(openFilterColumn === columnKey ? null : columnKey);
     };
 
     const getSortIcon = (field: string) => {
         const currentSort = tableState.sort;
-        if (currentSort?.field !== field) return <ArrowUpDown className="w-4 h-4" />;
-        return currentSort.direction === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />;
+        if (currentSort?.field === field) {
+            return currentSort.direction === 'asc' ? <ArrowUp className="flex-shrink-0"/> : <ArrowDown className="flex-shrink-0"/>;
+        }
+        return <ArrowUpDown className="flex-shrink-0"/>;
     };
 
-    const toggleFilterDropdown = (field: string) => {
-        setOpenFilterColumn(openFilterColumn === field ? null : field);
-    };
-
-    if (error) {
-        return (
-            <div className="text-center py-8 text-red-500">
-                <p>Error: {error}</p>
-                <Button
-                    onClick={refresh}
-                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                    Retry
-                </Button>
-            </div>
-        );
-    }
+    const allColumns: TableColumn<T>[] = [
+        ...columns,
+        ...(actions.length > 0
+            ? [{
+                key: 'actions' as keyof T,
+                label: 'Actions',
+                sortable: false,
+                filterable: false,
+                size: 'md' as ColumnSize,
+                render: (_: any, item: T, index: number) => (
+                    <div className="flex items-center gap-2">
+                        {actions.map((action, actionIndex) => (
+                            <ActionButton
+                                key={actionIndex}
+                                action={action}
+                                item={item}
+                                index={index}
+                            />
+                        ))}
+                    </div>
+                )
+            }]
+            : [])
+    ];
 
     return (
-        <div className={`${className}`}>
-            <div className="overflow-hidden border border-gray-200 rounded-xl shadow-lg">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+        <div className="w-full">
+            <div className="bg-white rounded-lg shadow">
+                <div className="overflow-hidden overflow-x-auto">
+                    <table className="min-w-full table-fixed divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
                         <tr>
-                            {allColumns.map((column) => (
-                                <th
-                                    key={String(column.key)}
-                                    className={`px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider ${column.className || ''}`}
-                                    style={{ width: column.width }}
-                                >
-                                    <div className="flex items-center justify-between gap-2 relative">
-                                        <div className="flex items-center gap-2">
-                                            {column.sortable && (
-                                                <SecondaryButton
-                                                    onClick={() => handleSort(String(column.key))}
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="!p-1 !min-w-0"
-                                                >
-                                                    {getSortIcon(String(column.key))}
-                                                </SecondaryButton>
-                                            )}
-                                            <span>{column.label}</span>
-                                        </div>
-                                        {column.filterable && showFilters && column.key !== 'actions' && (
-                                            <div className="relative">
-                                                <SecondaryButton
-                                                    onClick={() => toggleFilterDropdown(String(column.key))}
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className={`!p-1 !min-w-0 ${tableState.filters.find(f => f.field === column.key) ? 'text-blue-600' : ''}`}
-                                                >
-                                                    <FilterIcon className="w-4 h-4" />
-                                                </SecondaryButton>
-                                                {openFilterColumn === String(column.key) && (
-                                                    <FilterInput
-                                                        column={column}
-                                                        currentFilter={tableState.filters.find(f => f.field === column.key)}
-                                                        onFilterChange={(filter) => handleFilterChange(String(column.key), filter)}
-                                                        onClose={() => setOpenFilterColumn(null)}
-                                                    />
+                            {allColumns.map((column) => {
+                                const widthClass = getColumnWidthClass(column.size as ColumnSize);
+                                return (
+                                    <th
+                                        key={String(column.key)}
+                                        className={`px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider ${widthClass} ${column.className || ''}`}
+                                    >
+                                        <div className="flex items-center justify-between gap-2 relative">
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                {column.sortable && (
+                                                    <SecondaryButton
+                                                        onClick={() => handleSort(String(column.key))}
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="!p-1 !min-w-0 flex-shrink-0"
+                                                    >
+                                                        {getSortIcon(String(column.key))}
+                                                    </SecondaryButton>
                                                 )}
+                                                <span className="truncate">{column.label}</span>
                                             </div>
-                                        )}
-                                    </div>
-                                </th>
-                            ))}
+                                            {column.filterable && showFilters && column.key !== 'actions' && (
+                                                <div className="relative flex-shrink-0">
+                                                    <SecondaryButton
+                                                        onClick={() => toggleFilterDropdown(String(column.key))}
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className={`!p-1 !min-w-0 ${tableState.filters.find(f => f.field === column.key) ? 'text-blue-600' : ''}`}
+                                                    >
+                                                        <FilterIcon className="w-4 h-4 flex-shrink-0" />
+                                                    </SecondaryButton>
+                                                    {openFilterColumn === String(column.key) && (
+                                                        <FilterInput
+                                                            column={column}
+                                                            currentFilter={tableState.filters.find(f => f.field === column.key)}
+                                                            onFilterChange={(filter) => handleFilterChange(String(column.key), filter)}
+                                                            onClose={() => setOpenFilterColumn(null)}
+                                                        />
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </th>
+                                );
+                            })}
                         </tr>
                         </thead>
 
@@ -369,27 +363,43 @@ export function Table<T extends Record<string, any>>({
                                 </td>
                             </tr>
                         ) : (
-                            data.map((item, index) => (
-                                <tr
-                                    key={item.id || index}
-                                    onClick={() => onRowClick?.(item, index)}
-                                    className={`${
-                                        onRowClick ? 'cursor-pointer hover:bg-blue-50' : 'hover:bg-gray-50'
-                                    } ${loading ? 'opacity-50' : ''} transition-colors duration-150 ease-in-out`}
-                                >
-                                    {allColumns.map((column) => (
-                                        <td
-                                            key={String(column.key)}
-                                            className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
-                                        >
-                                            {column.render
-                                                ? column.render(item[column.key], item, index)
-                                                : item[column.key] || '-'
-                                            }
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))
+                            <>
+                                {data.map((item, index) => (
+                                    <tr
+                                        key={item.id || index}
+                                        onClick={() => onRowClick?.(item, index)}
+                                        className={`${
+                                            onRowClick ? 'cursor-pointer hover:bg-blue-50' : 'hover:bg-gray-50'
+                                        } ${loading ? 'opacity-50' : ''} transition-colors duration-150 ease-in-out`}
+                                    >
+                                        {allColumns.map((column) => {
+                                            const widthClass = getColumnWidthClass(column.size as ColumnSize);
+                                            return (
+                                                <td
+                                                    key={String(column.key)}
+                                                    className={`px-6 py-4 text-sm text-gray-900 ${widthClass}`}
+                                                >
+                                                    <div className="truncate">
+                                                        {column.render
+                                                            ? column.render(item[column.key], item, index)
+                                                            : item[column.key] || '-'
+                                                        }
+                                                    </div>
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ))}
+                                {Array.from({ length: 1 }).map((_, i) => (
+                                    <tr key={`empty-${i}`}>
+                                        {allColumns.map((column) => (
+                                            <td key={String(column.key)} className="px-6 py-4 text-sm text-gray-900">
+                                                <div className="h-5"></div>
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </>
                         )}
                         </tbody>
                     </table>
@@ -420,8 +430,8 @@ export function Table<T extends Record<string, any>>({
                     <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                         <div>
                             <p className="text-sm text-gray-700">
-                                Showing <span className="font-medium">{((currentPage - 1) * pageSize) + 1}</span> to{' '}
-                                <span className="font-medium">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
+                                Showing <span className="font-medium">{((currentPage - 1) * tableState.pageSize) + 1}</span> to{' '}
+                                <span className="font-medium">{Math.min(currentPage * tableState.pageSize, totalCount)}</span> of{' '}
                                 <span className="font-medium">{totalCount}</span> results
                             </p>
                         </div>

@@ -38,9 +38,9 @@ const getOrganizationDisplayConfig = (organization: Organization): OrganizationD
             columns: 2,
             fields: [
                 { name: 'name', label: 'Nume organizație', value: organization.name, type: 'text' },
-                { name: 'legal_name', label: 'Nume legal', value: organization.legal_name || '-', type: 'text' },
-                { name: 'short_name', label: 'Nume scurt', value: organization.short_name || '-', type: 'text' },
-                { name: 'organization_type', label: 'Tip organizație', value: organization.organization_type || '-', type: 'select',
+                { name: 'legal_name', label: 'Nume legal', value: organization.legalName || '-', type: 'text' },
+                { name: 'short_name', label: 'Nume scurt', value: organization.shortName || '-', type: 'text' },
+                { name: 'organization_type', label: 'Tip organizație', value: organization.organizationType || '-', type: 'select',
                   options: [
                     { value: OrganizationType.NGO, label: 'ONG' },
                     { value: OrganizationType.ASSOCIATION, label: 'Asociație' },
@@ -64,10 +64,10 @@ const getOrganizationDisplayConfig = (organization: Organization): OrganizationD
             columns: 2,
             fields: [
                 { name: 'cui', label: 'CUI', value: organization.cui || '-', type: 'text' },
-                { name: 'registration_number', label: 'Nr. înregistrare', value: organization.registration_number || '-', type: 'text' },
-                { name: 'registration_date', label: 'Data înregistrării', value: organization.registration_date || '-', type: 'date' },
-                { name: 'tax_exempt_status', label: 'Scutit de taxe', value: organization.tax_exempt_status, type: 'boolean' },
-                { name: 'is_verified', label: 'Verificat', value: organization.is_verified, type: 'boolean', readonly: true }
+                { name: 'registration_number', label: 'Nr. înregistrare', value: organization.registrationNumber || '-', type: 'text' },
+                { name: 'registration_date', label: 'Data înregistrării', value: organization.registrationDate || '-', type: 'date' },
+                { name: 'tax_exempt_status', label: 'Scutit de taxe', value: organization.taxExemptStatus, type: 'boolean' },
+                { name: 'is_verified', label: 'Verificat', value: organization.isVerified, type: 'boolean', readonly: true }
             ]
         },
         {
@@ -75,9 +75,9 @@ const getOrganizationDisplayConfig = (organization: Organization): OrganizationD
             columns: 2,
             fields: [
                 { name: 'email', label: 'Email', value: organization.email, type: 'email' },
-                { name: 'phone_number', label: 'Telefon', value: organization.phone_number || '-', type: 'tel' },
-                { name: 'secondary_phone', label: 'Telefon secundar', value: organization.secondary_phone || '-', type: 'tel' },
-                { name: 'fax_number', label: 'Fax', value: organization.fax_number || '-', type: 'tel' },
+                { name: 'phone_number', label: 'Telefon', value: organization.phoneNumber || '-', type: 'tel' },
+                { name: 'secondary_phone', label: 'Telefon secundar', value: organization.secondaryPhone || '-', type: 'tel' },
+                { name: 'fax_number', label: 'Fax', value: organization.faxNumber || '-', type: 'tel' },
                 { name: 'website', label: 'Website', value: organization.website || '-', type: 'url' }
             ]
         },
@@ -89,7 +89,7 @@ const getOrganizationDisplayConfig = (organization: Organization): OrganizationD
                 { name: 'address2', label: 'Adresă secundară', value: organization.address2 || '-', type: 'textarea' },
                 { name: 'city', label: 'Oraș', value: organization.city || '-', type: 'text' },
                 { name: 'county', label: 'Județ', value: organization.county || '-', type: 'text' },
-                { name: 'postal_code', label: 'Cod poștal', value: organization.postal_code || '-', type: 'text' },
+                { name: 'postal_code', label: 'Cod poștal', value: organization.postalCode || '-', type: 'text' },
                 { name: 'country', label: 'Țară', value: organization.country || 'Romania', type: 'text' }
             ]
         },
@@ -98,10 +98,10 @@ const getOrganizationDisplayConfig = (organization: Organization): OrganizationD
             columns: 2,
             fields: [
                 { name: 'budget', label: 'Buget anual (RON)', value: organization.budget ? `${organization.budget.toLocaleString('ro-RO')} RON` : '-', type: 'number' },
-                { name: 'industry_sector', label: 'Sector de activitate', value: organization.industry_sector || '-', type: 'text' },
-                { name: 'employee_count', label: 'Nr. angajați', value: organization.employee_count || '-', type: 'number' },
-                { name: 'volunteer_count', label: 'Nr. voluntari', value: organization.volunteer_count || '-', type: 'number' },
-                { name: 'member_count', label: 'Nr. membri', value: organization.member_count || '-', type: 'number' },
+                { name: 'industry_sector', label: 'Sector de activitate', value: organization.industrySector || '-', type: 'text' },
+                { name: 'employee_count', label: 'Nr. angajați', value: organization.employeeCount || '-', type: 'number' },
+                { name: 'volunteer_count', label: 'Nr. voluntari', value: organization.volunteerCount || '-', type: 'number' },
+                { name: 'member_count', label: 'Nr. membri', value: organization.memberCount || '-', type: 'number' },
                 { name: 'description', label: 'Descriere', value: organization.description || '-', type: 'textarea' }
             ]
         }
@@ -171,35 +171,35 @@ export const OrganizationDetailsModal: React.FC<OrganizationDetailsModalProps> =
 
         return {
             name: organization.name,
-            legal_name: organization.legal_name || '',
-            short_name: organization.short_name || '',
+            legal_name: organization.legalName || '',
+            short_name: organization.shortName || '',
             cui: organization.cui || '',
-            registration_number: organization.registration_number || '',
+            registration_number: organization.registrationNumber || '',
             email: organization.email,
-            phone_number: organization.phone_number || '',
-            secondary_phone: organization.secondary_phone || '',
-            fax_number: organization.fax_number || '',
+            phone_number: organization.phoneNumber || '',
+            secondary_phone: organization.secondaryPhone || '',
+            fax_number: organization.faxNumber || '',
             website: organization.website || '',
             address: organization.address,
             address2: organization.address2 || '',
             city: organization.city || '',
             county: organization.county || '',
-            postal_code: organization.postal_code || '',
+            postal_code: organization.postalCode || '',
             country: organization.country || 'Romania',
-            organization_type: organization.organization_type || OrganizationType.NGO,
-            industry_sector: organization.industry_sector || '',
+            organization_type: organization.organizationType || OrganizationType.NGO,
+            industry_sector: organization.industrySector || '',
             description: organization.description || '',
             budget: organization.budget || undefined,
-            funding_sources: organization.funding_sources || [],
-            tax_exempt_status: organization.tax_exempt_status || false,
-            employee_count: organization.employee_count || undefined,
-            volunteer_count: organization.volunteer_count || undefined,
-            member_count: organization.member_count || undefined,
-            registration_date: organization.registration_date || '',
+            funding_sources: organization.fundingSources || [],
+            tax_exempt_status: organization.taxExemptStatus || false,
+            employee_count: organization.employeeCount || undefined,
+            volunteer_count: organization.volunteerCount || undefined,
+            member_count: organization.memberCount || undefined,
+            registration_date: organization.registrationDate || '',
             status: organization.status,
-            admin_user: organization.admin_user,
-            is_verified: organization.is_verified || false,
-            social_media_links: organization.social_media_links || {}
+            admin_user: organization.adminUser,
+            is_verified: organization.isVerified || false,
+            social_media_links: organization.socialMediaLinks || {}
         };
     };
 
@@ -284,10 +284,10 @@ export const OrganizationDetailsModal: React.FC<OrganizationDetailsModalProps> =
                             </div>
                         </div>
                     ))}<div className="border-t pt-4 text-sm text-gray-500">
-                        <p>Creat la: {new Date(organization.created_at).toLocaleString('ro-RO')}</p>
-                        <p>Ultima actualizare: {new Date(organization.updated_at).toLocaleString('ro-RO')}</p>
-                        {organization.verification_date && (
-                            <p>Verificat la: {new Date(organization.verification_date).toLocaleString('ro-RO')}</p>
+                        <p>Creat la: {new Date(organization.createdAt).toLocaleString('ro-RO')}</p>
+                        <p>Ultima actualizare: {new Date(organization.updatedAt).toLocaleString('ro-RO')}</p>
+                        {organization.verificationDate && (
+                            <p>Verificat la: {new Date(organization.verificationDate).toLocaleString('ro-RO')}</p>
                         )}
                     </div>
                 </div>

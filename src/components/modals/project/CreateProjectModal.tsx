@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import projectService from '@/services/project.service';
 import userService from '@/services/user.service';
 import {ProjectCreateRequest} from "@/types/project.types.ts";
+import {t} from "i18next";
 
 interface CreateProjectModalProps {
     isOpen: boolean;
@@ -17,14 +18,15 @@ interface CreateProjectModalProps {
 }
 
 export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
-    isOpen,
-    onClose,
-    onSuccess,
-    organizationId
-}) => {
+                                                                          isOpen,
+                                                                          onClose,
+                                                                          onSuccess,
+                                                                          organizationId
+                                                                      }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [availableManagers, setAvailableManagers] = useState<{ id: string; name: string }[]>([]);
     const [formKey, setFormKey] = useState(0);
+
     useEffect(() => {
         if (!isOpen) {
             setIsSubmitting(false);
@@ -36,27 +38,22 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     const loadAvailableManagers = async () => {
         try {
             if (organizationId) {
-                let response;
-                try {
-                    response = await userService.getManagers({
-                        pageSize: 100
-                    });
-                } catch (managersError) {
-                    response = await userService.getList({
-                        pageSize: 100
-                    });
-                }
-                
-                const managers = response.results?.map(user => ({
+                const response = await userService.getList({
+                    filters: {organization: organizationId},
+                    pageSize: 100
+                });
+
+                const organization_members = response.results.map(user => ({
                     id: user.id,
                     name: user.fullName || user.email
-                })) || [];
-                
-                setAvailableManagers(managers);
+                }));
+
+                setAvailableManagers(organization_members);
                 setFormKey(prev => prev + 1);
             }
         } catch (error) {
-            showToast.error('Eroare la încărcarea managerilor');
+            const errorMessage = error instanceof Error ? error.message : t('toast.project.load_managers_error');
+            showToast.error(errorMessage);
             setAvailableManagers([]);
         }
     };
@@ -65,9 +62,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
         if (isSubmitting) {
             return;
         }
-        
+
         let loadingToastId: string | undefined;
-        
+
         const projectData: ProjectCreateRequest = {
             name: data.name,
             description: data.description || '',
@@ -75,35 +72,31 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             startingDate: data.startingDate,
             endingDate: data.endingDate,
             status: data.status,
+            priority: data.priority,
             organization: organizationId || data.organization,
             location: data.location,
-            budget: Math.round(data.budget),
+            budget: Math.round(data.budget * 100),
             currency: data.currency,
             budgetPlanningDate: data.budgetPlanningDate || data.startingDate,
             budgetResponsible: data.budgetResponsible,
-            budgetNotes: data.budgetNotes || ''
+            budgetNotes: data.budgetNotes || '',
+            sustainability: data.sustainability || ''
         };
 
         try {
             setIsSubmitting(true);
-            loadingToastId = showToast.loading('Se creează proiectul...');
+            loadingToastId = showToast.loading(t('toast.project.creating'));
 
             const project = await projectService.create(projectData);
-            
+
             if (loadingToastId) toast.dismiss(loadingToastId);
-            showToast.success('Proiectul a fost creat cu succes!');
-            
+            showToast.success(t('toast.project.created'));
+
             onSuccess?.(project);
             onClose();
         } catch (error: any) {
             if (loadingToastId) toast.dismiss(loadingToastId);
-            let errorMessage = 'Crearea proiectului a eșuat';
-            if (error?.response?.data?.message) {
-                errorMessage = error.response.data.message;
-            } else if (error?.message) {
-                errorMessage = error.message;
-            }
-            
+            const errorMessage = error?.response?.data?.message || error?.message || t('toast.project.create_error');
             showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
@@ -125,7 +118,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Creează proiect nou"
+            title={t('form.project.create_title')}
             size="lg"
             showResetButton={true}
             onReset={handleReset}

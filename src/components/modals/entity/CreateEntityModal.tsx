@@ -12,14 +12,14 @@ interface CreateEntityModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess?: (entity: any) => void;
-    organizationId?: string;
+    organization: string;
 }
 
 export const CreateEntityModal: React.FC<CreateEntityModalProps> = ({
     isOpen,
     onClose,
     onSuccess,
-    organizationId: _organizationId
+    organization: organization
 }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     useEffect(() => {
@@ -38,6 +38,7 @@ export const CreateEntityModal: React.FC<CreateEntityModalProps> = ({
             loadingToastId = showToast.loading('Se creează entitatea...');
 
             const entityData: EntityCreateRequest = {
+                organization: organization,
                 legalType: data.legalType,
                 name: data.name,
                 identificationNumber: data.identificationNumber,
@@ -48,7 +49,6 @@ export const CreateEntityModal: React.FC<CreateEntityModalProps> = ({
                 type: data.type,
                 status: data.status || 'activ',
                 observation: data.observation || '',
-                engagementLevel: data.engagementLevel
             };
 
             const entity = await entityService.create(entityData);
@@ -70,7 +70,7 @@ export const CreateEntityModal: React.FC<CreateEntityModalProps> = ({
     };
 
     const formConfig = createEntityFormConfig();
-    const defaultValues = getCreateEntityDefaultValues();
+    const defaultValues = getCreateEntityDefaultValues(organization);
 
     return (
         <Modal

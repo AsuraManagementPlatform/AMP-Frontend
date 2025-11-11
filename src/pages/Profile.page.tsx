@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { User } from '@/types/index.types';
 import { userService } from '@/services/user.service';
+import { organizationMemberService } from '@/services/organization-member.service';
 import { toast } from 'react-hot-toast';
 import { getUserRoleLabel } from '@/utils/dashboardUtils';
 
@@ -10,6 +11,7 @@ export const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
     const { userId } = useParams<{ userId: string }>();
     const [user, setUser] = useState<User | null>(null);
+    const [userProjects, setUserProjects] = useState<any[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -34,10 +36,30 @@ export const ProfilePage: React.FC = () => {
             
             setUser(userData);
             setFormData(userData);
+            
+            if (userData.id) {
+                await loadUserProjectsAndActivities(userData.id);
+            }
         } catch (error) {
             toast.error('Eroare la încărcarea profilului');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadUserProjectsAndActivities = async (targetUserId: string) => {
+        try {
+            const response = await organizationMemberService.getList();
+            const membersList = (response as any).organizationMembersList || response.organizationMembersList || [];
+            
+            const memberData = membersList.find((m: any) => m.member === targetUserId);
+            
+            if (memberData) {
+                const projects = memberData.currentProjects || memberData.current_projects || [];
+                setUserProjects(projects);
+            }
+        } catch (error) {
+            console.error('Error loading projects:', error);
         }
     };
 
@@ -370,6 +392,22 @@ export const ProfilePage: React.FC = () => {
                     </div>
                 </div>
             </Card>
+
+            {userProjects.length > 0 && (
+                <Card title="📂 Proiecte" className="mb-6">
+                    <div className="space-y-2">
+                        {userProjects.map((project: any, idx: number) => (
+                            <div key={idx} className="flex items-center justify-between bg-blue-50 p-3 rounded-lg border border-blue-200">
+                                <div>
+                                    <span className="font-medium text-gray-900">{project.name}</span>
+                                    <span className="text-sm text-gray-600 ml-2">• {project.role}</span>
+                                </div>
+                                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">📂 Proiect</span>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+            )}
 
             {(user.companyName || user.companyNumber || user.cui) && (
                 <Card title="🏢 Informații Companie" className="mb-6">

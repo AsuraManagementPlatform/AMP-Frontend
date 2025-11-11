@@ -16,122 +16,94 @@ export const OrganizationType = {
 } as const;
 
 export type OrganizationType = typeof OrganizationType[keyof typeof OrganizationType];
+
 export interface OrganizationCreateRequest {
     name: string;
-    legal_name?: string;
-    short_name?: string;
+    legalName?: string;
+    shortName?: string;
     cui?: string;
-    registration_number?: string;
+    registrationNumber?: string;
     email: string;
-    phone_number?: string;
-    secondary_phone?: string;
-    fax_number?: string;
+    phoneNumber?: string;
+    secondaryPhone?: string;
+    faxNumber?: string;
     website?: string;
     address: string;
     address2?: string;
     city?: string;
     county?: string;
-    postal_code?: string;
+    postalCode?: string;
     country?: string;
-    organization_type?: OrganizationType;
-    industry_sector?: string;
+    organizationType?: OrganizationType;
+    industrySector?: string;
     description?: string;
     budget?: number;
-    funding_sources?: string[];
-    registration_date?: string;
-    tax_exempt_status?: boolean;
-    employee_count?: number;
-    volunteer_count?: number;
-    member_count?: number;
+    fundingSources?: string[];
+    registrationDate?: string;
+    taxExemptStatus?: boolean;
+    employeeCount?: number;
+    volunteerCount?: number;
+    memberCount?: number;
     status: OrganizationStatus;
-    admin_user?: string;
-    is_verified?: boolean;
-    social_media_links?: Record<string, string>;
+    adminUser?: string;
+    isVerified?: boolean;
+    socialMediaLinks?: Record<string, string>;
     activeModules?: string[];
 }
 
 export interface Organization {
     id: string;
     name: string;
-    legal_name?: string;
-    short_name?: string;
+    legalName?: string;
+    shortName?: string;
     cui?: string;
-    registration_number?: string;
+    registrationNumber?: string;
     email: string;
-    phone_number?: string;
-    secondary_phone?: string;
-    fax_number?: string;
+    phoneNumber?: string;
+    secondaryPhone?: string;
+    faxNumber?: string;
     website?: string;
     address: string;
     address2?: string;
     city?: string;
     county?: string;
-    postal_code?: string;
+    postalCode?: string;
     country?: string;
-    organization_type?: OrganizationType;
-    industry_sector?: string;
+    organizationType?: OrganizationType;
+    industrySector?: string;
     description?: string;
     budget?: number;
-    funding_sources?: string[];
-    registration_date?: string;
-    tax_exempt_status?: boolean;
-    membership_fee_employee?: number;
-    membership_fee_volunteer?: number;
-    membership_fee_member?: number;
-    fee_grace_period_days?: number;
+    fundingSources?: string[];
+    registrationDate?: string;
+    taxExemptStatus?: boolean;
     membershipFeeEmployee?: number;
     membershipFeeVolunteer?: number;
     membershipFeeMember?: number;
     feeGracePeriodDays?: number;
-    employee_count?: number;
-    volunteer_count?: number;
-    member_count?: number;
-    member_statistics?: OrganizationMemberStats;
+    employeeCount?: number;
+    volunteerCount?: number;
+    memberCount?: number;
+    memberStatistics?: OrganizationMemberStats;
     status: OrganizationStatus;
-    admin_user: string;
-    is_verified?: boolean;
-    verification_date?: string;
-    social_media_links?: Record<string, string>;
+    adminUser: string;
+    isVerified?: boolean;
+    verificationDate?: string;
+    socialMediaLinks?: Record<string, string>;
     activeModules?: string[];
-    created_at: string;
-    updated_at: string;
-}
-
-export interface OrganizationCreateResponse extends Organization {}
-export interface OrganizationDisplayInfo {
-    id: string;
-    display_name: string;
-    is_romanian_entity: boolean;
-    is_tax_compliant: boolean;
-    has_complete_profile: boolean;
-    contact_info: OrganizationContactInfo;
-    member_statistics: OrganizationMemberStats;
-}
-
-export interface OrganizationContactInfo {
-    email: string;
-    phone_number?: string;
-    secondary_phone?: string;
-    fax_number?: string;
-    website?: string;
-    address: string;
-    address2?: string;
-    city?: string;
-    county?: string;
-    postal_code?: string;
-    country?: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface OrganizationMemberStats {
-    employee_count: number;
-    volunteer_count: number;
-    member_count: number;
-    total_people: number;
+    employeeCount: number;
+    volunteerCount: number;
+    memberCount: number;
+    totalPeople: number;
 }
 
 export interface OrganizationStatsResponse {
-    active_projects: number;
-    ongoing_activities: number;
-    active_members: number;
-    organization_id: string;
+    activeProjects: number;
+    ongoingActivities: number;
+    activeMembers: number;
+    organizationId: string;
 }

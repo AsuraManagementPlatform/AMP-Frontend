@@ -123,6 +123,11 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
         onRefresh();
     };
 
+    const handleCreateModalSuccess = async () => {
+        setIsCreateModalOpen(false);
+        await onRefresh();
+    };
+
     const handleGenerateNext = async () => {
         if (fees.length === 0) {
             showToast.error('Nu există cotizații. Închide acest dialog și folosește butonul "Adaugă cotizație" din pagina principală pentru a crea prima cotizație.');
@@ -274,17 +279,8 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
                                                     {fee.status === MembershipFeeStatus.PENDING_VERIFICATION && (
                                                         <button
                                                             onClick={() => handleProcessPayment(fee)}
-                                                            className="p-1 text-purple-600 hover:text-purple-800 transition-colors"
-                                                            title="Validează plată"
-                                                        >
-                                                            <IconMoneyBag className="w-5 h-5" />
-                                                        </button>
-                                                    )}
-                                                    {(fee.status === MembershipFeeStatus.PENDING || fee.status === MembershipFeeStatus.OVERDUE) && (
-                                                        <button
-                                                            onClick={() => handleProcessPayment(fee)}
                                                             className="p-1 text-green-600 hover:text-green-800 transition-colors"
-                                                            title="Procesează plată"
+                                                            title="Validează plată"
                                                         >
                                                             <IconMoneyBag className="w-5 h-5" />
                                                         </button>
@@ -322,7 +318,7 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
             <CreateMembershipFeeModal
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
-                onSuccess={handleModalSuccess}
+                onSuccess={handleCreateModalSuccess}
                 memberId={memberId}
             />
 

@@ -1,4 +1,4 @@
-import {BaseEntity} from "@/types/index.types.ts";
+import {BaseEntity, Currency} from "@/types/index.types.ts";
 
 export const ProjectStatus = {
     DRAFT: 'DRAFT',
@@ -26,17 +26,20 @@ export interface Project extends BaseEntity {
     startingDate: string;
     endingDate: string;
     status: ProjectStatus;
-    priority?: ProjectPriority;
+    priority: ProjectPriority;
     organization: string;
     location: string;
     budget: number;
-    currency: string;
+    currency: Currency;
     budgetPlanningDate: string;
     budgetResponsible: string;
-    budgetResponsibleName?: string;
-    budgetNotes?: string;
-    teamSize?: number;
-    activitiesCount?: number;
+    budgetResponsibleName: string;
+    budgetNotes: string;
+    sustainability?: string;
+    teamSize: number;
+    activitiesCount: number;
+    activeFunds: number;
+    activeExpenses: number;
 }
 
 export interface ProjectCreateRequest {
@@ -46,6 +49,7 @@ export interface ProjectCreateRequest {
     startingDate: string;
     endingDate: string;
     status: ProjectStatus;
+    priority: ProjectPriority;
     organization: string;
     location: string;
     budget: number;
@@ -53,9 +57,12 @@ export interface ProjectCreateRequest {
     budgetPlanningDate: string;
     budgetResponsible: string;
     budgetNotes?: string;
+    sustainability?: string;
 }
 
-export interface ProjectUpdateRequest extends Partial<ProjectCreateRequest> {}
+export interface ProjectUpdateRequest extends Partial<ProjectCreateRequest> {
+    id: string;
+}
 
 export interface ProjectStats {
     totalProjects: number;

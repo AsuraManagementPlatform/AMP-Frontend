@@ -14,7 +14,6 @@ interface ProjectMemberListProps {
     project: string;
     organizationId: string;
     refreshTrigger?: number;
-    className?: string;
     pageSize?: number;
 }
 
@@ -22,7 +21,6 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
                                                                         project,
                                                                         organizationId,
                                                                         refreshTrigger = 0,
-                                                                        className = '',
                                                                         pageSize = 10
                                                                     }) => {
     const confirm = useConfirmDialog();
@@ -38,7 +36,7 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
     const handleDelete = async (member: ProjectMember) => {
       const isConfirmed = await confirm({
         title: 'Elimină membru din echipa proiectului',
-        message: `Sigur doriți să eliminați membrul "${member.memberName}" din proiect?`,
+        message: `Sigur doriți să eliminați membrul "${member.memberFullName}" din proiect?`,
         confirmText: 'Confirmă',
         cancelText: 'Renunță',
         confirmButtonVariant: 'primary',
@@ -65,22 +63,28 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
 
     const getColumns = (): TableColumn<ProjectMember>[] => [
         {
-            key: 'memberName',
+            key: 'memberFullName',
             label: 'Nume',
-            sortable: false,
-            width: '200px',
+            sortable: true,
+            filterable: true,
+            filterType: 'text',
+            size: 'lg'
         },
         {
             key: 'memberEmail',
             label: 'Email',
-            sortable: false,
-            width: '200px',
+            sortable: true,
+            filterable: true,
+            filterType: 'text',
+            size: 'md',
         },
         {
             key: 'userRole',
             label: 'Rol',
             sortable: true,
-            width: '150px',
+            filterable: true,
+            filterType: 'text',
+            size: 'sm',
         },
         {
             key: 'type',
@@ -95,7 +99,7 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
                 { label: 'Consultant', value: ProjectMemberType.CONSULTANT },
                 { label: 'Partener', value: ProjectMemberType.PARTNER }
             ],
-            width: '120px',
+            size: 'sm',
             render: (type: string) => {
                 const typeLabels = {
                     'EMPLOYEE': 'Angajat',
@@ -119,7 +123,7 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
                 { label: 'Suspendat', value: ProjectMemberStatus.SUSPENDED },
                 { label: 'Finalizat', value: ProjectMemberStatus.COMPLETED }
             ],
-            width: '120px',
+            size: 'sm',
             render: (status: string) => {
                 const statusColors = {
                     'ACTIVE': 'bg-green-100 text-green-800',
@@ -142,24 +146,6 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
                 );
             }
         },
-        {
-            key: 'activeFrom',
-            label: 'Activ de la',
-            sortable: true,
-            width: '120px',
-            render: (date: string) => {
-                return date ? new Date(date).toLocaleDateString('ro-RO') : '-';
-            }
-        },
-        {
-            key: 'activeTo',
-            label: 'Activ până la',
-            sortable: true,
-            width: '120px',
-            render: (date: string) => {
-                return date ? new Date(date).toLocaleDateString('ro-RO') : '-';
-            }
-        }
     ];
 
     const getActions = (): TableAction<ProjectMember>[] => [
@@ -183,13 +169,11 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
                 endpoint={`project_member/list?project_id=${project}`}
                 columns={getColumns()}
                 actions={getActions()}
-                pageSize={pageSize}
+                initialPageSize={pageSize}
                 initialSort={{ field: 'added_to_project', direction: 'desc' }}
-                showSearch={true}
                 showFilters={true}
                 showPagination={true}
                 emptyMessage="Nu există membri în acest proiect."
-                className={className}
                 refreshTrigger={refreshTrigger + localRefresh}
             />
 

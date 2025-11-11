@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import React, {useEffect, useState} from 'react';
+import {useAuth} from '@/hooks/useAuth';
 import Layout from '@/components/layout/Layout';
 import {Card} from "@/components/ui/Card.tsx";
 import {Alert} from "@/components/ui/Alert.tsx";
@@ -7,16 +7,18 @@ import {Button} from "@/components/ui/Button.tsx";
 import userService from "@/services/user.service.ts";
 import organizationService from "@/services/organization.service.ts";
 import {User, UserMeResponse} from "@/types/user.types.ts";
-import {PaginatedResponse, TableColumn} from "@/types/index.types.ts";
+import {PaginatedResponse, TableAction, TableColumn} from "@/types/index.types.ts";
 import Table from "@/components/ui/Table.tsx";
-import { CreateUserModal } from "@/components/modals/user/CreateUserModal.tsx";
-import { EditUserModal } from "@/components/modals/user/EditUserModal.tsx";
-import { PasswordResetConfirmModal } from "@/components/modals/user/PasswordResetConfirmModal.tsx";
-import { LinkOrganizationModal } from "@/components/modals/organization/LinkOrganizationModal.tsx";
-import { OrganizationCreationModal } from "@/components/organization/OrganizationCreationModal.tsx";
-import { UserCreateRequest } from "@/schemas/user.schema.ts";
-import { CreateOrganizationData } from "@/schemas/organization.schema.ts";
+import {CreateUserModal} from "@/components/modals/user/CreateUserModal.tsx";
+import {EditUserModal} from "@/components/modals/user/EditUserModal.tsx";
+import {PasswordResetConfirmModal} from "@/components/modals/user/PasswordResetConfirmModal.tsx";
+import {LinkOrganizationModal} from "@/components/modals/organization/LinkOrganizationModal.tsx";
+import {OrganizationCreationModal} from "@/components/organization/OrganizationCreationModal.tsx";
+import {UserCreateRequest} from "@/schemas/user.schema.ts";
+import {CreateOrganizationData} from "@/schemas/organization.schema.ts";
 import showToast from "@/components/ui/Toast.tsx";
+import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
+import {t} from "i18next";
 
 const AdminPanel: React.FC = () => {
     const { user } = useAuth();
@@ -45,7 +47,8 @@ const AdminPanel: React.FC = () => {
             setUsers(data);
 
         } catch (error) {
-            setError('Failed to load users. Please try again.');
+            const errorMessage = error instanceof Error ? error.message : 'Failed to load users. Please try again.';
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -60,17 +63,13 @@ const AdminPanel: React.FC = () => {
     };
 
     const handleCreateUser = async (data: UserCreateRequest): Promise<void> => {
-        try {
-            const newUser = await userService.create(data);
-            showToast.success('Utilizator creat cu succes!');
-            await fetchUsers();
-            
-            if (data.isLegalEntity) {
-                setCreatedUser(newUser as UserMeResponse);
-                setIsLinkOrgModalOpen(true);
-            }
-        } catch (error) {
-            throw error;
+        const newUser = await userService.create(data);
+        showToast.success('Utilizator creat cu succes!');
+        await fetchUsers();
+
+        if (data.isLegalEntity) {
+            setCreatedUser(newUser as UserMeResponse);
+            setIsLinkOrgModalOpen(true);
         }
     };
 
@@ -117,15 +116,11 @@ const AdminPanel: React.FC = () => {
     const handleUpdateUser = async (data: UserCreateRequest): Promise<void> => {
         if (!selectedUser) return;
 
-        try {
-            await userService.update(selectedUser.id, data);
-            showToast.success('Utilizator actualizat cu succes!');
-            await fetchUsers();
-            setIsEditUserModalOpen(false);
-            setIsPasswordResetModalOpen(true);
-        } catch (error) {
-            throw error;
-        }
+        await userService.update(selectedUser.id, data);
+        showToast.success('Utilizator actualizat cu succes!');
+        await fetchUsers();
+        setIsEditUserModalOpen(false);
+        setIsPasswordResetModalOpen(true);
     };
 
     const handleClosePasswordResetModal = () => {
@@ -142,26 +137,27 @@ const AdminPanel: React.FC = () => {
             setIsPasswordResetModalOpen(false);
             setSelectedUser(null);
         } catch (error) {
-            showToast.error('Eroare la trimiterea emailului de resetare parolă');
+            const errorMessage = error instanceof Error ? error.message : 'Eroare la trimiterea emailului de resetare parolă';
+            showToast.error(errorMessage);
         }
     };
 
-    const handleResetPassword = async (userId: string): Promise<void> => {
+    const handleResetPassword = async (user: UserMeResponse): Promise<void> => {
         if (!window.confirm('Sigur doriți să resetați parola acestui utilizator? Va primi un email cu o parolă temporară.')) {
             return;
         }
 
         try {
-            const result = await userService.resetPassword(userId);
+            const result = await userService.resetPassword(user.id);
             showToast.success(`Email de resetare parolă trimis cu succes la ${result.email}!`);
         } catch (error) {
-            showToast.error('Eroare la trimiterea emailului de resetare parolă');
+            const errorMessage = error instanceof Error ? error.message : 'Eroare la trimiterea emailului de resetare parolă';
+            showToast.error(errorMessage);
         }
     };
 
-    const columns: TableColumn<UserMeResponse>[] = [
-        {
-            key: 'username',
+    const getColumns = (): TableColumn<UserMeResponse>[] => [        {
+            key: 'email',
             label: 'User',
             render: (email: string, user: UserMeResponse) => (
                 <div>
@@ -180,7 +176,7 @@ const AdminPanel: React.FC = () => {
             )
         },
         {
-            key: 'userGroups',
+            key: 'groups',
             label: 'Groups',
             render: (groups: string[]) => (
                 <div className="flex flex-wrap gap-1">
@@ -199,35 +195,20 @@ const AdminPanel: React.FC = () => {
                 </div>
             )
         },
+    ];
+
+    const getActions = (): TableAction<UserMeResponse>[] => [
         {
-            key: 'actions',
-            label: 'Actions',
-            render: (_, _user: UserMeResponse) => {
-                const isCurrentUser = _user.id === user?.id;
-                
-                if (isCurrentUser) {
-                    return <span className="text-sm text-gray-500 italic">Current user</span>;
-                }
-                
-                return (
-                    <div className="flex space-x-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditUser(_user)}
-                        >
-                            Edit
-                        </Button>
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => handleResetPassword(_user.id)}
-                        >
-                            Resetare Parolă
-                        </Button>
-                    </div>
-                );
-            }
+            label: t('action.edit'),
+            onClick: handleEditUser,
+            variant: 'secondary',
+            icon: <IconEdit/>
+        },
+        {
+            label: t('action.reset_password'),
+            onClick: handleResetPassword,
+            variant: 'secondary',
+            icon: <IconEdit/>
         }
     ];
 
@@ -271,9 +252,9 @@ const AdminPanel: React.FC = () => {
                     </div>
 
                     <Table
-                        data={users}
-                        columns={columns}
-                        loading={loading}
+                        endpoint="user/list"
+                        columns={getColumns()}
+                        actions={getActions()}
                         emptyMessage="Nu au fost găsiți utilizatori. Creează primul utilizator pentru a începe."
                     />
                 </Card>

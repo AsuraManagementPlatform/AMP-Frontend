@@ -3,8 +3,8 @@ import { Card } from '@/components/ui/Card';
 import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import { Project, Activity, User, TableColumn, TableAction } from '@/types/index.types';
 import { getUserRoleLabel } from '@/utils/dashboardUtils';
-import Table from '@/components/ui/Table';
 import { MyCotizatii } from './MyCotizatii';
+import DataTable from "@/components/ui/DataTable.tsx";
 
 interface OrgAdminDashboardProps {
     searchTerm: string;
@@ -239,7 +239,6 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
 
     return (
         <>
-            {/* Cotizațiile mele - Secțiune dedicată */}
             <div className="mb-6">
                 <MyCotizatii />
             </div>
@@ -305,7 +304,7 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                         )}
                     </div>
                     
-                    <Table<User>
+                    <DataTable<User>
                         data={filteredMembers}
                         columns={getMemberColumns()}
                         actions={getMemberActions()}
@@ -313,7 +312,6 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                         emptyMessage="Nu au fost găsiți utilizatori în sistem. Creează primul utilizator pentru a începe."
                         showFilters={false}
                         showPagination={false}
-                        className=""
                     />
                 </div>
             ) : (
@@ -330,7 +328,7 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                 </PrimaryActionButton>
                             )}
                         </div>
-                        <Table<Project>
+                        <DataTable<Project>
                             data={projects}
                             columns={getProjectColumns()}
                             loading={projectsLoading}
@@ -338,7 +336,6 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                             emptyMessage="Nu există proiecte disponibile"
                             showFilters={false}
                             showPagination={false}
-                            className=""
                         />
                     </div>
                     
@@ -356,14 +353,13 @@ export const OrgAdminDashboard: React.FC<OrgAdminDashboardProps> = ({
                                 </PrimaryActionButton>
                             )}
                         </div>
-                        <Table<Activity>
+                        <DataTable<Activity>
                             data={activities}
                             columns={getActivityColumns()}
                             loading={activitiesLoading}
                             emptyMessage="Nu există activități disponibile"
                             showFilters={false}
                             showPagination={false}
-                            className=""
                         />
                     </div>
                 </div>

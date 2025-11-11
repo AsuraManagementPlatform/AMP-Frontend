@@ -1,10 +1,15 @@
-import { ListParams, PaginatedResponse } from "@/types/index.types.ts";
-import { ProjectFund, ProjectFundCreateRequest, ProjectFundUpdateRequest } from "@/types/project-fund.types.ts";
-import { apiService } from "@/services/api.service.ts";
+import {
+    ListParams,
+    PaginatedResponse,
+    ProjectFund,
+    ProjectFundCreateRequest, ProjectFundPayRequest,
+    ProjectFundUpdateRequest
+} from "@/types/index.types.ts";
+import {apiService} from "@/services/api.service.ts";
 
 export const projectFundService = {
     getList: async (params?: ListParams): Promise<PaginatedResponse<ProjectFund>> => {
-        return apiService.getPaginatedList<ProjectFund>('project-fund/list', params);
+        return apiService.getPaginatedList<ProjectFund>('project_fund/list', params);
     },
 
     getById: async (id: string): Promise<ProjectFund> => {
@@ -17,6 +22,14 @@ export const projectFundService = {
 
     update: async (id: string, data: ProjectFundUpdateRequest): Promise<ProjectFund> => {
         return apiService.put<ProjectFund>(`project_fund/update/${id}`, data);
+    },
+
+    pay: async (data: ProjectFundPayRequest): Promise<ProjectFund> => {
+        return apiService.put<ProjectFund>(`project_fund/pay/${data.id}`, data);
+    },
+
+    cancel: async (id: string): Promise<ProjectFund> => {
+        return apiService.put<ProjectFund>(`project_fund/cancel/${id}`, {});
     },
 
     delete: async (id: string): Promise<void> => {

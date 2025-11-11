@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Project, Activity, User, TableColumn } from '@/types/index.types';
 import toast from 'react-hot-toast';
-import Table from '@/components/ui/Table';
 import { MyCotizatii } from './MyCotizatii';
+import DataTable from "@/components/ui/DataTable.tsx";
+import {ROUTES} from "@/utils/constants.utils.ts";
+import {useNavigate} from "react-router-dom";
 
 interface MemberDashboardProps {
     user: User | null;
@@ -33,6 +35,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
     const [showSponsorshipModal, setShowSponsorshipModal] = useState(false);
     const [showProposalModal, setShowProposalModal] = useState(false);
     const [showMessageModal, setShowMessageModal] = useState(false);
+    const navigate = useNavigate();
 
     const getProjectColumns = (): TableColumn<Project>[] => [
         {
@@ -114,6 +117,10 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
         setShowMessageModal(true);
     };
 
+    const handleProjectRowClick = (project: Project) => {
+        navigate(ROUTES.ERP_PROJECT_DETAILS.replace(':projectId', project.id));
+    };
+
     return (
         <>
             <div className="mb-6">
@@ -126,23 +133,22 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <h4 className="font-semibold text-gray-800 mb-3">Proiectele mele</h4>
-                                <Table<Project>
+                                <DataTable<Project>
                                     data={projects}
                                     columns={getProjectColumns()}
+                                    onRowClick={handleProjectRowClick}
                                     loading={projectsLoading}
                                     emptyMessage="Nu participi la niciun proiect în acest moment"
-                                    className=""
                                 />
                             </div>
                             
                             <div>
                                 <h4 className="font-semibold text-gray-800 mb-3">Activitățile mele</h4>
-                                <Table<Activity>
+                                <DataTable<Activity>
                                     data={activities}
                                     columns={getActivityColumns()}
                                     loading={activitiesLoading}
                                     emptyMessage="Nu ai activități asignate în acest moment"
-                                    className=""
                                 />
                                 <div className="mt-4 flex items-center justify-between bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border border-yellow-200">
                                     <div className="flex-1">
@@ -173,7 +179,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                                 </div>
                                 <div>
                                     <span className="text-gray-600">Organizație:</span> 
-                                    <span className="ml-2 font-medium">N/A</span>
+                                    <span className="ml-2 font-medium">{user?.organizationName || 'N/A'}</span>
                                 </div>
                                 <div>
                                     <span className="text-gray-600">Status:</span> 

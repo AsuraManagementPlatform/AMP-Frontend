@@ -13,14 +13,12 @@ import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react'
 interface OrganizationDocumentListProps {
     organization: string;
     refreshTrigger?: number;
-    className?: string;
     pageSize?: number;
 }
 
 export const OrganizationDocumentList: React.FC<OrganizationDocumentListProps> = ({
                                                                           organization,
                                                                           refreshTrigger = 0,
-                                                                          className = '',
                                                                           pageSize = 10
                                                                       }) => {
     const confirm = useConfirmDialog();
@@ -66,7 +64,7 @@ export const OrganizationDocumentList: React.FC<OrganizationDocumentListProps> =
             key: 'name',
             label: 'Nume',
             sortable: true,
-            width: '200px',
+            size: 'lg',
         },
         {
             key: 'documentType',
@@ -87,7 +85,7 @@ export const OrganizationDocumentList: React.FC<OrganizationDocumentListProps> =
                 { label: 'Licență', value: DocumentType.LICENSE },
                 { label: 'Altele', value: DocumentType.OTHER }
             ],
-            width: '180px',
+            size: 'sm',
             render: (documentType: string) => {
                 const typeLabels: Record<string, string> = {
                     'REGISTRATION_CERTIFICATE': 'Certificat înregistrare',
@@ -109,14 +107,14 @@ export const OrganizationDocumentList: React.FC<OrganizationDocumentListProps> =
             key: 'documentNumber',
             label: 'Număr document',
             sortable: true,
-            width: '150px',
+            size: 'sm',
             render: (documentNumber: string | null) => documentNumber || '-'
         },
         {
             key: 'issueDate',
             label: 'Data emiterii',
             sortable: true,
-            width: '120px',
+            size: 'sm',
             render: (issueDate: string | null) => {
                 if (!issueDate) return '-';
                 return new Date(issueDate).toLocaleDateString('ro-RO');
@@ -126,7 +124,7 @@ export const OrganizationDocumentList: React.FC<OrganizationDocumentListProps> =
             key: 'expiryDate',
             label: 'Data expirării',
             sortable: true,
-            width: '120px',
+            size: 'sm',
             render: (expiryDate: string | null, row: OrganizationDocument) => {
                 if (!expiryDate) return '-';
                 const date = new Date(expiryDate).toLocaleDateString('ro-RO');
@@ -150,7 +148,7 @@ export const OrganizationDocumentList: React.FC<OrganizationDocumentListProps> =
                 { label: 'Activ', value: 'true' },
                 { label: 'Inactiv', value: 'false' }
             ],
-            width: '100px',
+            size: 'sm',
             render: (isActive: boolean, row: OrganizationDocument) => {
                 if (row.isExpired) {
                     return (
@@ -197,13 +195,11 @@ export const OrganizationDocumentList: React.FC<OrganizationDocumentListProps> =
                 endpoint={`organization-documents/organization/${organization}/list`}
                 columns={getColumns()}
                 actions={getActions()}
-                pageSize={pageSize}
+                initialPageSize={pageSize}
                 initialSort={{ field: 'created_at', direction: 'desc' }}
-                showSearch={false}
                 showFilters={true}
                 showPagination={true}
                 emptyMessage="Nu există documente pentru această organizație."
-                className={className}
                 refreshTrigger={refreshTrigger + localRefresh}
             />
 

@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Modal } from '@/components/ui/Modal';
-import { updateProjectFormConfig } from '@/config/project.form.config';
-import { updateProjectSchema, UpdateProjectData } from '@/schemas/project.schema';
+import React, {useEffect, useState} from 'react';
+import {Modal} from '@/components/ui/Modal';
+import {updateProjectFormConfig} from '@/config/project.form.config';
+import {UpdateProjectData, updateProjectSchema} from '@/schemas/project.schema';
 import projectService from '@/services/project.service';
 import userService from '@/services/user.service';
 import showToast from '@/components/ui/Toast';
-import { Project } from '@/types/project.types';
-import { UserGroup } from '@/types/index.types';
+import {Project} from '@/types/project.types';
 import {DynamicForm} from "@/components/forms/DynamicForm.tsx";
+import {t} from "i18next";
+import {Currency} from "@/types/index.types.ts";
 
 interface UpdateProjectModalProps {
     isOpen: boolean;
@@ -34,21 +35,22 @@ export const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
 
             try {
                 setIsLoadingManagers(true);
-                const response = await userService.getManagers({
-                    pageSize: 100
-                });
-                const managers = response.results
-                    ?.filter(user =>
-                        user.groups?.includes(UserGroup.ORGANIZATION_ADMIN) ||
-                        user.groups?.includes(UserGroup.ADMIN)
-                    )
-                    .map(user => ({
+                if (organizationId) {
+                    const response = await userService.getList({
+                        filters: {organization: organizationId},
+                        pageSize: 100
+                    });
+
+                    const organization_members = response.results.map(user => ({
                         id: user.id,
                         name: user.fullName || user.email
-                    })) || [];
-                setAvailableManagers(managers);
+                    }));
+
+                    setAvailableManagers(organization_members);
+                }
             } catch (error) {
-                showToast.error('Eroare la încărcarea managerilor');
+                const errorMessage = error instanceof Error ? error.message : t('toast.project.load_managers_error');
+                showToast.error(errorMessage);
             } finally {
                 setIsLoadingManagers(false);
             }
@@ -61,12 +63,11 @@ export const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
         try {
             setIsSubmitting(true);
 
-            await projectService.update(project.id, data);
-            showToast.success('Proiectul a fost actualizat cu succes!');
+            await projectService.update(data);
             onSuccess();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.message || 'Eroare la actualizarea proiectului';
+            const errorMessage = error?.message || t('toast.project.update_error');
             showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
@@ -76,17 +77,20 @@ export const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
     const formConfig = updateProjectFormConfig(organizationId, availableManagers);
 
     const defaultValues: UpdateProjectData = {
+        id: project.id,
         name: project.name,
         description: project.description || '',
         category: project.category || '',
         location: project.location || '',
         status: project.status,
+        priority: project.priority,
         startingDate: project.startingDate,
         endingDate: project.endingDate,
         budget: project.budget,
-        currency: (project.currency || 'RON') as 'RON' | 'EUR' | 'USD',
+        currency: (project.currency || Currency.RON),
         budgetResponsible: project.budgetResponsible || '',
         budgetNotes: project.budgetNotes || '',
+        sustainability: project.sustainability || '',
         organization: project.organization || organizationId || ''
     };
 
@@ -94,12 +98,12 @@ export const UpdateProjectModal: React.FC<UpdateProjectModalProps> = ({
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Editează proiect"
+            title={t('form.project.update_title')}
             size="lg"
         >
             {isLoadingManagers ? (
                 <div className="flex justify-center items-center py-8">
-                    <div className="text-gray-600">Se încarcă...</div>
+                    <div className="text-gray-600">{t('label.loading')}</div>
                 </div>
             ) : (
                 <DynamicForm<UpdateProjectData>

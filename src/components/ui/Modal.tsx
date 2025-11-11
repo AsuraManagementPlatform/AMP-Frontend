@@ -20,7 +20,7 @@ export const Modal: React.FC<ModalProps> = ({
     const modalRef = useRef<HTMLDivElement>(null);
     const isDragging = useRef(false);
     const dragOffset = useRef({ x: 0, y: 0 });
-    const [isDraggable, setIsDraggable] = React.useState(true);
+    //const [isDraggable, setIsDraggable] = React.useState(true);
 
     const sizeClasses = {
         sm: 'modal-content-sm',
@@ -29,42 +29,42 @@ export const Modal: React.FC<ModalProps> = ({
         xl: 'modal-content-xl'
     };
 
-    const isInteractiveElement = (element: HTMLElement | null): boolean => {
-        if (!element || element === modalRef.current) return false;
-
-        const interactiveElements = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'A'];
-        
-        let currentElement: HTMLElement | null = element;
-        while (currentElement && currentElement !== modalRef.current) {
-            if (interactiveElements.includes(currentElement.tagName)) {
-                return true;
-            }
-            
-            if (
-                currentElement.hasAttribute('role') && 
-                ['button', 'link', 'tab', 'menuitem'].includes(currentElement.getAttribute('role') || '')
-            ) {
-                return true;
-            }
-            
-            if (currentElement.contentEditable === 'true') {
-                return true;
-            }
-            
-            if (
-                currentElement.classList.contains('clickable') ||
-                currentElement.classList.contains('btn') ||
-                currentElement.hasAttribute('data-clickable') ||
-                currentElement.style.cursor === 'pointer'
-            ) {
-                return true;
-            }
-            
-            currentElement = currentElement.parentElement;
-        }
-        
-        return false;
-    };
+    // const isInteractiveElement = (element: HTMLElement | null): boolean => {
+    //     if (!element || element === modalRef.current) return false;
+    //
+    //     const interactiveElements = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'A'];
+    //
+    //     let currentElement: HTMLElement | null = element;
+    //     while (currentElement && currentElement !== modalRef.current) {
+    //         if (interactiveElements.includes(currentElement.tagName)) {
+    //             return true;
+    //         }
+    //
+    //         if (
+    //             currentElement.hasAttribute('role') &&
+    //             ['button', 'link', 'tab', 'menuitem'].includes(currentElement.getAttribute('role') || '')
+    //         ) {
+    //             return true;
+    //         }
+    //
+    //         if (currentElement.contentEditable === 'true') {
+    //             return true;
+    //         }
+    //
+    //         if (
+    //             currentElement.classList.contains('clickable') ||
+    //             currentElement.classList.contains('btn') ||
+    //             currentElement.hasAttribute('data-clickable') ||
+    //             currentElement.style.cursor === 'pointer'
+    //         ) {
+    //             return true;
+    //         }
+    //
+    //         currentElement = currentElement.parentElement;
+    //     }
+    //
+    //     return false;
+    // };
 
     const handleMouseMove = (e: MouseEvent) => {
         if (!isDragging.current || !modalRef.current) return;
@@ -87,15 +87,15 @@ export const Modal: React.FC<ModalProps> = ({
         document.body.style.userSelect = '';
     };
 
-    const handleMouseOver = (e: React.MouseEvent) => {
-        const target = e.target as HTMLElement;
-        const isInteractive = isInteractiveElement(target);
-        setIsDraggable(!isInteractive);
-        
-        if (modalRef.current) {
-            modalRef.current.style.cursor = isInteractive ? 'default' : 'move';
-        }
-    };
+    // const handleMouseOver = (e: React.MouseEvent) => {
+    //     const target = e.target as HTMLElement;
+    //     const isInteractive = isInteractiveElement(target);
+    //     setIsDraggable(!isInteractive);
+    //
+    //     if (modalRef.current) {
+    //         modalRef.current.style.cursor = isInteractive ? 'default' : 'move';
+    //     }
+    // };
 
     useEffect(() => {
         document.addEventListener('mousemove', handleMouseMove);
@@ -107,33 +107,33 @@ export const Modal: React.FC<ModalProps> = ({
         };
     }, []);
 
-    const handleMouseDown = (e: React.MouseEvent) => {
-        const target = e.target as HTMLElement;
-        
-        if (isInteractiveElement(target)) {
-            return;
-        }
-
-        if (!modalRef.current) return;
-
-        e.preventDefault();
-        const modal = modalRef.current;
-        
-        modal.style.animation = 'none';
-        
-        const rect = modal.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        
-        isDragging.current = true;
-        dragOffset.current = {
-            x: e.clientX - centerX,
-            y: e.clientY - centerY
-        };
-        
-        document.body.style.cursor = 'move';
-        document.body.style.userSelect = 'none';
-    };
+    // const handleMouseDown = (e: React.MouseEvent) => {
+    //     const target = e.target as HTMLElement;
+    //
+    //     if (isInteractiveElement(target)) {
+    //         return;
+    //     }
+    //
+    //     if (!modalRef.current) return;
+    //
+    //     e.preventDefault();
+    //     const modal = modalRef.current;
+    //
+    //     modal.style.animation = 'none';
+    //
+    //     const rect = modal.getBoundingClientRect();
+    //     const centerX = rect.left + rect.width / 2;
+    //     const centerY = rect.top + rect.height / 2;
+    //
+    //     isDragging.current = true;
+    //     dragOffset.current = {
+    //         x: e.clientX - centerX,
+    //         y: e.clientY - centerY
+    //     };
+    //
+    //     document.body.style.cursor = 'move';
+    //     document.body.style.userSelect = 'none';
+    // };
 
     return (
         <Dialog.Root open={isOpen} onOpenChange={closeOnBackdropClick ? onClose : undefined}>
@@ -142,9 +142,9 @@ export const Modal: React.FC<ModalProps> = ({
                 <Dialog.Content 
                     ref={modalRef}
                     className={`${sizeClasses[size]} ${className}`}
-                    onMouseDown={handleMouseDown}
-                    onMouseOver={handleMouseOver}
-                    style={{ cursor: isDraggable ? 'move' : 'default' }}
+                    // onMouseDown={handleMouseDown}
+                    // onMouseOver={handleMouseOver}
+                    // style={{ cursor: isDraggable ? 'move' : 'default' }}
                 >
                     {(title || showCloseButton) && (
                         <div className="modal-header">

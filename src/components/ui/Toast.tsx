@@ -1,4 +1,5 @@
 import toast, { Toaster, ToastOptions } from 'react-hot-toast';
+import {t} from "i18next";
 
 export const toastMessages = {
     success: {
@@ -220,7 +221,6 @@ export const showToast = {
     featureInDevelopment: () => showToast.info(toastMessages.info.featureInDevelopment),
     noPendingAdminUsers: () => showToast.error(toastMessages.error.noPendingAdminUsers),
     organizationCreatedUserUpdateFailed: () => showToast.error(toastMessages.error.organizationCreatedUserUpdateFailed),
-    
     membershipFeeCreated: () => showToast.success(toastMessages.success.membershipFeeCreated),
     membershipFeeUpdated: () => showToast.success(toastMessages.success.membershipFeeUpdated),
     membershipFeeDeleted: () => showToast.success(toastMessages.success.membershipFeeDeleted),
@@ -233,6 +233,11 @@ export const showToast = {
     updatingMembershipFee: () => showToast.loading(toastMessages.loading.updatingMembershipFee),
     deletingMembershipFee: () => showToast.loading(toastMessages.loading.deletingMembershipFee),
     confirmingPayment: () => showToast.loading(toastMessages.loading.confirmingPayment),
+    vatCreated: () => showToast.success(`${t('toast.vat.created')}`),
+    vatUpdated: () => showToast.success(`${t('toast.vat.updated')}`),
+    vatDeleted: () => showToast.success(`${t('toast.vat.deleted')}`),
+
+    accessForbidden: () => showToast.info(`${t('toast.access_forbidden')}`),
 
     confirm: (message: string): Promise<boolean> => {
         return new Promise((resolve) => {

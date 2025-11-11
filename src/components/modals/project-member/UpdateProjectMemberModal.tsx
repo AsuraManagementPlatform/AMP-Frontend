@@ -66,6 +66,7 @@ export const UpdateProjectMemberModal: React.FC<UpdateProjectMemberModalProps> =
             const status = data.status as ProjectMemberStatus ?? undefined;
             const type = data.type as ProjectMemberType ?? undefined;
             const projectMemberUpdateRequest: ProjectMemberUpdateRequest = {
+                id: data.id,
                 project: data.project,
                 member: data.member,
                 userRole: data.userRole,
@@ -92,6 +93,7 @@ export const UpdateProjectMemberModal: React.FC<UpdateProjectMemberModalProps> =
     const formConfig = updateProjectMemberFormConfig(organizationUsers);
 
     const defaultValues: UpdateProjectMemberData = {
+        id: member.id,
         project: member.project,
         member: member.member,
         userRole: member.userRole,

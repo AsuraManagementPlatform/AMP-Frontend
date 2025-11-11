@@ -1,19 +1,36 @@
 import {DynamicFormConfig, FieldType, SelectOption} from "@/types/form.types.ts";
 import {ProjectStatus, ProjectPriority} from "@/types/project.types.ts";
+import {t} from "i18next";
 
 const getProjectStatusOptions = (): SelectOption[] => [
-    { value: ProjectStatus.DRAFT, label: 'Draft' },
-    { value: ProjectStatus.ACTIVE, label: 'Activ' },
-    { value: ProjectStatus.COMPLETED, label: 'Finalizat' },
-    { value: ProjectStatus.CANCELLED, label: 'Anulat' },
-    { value: ProjectStatus.ON_HOLD, label: 'Suspendat' }
+    { value: ProjectStatus.DRAFT, label: t('label.project.status_draft') },
+    { value: ProjectStatus.ACTIVE, label: t('label.project.status_active') },
+    { value: ProjectStatus.COMPLETED, label: t('label.project.status_completed') },
+    { value: ProjectStatus.CANCELLED, label: t('label.project.status_cancelled') },
+    { value: ProjectStatus.ON_HOLD, label: t('label.project.status_on_hold') }
 ];
 
 const getProjectPriorityOptions = (): SelectOption[] => [
-    { value: ProjectPriority.LOW, label: 'Scăzută' },
-    { value: ProjectPriority.MEDIUM, label: 'Medie' },
-    { value: ProjectPriority.HIGH, label: 'Înaltă' },
-    { value: ProjectPriority.URGENT, label: 'Urgentă' }
+    { value: ProjectPriority.LOW, label: t('label.project.priority_low') },
+    { value: ProjectPriority.MEDIUM, label: t('label.project.priority_medium') },
+    { value: ProjectPriority.HIGH, label: t('label.project.priority_high') },
+    { value: ProjectPriority.URGENT, label: t('label.project.priority_urgent') }
+];
+
+const getCategoryOptions = (): SelectOption[] => [
+    { value: 'educatie', label: t('label.project.category_education') },
+    { value: 'mediu', label: t('label.project.category_environment') },
+    { value: 'social', label: t('label.project.category_social') },
+    { value: 'cultura', label: t('label.project.category_culture') },
+    { value: 'sanatate', label: t('label.project.category_health') },
+    { value: 'tehnologie', label: t('label.project.category_technology') },
+    { value: 'altele', label: t('label.project.category_other') }
+];
+
+const getCurrencyOptions = (): SelectOption[] => [
+    { value: 'RON', label: t('label.currency.ron') },
+    { value: 'EUR', label: t('label.currency.eur') },
+    { value: 'USD', label: t('label.currency.usd') }
 ];
 
 export const createProjectFormConfig = (
@@ -22,120 +39,114 @@ export const createProjectFormConfig = (
 ): DynamicFormConfig => ({
     sections: [
         {
-            title: "Informații proiect",
+            title: t('form.project.section_basic'),
             columns: 1,
             fields: [
                 {
                     name: 'name',
-                    label: 'Nume proiect',
+                    label: t('label.project.name'),
                     type: FieldType.TEXT,
-                    placeholder: 'ex: Implementare sistem management',
+                    placeholder: t('label.project.name_placeholder'),
                     required: true,
                     maxLength: 255
                 },
                 {
                     name: 'description',
-                    label: 'Descriere',
+                    label: t('label.project.description'),
                     type: FieldType.TEXTAREA,
-                    placeholder: 'Descriere detaliată a proiectului...',
-                    maxLength: 1000,
+                    placeholder: t('label.project.description_placeholder'),
+                    maxLength: 511,
                     rows: 3
                 },
                 {
                     name: 'category',
-                    label: 'Categorie',
+                    label: t('label.project.category'),
                     type: FieldType.SELECT,
                     required: true,
-                    options: [
-                        { value: 'educatie', label: 'Educație' },
-                        { value: 'mediu', label: 'Mediu' },
-                        { value: 'social', label: 'Social' },
-                        { value: 'cultura', label: 'Cultură' },
-                        { value: 'sanatate', label: 'Sănătate' },
-                        { value: 'tehnologie', label: 'Tehnologie' },
-                        { value: 'altele', label: 'Altele' }
-                    ]
+                    options: getCategoryOptions()
                 },
                 {
                     name: 'location',
-                    label: 'Locație',
+                    label: t('label.project.location'),
                     type: FieldType.TEXT,
-                    placeholder: 'ex: București, România',
+                    placeholder: t('label.project.location_placeholder'),
                     required: true,
                     maxLength: 255
-                },
+                }
+            ]
+        },
+        {
+            title: t('form.project.section_planning'),
+            columns: 2,
+            fields: [
                 {
                     name: 'status',
-                    label: 'Status',
+                    label: t('label.project.status'),
                     type: FieldType.SELECT,
                     required: true,
                     options: getProjectStatusOptions()
                 },
                 {
                     name: 'priority',
-                    label: 'Prioritate',
+                    label: t('label.project.priority'),
                     type: FieldType.SELECT,
                     required: true,
                     options: getProjectPriorityOptions()
                 },
                 {
                     name: 'startingDate',
-                    label: 'Data de început',
+                    label: t('label.project.starting_date'),
                     type: FieldType.DATE,
-                    placeholder: 'Selectează data de început',
+                    placeholder: t('label.project.starting_date_placeholder'),
                     required: true
                 },
                 {
                     name: 'endingDate',
-                    label: 'Data de sfârșit',
+                    label: t('label.project.ending_date'),
                     type: FieldType.DATE,
-                    placeholder: 'Selectează data de sfârșit',
+                    placeholder: t('label.project.ending_date_placeholder'),
                     required: true
                 }
             ]
         },
         {
-            title: "Buget proiect",
+            title: t('form.project.section_budget'),
             columns: 2,
             fields: [
                 {
                     name: 'budget',
-                    label: 'Buget',
+                    label: t('label.project.budget'),
                     type: FieldType.NUMBER,
-                    placeholder: 'ex: 50000',
+                    placeholder: t('label.project.budget_placeholder'),
                     min: 0,
                     required: true
                 },
                 {
                     name: 'currency',
-                    label: 'Moneda',
+                    label: t('label.project.currency'),
                     type: FieldType.SELECT,
                     required: true,
-                    options: [
-                        { value: 'RON', label: 'Lei Românești (RON)' },
-                        { value: 'EUR', label: 'Euro (EUR)' },
-                        { value: 'USD', label: 'Dolari Americani (USD)' }
-                    ]
+                    options: getCurrencyOptions()
                 }
             ]
         },
         {
-            title: "Planificare și management",
+            title: t('form.project.section_management'),
             columns: 1,
             fields: [
                 {
                     name: 'organization',
-                    label: 'Organizație',
+                    label: t('label.project.organization'),
                     type: FieldType.HIDDEN,
                     required: true
                 },
                 {
                     name: 'budgetResponsible',
-                    label: 'Responsabil buget (Manager proiect)',
+                    label: t('label.project.budget_responsible'),
                     type: FieldType.SELECT,
                     required: true,
                     options: [
-                        { value: '', label: 'Selectează responsabilul bugetului...' },
+                        { value: '', label: t('label.project.select_budget_responsible') },
                         ...availableManagers.map(manager => ({
                             value: manager.id,
                             label: manager.name
@@ -144,17 +155,25 @@ export const createProjectFormConfig = (
                 },
                 {
                     name: 'budgetNotes',
-                    label: 'Note buget',
+                    label: t('label.project.budget_notes'),
                     type: FieldType.TEXTAREA,
-                    placeholder: 'Note despre managementul bugetului...',
-                    maxLength: 500,
+                    placeholder: t('label.project.budget_notes_placeholder'),
+                    maxLength: 511,
+                    rows: 2
+                },
+                {
+                    name: 'sustainability',
+                    label: t('label.project.sustainability'),
+                    type: FieldType.TEXTAREA,
+                    placeholder: t('label.project.sustainability_placeholder'),
+                    maxLength: 511,
                     rows: 2
                 }
             ]
         }
     ],
-    submitButtonText: 'Creează proiect',
-    cancelButtonText: 'Anulează'
+    submitButtonText: t('form.project.submit_create'),
+    cancelButtonText: t('form.project.cancel')
 });
 
 export const updateProjectFormConfig = (
@@ -162,5 +181,5 @@ export const updateProjectFormConfig = (
     availableManagers: { id: string; name: string }[] = []
 ): DynamicFormConfig => ({
     ...createProjectFormConfig(_organizationId, availableManagers),
-    submitButtonText: 'Actualizează proiect'
+    submitButtonText: t('form.project.submit_update')
 });

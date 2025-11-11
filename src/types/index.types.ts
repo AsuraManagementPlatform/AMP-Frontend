@@ -14,6 +14,10 @@ export * from './entity.types.ts';
 export * from './project-member.types.ts';
 export * from './project-fund.types.ts';
 export * from './project-expense.types.ts';
+export * from './vat.types.ts';
+export * from './entity-donation.types.ts';
+export * from './entity-communication.types.ts'
+export * from './project-partner.types.ts'
 
 export const Currency = {
     RON: 'RON',
@@ -22,17 +26,6 @@ export const Currency = {
 } as const;
 
 export type Currency = typeof Currency[keyof typeof Currency];
-
-export const TransactionStatus = {
-    DRAFT: 'DRAFT',
-    PENDING_APPROVAL: 'PENDING_APPROVAL',
-    APPROVED: 'APPROVED',
-    PAID: 'PAID',
-    REJECTED: 'REJECTED',
-    CANCELLED: 'CANCELLED'
-} as const;
-
-export type TransactionStatus = typeof TransactionStatus[keyof typeof TransactionStatus];
 
 export interface BaseEntity {
     id: string;

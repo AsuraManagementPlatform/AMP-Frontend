@@ -70,7 +70,8 @@ const OrganizationDetailsPage: React.FC = () => {
                     setGracePeriodDays(organization.feeGracePeriodDays);
                 }
             } catch (error) {
-                showToast.error("Nu s-au putut încărca datele organizației");
+                const errorMenssage = error instanceof Error ? error.message : 'Nu s-au putut încărca datele organizației';
+                showToast.error(errorMenssage);
             } finally {
                 setLoading(false);
             }
@@ -210,23 +211,23 @@ const OrganizationDetailsPage: React.FC = () => {
                                 </div>
                                 <div>
                                     <span className="text-gray-500">Nr. înregistrare:</span>
-                                    <div className="font-medium">{organization?.registration_number || '-'}</div>
+                                    <div className="font-medium">{organization?.registrationNumber || '-'}</div>
                                 </div>
                                 <div>
                                     <span className="text-gray-500">Înființată:</span>
                                     <div className="font-medium">
-                                        {organization?.registration_date ? new Date(organization.registration_date).toLocaleDateString('ro-RO') : '-'}
+                                        {organization?.registrationDate ? new Date(organization.registrationDate).toLocaleDateString('ro-RO') : '-'}
                                     </div>
                                 </div>
                                 <div>
                                     <span className="text-gray-500">Tip:</span>
                                     <div className="font-medium">
-                                        {organization?.organization_type === 'NGO' ? 'NGO' :
-                                         organization?.organization_type === 'FOUNDATION' ? 'Fundație' :
-                                         organization?.organization_type === 'ASSOCIATION' ? 'Asociație' :
-                                         organization?.organization_type === 'COMPANY' ? 'Companie' :
-                                         organization?.organization_type === 'COOPERATIVE' ? 'Cooperativă' :
-                                         organization?.organization_type || '-'}
+                                        {organization?.organizationType === 'NGO' ? 'NGO' :
+                                         organization?.organizationType === 'FOUNDATION' ? 'Fundație' :
+                                         organization?.organizationType === 'ASSOCIATION' ? 'Asociație' :
+                                         organization?.organizationType === 'COMPANY' ? 'Companie' :
+                                         organization?.organizationType === 'COOPERATIVE' ? 'Cooperativă' :
+                                         organization?.organizationType || '-'}
                                     </div>
                                 </div>
                                 <div>
@@ -250,15 +251,15 @@ const OrganizationDetailsPage: React.FC = () => {
                         </div>
                         <div>
                             <span className="text-gray-500 text-sm">Telefon principal:</span>
-                            <div className="font-medium">{organization?.phone_number || '-'}</div>
+                            <div className="font-medium">{organization?.phoneNumber || '-'}</div>
                         </div>
                         <div>
                             <span className="text-gray-500 text-sm">Telefon secundar:</span>
-                            <div className="font-medium">{organization?.secondary_phone || '-'}</div>
+                            <div className="font-medium">{organization?.secondaryPhone || '-'}</div>
                         </div>
                         <div>
                             <span className="text-gray-500 text-sm">Fax:</span>
-                            <div className="font-medium">{organization?.fax_number || '-'}</div>
+                            <div className="font-medium">{organization?.faxNumber || '-'}</div>
                         </div>
                         <div>
                             <span className="text-gray-500 text-sm">Website:</span>
@@ -299,28 +300,28 @@ const OrganizationDetailsPage: React.FC = () => {
                             </div>
                             <div>
                                 <span className="text-gray-500 text-sm">Nr. înregistrare:</span>
-                                <div className="font-medium">{organization?.registration_number || '-'}</div>
+                                <div className="font-medium">{organization?.registrationNumber || '-'}</div>
                             </div>
                             <div>
                                 <span className="text-gray-500 text-sm">Data înregistrării:</span>
                                 <div className="font-medium">
-                                    {organization?.registration_date ? new Date(organization.registration_date).toLocaleDateString('ro-RO') : '-'}
+                                    {organization?.registrationDate ? new Date(organization.registrationDate).toLocaleDateString('ro-RO') : '-'}
                                 </div>
                             </div>
                             <div>
                                 <span className="text-gray-500 text-sm">Scutit de taxe:</span>
                                 <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                                    organization?.tax_exempt_status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                    organization?.taxExemptStatus ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                 }`}>
-                                    {organization?.tax_exempt_status ? 'Da' : 'Nu'}
+                                    {organization?.taxExemptStatus ? 'Da' : 'Nu'}
                                 </span>
                             </div>
                             <div>
                                 <span className="text-gray-500 text-sm">Verificat:</span>
                                 <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                                    organization?.is_verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                    organization?.isVerified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                                 }`}>
-                                    {organization?.is_verified ? 'Da' : 'Nu'}
+                                    {organization?.isVerified ? 'Da' : 'Nu'}
                                 </span>
                             </div>
                         </div>
@@ -330,19 +331,19 @@ const OrganizationDetailsPage: React.FC = () => {
                         <div className="space-y-4">
                             <div className="flex justify-between">
                                 <span className="text-gray-500 text-sm">Total membri:</span>
-                                <span className="font-bold text-blue-600">{organization?.member_statistics?.total_people || organization?.member_count || 0}</span>
+                                <span className="font-bold text-blue-600">{organization?.memberStatistics?.totalPeople || organization?.memberCount || 0}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500 text-sm">Angajați:</span>
-                                <span className="font-bold text-green-600">{organization?.member_statistics?.employee_count || organization?.employee_count || 0}</span>
+                                <span className="font-bold text-green-600">{organization?.memberStatistics?.employeeCount || organization?.employeeCount || 0}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500 text-sm">Voluntari:</span>
-                                <span className="font-bold text-orange-600">{organization?.member_statistics?.volunteer_count || organization?.volunteer_count || 0}</span>
+                                <span className="font-bold text-orange-600">{organization?.memberStatistics?.volunteerCount || organization?.volunteerCount || 0}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500 text-sm">Membri (exclusiv angajați/voluntari):</span>
-                                <span className="font-bold text-indigo-600">{organization?.member_statistics?.member_count || 0}</span>
+                                <span className="font-bold text-indigo-600">{organization?.memberStatistics?.memberCount || 0}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500 text-sm">Buget anual:</span>
@@ -358,7 +359,7 @@ const OrganizationDetailsPage: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <span className="text-gray-500 text-sm">Sector de activitate:</span>
-                            <div className="font-medium">{organization?.industry_sector || '-'}</div>
+                            <div className="font-medium">{organization?.industrySector || '-'}</div>
                         </div>
                         <div>
                             <span className="text-gray-500 text-sm">Țară:</span>
@@ -374,7 +375,7 @@ const OrganizationDetailsPage: React.FC = () => {
                         </div>
                         <div>
                             <span className="text-gray-500 text-sm">Cod poștal:</span>
-                            <div className="font-medium">{organization?.postal_code || '-'}</div>
+                            <div className="font-medium">{organization?.postalCode || '-'}</div>
                         </div>
                     </div>
                 </Card>
@@ -391,12 +392,8 @@ const OrganizationDetailsPage: React.FC = () => {
     };
 
     const handleCreateUser = async (data: any): Promise<void> => {
-        try {
-            await userService.create(data);
-            showToast.success('Utilizator creat cu succes!');
-        } catch (error) {
-            throw error;
-        }
+        await userService.create(data);
+        showToast.success('Utilizator creat cu succes!');
     };
 
     const renderTeamContent = () => {
@@ -475,11 +472,12 @@ const OrganizationDetailsPage: React.FC = () => {
         
         try {
             await organizationService.update(organization.id, {
-                tax_exempt_status: false
+                taxExemptStatus: false
             });
             showToast.success("Configurările TVA au fost salvate");
         } catch (error) {
-            showToast.error("Eroare la salvarea configurărilor TVA");
+            const errorMessage = error instanceof Error ? error.message : 'Eroare la salvarea configurărilor TVA'
+            showToast.error(errorMessage);
         }
     };
 
@@ -488,14 +486,15 @@ const OrganizationDetailsPage: React.FC = () => {
         
         try {
             await organizationService.update(organization.id, {
-                membership_fee_employee: membershipFees.employee,
-                membership_fee_volunteer: membershipFees.volunteer,
-                membership_fee_member: membershipFees.member,
-                fee_grace_period_days: gracePeriodDays
+                membershipFeeEmployee: membershipFees.employee,
+                membershipFeeVolunteer: membershipFees.volunteer,
+                membershipFeeMember: membershipFees.member,
+                feeGracePeriodDays: gracePeriodDays
             });
             showToast.success("Cotizațiile membrilor au fost salvate");
         } catch (error) {
-            showToast.error("Eroare la salvarea cotizațiilor");
+            const errorMessage = error instanceof Error ? error.message : 'Eroare la salvarea cotizațiilor'
+            showToast.error(errorMessage);
         }
     };
 

@@ -1,55 +1,50 @@
-﻿import { DynamicFormConfig, FieldType, SelectOption } from "@/types/form.types.ts";
-import { ExpenseCategory, UnitType } from "@/types/project-expense.types.ts";
-import {TransactionStatus} from "@/types/transaction.types.ts";
-import {Activity} from "@/types/activity.types.ts";
+﻿import {
+    Activity,
+    DynamicFormConfig,
+    ExpenseCategory, FieldType,
+    SelectOption,
+    Unit, Vat
+} from "@/types/index.types.ts";
+import {t} from "i18next";
 
 const getExpenseCategoryOptions = (): SelectOption[] => [
-    { value: ExpenseCategory.PERSONNEL, label: 'Personal' },
-    { value: ExpenseCategory.EQUIPMENT, label: 'Echipamente' },
-    { value: ExpenseCategory.MATERIALS, label: 'Materiale' },
-    { value: ExpenseCategory.SERVICES, label: 'Servicii' },
-    { value: ExpenseCategory.TRAVEL, label: 'Deplasări' },
-    { value: ExpenseCategory.UTILITIES, label: 'Utilități' },
-    { value: ExpenseCategory.MARKETING, label: 'Marketing' },
-    { value: ExpenseCategory.ADMINISTRATIVE, label: 'Administrative' },
-    { value: ExpenseCategory.OTHER, label: 'Altele' }
+    { value: ExpenseCategory.PERSONNEL, label: t('label.expense_category.personnel') },
+    { value: ExpenseCategory.EQUIPMENT, label: t('label.expense_category.equipment') },
+    { value: ExpenseCategory.MATERIALS, label: t('label.expense_category.materials') },
+    { value: ExpenseCategory.SERVICES, label: t('label.expense_category.services') },
+    { value: ExpenseCategory.TRAVEL, label: t('label.expense_category.travel') },
+    { value: ExpenseCategory.UTILITIES, label: t('label.expense_category.utilities') },
+    { value: ExpenseCategory.MARKETING, label: t('label.expense_category.marketing') },
+    { value: ExpenseCategory.ADMINISTRATIVE, label: t('label.expense_category.administrative') },
+    { value: ExpenseCategory.OTHER, label: t('label.expense_category.other') }
 ];
 
 const getUnitTypeOptions = (): SelectOption[] => [
-    { value: UnitType.HOUR, label: 'Oră' },
-    { value: UnitType.DAY, label: 'Zi' },
-    { value: UnitType.NUMBER, label: 'Bucată' },
-    { value: UnitType.BATCH, label: 'Lot' }
+    { value: Unit.HOUR, label: t('label.unit_type.hour') },
+    { value: Unit.DAY, label: t('label.unit_type.day') },
+    { value: Unit.NUMBER, label: t('label.unit_type.number') },
+    { value: Unit.BATCH, label: t('label.unit_type.batch') }
 ];
 
-const getTransactionStatusOptions = (): SelectOption[] => [
-    { value: TransactionStatus.DRAFT, label: 'Draft' },
-    { value: TransactionStatus.PENDING_APPROVAL, label: 'În aprobare' },
-    { value: TransactionStatus.APPROVED, label: 'Aprobat' },
-    { value: TransactionStatus.PAID, label: 'Plătit' },
-    { value: TransactionStatus.REJECTED, label: 'Respins' },
-    { value: TransactionStatus.CANCELLED, label: 'Anulat' }
-];
-
-export const createProjectExpenseFormConfig = (activities: Activity[] = []): DynamicFormConfig => ({
+export const createProjectExpenseFormConfig = (activities: Activity[] = [], vats: Vat[]): DynamicFormConfig => ({
     sections: [
         {
-            title: "Informații cheltuială",
+            title: t('form.project_expense.section_info'),
             columns: 1,
             fields: [
                 {
                     name: 'project',
-                    label: 'Proiect',
+                    label: t('label.project_expense.project'),
                     type: FieldType.HIDDEN,
                     required: true
                 },
                 {
                     name: 'activity',
-                    label: 'Activitate',
+                    label: t('label.project_expense.activity'),
                     type: FieldType.SELECT,
-                    required: true,
+                    required: false,
                     options: [
-                        { value: '', label: 'Selectează activitatea' },
+                        { value: '', label: t('label.project_expense.select_activity') },
                         ...activities.map(activity => ({
                             value: activity.id,
                             label: activity.title
@@ -57,16 +52,29 @@ export const createProjectExpenseFormConfig = (activities: Activity[] = []): Dyn
                     ]
                 },
                 {
+                    name: 'vat',
+                    label: t('label.project_expense.vat'),
+                    type: FieldType.SELECT,
+                    required: true,
+                    options: [
+                        { value: '', label: t('label.project_expense.select_vat') },
+                        ...vats.map(vat => ({
+                            value: vat.id,
+                            label: vat.name
+                        }))
+                    ]
+                },
+                {
                     name: 'name',
-                    label: 'Nume cheltuială',
+                    label: t('label.project_expense.name'),
                     type: FieldType.TEXT,
-                    placeholder: 'ex: Materiale de birou',
+                    placeholder: t('label.project_expense.name_placeholder'),
                     required: true,
                     maxLength: 255
                 },
                 {
                     name: 'category',
-                    label: 'Categorie',
+                    label: t('label.project_expense.category'),
                     type: FieldType.SELECT,
                     required: true,
                     options: getExpenseCategoryOptions()
@@ -74,60 +82,104 @@ export const createProjectExpenseFormConfig = (activities: Activity[] = []): Dyn
             ]
         },
         {
-            title: "Detalii financiare",
+            title: t('form.project_expense.section_financial'),
             columns: 2,
             fields: [
                 {
                     name: 'unitType',
-                    label: 'Tip unitate',
+                    label: t('label.project_expense.unit_type'),
                     type: FieldType.SELECT,
                     required: true,
                     options: getUnitTypeOptions()
                 },
                 {
                     name: 'quantity',
-                    label: 'Cantitate',
+                    label: t('label.project_expense.quantity'),
                     type: FieldType.NUMBER,
-                    placeholder: 'ex: 10',
+                    placeholder: t('label.project_expense.quantity_placeholder'),
                     required: true,
                     min: 0,
                     step: 0.01
                 },
                 {
                     name: 'unitPrice',
-                    label: 'Preț unitar',
+                    label: t('label.project_expense.unit_price'),
                     type: FieldType.NUMBER,
-                    placeholder: 'ex: 150',
+                    placeholder: t('label.project_expense.unit_price_placeholder'),
                     required: true,
                     min: 0,
                     step: 0.01
                 },
                 {
                     name: 'currency',
-                    label: 'Moneda',
+                    label: t('label.project_expense.currency'),
                     type: FieldType.SELECT,
                     required: true,
                     options: [
-                        { value: 'RON', label: 'Lei Românești (RON)' },
-                        { value: 'EUR', label: 'Euro (EUR)' },
-                        { value: 'USD', label: 'Dolari Americani (USD)' }
+                        { value: 'RON', label: t('label.currency.ron') },
+                        { value: 'EUR', label: t('label.currency.eur') },
+                        { value: 'USD', label: t('label.currency.usd') }
                     ]
-                },
-                {
-                    name: 'status',
-                    label: 'Status',
-                    type: FieldType.SELECT,
-                    required: true,
-                    options: getTransactionStatusOptions()
                 }
             ]
         }
     ],
-    submitButtonText: 'Adaugă cheltuială',
-    cancelButtonText: 'Anulează'
+    submitButtonText: t('form.project_expense.submit_create'),
+    cancelButtonText: t('form.project_expense.cancel')
 });
 
-export const updateProjectExpenseFormConfig = (activities: Activity[] = []): DynamicFormConfig => ({
-    ...createProjectExpenseFormConfig(activities),
-    submitButtonText: 'Actualizează cheltuială'
+export const updateProjectExpenseFormConfig = (activities: Activity[] = [], vats: Vat[]): DynamicFormConfig => ({
+    ...createProjectExpenseFormConfig(activities, vats),
+    submitButtonText: t('form.project_expense.submit_update')
+});
+
+export const executeProjectExpenseFormConfig = (vats: Vat[]): DynamicFormConfig => ({
+    sections: [
+        {
+            title: t('form.project_expense.section_execute'),
+            columns: 1,
+            fields: [
+                {
+                    name: 'vat',
+                    label: t('label.project_expense.vat'),
+                    type: FieldType.SELECT,
+                    required: true,
+                    options: [
+                        { value: '', label: t('label.project_expense.select_vat') },
+                        ...vats.map(vat => ({
+                            value: vat.id,
+                            label: vat.name
+                        }))
+                    ]
+                },
+                {
+                    name: 'quantity',
+                    label: t('label.project_expense.quantity'),
+                    type: FieldType.NUMBER,
+                    placeholder: t('label.project_expense.quantity_placeholder'),
+                    required: true,
+                    min: 0,
+                    step: 0.01
+                },
+                {
+                    name: 'unitPrice',
+                    label: t('label.project_expense.unit_price'),
+                    type: FieldType.NUMBER,
+                    placeholder: t('label.project_expense.unit_price_placeholder'),
+                    required: true,
+                    min: 0,
+                    step: 0.01
+                },
+                {
+                    name: 'date',
+                    label: t('label.project_expense.execution_date'),
+                    type: FieldType.DATE,
+                    placeholder: t('label.project_expense.execution_date'),
+                    required: true
+                }
+            ]
+        }
+    ],
+    submitButtonText: t('form.project_expense.submit_execute'),
+    cancelButtonText: t('form.project_expense.cancel')
 });

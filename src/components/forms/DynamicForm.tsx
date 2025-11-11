@@ -4,6 +4,7 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {DynamicFormField} from "@/components/forms/DynamicFormField.tsx";
 import {ModalButton} from "@/components/ui/ModalButton";
 import {DynamicFormConfig} from "@/types/form.types.ts";
+import {useEffect, useRef} from "react";
 
 interface DynamicFormProps<TFormData extends FieldValues> {
     config: DynamicFormConfig;
@@ -14,6 +15,7 @@ interface DynamicFormProps<TFormData extends FieldValues> {
     isSubmitting?: boolean;
     className?: string;
     hideFooter?: boolean;
+    onChange?: (values: Partial<TFormData>) => void;
 }
 
 export function DynamicForm<TFormData extends FieldValues>({
@@ -24,7 +26,8 @@ export function DynamicForm<TFormData extends FieldValues>({
                                                                defaultValues,
                                                                isSubmitting = false,
                                                                className = '',
-                                                               hideFooter = false
+                                                               hideFooter = false,
+                                                               onChange
                                                            }: DynamicFormProps<TFormData>) {
     const {
         control,
@@ -38,6 +41,18 @@ export function DynamicForm<TFormData extends FieldValues>({
     });
 
     const formValues = watch();
+    const previousValuesRef = useRef<Partial<TFormData>>(defaultValues);
+
+    useEffect(() => {
+        if (onChange) {
+            const valuesChanged = JSON.stringify(formValues) !== JSON.stringify(previousValuesRef.current);
+
+            if (valuesChanged) {
+                previousValuesRef.current = formValues;
+                onChange(formValues);
+            }
+        }
+    }, [formValues]);
 
     const getGridClasses = (columns?: number): string => {
         switch (columns) {

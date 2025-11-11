@@ -2,7 +2,7 @@ import { apiService } from '@/services/api.service';
 import { OrganizationMember, OrganizationMemberWithDetails } from '@/types/organization-member.types';
 
 export const organizationMemberService = {
-    getList: async (): Promise<{ organization_members_list: OrganizationMemberWithDetails[] }> => {
+    getList: async (): Promise<{ organizationMembersList: OrganizationMemberWithDetails[] }> => {
         return apiService.get('organization-members/list');
     },
 

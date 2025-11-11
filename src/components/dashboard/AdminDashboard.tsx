@@ -4,7 +4,7 @@ import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import { User, TableColumn, TableAction } from '@/types/index.types';
 import { Organization } from '@/types/organization.types';
 import { useTranslation } from 'react-i18next';
-import Table from '@/components/ui/Table';
+import DataTable from "@/components/ui/DataTable.tsx";
 
 interface AdminDashboardProps {
     searchTerm: string;
@@ -152,7 +152,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             )
         },
         {
-            key: 'adminUserId',
+            key: 'adminUser',
             label: 'Administrator',
             sortable: false,
             render: (adminUserId: string) => (
@@ -289,7 +289,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
                     </div>
                     
-                    <Table<User>
+                    <DataTable<User>
                         data={filteredMembers}
                         columns={getUserColumns()}
                         actions={getUserActions()}
@@ -297,7 +297,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         emptyMessage="Nu au fost găsiți administratori de organizații în sistem. Folosește butonul de mai sus pentru a crea primul utilizator."
                         showFilters={false}
                         showPagination={false}
-                        className=""
                     />
                 </div>
             ) : (
@@ -329,7 +328,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
                     </div>
                     
-                    <Table<Organization>
+                    <DataTable<Organization>
                         data={filteredOrganizations}
                         columns={getOrganizationColumns()}
                         actions={getOrganizationActions()}

@@ -39,7 +39,9 @@ export interface Activity extends BaseEntity {
     observation?: string;
     results?: string;
     indicators?: string;
-    totalActivityExpensesAmount?: number;
+    totalActivityExpensesAmount: number;
+    totalFundsAmount: number;
+    totalDonationsAmount: number;
 }
 
 export interface ActivityCreateRequest {
@@ -58,7 +60,19 @@ export interface ActivityCreateRequest {
     indicators?: string;
 }
 
-export interface ActivityUpdateRequest extends Partial<ActivityCreateRequest> {}
+export interface ActivityUpdateRequest extends Partial<ActivityCreateRequest> {
+    id: string;
+}
+
+export interface ActivityChangeStatusRequest {
+    id: string;
+    status: ActivityStatus;
+}
+
+export interface ActivityCompleteRequest {
+    id: string;
+    endingDate: string;
+}
 
 export interface ActivityStats {
     totalActivities: number;
