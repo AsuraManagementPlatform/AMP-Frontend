@@ -23,11 +23,11 @@ export const organizationMemberService = {
     },
 
     deactivateMember: async (id: string): Promise<void> => {
-        return apiService.put(`organization-members/update/${id}`, { status: 'INACTIVE' });
+        return apiService.post(`organization-members/deactivate/${id}`, {});
     },
 
     reactivateMember: async (id: string): Promise<void> => {
-        return apiService.put(`organization-members/update/${id}`, { status: 'ACTIVE' });
+        return apiService.post(`organization-members/reactivate/${id}`, {});
     },
 };
 
