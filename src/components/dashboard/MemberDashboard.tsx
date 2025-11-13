@@ -1,20 +1,22 @@
 import React, { useState, useContext } from 'react';
+import { useNavigate } from "react-router-dom";
+import { useQueryClient, useQuery } from '@tanstack/react-query';
+import { t } from 'i18next';
 import { Card } from '@/components/ui/Card';
 import { Project, Activity, User, TableColumn } from '@/types/index.types';
 import toast from 'react-hot-toast';
 import { MyCotizatii } from './MyCotizatii';
 import DataTable from "@/components/ui/DataTable.tsx";
 import {ROUTES} from "@/utils/constants.utils.ts";
-import {useNavigate} from "react-router-dom";
 import { CreateCommunicationModal } from '@/components/modals/communication/CreateCommunicationModal';
 import { CreateActivityProposalModal } from '@/components/modals/activity-proposal/CreateActivityProposalModal';
 import { ViewCommunicationModal } from '@/components/modals/communication/ViewCommunicationModal';
 import { DirectSponsorshipModal } from '@/components/modals/sponsorship/DirectSponsorshipModal';
 import { AuthContext } from '@/context/Auth.context';
-import { useQueryClient, useQuery } from '@tanstack/react-query';
 import userService from '@/services/user.service';
 import communicationService from '@/services/communication.service';
 import { Communication } from '@/types/communication.types';
+import { apiService } from '@/services/api.service';
 
 interface MemberDashboardProps {
     user: User | null;
@@ -23,11 +25,6 @@ interface MemberDashboardProps {
     projectsLoading: boolean;
     activitiesLoading: boolean;
 }
-
-const MOCK_SURVEYS = [
-    { id: '1', title: 'Sondaj satisfacție membri 2025', deadline: '2025-03-30', status: 'ACTIVE', completed: false },
-    { id: '2', title: 'Feedback proiect X', deadline: '2025-03-25', status: 'ACTIVE', completed: false },
-];
 
 export const MemberDashboard: React.FC<MemberDashboardProps> = ({
     user,
@@ -47,6 +44,11 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
     const { data: communicationsData } = useQuery({
         queryKey: ['communications'],
         queryFn: () => communicationService.getList()
+    });
+
+    const { data: activeSurveys = [] } = useQuery({
+        queryKey: ['active-surveys'],
+        queryFn: () => apiService.getActiveSurveyQuestions()
     });
 
     const { data: unreadData } = useQuery({
@@ -138,13 +140,14 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
         }
     ];
 
-    const handleDownloadCertificate = () => {
-        toast.success('Certificatul va fi descărcat în curând...');
-    };
+    // Handlers for hidden cards - commented out for now
+    // const handleDownloadCertificate = () => {
+    //     toast.success('Certificatul va fi descărcat în curând...');
+    // };
 
-    const handleUploadCV = () => {
-        toast('Funcția de încărcare CV va fi disponibilă în curând', { icon: 'ℹ️' });
-    };
+    // const handleUploadCV = () => {
+    //     toast('Funcția de încărcare CV va fi disponibilă în curând', { icon: 'ℹ️' });
+    // };
 
     const handleSponsor = () => {
         setShowSponsorshipModal(true);
@@ -184,13 +187,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
     };
 
     const getStatusLabel = (status: string) => {
-        const labels: Record<string, string> = {
-            'PENDING': 'ÎN AȘTEPTARE',
-            'IN_PROGRESS': 'ÎN PROGRES',
-            'RESOLVED': 'REZOLVAT',
-            'CLOSED': 'ÎNCHIS'
-        };
-        return labels[status] || status;
+        return t(`label.communication.status.${status.toLowerCase()}`);
     };
 
     const handleProjectRowClick = (project: Project) => {
@@ -298,19 +295,38 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Sondaje active care așteaptă răspunsul tău</p>
                         <div className="bg-purple-50 p-3 rounded-lg">
-                            <div className="text-2xl font-bold text-purple-600">{MOCK_SURVEYS.length}</div>
+                            <div className="text-2xl font-bold text-purple-600">
+                                {activeSurveys.filter((s: any) => new Date(s.endDate) >= new Date()).length}
+                            </div>
                             <div className="text-xs text-gray-600">sondaje active</div>
                         </div>
                         <div className="space-y-2">
-                            {MOCK_SURVEYS.slice(0, 1).map((survey) => (
-                                <div key={survey.id} className="text-sm p-2 bg-gray-50 rounded">
-                                    <div className="font-medium">{survey.title}</div>
-                                    <div className="text-xs text-gray-600">Deadline: {survey.deadline}</div>
-                                </div>
-                            ))}
+                            {activeSurveys
+                                .filter((s: any) => new Date(s.endDate) >= new Date())
+                                .slice(0, 1)
+                                .map((survey: any) => (
+                                    <div key={survey.id} className="text-sm p-2 bg-gray-50 rounded cursor-pointer hover:bg-gray-100" onClick={() => navigate(`/sondaje/${survey.id}`)}>
+                                        <div className="font-medium">{survey.title}</div>
+                                        <div className="text-xs text-gray-600">Deadline: {new Date(survey.endDate).toLocaleDateString('ro-RO')}</div>
+                                    </div>
+                                ))
+                            }
+                            {activeSurveys
+                                .filter((s: any) => new Date(s.endDate) < new Date())
+                                .slice(0, 1)
+                                .map((survey: any) => (
+                                    <div key={survey.id} className="text-sm p-2 bg-red-50 border border-red-200 rounded cursor-pointer hover:bg-red-100" onClick={() => navigate(`/sondaje/${survey.id}`)}>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-red-500">🔴</span>
+                                            <div className="font-medium text-red-700">{survey.title}</div>
+                                        </div>
+                                        <div className="text-xs text-red-600">Expirat: {new Date(survey.endDate).toLocaleDateString('ro-RO')}</div>
+                                    </div>
+                                ))
+                            }
                         </div>
                         <button 
-                            onClick={() => toast.success('Modulul de sondaje va fi disponibil în curând')}
+                            onClick={() => navigate('/sondaje')}
                             className="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm font-medium"
                         >
                             Participă la sondaje
@@ -318,7 +334,8 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     </div>
                 </Card>
 
-                {/* 3. Certificate Download */}
+                {/* 3. Certificate Download - HIDDEN FOR NOW */}
+                {/* 
                 <Card title="📜 Adeverințe" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Descarcă adeverințe membru sau voluntar</p>
@@ -342,8 +359,10 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                         </div>
                     </div>
                 </Card>
+                */}
 
-                {/* 4. CV/Skills Upload */}
+                {/* 4. CV/Skills Upload - HIDDEN FOR NOW */}
+                {/* 
                 <Card title="📋 CV & Competențe" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Încarcă CV-ul și competențele tale</p>
@@ -369,6 +388,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                         </div>
                     </div>
                 </Card>
+                */}
 
                 {/* 5. Messages/Requests */}
                 <Card title="✉️ Mesaje" className="hover:shadow-lg transition-shadow">

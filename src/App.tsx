@@ -25,6 +25,7 @@ const ProjectPage = lazy(() => import("@/pages/project/Project.page.tsx"));
 const MembershipFeesPage = lazy(() => import("@/pages/MembershipFees.page"));
 const TeamManagementPage = lazy(() => import("@/pages/organization/TeamManagement.page"));
 const Vats = lazy(() => import("@/pages/vat/Vats.page"));
+const SondajePage = lazy(() => import('./pages/Surveys.page'));
 
 const LoadingFallback = () => (
     <div className="flex items-center justify-center h-screen">
@@ -141,6 +142,16 @@ function App() {
                                             element={
                                                 <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN, UserGroup.EMPLOYEE, UserGroup.MEMBER, UserGroup.VOLUNTEER]}>
                                                     <Calendar />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+
+                                        {/* Sondaje */}
+                                        <Route
+                                            path="/sondaje/*"
+                                            element={
+                                                <ProtectedRoute allowedRoles={[UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN, UserGroup.EMPLOYEE, UserGroup.MEMBER, UserGroup.VOLUNTEER]}>
+                                                    <SondajePage />
                                                 </ProtectedRoute>
                                             }
                                         />

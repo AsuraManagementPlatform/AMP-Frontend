@@ -1,11 +1,12 @@
-export type EventType = 'CALENDAR_NOTE' | 'VOTE_SCHEDULING' | 'MEETING' | 'EVENT' | 'ADMIN_NOTIFICATION';
+export type EventType = 'CALENDAR_NOTE' | 'VOTE_SCHEDULING' | 'MEETING' | 'EVENT' | 'ADMIN_NOTIFICATION' | 'SURVEY';
 
 export const EventTypeOptions: { value: EventType; label: string; color: string }[] = [
     { value: 'CALENDAR_NOTE', label: 'Notă calendar', color: 'blue' },
     { value: 'VOTE_SCHEDULING', label: 'Programare vot', color: 'purple' },
     { value: 'MEETING', label: 'Întâlnire', color: 'green' },
     { value: 'EVENT', label: 'Eveniment', color: 'orange' },
-    { value: 'ADMIN_NOTIFICATION', label: 'Notificare administratori', color: 'red' }
+    { value: 'ADMIN_NOTIFICATION', label: 'Notificare administratori', color: 'red' },
+    { value: 'SURVEY', label: 'Sondaj', color: 'indigo' }
 ];
 
 export type EventPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
@@ -42,22 +43,23 @@ export interface CalendarEvent {
     id: string;
     title: string;
     description?: string;
-    start_date: string;
-    end_date: string;
-    event_type: EventType;
+    startDate: string;
+    endDate: string;
+    eventType: EventType;
     priority: EventPriority;
     location?: string;
     attendees?: string[];
-    all_day: boolean;
-    is_recurring: boolean;
-    recurrence_pattern?: RecurrencePattern;
-    recurrence_duration_months?: number | null;
-    reminder_minutes?: number;
-    created_by?: string;
-    organization_id: string;
-    is_organization_event: boolean;
-    created_at: string;
-    updated_at: string;
+    allDay: boolean;
+    isRecurring: boolean;
+    recurrencePattern?: RecurrencePattern;
+    recurrenceDurationMonths?: number | null;
+    reminderMinutes?: number;
+    createdBy?: string;
+    organizationId: string;
+    isOrganizationEvent: boolean;
+    createdAt: string;
+    updatedAt: string;
+    relatedSurveyQuestion?: string;
 }
 
 export interface CreateEventData {
@@ -83,11 +85,11 @@ export interface UpdateEventData extends Partial<CreateEventData> {
 }
 
 export interface CalendarFilters {
-    start_date?: string;
-    end_date?: string;
-    event_type?: EventType;
+    startDate?: string;
+    endDate?: string;
+    eventType?: EventType;
     priority?: EventPriority;
-    organization_id?: string;
+    organizationId?: string;
 }
 
 export interface CalendarViewMode {

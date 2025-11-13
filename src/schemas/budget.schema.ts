@@ -52,8 +52,7 @@ export const createBudgetItemSchema = z.object({
 });
 
 export const createProjectBudgetSchema = z.object({
-    projectId: z.string()
-        .min(1, 'ID-ul proiectului este obligatoriu'),
+    projectId: z.uuid('ID-ul proiectului trebuie să fie valid'),
     
     currency: z.string()
         .min(3, 'Moneda trebuie să aibă cel puțin 3 caractere')

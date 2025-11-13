@@ -39,18 +39,23 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
 
     useEffect(() => {
         const markAsRead = async () => {
-            if (isOpen && communication && !communication.isReadByRecipient && !markedAsRead) {
+            if (!isOpen || !communication || markedAsRead || !currentUserId) return;
+            
+            const shouldMarkAsRead = 
+                (communication.recipient === currentUserId && !communication.isReadByRecipient) ||
+                (communication.sender === currentUserId && communication.unreadCountForSender > 0);
+            
+            if (shouldMarkAsRead) {
                 try {
                     await communicationService.markAsRead(communication.id);
                     setMarkedAsRead(true);
                 } catch (error: any) {
-                    console.error('Failed to mark as read:', error);
                 }
             }
         };
 
         markAsRead();
-    }, [isOpen, communication?.id, communication?.isReadByRecipient, markedAsRead]);
+    }, [isOpen, communication?.id, communication?.isReadByRecipient, communication?.unreadCountForSender, markedAsRead, currentUserId]);
 
     if (!communication) return null;
 

@@ -4,12 +4,8 @@ import {EngagementLevel, ProjectPartner} from "@/types/project-partner.types.ts"
 export const ENGAGEMENT_LEVEL_TYPES = Object.values(EngagementLevel);
 
 export const createProjectPartnerSchema = z.object({
-    project: z.string()
-        .min(1, 'Proiectul este obligatoriu'),
-
-    entity: z.string()
-        .min(1, 'Entitatea este obligatoriu'),
-
+    project: z.uuid('Proiectul este obligatoriu'),
+    entity: z.uuid('Entitatea este obligatorie'),
     engagementLevel: z.enum(ENGAGEMENT_LEVEL_TYPES as [EngagementLevel, ...EngagementLevel[]], {
         message: 'Engagement selectat nu este valid'
     }).default(EngagementLevel.NONE),

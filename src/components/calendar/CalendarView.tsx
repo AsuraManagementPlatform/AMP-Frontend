@@ -43,20 +43,74 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         return days;
     }, [currentDate]);
 
-    const getEventsForDate = (date: Date | null): CalendarEvent[] => {
-        if (!date) return [];
+    // Grupează evenimentele pe rânduri pentru a le afișa ca bare continue
+    const getEventRows = useMemo(() => {
+        interface EventRow {
+            event: CalendarEvent;
+            startCol: number;
+            span: number;
+            row: number;
+        }
         
-        return events.filter(event => {
-            const eventStart = new Date(event.start_date);
-            const eventEnd = new Date(event.end_date);
+        const rows: EventRow[] = [];
+        const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        
+        // Calculăm offset-ul primei zile (câte celule goale sunt înainte)
+        const firstDayOfWeek = (monthStart.getDay() + 6) % 7;
+        
+        events.forEach(event => {
+            if (!event.startDate || !event.endDate) return;
             
-            const dateStr = date.toDateString();
-            const startStr = eventStart.toDateString();
-            const endStr = eventEnd.toDateString();
+            const eventStart = new Date(event.startDate);
+            const eventEnd = new Date(event.endDate);
             
-            return dateStr === startStr || dateStr === endStr || (date > eventStart && date < eventEnd);
+            // Normalizare date
+            eventStart.setHours(0, 0, 0, 0);
+            eventEnd.setHours(0, 0, 0, 0);
+            
+            // Doar evenimentele care se suprapun cu luna curentă
+            if (eventEnd < monthStart || eventStart > monthEnd) return;
+            
+            // Calculăm start și end relative la calendar
+            const displayStart = eventStart < monthStart ? monthStart : eventStart;
+            const displayEnd = eventEnd > monthEnd ? monthEnd : eventEnd;
+            
+            // Calculăm poziția în grid
+            const dayOfMonth = displayStart.getDate() - 1; // 0-indexed
+            const startCol = (firstDayOfWeek + dayOfMonth) % 7;
+            const startRow = Math.floor((firstDayOfWeek + dayOfMonth) / 7);
+            
+            const spanDays = Math.ceil((displayEnd.getTime() - displayStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            const daysUntilEndOfWeek = 7 - startCol;
+            const span = Math.min(spanDays, daysUntilEndOfWeek);
+            
+            rows.push({
+                event,
+                startCol: startCol + 1, // CSS grid is 1-indexed
+                span,
+                row: startRow + 2 // +1 for header row, +1 for 1-indexing
+            });
+            
+            // Dacă evenimentul continuă pe săptămâna următoare
+            let remainingDays = spanDays - span;
+            let currentRow = startRow + 1;
+            
+            while (remainingDays > 0) {
+                const currentSpan = Math.min(remainingDays, 7);
+                rows.push({
+                    event,
+                    startCol: 1,
+                    span: currentSpan,
+                    row: currentRow + 2,
+                });
+                remainingDays -= currentSpan;
+                currentRow++;
+            }
         });
-    };
+        
+        return rows;
+    }, [events, currentDate]);
 
     const isToday = (date: Date | null): boolean => {
         if (!date) return false;
@@ -107,62 +161,78 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             </div>
 
             <div className="p-4">
-                <div className="grid grid-cols-7 gap-px bg-gray-200 border border-gray-200 rounded-lg overflow-hidden">
-                    {dayNames.map(day => (
-                        <div key={day} className="bg-gray-50 p-2 text-center text-sm font-medium text-gray-700">
-                            {day}
-                        </div>
-                    ))}
-                    
-                    {calendarDays.map((date, index) => {
-                        const dayEvents = getEventsForDate(date);
-                        const isCurrentDay = isToday(date);
+                <div className="relative">
+                    <div className="grid grid-cols-7 gap-px bg-gray-200 border border-gray-200 rounded-lg overflow-hidden">
+                        {dayNames.map(day => (
+                            <div key={day} className="bg-gray-50 p-2 text-center text-sm font-medium text-gray-700">
+                                {day}
+                            </div>
+                        ))}
                         
-                        return (
-                            <div
-                                key={index}
-                                className={`bg-white min-h-32 p-2 ${
-                                    date ? 'cursor-pointer hover:bg-gray-50' : ''
-                                } ${isCurrentDay ? 'bg-orange-50' : ''}`}
-                                onClick={() => date && onDateClick(date)}
-                            >
-                                {date && (
-                                    <>
-                                        <div className={`text-sm font-medium mb-1 ${
+                        {calendarDays.map((date, index) => {
+                            const isCurrentDay = isToday(date);
+                            
+                            return (
+                                <div
+                                    key={index}
+                                    className={`bg-white min-h-32 p-2 relative ${
+                                        date ? 'cursor-pointer hover:bg-gray-50' : ''
+                                    } ${isCurrentDay ? 'bg-orange-50' : ''}`}
+                                    onClick={() => date && onDateClick(date)}
+                                    style={{ gridRow: Math.floor(index / 7) + 2 }}
+                                >
+                                    {date && (
+                                        <div className={`text-sm font-medium ${
                                             isCurrentDay ? 'text-orange-600' : 'text-gray-900'
                                         }`}>
                                             {date.getDate()}
                                         </div>
-                                        <div className="space-y-1">
-                                            {dayEvents.slice(0, 3).map(event => (
-                                                <div
-                                                    key={event.id}
-                                                    className={`text-xs p-1 rounded truncate cursor-pointer ${
-                                                        event.priority === 'URGENT' ? 'bg-red-100 text-red-800' :
-                                                        event.priority === 'HIGH' ? 'bg-orange-100 text-orange-800' :
-                                                        event.priority === 'MEDIUM' ? 'bg-blue-100 text-blue-800' :
-                                                        'bg-gray-100 text-gray-800'
-                                                    }`}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        onEventClick(event);
-                                                    }}
-                                                    title={`${event.title} - ${getEventTypeLabel(event.event_type)}`}
-                                                >
-                                                    {event.title}
-                                                </div>
-                                            ))}
-                                            {dayEvents.length > 3 && (
-                                                <div className="text-xs text-gray-500">
-                                                    +{dayEvents.length - 3} mai mult
-                                                </div>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        );
-                    })}
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                    
+                    {/* Layer pentru evenimente ca bare continue */}
+                    <div className="absolute inset-0 pointer-events-none" style={{ top: '52px' }}>
+                        <div className="grid grid-cols-7 gap-px h-full">
+                            {getEventRows.map((eventRow, idx) => (
+                                <div
+                                    key={`${eventRow.event.id}-${idx}`}
+                                    className="pointer-events-auto cursor-pointer text-xs px-2 py-1 rounded flex items-center gap-1"
+                                    style={{
+                                        gridColumn: `${eventRow.startCol} / span ${eventRow.span}`,
+                                        gridRow: eventRow.row,
+                                        marginTop: `${(idx % 3) * 24}px`,
+                                        height: '20px',
+                                        backgroundColor: 
+                                            eventRow.event.eventType === 'SURVEY' ? '#e0e7ff' :
+                                            eventRow.event.eventType === 'MEETING' ? '#dcfce7' :
+                                            eventRow.event.eventType === 'EVENT' ? '#fed7aa' :
+                                            eventRow.event.eventType === 'VOTE_SCHEDULING' ? '#f3e8ff' : '#dbeafe',
+                                        borderLeft: `3px solid ${
+                                            eventRow.event.eventType === 'SURVEY' ? '#6366f1' :
+                                            eventRow.event.eventType === 'MEETING' ? '#22c55e' :
+                                            eventRow.event.eventType === 'EVENT' ? '#f97316' :
+                                            eventRow.event.eventType === 'VOTE_SCHEDULING' ? '#a855f7' : '#3b82f6'
+                                        }`,
+                                        color: 
+                                            eventRow.event.eventType === 'SURVEY' ? '#3730a3' :
+                                            eventRow.event.eventType === 'MEETING' ? '#166534' :
+                                            eventRow.event.eventType === 'EVENT' ? '#9a3412' :
+                                            eventRow.event.eventType === 'VOTE_SCHEDULING' ? '#6b21a8' : '#1e40af'
+                                    }}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onEventClick(eventRow.event);
+                                    }}
+                                    title={`${eventRow.event.title} - ${getEventTypeLabel(eventRow.event.eventType)}`}
+                                >
+                                    <span className="truncate flex-1">{eventRow.event.title}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

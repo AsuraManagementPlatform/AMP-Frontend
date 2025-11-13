@@ -7,47 +7,47 @@ export const createEventSchema = z.object({
     description: z.string()
         .max(1000, 'Descrierea nu poate depăși 1000 de caractere')
         .optional(),
-    start_date: z.string()
+    startDate: z.string()
         .min(1, 'Data de început este obligatorie'),
-    end_date: z.string()
+    endDate: z.string()
         .min(1, 'Data de sfârșit este obligatorie'),
-    event_type: z.enum(['CALENDAR_NOTE', 'VOTE_SCHEDULING', 'MEETING', 'EVENT', 'ADMIN_NOTIFICATION']),
+    eventType: z.enum(['CALENDAR_NOTE', 'VOTE_SCHEDULING', 'MEETING', 'EVENT', 'ADMIN_NOTIFICATION', 'SURVEY']),
     priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
     location: z.string()
         .max(200, 'Locația nu poate depăși 200 de caractere')
         .optional(),
     attendees: z.array(z.string().email('Email invalid')).optional(),
-    all_day: z.boolean(),
-    is_recurring: z.boolean().optional(),
-    recurrence_pattern: z.enum(['NONE', 'DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'YEARLY']).optional(),
-    recurrence_duration_months: z.number()
+    allDay: z.boolean(),
+    isRecurring: z.boolean().optional(),
+    recurrencePattern: z.enum(['NONE', 'DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'YEARLY']).optional(),
+    recurrenceDurationMonths: z.number()
         .int('Durata trebuie să fie un număr întreg de luni')
         .min(1, 'Durata trebuie să fie cel puțin 1 lună')
         .max(120, 'Durata nu poate depăși 120 luni (10 ani)')
         .nullable()
         .optional(),
-    reminder_minutes: z.number()
+    reminderMinutes: z.number()
         .int('Numărul de minute trebuie să fie întreg')
         .min(0, 'Numărul de minute trebuie să fie pozitiv')
         .max(10080, 'Numărul de minute nu poate depăși 1 săptămână')
         .optional(),
-    organization_id: z.string().uuid('ID organizație invalid').optional(),
-    is_organization_event: z.boolean().optional()
+    organizationId: z.string().uuid('ID organizație invalid').optional(),
+    isOrganizationEvent: z.boolean().optional()
 }).refine((data) => {
-    const start = new Date(data.start_date);
-    const end = new Date(data.end_date);
+    const start = new Date(data.startDate);
+    const end = new Date(data.endDate);
     return end >= start;
 }, {
     message: 'Data de sfârșit trebuie să fie după data de început',
-    path: ['end_date']
+    path: ['endDate']
 }).refine((data) => {
-    if (data.is_recurring && (!data.recurrence_pattern || data.recurrence_pattern === 'NONE')) {
+    if (data.isRecurring && (!data.recurrencePattern || data.recurrencePattern === 'NONE')) {
         return false;
     }
     return true;
 }, {
     message: 'Trebuie să selectezi un pattern de recurență pentru evenimentele recurente',
-    path: ['recurrence_pattern']
+    path: ['recurrencePattern']
 });
 
 export const updateEventSchema = createEventSchema.partial().extend({

@@ -118,7 +118,6 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                 setTotalPaidFunds(paidTotal);
                 setTotalRemainingFunds(remainingTotal);
             } catch (error) {
-                console.error('Error fetching fund stats:', error);
             } finally {
                 setLoadingStats(false);
             }

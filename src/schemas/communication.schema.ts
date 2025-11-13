@@ -6,8 +6,8 @@ export const COMMUNICATION_PRIORITIES = Object.values(CommunicationPriority);
 
 export const createCommunicationSchema = z.object({
     type: z.enum(COMMUNICATION_TYPES as [UserCommunicationType, ...UserCommunicationType[]]),
-    recipient: z.string().min(1, 'Destinatarul este obligatoriu'),
-    organization: z.string().min(1, 'Organizația este obligatorie'),
+    recipient: z.uuid('Destinatarul este obligatoriu'),
+    organization: z.uuid('Organizația este obligatorie'),
     subject: z.string()
         .min(3, 'Subiectul trebuie să conțină cel puțin 3 caractere')
         .max(255, 'Subiectul nu poate depăși 255 de caractere'),
@@ -15,8 +15,8 @@ export const createCommunicationSchema = z.object({
         .min(10, 'Mesajul trebuie să conțină cel puțin 10 caractere')
         .max(2000, 'Mesajul nu poate depăși 2000 de caractere'),
     priority: z.enum(COMMUNICATION_PRIORITIES as [CommunicationPriority, ...CommunicationPriority[]]).optional(),
-    relatedProject: z.string().optional(),
-    relatedActivity: z.string().optional(),
+    relatedProject: z.uuid('Proiectul asociat este invalid').optional(),
+    relatedActivity: z.uuid('Activitatea asociată este invalidă').optional(),
 });
 
 export type CreateCommunicationData = z.infer<typeof createCommunicationSchema>;

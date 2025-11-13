@@ -36,11 +36,6 @@ export const CreateCommunicationModal: React.FC<CreateCommunicationModalProps> =
     const authContext = useContext(AuthContext);
     const isOrganizationAdmin = authContext?.user?.groups?.includes('organization_admin') || false;
 
-    console.log('=== CreateCommunicationModal Debug ===');
-    console.log('admins prop:', admins);
-    console.log('admins length:', admins.length);
-    console.log('isOrganizationAdmin:', isOrganizationAdmin);
-
     useEffect(() => {
         if (!isOpen) {
             setIsSubmitting(false);
@@ -62,15 +57,11 @@ export const CreateCommunicationModal: React.FC<CreateCommunicationModalProps> =
                 relatedActivity: data.relatedActivity
             };
 
-            console.log('=== Sending Communication Request ===');
-            console.log('communicationCreateRequest:', communicationCreateRequest);
-
             await communicationService.create(communicationCreateRequest);
             showToast.success('Mesajul a fost trimis cu succes!');
             onSuccess();
             onClose();
         } catch (error: any) {
-            console.error('=== Communication Create Error ===', error);
             showToast.error(error.message || 'Nu s-a putut trimite mesajul. Încercați din nou.');
         } finally {
             setIsSubmitting(false);
@@ -83,10 +74,6 @@ export const CreateCommunicationModal: React.FC<CreateCommunicationModalProps> =
     const firstAdminId = firstAdmin ? String(firstAdmin.value) : '';
 
     const defaultValues = getDefaultCommunicationValues(organizationId, firstAdminId);
-
-    console.log('defaultValues for form:', defaultValues);
-    console.log('firstAdmin:', firstAdmin);
-    console.log('firstAdminId:', firstAdminId);
 
     return (
         <Modal

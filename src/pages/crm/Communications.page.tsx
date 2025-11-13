@@ -89,6 +89,20 @@ const CommunicationsPage: React.FC = () => {
         queryClient.invalidateQueries({ queryKey: ['communications-unread-count'] });
     };
 
+    const isUnreadForCurrentUser = (comm: Communication): boolean => {
+        if (!user?.id) return false;
+        
+        if (comm.recipient === user.id) {
+            return !comm.isReadByRecipient;
+        }
+        
+        if (comm.sender === user.id) {
+            return comm.unreadCountForSender > 0;
+        }
+        
+        return false;
+    };
+
     const toggleDeleteMode = () => {
         setIsDeleteMode(!isDeleteMode);
         setSelectedMessages(new Set());
@@ -198,14 +212,14 @@ const CommunicationsPage: React.FC = () => {
                                 ) : (
                                     <>
                                         <Button 
-                                            className="bg-red-600 hover:bg-red-700 text-white"
+                                            className="!bg-red-600 hover:!bg-red-700 !text-white font-bold text-base px-6 shadow-md"
                                             onClick={handleDeleteMultiple}
                                             disabled={selectedMessages.size === 0 || isDeletingMultiple}
                                         >
-                                            {isDeletingMultiple ? 'Se șterge...' : `Șterge (${selectedMessages.size})`}
+                                            {isDeletingMultiple ? 'Se șterge...' : `🗑️ Șterge (${selectedMessages.size})`}
                                         </Button>
                                         <Button 
-                                            variant="outline"
+                                            className="!bg-white !border-2 !border-gray-400 !text-gray-800 hover:!bg-gray-100 font-semibold px-6"
                                             onClick={toggleDeleteMode}
                                             disabled={isDeletingMultiple}
                                         >
@@ -291,13 +305,22 @@ const CommunicationsPage: React.FC = () => {
                         ) : communications.length > 0 ? (
                             <div className="space-y-4">
                                 {communications.map((comm: Communication) => (
-                                    <div key={comm.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                                    <div 
+                                        key={comm.id} 
+                                        className={`border rounded-lg p-4 transition-colors ${
+                                            isDeleteMode 
+                                                ? 'hover:bg-gray-50' 
+                                                : 'hover:bg-gray-50 cursor-pointer'
+                                        }`}
+                                        onClick={() => !isDeleteMode && handleViewCommunication(comm)}
+                                    >
                                         <div className="flex items-start gap-3">
                                             {isDeleteMode && (
                                                 <input
                                                     type="checkbox"
                                                     checked={selectedMessages.has(comm.id)}
                                                     onChange={() => toggleMessageSelection(comm.id)}
+                                                    onClick={(e) => e.stopPropagation()}
                                                     className="mt-1 w-5 h-5 text-orange-500 border-gray-300 rounded focus:ring-orange-500 cursor-pointer"
                                                 />
                                             )}
@@ -312,20 +335,11 @@ const CommunicationsPage: React.FC = () => {
                                                     <span className="text-xs text-gray-500">
                                                         {comm.messageCount} mesaj{comm.messageCount !== 1 ? 'e' : ''}
                                                     </span>
-                                                    {!comm.isReadByRecipient && comm.status !== 'CLOSED' && (
+                                                    {isUnreadForCurrentUser(comm) && (
                                                         <span className="text-xs font-semibold text-red-600">NOU</span>
                                                     )}
                                                 </div>
                                             </div>
-                                            {!isDeleteMode && (
-                                                <Button 
-                                                    variant="outline" 
-                                                    size="sm"
-                                                    onClick={() => handleViewCommunication(comm)}
-                                                >
-                                                    Vizualizare
-                                                </Button>
-                                            )}
                                         </div>
                                     </div>
                                 ))}

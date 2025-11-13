@@ -4,8 +4,7 @@ import {DocumentType} from '@/types/organization-document.types';
 export const DOCUMENT_TYPES = Object.values(DocumentType);
 
 export const createOrganizationDocumentSchema = z.object({
-    organization: z.string()
-        .min(1, 'Organizația este obligatorie'),
+    organization: z.uuid('Organizația este obligatorie'),
 
     name: z.string()
         .min(2, 'Numele trebuie să aibă cel puțin 2 caractere')
@@ -56,7 +55,7 @@ export const createOrganizationDocumentSchema = z.object({
 export type CreateOrganizationDocumentData = z.infer<typeof createOrganizationDocumentSchema>;
 
 export const updateOrganizationDocumentSchema = z.object({
-    organization: z.string()
+    organization: z.uuid('Organizația este obligatorie')
         .optional()
         .or(z.literal('')),
 

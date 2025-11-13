@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const createActivityProposalSchema = z.object({
-    project: z.string().min(1, 'Proiectul este obligatoriu'),
-    organization: z.string().min(1, 'Organizația este obligatorie'),
+    project: z.uuid('Proiectul este obligatoriu'),
+    organization: z.uuid('Organizația este obligatorie'),
     activityTitle: z.string()
         .min(3, 'Titlul trebuie să conțină cel puțin 3 caractere')
         .max(255, 'Titlul nu poate depăși 255 de caractere'),

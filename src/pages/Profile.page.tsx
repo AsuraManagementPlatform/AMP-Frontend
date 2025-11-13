@@ -59,7 +59,6 @@ export const ProfilePage: React.FC = () => {
                 setUserProjects(projects);
             }
         } catch (error) {
-            console.error('Error loading projects:', error);
         }
     };
 
