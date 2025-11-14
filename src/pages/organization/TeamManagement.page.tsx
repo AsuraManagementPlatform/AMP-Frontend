@@ -1,24 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Layout from '@/components/layout/Layout';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import showToast from '@/components/ui/Toast';
+import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useAuth } from '@/hooks/useAuth';
 import { ROUTES } from '@/utils/constants.utils';
 import { OrganizationMemberWithDetails, OrganizationMemberType, OrganizationMemberStatus } from '@/types/organization-member.types';
 import { organizationMemberService } from '@/services/organization-member.service';
 import { CreateUserModal } from '@/components/modals/user/CreateUserModal';
+import { EditUserModal } from '@/components/modals/user/EditUserModal';
 import { userService } from '@/services/user.service';
+import { UserCreateRequest } from '@/schemas/user.schema';
+import { UserMeResponse } from '@/types/user.types';
 
 const TeamManagementPage: React.FC = () => {
     const { organizationId } = useParams<{ organizationId: string }>();
     const navigate = useNavigate();
+    const { t } = useTranslation();
+    const confirm = useConfirmDialog();
+    const { user: currentUser } = useAuth();
     const [teamMembers, setTeamMembers] = useState<OrganizationMemberWithDetails[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterRole, setFilterRole] = useState<string>('all');
     const [filterStatus, setFilterStatus] = useState<string>('all');
     const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
+    const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<UserMeResponse | null>(null);
+    const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
     useEffect(() => {
         loadTeamMembers();
@@ -29,39 +41,59 @@ const TeamManagementPage: React.FC = () => {
         
         try {
             setIsLoading(true);
-            const response = await organizationMemberService.getList();
-            const filtered = (response.organizationMembersList || []).filter(
-                m => m.organization === organizationId
-            );
-            
-            setTeamMembers(filtered);
-        } catch (error) {
-            showToast.error('Eroare la încărcarea membrilor echipei');
+            const response = await organizationMemberService.getList(organizationId);
+            setTeamMembers(response.organizationMembersList || []);
+        } catch (error: any) {
+            const message = error?.message || t('toast.organization_member.load_error');
+            const translatedMessage = message.includes('.') ? t(message) : message;
+            showToast.error(translatedMessage);
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleToggleMemberStatus = async (memberId: string, currentStatus: OrganizationMemberStatus) => {
+        if (currentUser?.id === memberId && currentStatus === OrganizationMemberStatus.ACTIVE) {
+            showToast.error(t('toast.organization_member.cannot_deactivate_self'));
+            return;
+        }
+        
         const newStatus = currentStatus === OrganizationMemberStatus.ACTIVE 
             ? OrganizationMemberStatus.INACTIVE 
             : OrganizationMemberStatus.ACTIVE;
-        const action = newStatus === OrganizationMemberStatus.ACTIVE ? 'activat' : 'dezactivat';
         
-        if (!window.confirm(`Sigur doriți să ${action === 'activat' ? 'activați' : 'dezactivați'} acest membru?`)) {
+        const confirmMessage = newStatus === OrganizationMemberStatus.ACTIVE 
+            ? t('label.organization_member.confirm_activate')
+            : t('label.organization_member.confirm_deactivate');
+        
+        const confirmed = await confirm({
+            message: confirmMessage,
+            title: 'Confirmare',
+            confirmText: 'OK',
+            cancelText: 'Cancel',
+            confirmButtonVariant: 'danger'
+        });
+        
+        if (!confirmed) {
             return;
         }
 
         try {
             if (newStatus === OrganizationMemberStatus.ACTIVE) {
-                await organizationMemberService.reactivateMember(memberId);
+                await organizationMemberService.activateMember(memberId);
+                showToast.success(t('toast.organization_member.activated'));
             } else {
                 await organizationMemberService.deactivateMember(memberId);
+                showToast.success(t('toast.organization_member.deactivated'));
             }
-            showToast.success(`Membrul a fost ${action} cu succes`);
             loadTeamMembers();
-        } catch (error) {
-            showToast.error(`Nu s-a putut ${action === 'activat' ? 'activa' : 'dezactiva'} membrul`);
+        } catch (error: any) {
+            const errorKey = newStatus === OrganizationMemberStatus.ACTIVE 
+                ? 'toast.organization_member.activate_error'
+                : 'toast.organization_member.deactivate_error';
+            const message = error?.message || t(errorKey);
+            const translatedMessage = message.includes('.') ? t(message) : message;
+            showToast.error(translatedMessage);
         }
     };
 
@@ -78,6 +110,91 @@ const TeamManagementPage: React.FC = () => {
             await userService.create(data);
             showToast.success('Utilizator creat cu succes!');
             loadTeamMembers();
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const handleOpenEditUser = async (member: OrganizationMemberWithDetails) => {
+        try {
+            const fullUserData = await userService.getById(member.member);
+            const userMeResponse: UserMeResponse = {
+                id: fullUserData.id,
+                fullName: fullUserData.fullName,
+                firstName: fullUserData.firstName,
+                lastName: fullUserData.lastName,
+                email: fullUserData.email,
+                cnp: fullUserData.cnp,
+                personalNumericalNumber: fullUserData.personalNumericalNumber,
+                isLegalEntity: fullUserData.isLegalEntity || false,
+                companyNumber: fullUserData.companyNumber,
+                companyName: fullUserData.companyName,
+                cui: fullUserData.cui,
+                phoneNumber: fullUserData.phoneNumber,
+                secondaryPhone: fullUserData.secondaryPhone,
+                address: fullUserData.address,
+                city: fullUserData.city,
+                county: fullUserData.county,
+                postalCode: fullUserData.postalCode,
+                country: fullUserData.country,
+                groups: Array.isArray(fullUserData.groups) 
+                    ? fullUserData.groups 
+                    : [fullUserData.groups].filter(Boolean),
+                status: fullUserData.status as any,
+                organizationId: fullUserData.organizationId,
+                lastLogin: fullUserData.lastLogin,
+                registrationDate: fullUserData.registrationDate,
+                isActive: fullUserData.isActive,
+                profession: fullUserData.profession,
+                bio: fullUserData.bio
+            };
+            setSelectedUser(userMeResponse);
+            setSelectedMemberId(member.member);
+            setIsEditUserModalOpen(true);
+        } catch (error: any) {
+            const message = error?.message || 'Eroare la încărcarea datelor utilizatorului';
+            showToast.error(message);
+        }
+    };
+
+    const handleCloseEditUser = () => {
+        setIsEditUserModalOpen(false);
+        setSelectedUser(null);
+        setSelectedMemberId(null);
+    };
+
+    const handleEditUser = async (data: UserCreateRequest): Promise<void> => {
+        if (!selectedUser || !selectedMemberId) return;
+
+        const oldEmail = selectedUser.email;
+
+        try {
+            await userService.update(selectedMemberId, data);
+            showToast.success('Utilizator actualizat cu succes!');
+            
+            const shouldResetPassword = oldEmail !== data.email;
+            
+            if (shouldResetPassword) {
+                const confirmed = await confirm({
+                    message: 'Email-ul a fost modificat. Doriți să trimiteți email cu parola nouă?',
+                    title: 'Resetare parolă',
+                    confirmText: 'Da, trimite email',
+                    cancelText: 'Nu acum'
+                });
+
+                if (confirmed) {
+                    try {
+                        const result = await userService.resetPassword(selectedMemberId);
+                        showToast.success(`Email cu parola nouă trimis la ${result.email}`);
+                    } catch (error: any) {
+                        const message = error?.message || 'Eroare la trimiterea email-ului cu parola';
+                        showToast.error(message);
+                    }
+                }
+            }
+
+            loadTeamMembers();
+            handleCloseEditUser();
         } catch (error) {
             throw error;
         }
@@ -126,15 +243,21 @@ const TeamManagementPage: React.FC = () => {
         );
     };
 
-    const filteredMembers = teamMembers.filter(member => {
-        const matchesSearch = searchTerm === '' || 
-            (member.memberDetails?.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            member.memberDetails?.email.toLowerCase().includes(searchTerm.toLowerCase()));
-        const matchesRole = filterRole === 'all' || member.type === filterRole;
-        const matchesStatus = filterStatus === 'all' || member.status === filterStatus;
-        
-        return matchesSearch && matchesRole && matchesStatus;
-    });
+    const filteredMembers = teamMembers
+        .filter(member => {
+            const matchesSearch = searchTerm === '' || 
+                (member.memberDetails?.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                member.memberDetails?.email.toLowerCase().includes(searchTerm.toLowerCase()));
+            const matchesRole = filterRole === 'all' || member.type === filterRole;
+            const matchesStatus = filterStatus === 'all' || member.status === filterStatus;
+            
+            return matchesSearch && matchesRole && matchesStatus;
+        })
+        .sort((a, b) => {
+            if (a.member === currentUser?.id) return -1;
+            if (b.member === currentUser?.id) return 1;
+            return 0;
+        });
 
     const getStats = () => {
         const employees = teamMembers.filter(m => m.type === OrganizationMemberType.EMPLOYEE).length;
@@ -304,21 +427,30 @@ const TeamManagementPage: React.FC = () => {
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     <div className="flex gap-2">
-                                                        <Button
+                                                        <button
                                                             onClick={() => handleViewMemberDetails(member.member)}
-                                                            variant="outline"
-                                                            size="sm"
+                                                            className="px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
                                                         >
                                                             Detalii
-                                                        </Button>
-                                                        <Button
-                                                            onClick={() => handleToggleMemberStatus(member.id, member.status)}
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className={member.status === OrganizationMemberStatus.ACTIVE ? 'text-red-600 hover:text-red-700' : 'text-green-600 hover:text-green-700'}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleOpenEditUser(member)}
+                                                            className="px-3 py-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-md transition-colors"
                                                         >
-                                                            {member.status === OrganizationMemberStatus.ACTIVE ? 'Dezactivează' : 'Activează'}
-                                                        </Button>
+                                                            Editează
+                                                        </button>
+                                                        {member.member !== currentUser?.id && (
+                                                            <button
+                                                                onClick={() => handleToggleMemberStatus(member.id, member.status)}
+                                                                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                                                                    member.status === OrganizationMemberStatus.ACTIVE 
+                                                                        ? 'text-red-600 hover:text-red-700 hover:bg-red-50' 
+                                                                        : 'text-green-600 hover:text-green-700 hover:bg-green-50'
+                                                                }`}
+                                                            >
+                                                                {member.status === OrganizationMemberStatus.ACTIVE ? 'Dezactivează' : 'Activează'}
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -342,6 +474,16 @@ const TeamManagementPage: React.FC = () => {
                     onSubmit={handleCreateUser}
                     isOrgAdmin={true}
                 />
+
+                {selectedUser && (
+                    <EditUserModal
+                        isOpen={isEditUserModalOpen}
+                        onClose={handleCloseEditUser}
+                        onSubmit={handleEditUser}
+                        user={selectedUser}
+                        isOrgAdmin={true}
+                    />
+                )}
             </div>
         </Layout>
     );
