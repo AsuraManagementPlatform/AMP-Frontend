@@ -89,6 +89,7 @@ export const DynamicFormField: React.FC<DynamicFormFieldProps> = ({
                 return (
                     <select
                         {...fieldProps}
+                        value={fieldProps.value ?? ''}
                         disabled={field.disabled}
                         multiple={selectField.multiple}
                         className={`${baseSelectClasses} ${field.className || ''}`}

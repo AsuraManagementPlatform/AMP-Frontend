@@ -117,31 +117,37 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
         }
 
         const memberGroups = (selectedMember.groups || []).map((g: string) => g.toUpperCase());
+        const isAdmin = memberGroups.includes('ORGANIZATION_ADMIN') || selectedMember.groups?.includes('organization_admin');
         const rateOptions = [];
         
-        const employeeFee = parseFloat(organizationData.membershipFeeEmployee || '0');
-        const volunteerFee = parseFloat(organizationData.membershipFeeVolunteer || '0');
-        const memberFee = parseFloat(organizationData.membershipFeeMember || '0');
+        if (!isAdmin) {
+            const employeeFee = parseFloat(organizationData.membershipFeeEmployee || '0');
+            const volunteerFee = parseFloat(organizationData.membershipFeeVolunteer || '0');
+            const memberFee = parseFloat(organizationData.membershipFeeMember || '0');
 
-        if (memberGroups.includes('EMPLOYEE') && employeeFee > 0) {
-            rateOptions.push({
-                value: RateType.EMPLOYEE,
-                label: `Angajat - ${employeeFee.toFixed(2)} RON/lună`
-            });
-        }
-        
-        if (memberGroups.includes('VOLUNTEER') && volunteerFee > 0) {
-            rateOptions.push({
-                value: RateType.VOLUNTEER,
-                label: `Voluntar - ${volunteerFee.toFixed(2)} RON/lună`
-            });
-        }
-        
-        if (memberGroups.includes('MEMBER') && memberFee > 0) {
-            rateOptions.push({
-                value: RateType.MEMBER,
-                label: `Membru - ${memberFee.toFixed(2)} RON/lună`
-            });
+            if (memberGroups.includes('EMPLOYEE') && employeeFee > 0) {
+                const monthlyRate = (employeeFee / 12).toFixed(2);
+                rateOptions.push({
+                    value: RateType.EMPLOYEE,
+                    label: `Angajat - ${monthlyRate} RON/lună`
+                });
+            }
+            
+            if (memberGroups.includes('VOLUNTEER') && volunteerFee > 0) {
+                const monthlyRate = (volunteerFee / 12).toFixed(2);
+                rateOptions.push({
+                    value: RateType.VOLUNTEER,
+                    label: `Voluntar - ${monthlyRate} RON/lună`
+                });
+            }
+            
+            if (memberGroups.includes('MEMBER') && memberFee > 0) {
+                const monthlyRate = (memberFee / 12).toFixed(2);
+                rateOptions.push({
+                    value: RateType.MEMBER,
+                    label: `Membru - ${monthlyRate} RON/lună`
+                });
+            }
         }
 
         rateOptions.push({

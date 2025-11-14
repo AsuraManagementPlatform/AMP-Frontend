@@ -180,7 +180,7 @@ export const MyCotizatii: React.FC = () => {
                                             Dată plată
                                         </th>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Scadență
+                                            Scadență maximă
                                         </th>
                                         <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Acțiuni

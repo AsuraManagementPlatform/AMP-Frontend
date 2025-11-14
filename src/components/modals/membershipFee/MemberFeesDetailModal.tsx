@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import { SecondaryButton } from '@/components/ui/SecondaryButton';
-import { ActionButton } from '@/components/ui/ActionButton';
-import { ActionButtonGroup } from '@/components/ui/ActionButtonGroup';
 import { MembershipFee, MembershipFeeStatus } from '@/types/membershipFee.types';
 import { membershipFeeService } from '@/services/membershipFee.service';
 import showToast from '@/components/ui/Toast';
@@ -11,9 +9,12 @@ import toast from 'react-hot-toast';
 import { CreateMembershipFeeModal } from './CreateMembershipFeeModal';
 import { UpdateMembershipFeeModal } from './UpdateMembershipFeeModal';
 import { ProcessPaymentModal } from './ProcessPaymentModal';
+import { useAuth } from '@/hooks/useAuth';
+import { UserGroup } from '@/types/index.types';
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
 import IconWallet from "@/assets/icons/iconmonstr-wallet.svg?react";
+import IconDone from "@/assets/icons/iconmonstr-done.svg?react";
 
 interface MemberFeesDetailModalProps {
     isOpen: boolean;
@@ -32,6 +33,7 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
     fees,
     onRefresh
 }) => {
+    const { hasAnyUserGroup } = useAuth();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isProcessPaymentModalOpen, setIsProcessPaymentModalOpen] = useState(false);
@@ -39,28 +41,13 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
     const [selectedFee, setSelectedFee] = useState<MembershipFee | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
 
-    useEffect(() => {
-        const checkAndGenerateRenewals = async () => {
-            if (!isOpen || !memberId) return;
-
-            try {
-                const result = await membershipFeeService.autoCheckRenewal(memberId);
-                
-                if (result.shouldRefresh && result.renewalsCreated.length > 0) {
-                    showToast.success(`${result.renewalsCreated.length} cotizație nouă generată automat`);
-                    onRefresh();
-                }
-            } catch (error: any) {
-                console.error('Error checking renewals:', error);
-            }
-        };
-
-        checkAndGenerateRenewals();
-    }, [isOpen, memberId, onRefresh]);
+    const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
     const sortedFees = [...fees].sort((a, b) => 
         new Date(b.startedFrom).getTime() - new Date(a.startedFrom).getTime()
     );
+
+    const latestFee = sortedFees.length > 0 ? sortedFees[0] : null;
 
     const totalPaid = fees
         .filter(f => f.status === MembershipFeeStatus.PAID)
@@ -212,13 +199,16 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
                         <h3 className="text-lg font-semibold text-gray-900">
                             Lista cotizațiilor ({sortedFees.length})
                         </h3>
-                        <PrimaryActionButton
-                            variant="create"
-                            onClick={handleGenerateNext}
-                            disabled={isGenerating}
-                        >
-                            {isGenerating ? 'Se generează...' : 'Adaugă cotizație'}
-                        </PrimaryActionButton>
+                        {isOrgAdmin && (
+                            <PrimaryActionButton
+                                variant="create"
+                                onClick={handleGenerateNext}
+                                disabled={isGenerating}
+                                className="!border-0"
+                            >
+                                {isGenerating ? 'Se generează...' : 'Plătește în avans'}
+                            </PrimaryActionButton>
+                        )}
                     </div>
 
                     <div className="overflow-x-auto">
@@ -241,7 +231,7 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
                                         Data plății
                                     </th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
-                                        Scadență
+                                        Scadență maximă
                                     </th>
                                     <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">
                                         Acțiuni
@@ -289,30 +279,44 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <ActionButtonGroup>
-                                                    <ActionButton
-                                                        variant="edit"
-                                                        icon={IconEdit}
-                                                        onClick={() => handleEdit(fee)}
-                                                        title="Editează"
-                                                    />
-                                                    {(fee.status === MembershipFeeStatus.PENDING || 
-                                                      fee.status === MembershipFeeStatus.PENDING_VERIFICATION ||
-                                                      fee.status === MembershipFeeStatus.OVERDUE) && (
-                                                        <ActionButton
-                                                            variant="payment"
-                                                            icon={IconWallet}
-                                                            onClick={() => handleProcessPayment(fee)}
-                                                            title={fee.status === MembershipFeeStatus.PENDING_VERIFICATION ? 'Validează plată' : 'Procesează plată'}
-                                                        />
+                                                <div className="flex items-center justify-center gap-2">
+                                                    {isOrgAdmin && fee.id === latestFee?.id && fee.status !== MembershipFeeStatus.PENDING_VERIFICATION && fee.status !== MembershipFeeStatus.PAID && (
+                                                        <button
+                                                            onClick={() => handleEdit(fee)}
+                                                            className="p-1.5 text-orange-500 hover:text-orange-700 hover:bg-orange-50 rounded transition-colors"
+                                                            title="Editează"
+                                                        >
+                                                            <IconEdit className="w-5 h-5" />
+                                                        </button>
                                                     )}
-                                                    <ActionButton
-                                                        variant="delete"
-                                                        icon={IconDelete}
-                                                        onClick={() => handleDelete(fee.id)}
-                                                        title="Șterge"
-                                                    />
-                                                </ActionButtonGroup>
+                                                    {fee.status === MembershipFeeStatus.PENDING && (
+                                                        <button
+                                                            onClick={() => handleProcessPayment(fee)}
+                                                            className="p-1.5 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded transition-colors"
+                                                            title="Plătește"
+                                                        >
+                                                            <IconWallet className="w-5 h-5" />
+                                                        </button>
+                                                    )}
+                                                    {isOrgAdmin && fee.status === MembershipFeeStatus.PENDING_VERIFICATION && (
+                                                        <button
+                                                            onClick={() => handleProcessPayment(fee)}
+                                                            className="p-1.5 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded transition-colors"
+                                                            title="Validează plată"
+                                                        >
+                                                            <IconDone className="w-5 h-5" />
+                                                        </button>
+                                                    )}
+                                                    {isOrgAdmin && (
+                                                        <button
+                                                            onClick={() => handleDelete(fee.id)}
+                                                            className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
+                                                            title="Șterge"
+                                                        >
+                                                            <IconDelete className="w-5 h-5" />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))

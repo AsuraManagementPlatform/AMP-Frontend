@@ -63,10 +63,24 @@ const MembershipFeesPage: React.FC = () => {
 
         fees.forEach(fee => {
             if (!memberMap.has(fee.memberId)) {
+                const memberGroups = fee.memberGroups || [];
+                const isAdmin = memberGroups.includes('organization_admin') || memberGroups.includes('ORGANIZATION_ADMIN');
+                const isEmployee = memberGroups.includes('EMPLOYEE');
+                const isVolunteer = memberGroups.includes('VOLUNTEER');
+                
+                let displayType: 'EMPLOYEE' | 'VOLUNTEER' | 'MEMBER' | 'ADMIN' = 'MEMBER';
+                if (isAdmin) {
+                    displayType = 'ADMIN';
+                } else if (isEmployee) {
+                    displayType = 'EMPLOYEE';
+                } else if (isVolunteer) {
+                    displayType = 'VOLUNTEER';
+                }
+                
                 memberMap.set(fee.memberId, {
                     memberId: fee.memberId,
                     memberName: fee.memberName || 'Nume necunoscut',
-                    memberType: 'MEMBER',
+                    memberType: displayType,
                     totalPaid: 0,
                     totalPending: 0,
                     totalPendingVerification: 0,
@@ -138,6 +152,16 @@ const MembershipFeesPage: React.FC = () => {
 
     const handleMemberClick = (contributor: MemberContributor) => {
         setSelectedContributor(contributor);
+    };
+
+    const getMemberTypeLabel = (type: 'EMPLOYEE' | 'VOLUNTEER' | 'MEMBER' | 'ADMIN'): string => {
+        const labels: Record<string, string> = {
+            'ADMIN': 'Admin',
+            'EMPLOYEE': 'Angajat',
+            'VOLUNTEER': 'Voluntar',
+            'MEMBER': 'Membru'
+        };
+        return labels[type] || type;
     };
 
     const getStatusBadge = (contributor: MemberContributor) => {
@@ -301,7 +325,7 @@ const MembershipFeesPage: React.FC = () => {
                                                     </div>
                                                     <div className="ml-3">
                                                         <div className="font-medium text-gray-900">{contributor.memberName}</div>
-                                                        <div className="text-sm text-gray-500">{contributor.memberType}</div>
+                                                        <div className="text-sm text-gray-500">{getMemberTypeLabel(contributor.memberType)}</div>
                                                     </div>
                                                 </div>
                                             </td>

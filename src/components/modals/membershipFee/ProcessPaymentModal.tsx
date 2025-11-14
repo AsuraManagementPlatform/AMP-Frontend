@@ -50,7 +50,6 @@ export const ProcessPaymentModal: React.FC<ProcessPaymentModalProps> = ({
             const paymentRequest: MembershipFeePaymentRequest = {
                 payment_method: data.paymentMethod,
                 transaction_reference: data.transactionReference || undefined,
-                payment_date: data.paymentDate || undefined,
                 document_reference: 'documentReference' in data ? data.documentReference || undefined : undefined,
                 processed_by_id: user?.id
             };

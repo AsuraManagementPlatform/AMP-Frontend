@@ -182,7 +182,7 @@ export interface FeeCalculation {
 export interface MemberContributor {
     memberId: string;
     memberName: string;
-    memberType: 'EMPLOYEE' | 'VOLUNTEER' | 'MEMBER';
+    memberType: 'EMPLOYEE' | 'VOLUNTEER' | 'MEMBER' | 'ADMIN';
     totalPaid: number;
     totalPending: number;
     totalPendingVerification: number;
