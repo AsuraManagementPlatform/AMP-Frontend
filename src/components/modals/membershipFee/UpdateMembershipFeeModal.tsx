@@ -7,7 +7,7 @@ import { membershipFeeService } from '@/services/membershipFee.service';
 import { userService } from '@/services/user.service';
 import { organizationService } from '@/services/organization.service';
 import showToast from '@/components/ui/Toast';
-import { MembershipFeeUpdateRequest, MembershipFee, RateType } from '@/types/membershipFee.types';
+import { MembershipFeeUpdateRequest, MembershipFee, RateType, MembershipFeeStatus, RenewPeriod } from '@/types/membershipFee.types';
 import { useAuth } from '@/hooks/useAuth';
 
 interface UpdateMembershipFeeModalProps {
@@ -118,7 +118,7 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
                 }
                 
                 const customAmountField = config.sections[1].fields.find(f => f.name === 'customAmount');
-                if (customAmountField && fee.status === 'PAID') {
+                if (customAmountField && fee.status === MembershipFeeStatus.PAID) {
                     customAmountField.disabled = true;
                     customAmountField.helperText = 'Suma nu poate fi modificată pentru cotizațiile plătite';
                 }
@@ -141,10 +141,10 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
             setIsSubmitting(true);
 
             const multiplier = 
-                data.renewPeriod === 'MONTHLY' ? 1 :
-                data.renewPeriod === 'QUARTERLY' ? 3 :
-                data.renewPeriod === 'SEMI_ANNUAL' ? 6 :
-                data.renewPeriod === 'ANNUAL' ? 12 : 1;
+                data.renewPeriod === RenewPeriod.MONTHLY ? 1 :
+                data.renewPeriod === RenewPeriod.QUARTERLY ? 3 :
+                data.renewPeriod === RenewPeriod.SEMI_ANNUAL ? 6 :
+                data.renewPeriod === RenewPeriod.ANNUAL ? 12 : 1;
             
             const monthlyAmount = data.customAmount || (data.amount / multiplier);
             const totalAmount = monthlyAmount * multiplier;
@@ -179,10 +179,10 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
         const isMember = memberGroups.includes('MEMBER');
         
         const multiplier = 
-            currentFee.renewPeriod === 'MONTHLY' ? 1 :
-            currentFee.renewPeriod === 'QUARTERLY' ? 3 :
-            currentFee.renewPeriod === 'SEMI_ANNUAL' ? 6 :
-            currentFee.renewPeriod === 'ANNUAL' ? 12 : 1;
+            currentFee.renewPeriod === RenewPeriod.MONTHLY ? 1 :
+            currentFee.renewPeriod === RenewPeriod.QUARTERLY ? 3 :
+            currentFee.renewPeriod === RenewPeriod.SEMI_ANNUAL ? 6 :
+            currentFee.renewPeriod === RenewPeriod.ANNUAL ? 12 : 1;
         
         const monthlyAmount = currentFee.amount / multiplier;
         
@@ -210,10 +210,10 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
 
     const calculateMonthlyRate = (fee: MembershipFee): number => {
         const multiplier = 
-            fee.renewPeriod === 'MONTHLY' ? 1 :
-            fee.renewPeriod === 'QUARTERLY' ? 3 :
-            fee.renewPeriod === 'SEMI_ANNUAL' ? 6 :
-            fee.renewPeriod === 'ANNUAL' ? 12 : 1;
+            fee.renewPeriod === RenewPeriod.MONTHLY ? 1 :
+            fee.renewPeriod === RenewPeriod.QUARTERLY ? 3 :
+            fee.renewPeriod === RenewPeriod.SEMI_ANNUAL ? 6 :
+            fee.renewPeriod === RenewPeriod.ANNUAL ? 12 : 1;
         
         return fee.amount / multiplier;
     };
