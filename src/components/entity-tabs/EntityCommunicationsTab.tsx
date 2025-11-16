@@ -9,14 +9,12 @@ import {SelectOption} from "@/types/form.types.ts";
 interface EntityCommunicationsTabProps {
     entityId: string;
     entityName: string;
-    entities?: SelectOption[];
     organizationMembers?: SelectOption[];
 }
 
 export const EntityCommunicationsTab: React.FC<EntityCommunicationsTabProps> = ({
     entityId,
     entityName,
-    entities,
     organizationMembers,
                                                                                 }) => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -55,7 +53,6 @@ export const EntityCommunicationsTab: React.FC<EntityCommunicationsTabProps> = (
                     onClose={() => setIsCreateModalOpen(false)}
                     onSuccess={handleCreateSuccess}
                     entityId={entityId}
-                    entities={entities}
                     organizationMembers={organizationMembers}
                 />
             )}
