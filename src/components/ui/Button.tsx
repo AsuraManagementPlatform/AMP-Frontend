@@ -23,6 +23,8 @@ export const Button: React.FC<ButtonProps> = ({
                                                   disabled,
                                                   ...props
                                               }) => {
+    const hasCustomClassName = className.includes('border-') || className.includes('text-');
+    
     const baseClasses = [
         'relative',
         'inline-flex',
@@ -30,8 +32,8 @@ export const Button: React.FC<ButtonProps> = ({
         'justify-center',
         'font-medium',
         'rounded-lg',
-        'border-2',
-        'border-orange-500',
+        !hasCustomClassName && 'border-2',
+        !hasCustomClassName && 'border-orange-500',
         'transition-all',
         'duration-200',
         'ease-in-out',

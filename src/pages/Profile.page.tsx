@@ -6,10 +6,11 @@ import { userService } from '@/services/user.service';
 import { organizationMemberService } from '@/services/organization-member.service';
 import { toast } from 'react-hot-toast';
 import { getUserRoleLabel } from '@/utils/dashboardUtils';
+import { ROUTES } from '@/utils/constants.utils';
 
 export const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
-    const { userId } = useParams<{ userId: string }>();
+    const { userId, organizationId } = useParams<{ userId: string; organizationId: string }>();
     const [user, setUser] = useState<User | null>(null);
     const [userProjects, setUserProjects] = useState<any[]>([]);
     const [isEditing, setIsEditing] = useState(false);
@@ -110,7 +111,13 @@ export const ProfilePage: React.FC = () => {
         <div className="max-w-5xl mx-auto">
             <div className="mb-4">
                 <button
-                    onClick={() => navigate(-1)}
+                    onClick={() => {
+                        if (organizationId) {
+                            navigate(ROUTES.CRM_ORGANIZATION_TEAM_MANAGEMENT.replace(':organizationId', organizationId));
+                        } else {
+                            navigate(-1);
+                        }
+                    }}
                     className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-orange-500 transition-colors"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

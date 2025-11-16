@@ -2,8 +2,11 @@ import { apiService } from '@/services/api.service';
 import { OrganizationMember, OrganizationMemberWithDetails } from '@/types/organization-member.types';
 
 export const organizationMemberService = {
-    getList: async (): Promise<{ organizationMembersList: OrganizationMemberWithDetails[] }> => {
-        return apiService.get('organization-members/list');
+    getList: async (organizationId?: string): Promise<{ organizationMembersList: OrganizationMemberWithDetails[] }> => {
+        const url = organizationId 
+            ? `organization-members/list?organization=${organizationId}`
+            : 'organization-members/list';
+        return apiService.get(url);
     },
 
     getById: async (id: string): Promise<OrganizationMember> => {
@@ -22,12 +25,12 @@ export const organizationMemberService = {
         return apiService.delete(`organization-members/delete/${id}`);
     },
 
-    deactivateMember: async (id: string): Promise<void> => {
-        return apiService.put(`organization-members/update/${id}`, { status: 'INACTIVE' });
+    activateMember: async (id: string): Promise<void> => {
+        return apiService.post(`user/activate/${id}`, {});
     },
 
-    reactivateMember: async (id: string): Promise<void> => {
-        return apiService.put(`organization-members/update/${id}`, { status: 'ACTIVE' });
+    deactivateMember: async (id: string): Promise<void> => {
+        return apiService.post(`user/deactivate/${id}`, {});
     },
 };
 
