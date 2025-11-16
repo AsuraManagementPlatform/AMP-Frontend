@@ -7,6 +7,7 @@ export const MembershipFeeStatus = {
     PENDING: 'PENDING',
     PENDING_VERIFICATION: 'PENDING_VERIFICATION',
     PAID: 'PAID',
+    PARTIALLY_PAID: 'PARTIALLY_PAID',
     OVERDUE: 'OVERDUE',
     CANCELLED: 'CANCELLED',
     REFUNDED: 'REFUNDED'
@@ -35,6 +36,14 @@ export const PaymentMethod = {
 
 export type PaymentMethod = typeof PaymentMethod[keyof typeof PaymentMethod];
 
+export const PaymentStatus = {
+    PENDING_APPROVAL: 'PENDING_APPROVAL',
+    APPROVED: 'APPROVED',
+    REJECTED: 'REJECTED'
+} as const;
+
+export type PaymentStatus = typeof PaymentStatus[keyof typeof PaymentStatus];
+
 export const RateType = {
     EMPLOYEE: 'EMPLOYEE',
     VOLUNTEER: 'VOLUNTEER',
@@ -43,6 +52,26 @@ export const RateType = {
 } as const;
 
 export type RateType = typeof RateType[keyof typeof RateType];
+
+export interface MembershipFeePayment {
+    id: string;
+    membershipFeeId: string;
+    amount: number;
+    paymentDate: string;
+    paymentProof?: string;
+    paymentProofUrl?: string;
+    paymentMethod?: PaymentMethod;
+    notes?: string;
+    status: PaymentStatus;
+    approvedBy?: string;
+    approvedByName?: string;
+    approvedAt?: string;
+    rejectionReason?: string;
+    processedBy?: string;
+    processedByName?: string;
+    createdAt: string;
+    updatedAt: string;
+}
 
 export interface MembershipFee {
     id: string;
@@ -76,6 +105,12 @@ export interface MembershipFee {
     totalAmountWithCurrency: string;
     gracePeriodDays: number;
     actualDeadline: string;
+    paidAmount: number;
+    remainingAmount: number;
+    paymentProgress: string;
+    finalDeadline: string;
+    isPastFinalDeadline: boolean;
+    payments?: MembershipFeePayment[];
     createdAt: string;
     updatedAt: string;
 }
@@ -83,14 +118,14 @@ export interface MembershipFee {
 export interface MembershipFeeCreateRequest {
     member: string;
     organization?: string;
-    rate_type?: RateType;
+    rateType?: RateType;
     amount?: number;
     currency?: string;
-    renew_period: RenewPeriod;
-    started_from: string;
-    ended_at: string;
-    auto_renew?: boolean;
-    payment_method?: PaymentMethod;
+    renewPeriod?: RenewPeriod;
+    startedFrom?: string;
+    endedAt?: string;
+    paymentMethod?: PaymentMethod;
+    autoRenew?: boolean;
     notes?: string;
 }
 
@@ -116,6 +151,19 @@ export interface MembershipFeePaymentRequest {
     document_reference?: string;
     processed_by_id?: string;
 }
+
+export interface MembershipFeePaymentCreateRequest {
+    amount: number;
+    paymentDate: string;
+    paymentMethod?: PaymentMethod;
+    paymentProof?: File;
+    notes?: string;
+}
+
+export interface MembershipFeePaymentApprovalRequest {
+    rejectionReason?: string;
+}
+
 export interface MembershipFeeDisplayInfo {
     id: string;
     member_name: string;
@@ -182,7 +230,7 @@ export interface FeeCalculation {
 export interface MemberContributor {
     memberId: string;
     memberName: string;
-    memberType: 'EMPLOYEE' | 'VOLUNTEER' | 'MEMBER';
+    memberType: 'EMPLOYEE' | 'VOLUNTEER' | 'MEMBER' | 'ADMIN';
     totalPaid: number;
     totalPending: number;
     totalPendingVerification: number;

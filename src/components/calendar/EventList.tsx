@@ -14,7 +14,9 @@ export const EventList: React.FC<EventListProps> = ({
     onDeleteEvent
 }) => {
     const formatDate = (dateString: string): string => {
+        if (!dateString) return 'Data invalidă';
         const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Data invalidă';
         return new Intl.DateTimeFormat('ro-RO', {
             day: '2-digit',
             month: 'short',
@@ -35,7 +37,7 @@ export const EventList: React.FC<EventListProps> = ({
     };
 
     const sortedEvents = [...events].sort((a, b) => {
-        return new Date(a.start_date).getTime() - new Date(b.start_date).getTime();
+        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
     });
 
     if (events.length === 0) {
@@ -70,7 +72,7 @@ export const EventList: React.FC<EventListProps> = ({
                                         {getPriorityLabel(event.priority)}
                                     </span>
                                     <span className="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded">
-                                        {getEventTypeLabel(event.event_type)}
+                                        {getEventTypeLabel(event.eventType)}
                                     </span>
                                 </div>
 
@@ -84,9 +86,9 @@ export const EventList: React.FC<EventListProps> = ({
                                     <div className="flex items-center gap-1">
                                         <span>📅</span>
                                         <span>
-                                            {formatDate(event.start_date)}
-                                            {!event.all_day && event.end_date !== event.start_date && 
-                                                ` → ${formatDate(event.end_date)}`
+                                            {formatDate(event.startDate)}
+                                            {!event.allDay && event.endDate !== event.startDate && 
+                                                ` → ${formatDate(event.endDate)}`
                                             }
                                         </span>
                                     </div>
@@ -98,27 +100,29 @@ export const EventList: React.FC<EventListProps> = ({
                                         </div>
                                     )}
 
-                                    {event.reminder_minutes && (
+                                    {event.reminderMinutes && (
                                         <div className="flex items-center gap-1">
                                             <span>⏰</span>
-                                            <span>{event.reminder_minutes} min înainte</span>
+                                            <span>{event.reminderMinutes} min înainte</span>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (window.confirm('Sigur doriți să ștergeți acest eveniment?')) {
-                                        onDeleteEvent(event.id);
-                                    }
-                                }}
-                            >
-                                Șterge
-                            </Button>
+                            {event.eventType !== 'SURVEY' && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (window.confirm('Sigur doriți să ștergeți acest eveniment?')) {
+                                            onDeleteEvent(event.id);
+                                        }
+                                    }}
+                                >
+                                    Șterge
+                                </Button>
+                            )}
                         </div>
                     </div>
                 ))}

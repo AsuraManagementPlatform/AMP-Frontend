@@ -2,6 +2,14 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import {ApiError, ApiConfig, PaginatedResponse, ListParams} from '@/types/index.types';
 import {getAuthHeader} from "@/services/keycloak.service";
 import { convertKeysToSnakeCase, convertKeysToCamelCase } from '@/utils/caseConverter';
+import {
+    SurveyQuestion,
+    SurveyQuestionDetail,
+    SurveyQuestionCreate,
+    SurveyResponseSubmit,
+    UserSurveyResponse,
+    SurveyResults
+} from '@/types/survey.types';
 
 export const API_CONFIG: ApiConfig = {
     baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/',
@@ -112,6 +120,46 @@ export class ApiService {
         const url = queryString ? `${endpoint}?${queryString}` : endpoint;
 
         return this.get<PaginatedResponse<T>>(url);
+    }
+
+    async getActiveSurveyQuestions(): Promise<SurveyQuestion[]> {
+        return this.get<SurveyQuestion[]>('survey/questions/active');
+    }
+
+    async getMySurveys(): Promise<SurveyQuestion[]> {
+        return this.get<SurveyQuestion[]>('survey/questions/my-surveys');
+    }
+
+    async getSurveyQuestionDetail(id: string): Promise<SurveyQuestionDetail> {
+        return this.get<SurveyQuestionDetail>(`survey/questions/${id}`);
+    }
+
+    async createSurveyQuestion(data: SurveyQuestionCreate): Promise<SurveyQuestion> {
+        return this.post<SurveyQuestion>('survey/questions/create', data);
+    }
+
+    async deleteSurveyQuestion(id: string): Promise<{ message: string }> {
+        return this.delete<{ message: string }>(`survey/questions/${id}/delete`);
+    }
+
+    async sendSurveyReminder(id: string): Promise<{ message: string }> {
+        return this.post<{ message: string }>(`survey/questions/${id}/reminder`);
+    }
+
+    async publishSurveyQuestion(id: string, notifyMembers: boolean = true): Promise<{ message: string }> {
+        return this.post<{ message: string }>(`survey/questions/${id}/publish`, { notify_members: notifyMembers });
+    }
+
+    async closeSurveyQuestion(id: string): Promise<{ message: string }> {
+        return this.post<{ message: string }>(`survey/questions/${id}/close`);
+    }
+
+    async submitSurveyResponse(id: string, data: SurveyResponseSubmit): Promise<UserSurveyResponse> {
+        return this.post<UserSurveyResponse>(`survey/questions/${id}/submit`, data);
+    }
+
+    async getSurveyResults(id: string): Promise<SurveyResults> {
+        return this.get<SurveyResults>(`survey/questions/${id}/results`);
     }
 }
 

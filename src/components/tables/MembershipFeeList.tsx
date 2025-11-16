@@ -4,13 +4,17 @@ import Table from "@/components/ui/Table.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
 import IconMoneyBag from "@/assets/icons/iconmonstr-money-bag.svg?react";
-import { MembershipFee, MembershipFeeStatus, RenewPeriod } from '@/types/membershipFee.types';
+import IconDone from "@/assets/icons/iconmonstr-done.svg?react";
+import { MembershipFee, MembershipFeeStatus, MembershipFeePayment, RenewPeriod } from '@/types/membershipFee.types';
 import { UpdateMembershipFeeModal } from '@/components/modals/membershipFee/UpdateMembershipFeeModal';
 import { ProcessPaymentModal } from '@/components/modals/membershipFee/ProcessPaymentModal';
+import { ApprovePaymentModal } from '@/components/modals/membershipFee/ApprovePaymentModal';
 import { membershipFeeService } from '@/services/membershipFee.service';
 import showToast from '@/components/ui/Toast';
 import { useConfirmDialog } from "@/components/ui/ConfirmDialog.tsx";
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
+import { useAuth } from '@/hooks/useAuth';
+import { UserGroup } from '@/types/index.types';
 
 interface MembershipFeeListProps {
     organizationId?: string;
@@ -26,10 +30,15 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
     pageSize = 10
 }) => {
     const confirm = useConfirmDialog();
+    const { user, hasAnyUserGroup } = useAuth();
     const [selectedFee, setSelectedFee] = useState<MembershipFee | null>(null);
+    const [selectedPayments, setSelectedPayments] = useState<MembershipFeePayment[]>([]);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
+    
+    const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
     const handleEdit = (fee: MembershipFee) => {
         setSelectedFee(fee);
@@ -39,6 +48,15 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
     const handleProcessPayment = (fee: MembershipFee) => {
         setSelectedFee(fee);
         setIsPaymentModalOpen(true);
+    };
+
+    const handleApprovePayment = (fee: MembershipFee) => {
+        const pendingPayments = fee.payments?.filter(p => p.status === 'PENDING_APPROVAL') || [];
+        if (pendingPayments.length > 0) {
+            setSelectedPayments(pendingPayments);
+            setSelectedFee(fee);
+            setIsApproveModalOpen(true);
+        }
     };
 
     const handleDelete = async (fee: MembershipFee) => {
@@ -217,10 +235,26 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
         return [
             {
                 label: 'Confirmă plata',
+                icon: <IconDone className="w-4 h-4" />,
+                onClick: handleApprovePayment,
+                className: 'text-green-600 hover:text-green-800',
+                show: (fee: MembershipFee) => {
+                    const hasPendingPayments = fee.payments?.some(p => p.status === 'PENDING_APPROVAL');
+                    const isOwnFee = user?.id === fee.memberId;
+                    return isOrgAdmin && hasPendingPayments && !isOwnFee || false;
+                }
+            },
+            {
+                label: 'Plătește',
                 icon: <IconMoneyBag className="w-4 h-4" />,
                 onClick: handleProcessPayment,
-                className: 'text-green-600 hover:text-green-800',
-                show: (fee: MembershipFee) => fee.status === MembershipFeeStatus.PENDING || fee.status === MembershipFeeStatus.OVERDUE
+                className: 'text-emerald-600 hover:text-emerald-800',
+                show: (fee: MembershipFee) => {
+                    const hasPendingPayments = fee.payments?.some(p => p.status === 'PENDING_APPROVAL');
+                    const isOwnFee = user?.id === fee.memberId;
+                    const canPay = (fee.status === MembershipFeeStatus.PENDING || fee.status === MembershipFeeStatus.PARTIALLY_PAID);
+                    return isOwnFee && canPay && !hasPendingPayments || false;
+                }
             },
             {
                 label: 'Editează',
@@ -282,9 +316,24 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
                         memberId={selectedFee.memberId}
                         memberName={selectedFee.memberName || selectedFee.memberId}
                         amount={selectedFee.amount}
+                        remainingAmount={selectedFee.remainingAmount}
                         currency={selectedFee.currency}
                     />
                 </>
+            )}
+
+            {selectedFee && selectedPayments.length > 0 && (
+                <ApprovePaymentModal
+                    isOpen={isApproveModalOpen}
+                    onClose={() => {
+                        setIsApproveModalOpen(false);
+                        setSelectedPayments([]);
+                        setSelectedFee(null);
+                    }}
+                    onSuccess={handlePaymentSuccess}
+                    payments={selectedPayments}
+                    memberName={selectedFee.memberName || selectedFee.memberId}
+                />
             )}
         </>
     );

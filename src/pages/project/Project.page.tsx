@@ -146,7 +146,7 @@ const ProjectPage: React.FC = () => {
                         >
                             Activități
                         </button>
-                        {isProjectResponsible || authContext.hasAllUserGroups([UserGroup.ORGANIZATION_ADMIN]) && (
+                        {(isProjectResponsible || authContext.hasAllUserGroups([UserGroup.ORGANIZATION_ADMIN])) && (
                             <>
                                 <button
                                     onClick={() => setActiveTab('expenses')}

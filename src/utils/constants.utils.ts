@@ -30,6 +30,11 @@ export const ROUTES = {
     // Calendar (Standalone)
     CALENDAR: '/calendar',
 
+    // Sondaje
+    SONDAJE: '/sondaje',
+    SONDAJ_DETAIL: '/sondaje/:id',
+    SONDAJ_RESULTS: '/sondaje/:id/results',
+
     // User Profile
     PROFILE: '/profile',
     SETTINGS: '/settings',

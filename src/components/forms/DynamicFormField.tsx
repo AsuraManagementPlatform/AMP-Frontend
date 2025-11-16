@@ -1,6 +1,7 @@
 import React from 'react';
 import { Control, useController } from 'react-hook-form';
 import {FieldConfig, FieldType, SelectFieldConfig} from "@/types/form.types.ts";
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 
 interface DynamicFormFieldProps {
     field: FieldConfig;
@@ -24,6 +25,25 @@ export const DynamicFormField: React.FC<DynamicFormFieldProps> = ({
 
     const renderField = () => {
         switch (field.type) {
+            case FieldType.MONTH:
+                return (
+                    <div className="relative">
+                        <input
+                            {...fieldProps}
+                            type="month"
+                            placeholder={field.placeholder}
+                            disabled={field.disabled}
+                            className={`${baseInputClasses} ${field.className || ''} cursor-pointer`}
+                            onClick={(e) => {
+                                if (!e.currentTarget.disabled) {
+                                    e.currentTarget.focus();
+                                    e.currentTarget.showPicker?.();
+                                }
+                            }}
+                        />
+                    </div>
+                );
+
             case FieldType.DATE:
                 return (
                     <div className="relative">
@@ -67,9 +87,25 @@ export const DynamicFormField: React.FC<DynamicFormFieldProps> = ({
                     ? selectField.options()
                     : selectField.options;
 
+                if (selectField.searchable) {
+                    return (
+                        <SearchableSelect
+                            value={fieldProps.value || ''}
+                            onChange={fieldProps.onChange}
+                            onBlur={fieldProps.onBlur}
+                            options={options}
+                            placeholder={field.placeholder}
+                            className={field.className}
+                            disabled={field.disabled}
+                            name={fieldProps.name}
+                        />
+                    );
+                }
+
                 return (
                     <select
                         {...fieldProps}
+                        value={fieldProps.value ?? ''}
                         disabled={field.disabled}
                         multiple={selectField.multiple}
                         className={`${baseSelectClasses} ${field.className || ''}`}
