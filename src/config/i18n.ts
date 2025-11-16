@@ -1731,6 +1731,35 @@ const resources = {
                     password_reset_sent: "Email cu parola nouă trimis la {{email}}",
                     password_reset_error: "Eroare la trimiterea email-ului cu parola"
                 },
+                export: {
+                    success: "Utilizatorii au fost exportați cu succes!",
+                    failed: "Eroare la exportarea utilizatorilor",
+                    no_organization: "Nu sunteți asignat unei organizații"
+                },
+                import: {
+                    started: "Import în curs - {{count}} utilizatori vor fi procesați",
+                    success: "{{count}} utilizatori au fost creați cu succes!",
+                    failed: "Importul utilizatorilor a eșuat",
+                    upload_failed: "Eroare la încărcarea fișierului",
+                    no_file: "Nu ați selectat niciun fișier",
+                    invalid_format: "Formatul fișierului CSV este invalid",
+                    invalid_file_type: "Vă rugăm să selectați un fișier CSV",
+                    no_organization: "Nu sunteți asignat unei organizații",
+                    unauthorized: "Nu aveți permisiunea de a efectua această acțiune",
+                    job_not_found: "Job-ul de import nu a fost găsit",
+                    status_error: "Eroare la verificarea statusului importului",
+                    error: {
+                        full_name_required: "Numele complet este obligatoriu",
+                        email_required: "Email-ul este obligatoriu",
+                        email_invalid_domain: "Email invalid: domeniul '{{domain}}' nu are servere de mail configurate",
+                        email_exists: "Email-ul {{email}} există deja în baza de date",
+                        email_duplicate: "Email-ul {{email}} este duplicat în CSV",
+                        group_required: "Grupul este obligatoriu",
+                        group_invalid: "Grup invalid: {{group}}. Trebuie să fie unul din: {{valid_groups}}",
+                        is_contributor_invalid: "Câmpul 'is_contributor' trebuie să fie 'true' sau 'false'",
+                        auto_generate_fees_invalid: "Câmpul 'auto_generate_fees' trebuie să fie 'true' sau 'false'"
+                    }
+                },
                 membership_fee: {
                     no_organization: "Utilizatorul trebuie să fie asignat unei organizații",
                     permission_denied: "Acces interzis",

@@ -15,6 +15,30 @@ export const OrganizationMemberStatus = {
 
 export type OrganizationMemberStatus = typeof OrganizationMemberStatus[keyof typeof OrganizationMemberStatus];
 
+export const ImportJobStatus = {
+    PENDING: 'PENDING',
+    PROCESSING: 'PROCESSING',
+    COMPLETED: 'COMPLETED',
+    FAILED: 'FAILED',
+} as const;
+
+export type ImportJobStatusType = typeof ImportJobStatus[keyof typeof ImportJobStatus];
+
+export interface ImportJobStatus {
+    status: ImportJobStatusType;
+    totalRows: number;
+    processedRows: number;
+    successCount: number;
+    errorCount: number;
+    errorReport?: Array<{
+        row: number;
+        email: string;
+        errors: string[];
+    }> | { fatal_error: string };
+    startedAt?: string;
+    completedAt?: string;
+}
+
 export interface OrganizationMember {
     id: string;
     member: string;
