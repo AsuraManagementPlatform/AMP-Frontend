@@ -177,7 +177,7 @@ export function SurveyResults() {
               <h1 className="text-3xl font-bold text-gray-900">{t('label.survey.results_title')}</h1>
               <div className="flex items-center text-gray-600 mt-1">
                 <span className="mr-2">👥</span>
-                <span>{results.total_responses} {t('label.survey.responses')}</span>
+                <span>{results.totalResponses} {t('label.survey.responses')}</span>
               </div>
             </div>
           </div>

@@ -10,11 +10,11 @@ class CalendarService {
     async getEvents(filters?: CalendarFilters): Promise<CalendarEvent[]> {
         const params = new URLSearchParams();
         
-        if (filters?.start_date) params.append('start_date', filters.start_date);
-        if (filters?.end_date) params.append('end_date', filters.end_date);
-        if (filters?.event_type) params.append('event_type', filters.event_type);
+        if (filters?.startDate) params.append('start_date', filters.startDate);
+        if (filters?.endDate) params.append('end_date', filters.endDate);
+        if (filters?.eventType) params.append('event_type', filters.eventType);
         if (filters?.priority) params.append('priority', filters.priority);
-        if (filters?.organization_id) params.append('organization_id', filters.organization_id);
+        if (filters?.organizationId) params.append('organization_id', filters.organizationId);
 
         const queryString = params.toString();
         const url = `calendar/list${queryString ? `?${queryString}` : ''}`;
@@ -49,8 +49,8 @@ class CalendarService {
         endDate.setDate(endDate.getDate() + days);
 
         return await this.getEvents({
-            start_date: today.toISOString(),
-            end_date: endDate.toISOString()
+            startDate: today.toISOString(),
+            endDate: endDate.toISOString()
         });
     }
 
@@ -59,8 +59,8 @@ class CalendarService {
         const endDate = new Date(year, month + 1, 0);
 
         return await this.getEvents({
-            start_date: startDate.toISOString(),
-            end_date: endDate.toISOString()
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString()
         });
     }
 

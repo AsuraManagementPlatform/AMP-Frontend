@@ -25,7 +25,6 @@ const EntityPage: React.FC = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<TabType>('details');
 
-    const [entities, setEntities] = useState<SelectOption[]>([]);
     const [organizationMembers, setOrganizationMembers] = useState<SelectOption[]>([]);
     const [entityDonationStats, setEntityDonationStats] = useState<EntityDonationStats>();
 
@@ -44,13 +43,6 @@ const EntityPage: React.FC = () => {
             setLoading(true);
             const entity = await entityService.getById(entityId);
             setEntity(entity);
-
-            const entitiesResponse = await entityService.getList({ pageSize: 1000 });
-            const entityOptions: SelectOption[] = (entitiesResponse.results || []).map((e: Entity) => ({
-                value: e.id,
-                label: e.name
-            }));
-            setEntities(entityOptions);
 
             const organizationMembers = await organizationMemberService.getList();
             const filtered = (organizationMembers.organizationMembersList || []).filter(
@@ -178,7 +170,6 @@ const EntityPage: React.FC = () => {
                     <EntityCommunicationsTab
                         entityId={entity.id}
                         entityName={entity.name}
-                        entities={entities}
                         organizationMembers={organizationMembers}
                     />
                 )}

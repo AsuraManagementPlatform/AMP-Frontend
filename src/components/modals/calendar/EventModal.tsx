@@ -265,7 +265,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                                 Tip eveniment *
                             </label>
                             <select
-                                {...register('event_type')}
+                                {...register('eventType')}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                             >
                                 {filteredEventTypeOptions.map(option => (
@@ -305,7 +305,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                             </label>
                             <div className="grid grid-cols-[1fr_auto_auto] gap-3 items-center">
                                 <input
-                                    {...register('start_date')}
+                                    {...register('startDate')}
                                     type="date"
                                     className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                                 />
@@ -324,7 +324,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                                 )}
                                 <label className="flex items-center cursor-pointer whitespace-nowrap w-[100px]">
                                     <input
-                                        {...register('all_day')}
+                                        {...register('allDay')}
                                         type="checkbox"
                                         className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                                     />
@@ -333,8 +333,8 @@ export const EventModal: React.FC<EventModalProps> = ({
                                     </span>
                                 </label>
                             </div>
-                            {errors.start_date && (
-                                <p className="mt-1 text-sm text-red-600">{errors.start_date.message}</p>
+                            {errors.startDate && (
+                                <p className="mt-1 text-sm text-red-600">{errors.startDate.message}</p>
                             )}
                         </div>
 
@@ -344,7 +344,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                             </label>
                             <div className="grid grid-cols-[1fr_auto_auto] gap-3 items-center">
                                 <input
-                                    {...register('end_date')}
+                                    {...register('endDate')}
                                     type="date"
                                     className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                                 />
@@ -363,8 +363,8 @@ export const EventModal: React.FC<EventModalProps> = ({
                                 )}
                                 <div className="w-[100px]"></div>
                             </div>
-                            {errors.end_date && (
-                                <p className="mt-1 text-sm text-red-600">{errors.end_date.message}</p>
+                            {errors.endDate && (
+                                <p className="mt-1 text-sm text-red-600">{errors.endDate.message}</p>
                             )}
                         </div>
                     </div>
@@ -373,7 +373,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                         <div>
                             <label className="flex items-center cursor-pointer">
                                 <input
-                                    {...register('is_organization_event')}
+                                    {...register('isOrganizationEvent')}
                                     type="checkbox"
                                     className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                                 />
@@ -391,14 +391,14 @@ export const EventModal: React.FC<EventModalProps> = ({
                         <div>
                             <label className="flex items-center cursor-pointer">
                                 <input
-                                    {...register('is_recurring')}
+                                    {...register('isRecurring')}
                                     type="checkbox"
                                     className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                                     onChange={(e) => {
-                                        setValue('is_recurring', e.target.checked);
+                                        setValue('isRecurring', e.target.checked);
                                         if (!e.target.checked) {
-                                            setValue('recurrence_pattern', 'NONE');
-                                            setValue('recurrence_duration_months', null);
+                                            setValue('recurrencePattern', 'NONE');
+                                            setValue('recurrenceDurationMonths', null);
                                         }
                                     }}
                                 />
@@ -415,7 +415,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                                         Tipul de recurență *
                                     </label>
                                     <select
-                                        {...register('recurrence_pattern')}
+                                        {...register('recurrencePattern')}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white"
                                     >
                                         {RecurrencePatternOptions.filter(opt => opt.value !== 'NONE').map(option => (
@@ -424,8 +424,8 @@ export const EventModal: React.FC<EventModalProps> = ({
                                             </option>
                                         ))}
                                     </select>
-                                    {errors.recurrence_pattern && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.recurrence_pattern.message}</p>
+                                    {errors.recurrencePattern && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.recurrencePattern.message}</p>
                                     )}
                                 </div>
 
@@ -434,7 +434,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                                         Durata recurenței
                                     </label>
                                     <select
-                                        {...register('recurrence_duration_months', {
+                                        {...register('recurrenceDurationMonths', {
                                             setValueAs: (value) => value === '' || value === 'null' ? null : parseInt(value, 10)
                                         })}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white"
@@ -445,8 +445,8 @@ export const EventModal: React.FC<EventModalProps> = ({
                                             </option>
                                         ))}
                                     </select>
-                                    {errors.recurrence_duration_months && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.recurrence_duration_months.message}</p>
+                                    {errors.recurrenceDurationMonths && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.recurrenceDurationMonths.message}</p>
                                     )}
                                     <p className="mt-1 text-xs text-gray-500">
                                         Selectează câte luni va dura recurența, sau lasă "Fără limită de timp"
@@ -476,7 +476,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                             Reminder (minute înainte)
                         </label>
                         <select
-                            {...register('reminder_minutes', { 
+                            {...register('reminderMinutes', { 
                                 setValueAs: (value) => value === '' ? undefined : parseInt(value, 10)
                             })}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"

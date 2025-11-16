@@ -28,7 +28,6 @@ export const createCommunicationFormConfig = (
                     required: false,
                     placeholder: 'Selectează destinatarul',
                     options: admins,
-                    searchable: true,
                     helperText: 'Administrator care va primi mesajul (opțional pentru broadcast)',
                     condition: (formValues: any) => formValues.type !== UserCommunicationType.BROADCAST_TO_ORGANIZATION
                 },
