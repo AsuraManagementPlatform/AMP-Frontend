@@ -9,6 +9,7 @@ export const FieldType = {
     CHECKBOX: 'checkbox',
     RADIO: 'radio',
     DATE: 'date',
+    MONTH: 'month',
     FILE: 'file',
     HIDDEN: 'hidden'
 } as const;
@@ -35,7 +36,7 @@ export interface BaseFieldConfig {
 }
 
 export interface TextFieldConfig extends BaseFieldConfig {
-    type: typeof FieldType.TEXT | typeof FieldType.EMAIL | typeof FieldType.TEL | typeof FieldType.DATE;
+    type: typeof FieldType.TEXT | typeof FieldType.EMAIL | typeof FieldType.TEL | typeof FieldType.DATE | typeof FieldType.MONTH;
     maxLength?: number;
     minLength?: number;
 }
@@ -51,7 +52,6 @@ export interface SelectFieldConfig extends BaseFieldConfig {
     type: typeof FieldType.SELECT;
     options: SelectOption[] | (() => SelectOption[]);
     multiple?: boolean;
-    searchable?: boolean;
 }
 
 export interface CheckboxFieldConfig extends BaseFieldConfig {

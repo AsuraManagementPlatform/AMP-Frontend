@@ -39,7 +39,8 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
         control,
         handleSubmit: handleFormSubmit,
         formState: { errors },
-        watch
+        watch,
+        setValue
     } = useForm<CreateMembershipFeeData>({
         resolver: zodResolver(createMembershipFeeSchema) as any,
         defaultValues,
@@ -47,7 +48,40 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
     });
 
     const selectedMemberId = watch('memberId');
+    const renewPeriod = watch('renewPeriod');
+    const startedFrom = watch('startedFrom');
     const selectedMember = members.find(m => m.id === selectedMemberId);
+
+    useEffect(() => {
+        if (!startedFrom || !renewPeriod) return;
+
+        const [year, month] = startedFrom.split('-').map(Number);
+        const startDate = new Date(year, month - 1, 1);
+        
+        let endDate = new Date(startDate);
+
+        switch (renewPeriod) {
+            case 'MONTHLY':
+                endDate.setMonth(endDate.getMonth() + 1);
+                break;
+            case 'QUARTERLY':
+                endDate.setMonth(endDate.getMonth() + 3);
+                break;
+            case 'SEMI_ANNUAL':
+                endDate.setMonth(endDate.getMonth() + 6);
+                break;
+            case 'ANNUAL':
+                endDate.setMonth(endDate.getMonth() + 12);
+                break;
+            case 'ONE_TIME':
+                endDate.setMonth(endDate.getMonth() + 1);
+                break;
+        }
+
+        endDate.setDate(0);
+
+        setValue('endedAt', endDate.toISOString().split('T')[0]);
+    }, [renewPeriod, startedFrom, setValue]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -83,31 +117,37 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
         }
 
         const memberGroups = (selectedMember.groups || []).map((g: string) => g.toUpperCase());
+        const isAdmin = memberGroups.includes('ORGANIZATION_ADMIN') || selectedMember.groups?.includes('organization_admin');
         const rateOptions = [];
         
-        const employeeFee = parseFloat(organizationData.membershipFeeEmployee || '0');
-        const volunteerFee = parseFloat(organizationData.membershipFeeVolunteer || '0');
-        const memberFee = parseFloat(organizationData.membershipFeeMember || '0');
+        if (!isAdmin) {
+            const employeeFee = parseFloat(organizationData.membershipFeeEmployee || '0');
+            const volunteerFee = parseFloat(organizationData.membershipFeeVolunteer || '0');
+            const memberFee = parseFloat(organizationData.membershipFeeMember || '0');
 
-        if (memberGroups.includes('EMPLOYEE') && employeeFee > 0) {
-            rateOptions.push({
-                value: RateType.EMPLOYEE,
-                label: `Angajat - ${employeeFee.toFixed(2)} RON/lună`
-            });
-        }
-        
-        if (memberGroups.includes('VOLUNTEER') && volunteerFee > 0) {
-            rateOptions.push({
-                value: RateType.VOLUNTEER,
-                label: `Voluntar - ${volunteerFee.toFixed(2)} RON/lună`
-            });
-        }
-        
-        if (memberGroups.includes('MEMBER') && memberFee > 0) {
-            rateOptions.push({
-                value: RateType.MEMBER,
-                label: `Membru - ${memberFee.toFixed(2)} RON/lună`
-            });
+            if (memberGroups.includes('EMPLOYEE') && employeeFee > 0) {
+                const monthlyRate = (employeeFee / 12).toFixed(2);
+                rateOptions.push({
+                    value: RateType.EMPLOYEE,
+                    label: `Angajat - ${monthlyRate} RON/lună`
+                });
+            }
+            
+            if (memberGroups.includes('VOLUNTEER') && volunteerFee > 0) {
+                const monthlyRate = (volunteerFee / 12).toFixed(2);
+                rateOptions.push({
+                    value: RateType.VOLUNTEER,
+                    label: `Voluntar - ${monthlyRate} RON/lună`
+                });
+            }
+            
+            if (memberGroups.includes('MEMBER') && memberFee > 0) {
+                const monthlyRate = (memberFee / 12).toFixed(2);
+                rateOptions.push({
+                    value: RateType.MEMBER,
+                    label: `Membru - ${monthlyRate} RON/lună`
+                });
+            }
         }
 
         rateOptions.push({
@@ -136,16 +176,20 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
             
             loadingToast = showToast.creatingMembershipFee();
 
+            const [year, month] = data.startedFrom.split('-').map(Number);
+            const startDate = new Date(year, month - 1, 1);
+            const startedFromDate = startDate.toISOString().split('T')[0];
+
             const membershipFeeCreateRequest: MembershipFeeCreateRequest = {
                 member: data.memberId,
-                rate_type: data.rateType,
+                rateType: data.rateType,
                 amount: data.rateType === RateType.CUSTOM ? data.customAmount : undefined,
                 currency: data.currency || 'RON',
-                renew_period: data.renewPeriod,
-                started_from: data.startedFrom,
-                ended_at: data.endedAt,
-                auto_renew: data.autoRenew || false,
-                payment_method: data.paymentMethod,
+                renewPeriod: data.renewPeriod,
+                startedFrom: startedFromDate,
+                endedAt: data.endedAt,
+                autoRenew: data.autoRenew || false,
+                paymentMethod: data.paymentMethod,
                 notes: data.notes
             };
 
