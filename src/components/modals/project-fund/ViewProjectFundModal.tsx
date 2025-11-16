@@ -103,12 +103,14 @@ export const ViewProjectFundModal: React.FC<FundDetailsModalProps> = ({
                                 {fund.allocatedAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {fund.currency}
                             </p>
                         </div>
-                        <div>
-                            <span className="text-sm text-gray-600">{t('label.project_fund.remaining_amount')}:</span>
-                            <p className="font-medium text-green-600">
-                                {fund.remainingAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {fund.currency}
-                            </p>
-                        </div>
+                        {fund.remainingAmount && (
+                            <div>
+                                <span className="text-sm text-gray-600">{t('label.project_fund.remaining_amount')}:</span>
+                                <p className="font-medium text-green-600">
+                                    {fund.remainingAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {fund.currency}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </Card>
 

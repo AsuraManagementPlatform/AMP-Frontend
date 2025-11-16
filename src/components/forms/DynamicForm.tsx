@@ -4,7 +4,7 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {DynamicFormField} from "@/components/forms/DynamicFormField.tsx";
 import {ModalButton} from "@/components/ui/ModalButton";
 import {DynamicFormConfig} from "@/types/form.types.ts";
-import {useEffect, useRef} from "react";
+import React, {useEffect, useRef} from "react";
 
 interface DynamicFormProps<TFormData extends FieldValues> {
     config: DynamicFormConfig;
@@ -16,6 +16,7 @@ interface DynamicFormProps<TFormData extends FieldValues> {
     className?: string;
     hideFooter?: boolean;
     onChange?: (values: Partial<TFormData>) => void;
+    children?: React.ReactNode;
 }
 
 export function DynamicForm<TFormData extends FieldValues>({
@@ -27,7 +28,8 @@ export function DynamicForm<TFormData extends FieldValues>({
                                                                isSubmitting = false,
                                                                className = '',
                                                                hideFooter = false,
-                                                               onChange
+                                                               onChange,
+                                                               children,
                                                            }: DynamicFormProps<TFormData>) {
     const {
         control,
@@ -113,6 +115,8 @@ export function DynamicForm<TFormData extends FieldValues>({
                     </div>
                 );
             })}
+
+            {children}
 
             {!hideFooter && (
                 <div className="flex justify-between items-center pt-6 border-t border-gray-200 mt-6">

@@ -142,7 +142,7 @@ const EntityPage: React.FC = () => {
                 </div>
 
                 {activeTab === 'details' && <EntityDetailsTab entity={entity} />}
-                {activeTab === 'donations' && <EntityDonationsTab entityId={entity.id} entityName={entity.name} />}
+                {activeTab === 'donations' && <EntityDonationsTab entityId={entity.id} entityName={entity.name} organizationId={entity.organization}/>}
                 {activeTab === 'partners' && <EntityPartnersTab entityId={entity.id} />}
                 {activeTab === 'communications' && <EntityCommunicationsTab entityId={entity.id} entityName={entity.name} />}
 
