@@ -1,11 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from "react-router-dom";
+import { useQueryClient, useQuery } from '@tanstack/react-query';
+import { t } from 'i18next';
 import { Card } from '@/components/ui/Card';
 import { Project, Activity, User, TableColumn } from '@/types/index.types';
 import toast from 'react-hot-toast';
 import { MyCotizatii } from './MyCotizatii';
 import DataTable from "@/components/ui/DataTable.tsx";
 import {ROUTES} from "@/utils/constants.utils.ts";
-import {useNavigate} from "react-router-dom";
+import { CreateCommunicationModal } from '@/components/modals/communication/CreateCommunicationModal';
+import { CreateActivityProposalModal } from '@/components/modals/activity-proposal/CreateActivityProposalModal';
+import { ViewCommunicationModal } from '@/components/modals/communication/ViewCommunicationModal';
+import { DirectSponsorshipModal } from '@/components/modals/sponsorship/DirectSponsorshipModal';
+import { AuthContext } from '@/context/Auth.context';
+import userService from '@/services/user.service';
+import communicationService from '@/services/communication.service';
+import { Communication } from '@/types/communication.types';
+import { apiService } from '@/services/api.service';
 
 interface MemberDashboardProps {
     user: User | null;
@@ -14,16 +25,6 @@ interface MemberDashboardProps {
     projectsLoading: boolean;
     activitiesLoading: boolean;
 }
-
-const MOCK_SURVEYS = [
-    { id: '1', title: 'Sondaj satisfacție membri 2025', deadline: '2025-03-30', status: 'ACTIVE', completed: false },
-    { id: '2', title: 'Feedback proiect X', deadline: '2025-03-25', status: 'ACTIVE', completed: false },
-];
-
-const MOCK_MESSAGES = [
-    { id: '1', subject: 'Întrebare despre cotizație', date: '2025-03-10', status: 'RĂSPUNS', from: 'Tu' },
-    { id: '2', subject: 'Sugestie eveniment', date: '2025-03-05', status: 'ÎN AȘTEPTARE', from: 'Tu' },
-];
 
 export const MemberDashboard: React.FC<MemberDashboardProps> = ({
     user,
@@ -35,7 +36,49 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
     const [showSponsorshipModal, setShowSponsorshipModal] = useState(false);
     const [showProposalModal, setShowProposalModal] = useState(false);
     const [showMessageModal, setShowMessageModal] = useState(false);
+    const [selectedCommunication, setSelectedCommunication] = useState<Communication | null>(null);
     const navigate = useNavigate();
+    const authContext = useContext(AuthContext);
+    const queryClient = useQueryClient();
+
+    const { data: communicationsData } = useQuery({
+        queryKey: ['communications'],
+        queryFn: () => communicationService.getList()
+    });
+
+    const { data: activeSurveys = [] } = useQuery({
+        queryKey: ['active-surveys'],
+        queryFn: () => apiService.getActiveSurveyQuestions()
+    });
+
+    const { data: unreadData } = useQuery({
+        queryKey: ['communications-unread-count'],
+        queryFn: () => communicationService.getUnreadCount(),
+        refetchInterval: 30000
+    });
+
+    const communications = communicationsData?.results || [];
+    const unreadCount = unreadData?.unreadCount || 0;
+
+    const { data: managersData } = useQuery({
+        queryKey: ['users', 'organization-members'],
+        queryFn: () => userService.getOrganizationMembers(),
+        enabled: !!authContext?.user?.organizationId
+    });
+
+    const admins = managersData?.results
+        ?.filter((member: User) => member.id !== authContext?.user?.id)
+        ?.sort((a: User, b: User) => {
+            const aIsAdmin = a.groups?.includes('organization_admin') || a.groups?.includes('admin');
+            const bIsAdmin = b.groups?.includes('organization_admin') || b.groups?.includes('admin');
+            if (aIsAdmin && !bIsAdmin) return -1;
+            if (!aIsAdmin && bIsAdmin) return 1;
+            return (a.fullName || a.email).localeCompare(b.fullName || b.email);
+        })
+        .map((member: User) => ({
+            value: member.id,
+            label: `${member.fullName || member.email}${member.groups?.includes('organization_admin') || member.groups?.includes('admin') ? ' (Admin)' : ''}`
+        })) || [];
 
     const getProjectColumns = (): TableColumn<Project>[] => [
         {
@@ -97,24 +140,54 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
         }
     ];
 
-    const handleDownloadCertificate = () => {
-        toast.success('Certificatul va fi descărcat în curând...');
-    };
+    // Handlers for hidden cards - commented out for now
+    // const handleDownloadCertificate = () => {
+    //     toast.success('Certificatul va fi descărcat în curând...');
+    // };
 
-    const handleUploadCV = () => {
-        toast('Funcția de încărcare CV va fi disponibilă în curând', { icon: 'ℹ️' });
-    };
+    // const handleUploadCV = () => {
+    //     toast('Funcția de încărcare CV va fi disponibilă în curând', { icon: 'ℹ️' });
+    // };
 
     const handleSponsor = () => {
         setShowSponsorshipModal(true);
     };
 
     const handlePropose = () => {
+        if (!projects || projects.length === 0) {
+            toast.error('Nu poți propune o activitate deoarece nu ești asignat pe niciun proiect.');
+            return;
+        }
         setShowProposalModal(true);
     };
 
     const handleSendMessage = () => {
         setShowMessageModal(true);
+    };
+
+    const handleMessageSuccess = () => {
+        queryClient.invalidateQueries({ queryKey: ['communications'] });
+        queryClient.invalidateQueries({ queryKey: ['communications-unread-count'] });
+        toast.success('Mesajul a fost trimis cu succes!');
+    };
+
+    const handleProposalSuccess = () => {
+        queryClient.invalidateQueries({ queryKey: ['activity-proposals'] });
+        toast.success('Propunerea a fost trimisă cu succes!');
+    };
+
+    const handleViewCommunication = (comm: Communication) => {
+        setSelectedCommunication(comm);
+    };
+
+    const handleCloseViewModal = () => {
+        setSelectedCommunication(null);
+        queryClient.invalidateQueries({ queryKey: ['communications'] });
+        queryClient.invalidateQueries({ queryKey: ['communications-unread-count'] });
+    };
+
+    const getStatusLabel = (status: string) => {
+        return t(`label.communication.status.${status.toLowerCase()}`);
     };
 
     const handleProjectRowClick = (project: Project) => {
@@ -222,19 +295,38 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Sondaje active care așteaptă răspunsul tău</p>
                         <div className="bg-purple-50 p-3 rounded-lg">
-                            <div className="text-2xl font-bold text-purple-600">{MOCK_SURVEYS.length}</div>
+                            <div className="text-2xl font-bold text-purple-600">
+                                {activeSurveys.filter((s: any) => new Date(s.endDate) >= new Date()).length}
+                            </div>
                             <div className="text-xs text-gray-600">sondaje active</div>
                         </div>
                         <div className="space-y-2">
-                            {MOCK_SURVEYS.slice(0, 1).map((survey) => (
-                                <div key={survey.id} className="text-sm p-2 bg-gray-50 rounded">
-                                    <div className="font-medium">{survey.title}</div>
-                                    <div className="text-xs text-gray-600">Deadline: {survey.deadline}</div>
-                                </div>
-                            ))}
+                            {activeSurveys
+                                .filter((s: any) => new Date(s.endDate) >= new Date())
+                                .slice(0, 1)
+                                .map((survey: any) => (
+                                    <div key={survey.id} className="text-sm p-2 bg-gray-50 rounded cursor-pointer hover:bg-gray-100" onClick={() => navigate(`/sondaje/${survey.id}`)}>
+                                        <div className="font-medium">{survey.title}</div>
+                                        <div className="text-xs text-gray-600">Deadline: {new Date(survey.endDate).toLocaleDateString('ro-RO')}</div>
+                                    </div>
+                                ))
+                            }
+                            {activeSurveys
+                                .filter((s: any) => new Date(s.endDate) < new Date())
+                                .slice(0, 1)
+                                .map((survey: any) => (
+                                    <div key={survey.id} className="text-sm p-2 bg-red-50 border border-red-200 rounded cursor-pointer hover:bg-red-100" onClick={() => navigate(`/sondaje/${survey.id}`)}>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-red-500">🔴</span>
+                                            <div className="font-medium text-red-700">{survey.title}</div>
+                                        </div>
+                                        <div className="text-xs text-red-600">Expirat: {new Date(survey.endDate).toLocaleDateString('ro-RO')}</div>
+                                    </div>
+                                ))
+                            }
                         </div>
                         <button 
-                            onClick={() => toast.success('Modulul de sondaje va fi disponibil în curând')}
+                            onClick={() => navigate('/sondaje')}
                             className="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm font-medium"
                         >
                             Participă la sondaje
@@ -242,7 +334,8 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     </div>
                 </Card>
 
-                {/* 3. Certificate Download */}
+                {/* 3. Certificate Download - HIDDEN FOR NOW */}
+                {/* 
                 <Card title="📜 Adeverințe" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Descarcă adeverințe membru sau voluntar</p>
@@ -266,8 +359,10 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                         </div>
                     </div>
                 </Card>
+                */}
 
-                {/* 4. CV/Skills Upload */}
+                {/* 4. CV/Skills Upload - HIDDEN FOR NOW */}
+                {/* 
                 <Card title="📋 CV & Competențe" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Încarcă CV-ul și competențele tale</p>
@@ -293,29 +388,59 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                         </div>
                     </div>
                 </Card>
+                */}
 
                 {/* 5. Messages/Requests */}
                 <Card title="✉️ Mesaje" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Trimite solicitări către ONG</p>
-                        <div className="space-y-2">
-                            {MOCK_MESSAGES.slice(0, 2).map((msg) => (
-                                <div key={msg.id} className="text-sm border-b pb-2">
-                                    <div className="font-medium">{msg.subject}</div>
-                                    <div className="flex justify-between items-center mt-1">
-                                        <span className="text-xs text-gray-600">{msg.date}</span>
-                                        <span className={`text-xs px-2 py-1 rounded ${
-                                            msg.status === 'RĂSPUNS' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                        }`}>
-                                            {msg.status}
-                                        </span>
+                        {unreadCount > 0 && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-2 text-center">
+                                <span className="text-red-600 font-semibold text-sm">
+                                    {unreadCount} mesaj{unreadCount !== 1 ? 'e' : ''} necitit{unreadCount !== 1 ? 'e' : ''}
+                                </span>
+                            </div>
+                        )}
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                            {communications.length > 0 ? (
+                                communications.slice(0, 3).map((comm) => (
+                                    <div 
+                                        key={comm.id} 
+                                        className="text-sm border-b pb-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+                                        onClick={() => handleViewCommunication(comm)}
+                                    >
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex-1">
+                                                <div className="font-medium">{comm.subject}</div>
+                                                <div className="flex justify-between items-center mt-1">
+                                                    <span className="text-xs text-gray-600">
+                                                        {new Date(comm.createdAt).toLocaleDateString('ro-RO')}
+                                                    </span>
+                                                    <span className={`text-xs px-2 py-1 rounded ${
+                                                        comm.status === 'RESOLVED' ? 'bg-green-100 text-green-800' : 
+                                                        comm.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
+                                                        comm.status === 'CLOSED' ? 'bg-gray-100 text-gray-800' :
+                                                        'bg-yellow-100 text-yellow-800'
+                                                    }`}>
+                                                        {getStatusLabel(comm.status)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {!comm.isReadByRecipient && comm.status !== 'CLOSED' && (
+                                                <span className="ml-2 text-xs font-semibold text-red-600">NOU</span>
+                                            )}
+                                        </div>
                                     </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-4 text-gray-400 text-sm">
+                                    Nu ai mesaje încă
                                 </div>
-                            ))}
+                            )}
                         </div>
                         <button 
                             onClick={handleSendMessage}
-                            className="w-full px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors text-sm font-medium"
+                            className="w-full px-4 py-2 bg-transparent border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white rounded-lg transition-all text-sm font-medium"
                         >
                             ✍️ Trimite mesaj nou
                         </button>
@@ -324,141 +449,43 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
             </div>
 
             {/* Sponsorship Modal */}
-            {showSponsorshipModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg max-w-md w-full p-6">
-                        <h3 className="text-xl font-bold mb-4">Sponsorizare Directă</h3>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Destinație</label>
-                                <select className="w-full px-3 py-2 border rounded-lg">
-                                    <option>ONG General</option>
-                                    <option>Proiect X</option>
-                                    <option>Proiect Y</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Sumă (RON)</label>
-                                <input type="number" className="w-full px-3 py-2 border rounded-lg" placeholder="100" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Metodă de plată</label>
-                                <select className="w-full px-3 py-2 border rounded-lg">
-                                    <option>Transfer bancar</option>
-                                    <option>Cash</option>
-                                    <option>Online (viitor)</option>
-                                </select>
-                            </div>
-                            <div className="flex gap-2">
-                                <button 
-                                    onClick={() => {
-                                        toast.success('Sponsorizare înregistrată! Mulțumim pentru susținere!');
-                                        setShowSponsorshipModal(false);
-                                    }}
-                                    className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
-                                >
-                                    Confirmă
-                                </button>
-                                <button 
-                                    onClick={() => setShowSponsorshipModal(false)}
-                                    className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
-                                >
-                                    Anulează
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <DirectSponsorshipModal
+                isOpen={showSponsorshipModal}
+                onClose={() => setShowSponsorshipModal(false)}
+                onSuccess={() => {
+                    queryClient.invalidateQueries({ queryKey: ['communications'] });
+                    queryClient.invalidateQueries({ queryKey: ['communications-unread-count'] });
+                }}
+                organizationId={authContext?.user?.organizationId || ''}
+            />
 
             {/* Activity Proposal Modal */}
-            {showProposalModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg max-w-md w-full p-6">
-                        <h3 className="text-xl font-bold mb-4">Propunere Activitate Nouă</h3>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Titlu Activitate</label>
-                                <input type="text" className="w-full px-3 py-2 border rounded-lg" placeholder="Ex: Workshop Web Design" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Descriere</label>
-                                <textarea className="w-full px-3 py-2 border rounded-lg" rows={4} placeholder="Descrie activitatea propusă..."></textarea>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Proiect Asociat (opțional)</label>
-                                <select className="w-full px-3 py-2 border rounded-lg">
-                                    <option>Fără asociere</option>
-                                    <option>Proiect X</option>
-                                    <option>Proiect Y</option>
-                                </select>
-                            </div>
-                            <div className="flex gap-2">
-                                <button 
-                                    onClick={() => {
-                                        toast.success('Propunere trimisă! Va fi revizuită de echipa administrativă.');
-                                        setShowProposalModal(false);
-                                    }}
-                                    className="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
-                                >
-                                    Trimite Propunerea
-                                </button>
-                                <button 
-                                    onClick={() => setShowProposalModal(false)}
-                                    className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
-                                >
-                                    Anulează
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <CreateActivityProposalModal
+                isOpen={showProposalModal}
+                onClose={() => setShowProposalModal(false)}
+                onSuccess={handleProposalSuccess}
+                organizationId={authContext?.user?.organizationId || ''}
+                projects={projects.map(p => ({ value: p.id, label: p.name }))}
+            />
 
             {/* Message Modal */}
-            {showMessageModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg max-w-md w-full p-6">
-                        <h3 className="text-xl font-bold mb-4">Trimite Mesaj către ONG</h3>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Tip Mesaj</label>
-                                <select className="w-full px-3 py-2 border rounded-lg">
-                                    <option>Întrebare</option>
-                                    <option>Sugestie</option>
-                                    <option>Reclamație</option>
-                                    <option>Altele</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Subiect</label>
-                                <input type="text" className="w-full px-3 py-2 border rounded-lg" placeholder="Subiectul mesajului" />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Mesaj</label>
-                                <textarea className="w-full px-3 py-2 border rounded-lg" rows={5} placeholder="Scrie mesajul tău aici..."></textarea>
-                            </div>
-                            <div className="flex gap-2">
-                                <button 
-                                    onClick={() => {
-                                        toast.success('Mesaj trimis! Vei primi un răspuns în cel mai scurt timp.');
-                                        setShowMessageModal(false);
-                                    }}
-                                    className="flex-1 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600"
-                                >
-                                    Trimite Mesaj
-                                </button>
-                                <button 
-                                    onClick={() => setShowMessageModal(false)}
-                                    className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
-                                >
-                                    Anulează
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <CreateCommunicationModal
+                isOpen={showMessageModal}
+                onClose={() => setShowMessageModal(false)}
+                onSuccess={handleMessageSuccess}
+                organizationId={authContext?.user?.organizationId || ''}
+                admins={admins}
+                projects={projects.map(p => ({ value: p.id, label: p.name }))}
+                activities={activities.map(a => ({ value: a.id, label: a.title }))}
+            />
+
+            {/* View Communication Modal */}
+            <ViewCommunicationModal
+                isOpen={!!selectedCommunication}
+                onClose={handleCloseViewModal}
+                communication={selectedCommunication}
+                onUpdate={handleCloseViewModal}
+            />
         </>
     );
 };

@@ -128,8 +128,6 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                 setTotalPlannedExpenses(plannedTotal);
                 setTotalPaidExpenses(paidTotal);
             } catch (error) {
-                const errorMessage = error instanceof Error ? error.message : 'Error fetching expense stats';
-                console.error(errorMessage);
             } finally {
                 setLoadingStats(false);
             }

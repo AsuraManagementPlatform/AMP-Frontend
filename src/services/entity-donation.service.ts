@@ -49,6 +49,16 @@ export const entityDonationService = {
     getPartnerships: async (entityId: string): Promise<EntityPartnershipProject[]> => {
         return apiService.get<EntityPartnershipProject[]>(`entity_donation/partnerships?entity_id=${entityId}`);
     },
+
+    createDirectSponsorship: async (data: {
+        amount: number;
+        currency: string;
+        scope: string;
+        notes?: string;
+        proofDocument?: string;
+    }): Promise<{ message: string }> => {
+        return apiService.post('entity-donation/direct-sponsorship', data);
+    },
 };
 
 export default entityDonationService;

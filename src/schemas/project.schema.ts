@@ -93,8 +93,7 @@ export const createProjectSchema = z.object({
             t('schema.project.budget_planning_date_invalid')
         ),
 
-    organization: z.string()
-        .min(1, t('schema.project.organization_required')),
+    organization: z.uuid(t('schema.project.organization_invalid')),
 
     budgetResponsible: z.string()
         .min(1, t('schema.project.budget_responsible_required')),

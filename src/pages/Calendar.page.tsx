@@ -10,6 +10,7 @@ import { CalendarEvent, CalendarFilters, CreateEventData } from '@/types/calenda
 import { CreateEventFormData } from '@/schemas/calendar.schema';
 import { useAuth } from '@/hooks/useAuth';
 import { UserGroup } from '@/types/index.types';
+import { SurveyVoteModal } from '@/components/modals/survey/SurveyVoteModal';
 
 type ViewMode = 'month' | 'list';
 
@@ -27,19 +28,18 @@ const CalendarPage: React.FC = () => {
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [defaultDate, setDefaultDate] = useState<Date | undefined>(undefined);
     const [showOnlyCurrentMonth, setShowOnlyCurrentMonth] = useState(true);
+    const [votingSurveyId, setVotingSurveyId] = useState<string | null>(null);
 
     const loadEvents = async () => {
         setIsLoading(true);
         try {
-            let filters: CalendarFilters = {
-                event_type: 'CALENDAR_NOTE'
-            };
+            let filters: CalendarFilters = {};
 
             if (showOnlyCurrentMonth) {
                 const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
                 const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-                filters.start_date = startDate.toISOString();
-                filters.end_date = endDate.toISOString();
+                filters.startDate = startDate.toISOString();
+                filters.endDate = endDate.toISOString();
             }
 
             const data = await calendarService.getEvents(filters);
@@ -113,6 +113,11 @@ const CalendarPage: React.FC = () => {
     };
 
     const handleEventClick = (event: CalendarEvent) => {
+        if (event.eventType === 'SURVEY' && event.relatedSurveyQuestion) {
+            setVotingSurveyId(event.relatedSurveyQuestion);
+            return;
+        }
+        
         setSelectedEvent(event);
         setIsEventModalOpen(true);
     };
@@ -130,7 +135,9 @@ const CalendarPage: React.FC = () => {
     };
 
     const formatEventDate = (dateString: string): string => {
+        if (!dateString) return 'Data invalidă';
         const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Data invalidă';
         return new Intl.DateTimeFormat('ro-RO', {
             day: 'numeric',
             month: 'short',
@@ -144,7 +151,8 @@ const CalendarPage: React.FC = () => {
             CALENDAR_NOTE: 'Notă calendar',
             VOTE_SCHEDULING: 'Programare vot',
             MEETING: 'Întâlnire',
-            EVENT: 'Eveniment'
+            EVENT: 'Eveniment',
+            SURVEY: 'Sondaj'
         };
         return labels[type] || type;
     };
@@ -154,7 +162,8 @@ const CalendarPage: React.FC = () => {
             CALENDAR_NOTE: 'blue',
             VOTE_SCHEDULING: 'purple',
             MEETING: 'green',
-            EVENT: 'orange'
+            EVENT: 'orange',
+            SURVEY: 'indigo'
         };
         return colors[type] || 'gray';
     };
@@ -251,7 +260,7 @@ const CalendarPage: React.FC = () => {
                             {upcomingEvents.length > 0 ? (
                                 <div className="space-y-3">
                                     {upcomingEvents.map((event) => {
-                                        const color = getEventTypeColor(event.event_type);
+                                        const color = getEventTypeColor(event.eventType);
                                         return (
                                             <div
                                                 key={event.id}
@@ -260,10 +269,10 @@ const CalendarPage: React.FC = () => {
                                             >
                                                 <div className="font-medium text-sm">{event.title}</div>
                                                 <div className="text-xs text-gray-500">
-                                                    {formatEventDate(event.start_date)}
+                                                    {formatEventDate(event.startDate)}
                                                 </div>
                                                 <div className={`text-xs text-${color}-600`}>
-                                                    {getEventTypeLabel(event.event_type)}
+                                                    {getEventTypeLabel(event.eventType)}
                                                 </div>
                                             </div>
                                         );
@@ -297,6 +306,16 @@ const CalendarPage: React.FC = () => {
                     event={selectedEvent}
                     defaultDate={defaultDate}
                     userGroups={user?.groups || []}
+                />
+
+                <SurveyVoteModal
+                    surveyId={votingSurveyId || ''}
+                    isOpen={!!votingSurveyId}
+                    onClose={() => setVotingSurveyId(null)}
+                    onSuccess={() => {
+                        setVotingSurveyId(null);
+                        loadEvents();
+                    }}
                 />
             </div>
         </Layout>

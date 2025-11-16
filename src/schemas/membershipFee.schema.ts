@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { RenewPeriod, PaymentMethod, RateType } from '@/types/membershipFee.types';
 
 export const createMembershipFeeSchema = z.object({
-    memberId: z.string().min(1, 'Membrul este obligatoriu').uuid('ID-ul membrului trebuie sa fie valid'),
-    organizationId: z.string().optional(),
+    memberId: z.uuid('ID-ul membrului trebuie să fie valid'),
+    organizationId: z.uuid('ID organizație invalid').optional(),
     rateType: z.enum([RateType.EMPLOYEE, RateType.VOLUNTEER, RateType.MEMBER, RateType.CUSTOM]).refine((val) => val !== undefined, {
         message: 'Tipul cotizației este obligatoriu'
     }),
@@ -32,7 +32,7 @@ export type CreateMembershipFeeData = z.infer<typeof createMembershipFeeSchema>;
 
 export const updateMembershipFeeSchema = z.object({
     memberId: z.string().min(1, 'Membrul este obligatoriu').uuid('ID-ul membrului trebuie sa fie valid'),
-    organizationId: z.string().optional(),
+    organizationId: z.uuid('ID organizație invalid').optional(),
     rateType: z.enum([RateType.EMPLOYEE, RateType.VOLUNTEER, RateType.MEMBER, RateType.CUSTOM]).optional(),
     customAmount: z.coerce.number().min(0.01, 'Suma trebuie sa fie pozitiva').max(999999.99).optional(),
     amount: z.coerce.number().min(0.01, 'Suma trebuie sa fie pozitiva').max(999999.99),
