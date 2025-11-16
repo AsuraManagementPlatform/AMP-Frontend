@@ -38,12 +38,8 @@ const MembershipFeesPage: React.FC = () => {
             });
 
             const fees = response.results || [];
-            const membersOnlyFees = fees.filter(fee => {
-                const groups = fee.memberGroups || [];
-                return !groups.includes('ADMIN') && !groups.includes('ORG_ADMIN');
-            });
             
-            const aggregated = aggregateFeesByMember(membersOnlyFees);
+            const aggregated = aggregateFeesByMember(fees);
             setContributors(aggregated);
             return aggregated;
         } catch (error) {
@@ -63,10 +59,10 @@ const MembershipFeesPage: React.FC = () => {
 
         fees.forEach(fee => {
             if (!memberMap.has(fee.memberId)) {
-                const memberGroups = fee.memberGroups || [];
-                const isAdmin = memberGroups.includes('organization_admin') || memberGroups.includes('ORGANIZATION_ADMIN');
-                const isEmployee = memberGroups.includes('EMPLOYEE');
-                const isVolunteer = memberGroups.includes('VOLUNTEER');
+                const memberGroups = (fee.memberGroups || []).map(g => g.toLowerCase());
+                const isAdmin = memberGroups.includes(UserGroup.ORGANIZATION_ADMIN);
+                const isEmployee = memberGroups.includes(UserGroup.EMPLOYEE);
+                const isVolunteer = memberGroups.includes(UserGroup.VOLUNTEER);
                 
                 let displayType: 'EMPLOYEE' | 'VOLUNTEER' | 'MEMBER' | 'ADMIN' = 'MEMBER';
                 if (isAdmin) {
@@ -97,19 +93,43 @@ const MembershipFeesPage: React.FC = () => {
             contributor.feeCount++;
 
             const amount = Number(fee.amount) || 0;
+            const paidAmount = Number(fee.paidAmount) || 0;
+            const remainingAmount = amount - paidAmount;
+
+            const pendingPayments = fee.payments?.filter(p => p.status === 'PENDING_APPROVAL') || [];
+            const pendingVerificationAmount = pendingPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+            contributor.totalPendingVerification += pendingVerificationAmount;
+
+            const approvedPayments = fee.payments?.filter(p => p.status === 'APPROVED') || [];
+            const latestPayment = approvedPayments.length > 0 
+                ? approvedPayments.sort((a, b) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime())[0]
+                : null;
 
             if (fee.status === MembershipFeeStatus.PAID) {
-                contributor.totalPaid += amount;
-                if (!contributor.lastPaymentDate || fee.paymentDate! > contributor.lastPaymentDate) {
-                    contributor.lastPaymentDate = fee.paymentDate;
+                contributor.totalPaid += paidAmount;
+                const paymentDateToUse = latestPayment?.paymentDate || fee.paymentDate;
+                if (paymentDateToUse && (!contributor.lastPaymentDate || paymentDateToUse > contributor.lastPaymentDate)) {
+                    contributor.lastPaymentDate = paymentDateToUse;
                 }
-            } else if (fee.status === MembershipFeeStatus.PENDING) {
-                contributor.totalPending += amount;
-            } else if (fee.status === MembershipFeeStatus.PENDING_VERIFICATION) {
-                contributor.totalPendingVerification += amount;
+            } else if (fee.status === MembershipFeeStatus.PENDING || fee.status === MembershipFeeStatus.PARTIALLY_PAID) {
+                contributor.totalPaid += paidAmount;
+                contributor.totalPending += remainingAmount;
+                if (paidAmount > 0) {
+                    const paymentDateToUse = latestPayment?.paymentDate || fee.paymentDate;
+                    if (paymentDateToUse && (!contributor.lastPaymentDate || paymentDateToUse > contributor.lastPaymentDate)) {
+                        contributor.lastPaymentDate = paymentDateToUse;
+                    }
+                }
             } else if (fee.status === MembershipFeeStatus.OVERDUE) {
-                contributor.totalOverdue += amount;
+                contributor.totalPaid += paidAmount;
+                contributor.totalOverdue += remainingAmount;
                 contributor.hasOverdueFees = true;
+                if (paidAmount > 0) {
+                    const paymentDateToUse = latestPayment?.paymentDate || fee.paymentDate;
+                    if (paymentDateToUse && (!contributor.lastPaymentDate || paymentDateToUse > contributor.lastPaymentDate)) {
+                        contributor.lastPaymentDate = paymentDateToUse;
+                    }
+                }
             }
 
             if (fee.nextDueDate && (!contributor.nextDueDate || fee.nextDueDate < contributor.nextDueDate)) {
@@ -302,9 +322,6 @@ const MembershipFeesPage: React.FC = () => {
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         Ultima plată
                                     </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        Următoare scadență
-                                    </th>
                                     <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         Nr. cotizații
                                     </th>
@@ -355,14 +372,6 @@ const MembershipFeesPage: React.FC = () => {
                                                     }
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-4">
-                                                <div className="text-sm text-gray-700">
-                                                    {contributor.nextDueDate 
-                                                        ? new Date(contributor.nextDueDate).toLocaleDateString('ro-RO')
-                                                        : '-'
-                                                    }
-                                                </div>
-                                            </td>
                                             <td className="px-4 py-4 text-center">
                                                 <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-gray-900 bg-gray-100 rounded-full">
                                                     {contributor.feeCount}
@@ -372,7 +381,7 @@ const MembershipFeesPage: React.FC = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                                        <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
                                             Nu există cotizanți înregistrați încă.
                                         </td>
                                     </tr>

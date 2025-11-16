@@ -73,33 +73,63 @@ export const getCreateMembershipFeeDefaultValues = (memberId?: string, organizat
 });
 
 export const processPaymentSchema = z.object({
+    amount: z.coerce.number().min(0.01, 'Suma trebuie să fie mai mare decât 0'),
     paymentMethod: z.enum([PaymentMethod.BANK_TRANSFER, PaymentMethod.CREDIT_CARD, PaymentMethod.CASH, PaymentMethod.STRIPE, PaymentMethod.PAYPAL, PaymentMethod.OTHER]),
     transactionReference: z.string().optional().or(z.literal('')),
     paymentDate: z.string().optional().or(z.literal('')),
-    documentReference: z.string().url('Linkul trebuie să fie valid').optional().or(z.literal(''))
+    documentReference: z.string().url('Linkul trebuie să fie valid').optional().or(z.literal('')),
+    notes: z.string().optional()
 });
 
 export type ProcessPaymentData = z.infer<typeof processPaymentSchema>;
 
 export const getProcessPaymentDefaultValues = (): ProcessPaymentData => ({
+    amount: 0,
     paymentMethod: PaymentMethod.BANK_TRANSFER,
     transactionReference: '',
     paymentDate: new Date().toISOString().split('T')[0],
-    documentReference: ''
+    documentReference: '',
+    notes: ''
+});
+
+export const createProcessPaymentSchema = (maxAmount: number) => z.object({
+    amount: z.coerce.number()
+        .min(0.01, 'Suma trebuie să fie mai mare decât 0')
+        .max(Number(maxAmount), `Suma nu poate depăși ${Number(maxAmount).toFixed(2)} RON (rest de plată)`),
+    paymentMethod: z.enum([PaymentMethod.BANK_TRANSFER, PaymentMethod.CREDIT_CARD, PaymentMethod.CASH, PaymentMethod.STRIPE, PaymentMethod.PAYPAL, PaymentMethod.OTHER]),
+    transactionReference: z.string().optional().or(z.literal('')),
+    paymentDate: z.string().optional().or(z.literal('')),
+    documentReference: z.string().url('Linkul trebuie să fie valid').optional().or(z.literal('')),
+    notes: z.string().optional()
 });
 
 export const processPaymentSelfSchema = z.object({
+    amount: z.coerce.number().min(0.01, 'Suma trebuie să fie mai mare decât 0'),
     paymentMethod: z.enum([PaymentMethod.BANK_TRANSFER, PaymentMethod.CREDIT_CARD, PaymentMethod.CASH, PaymentMethod.STRIPE, PaymentMethod.PAYPAL, PaymentMethod.OTHER]),
     transactionReference: z.string().min(1, 'Referința tranzacției este obligatorie'),
     paymentDate: z.string().optional().or(z.literal('')),
-    documentReference: z.string().url('Linkul către dovada plății este obligatoriu').min(1, 'Dovada plății este obligatorie')
+    documentReference: z.string().url('Linkul către dovada plății este obligatoriu').min(1, 'Dovada plății este obligatorie'),
+    notes: z.string().optional()
 });
 
 export type ProcessPaymentSelfData = z.infer<typeof processPaymentSelfSchema>;
 
 export const getProcessPaymentSelfDefaultValues = (): ProcessPaymentSelfData => ({
+    amount: 0,
     paymentMethod: PaymentMethod.BANK_TRANSFER,
     transactionReference: '',
     paymentDate: new Date().toISOString().split('T')[0],
-    documentReference: ''
+    documentReference: '',
+    notes: ''
+});
+
+export const createProcessPaymentSelfSchema = (maxAmount: number) => z.object({
+    amount: z.coerce.number()
+        .min(0.01, 'Suma trebuie să fie mai mare decât 0')
+        .max(Number(maxAmount), `Suma nu poate depăși ${Number(maxAmount).toFixed(2)} RON (rest de plată)`),
+    paymentMethod: z.enum([PaymentMethod.BANK_TRANSFER, PaymentMethod.CREDIT_CARD, PaymentMethod.CASH, PaymentMethod.STRIPE, PaymentMethod.PAYPAL, PaymentMethod.OTHER]),
+    transactionReference: z.string().min(1, 'Referința tranzacției este obligatorie'),
+    paymentDate: z.string().optional().or(z.literal('')),
+    documentReference: z.string().url('Linkul către dovada plății este obligatoriu').min(1, 'Dovada plății este obligatorie'),
+    notes: z.string().optional()
 });

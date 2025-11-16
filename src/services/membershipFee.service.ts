@@ -5,7 +5,10 @@ import {
     MembershipFeeCreateRequest,
     MembershipFeeUpdateRequest,
     MembershipFeePaymentRequest,
-    MembershipFeeFilter
+    MembershipFeeFilter,
+    MembershipFeePayment,
+    MembershipFeePaymentCreateRequest,
+    MembershipFeePaymentApprovalRequest
 } from '@/types/membershipFee.types';
 
 export const membershipFeeService = {
@@ -58,5 +61,21 @@ export const membershipFeeService = {
             `membership_fee/auto-check-renewal/${memberId}`,
             {}
         );
+    },
+
+    getPayments: async (feeId: string): Promise<MembershipFeePayment[]> => {
+        return apiService.get<MembershipFeePayment[]>(`membership_fee/${feeId}/payments`);
+    },
+
+    createPayment: async (feeId: string, data: MembershipFeePaymentCreateRequest): Promise<MembershipFeePayment> => {
+        return apiService.post<MembershipFeePayment>(`membership_fee/${feeId}/payments`, data);
+    },
+
+    approvePayment: async (paymentId: string): Promise<MembershipFeePayment> => {
+        return apiService.post<MembershipFeePayment>(`membership_fee/payments/${paymentId}/approve`, {});
+    },
+
+    rejectPayment: async (paymentId: string, data: MembershipFeePaymentApprovalRequest): Promise<MembershipFeePayment> => {
+        return apiService.post<MembershipFeePayment>(`membership_fee/payments/${paymentId}/reject`, data);
     },
 };

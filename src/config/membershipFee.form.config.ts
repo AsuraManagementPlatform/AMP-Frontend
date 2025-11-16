@@ -1,5 +1,5 @@
 import { DynamicFormConfig, FieldType } from "@/types/form.types";
-import { RenewPeriod, PaymentMethod } from "@/types/membershipFee.types";
+import { PaymentMethod } from "@/types/membershipFee.types";
 
 export const createMembershipFeeFormConfig = (rateOptions: Array<{value: string, label: string}> = []): DynamicFormConfig => ({
     sections: [
@@ -28,18 +28,18 @@ export const createMembershipFeeFormConfig = (rateOptions: Array<{value: string,
                     placeholder: 'Selectează tipul cotizației',
                     required: true,
                     options: rateOptions,
-                    helperText: 'Valoarea finală va fi calculată automat în funcție de perioada selectată (ex: 50 lei/lună × 12 luni = 600 lei anual)'
+                    helperText: 'Cotizația este anuală. Poți plăti suma completă sau în mai multe tranșe.'
                 },
                 {
                     name: 'customAmount',
-                    label: 'Sumă personalizată (per lună)',
+                    label: 'Sumă anuală personalizată',
                     type: FieldType.NUMBER,
-                    placeholder: 'ex: 50',
+                    placeholder: 'ex: 200',
                     required: false,
                     min: 0.01,
                     step: 0.01,
                     condition: (values: any) => values.rateType === 'CUSTOM',
-                    helperText: 'Introduceți suma lunară dorită'
+                    helperText: 'Introduceți suma anuală dorită'
                 },
                 {
                     name: 'currency',
@@ -54,43 +54,10 @@ export const createMembershipFeeFormConfig = (rateOptions: Array<{value: string,
                     ]
                 },
                 {
-                    name: 'renewPeriod',
-                    label: 'Perioadă reînnoire',
-                    type: FieldType.SELECT,
-                    required: true,
-                    options: [
-                        { value: RenewPeriod.MONTHLY, label: 'Lunar' },
-                        { value: RenewPeriod.QUARTERLY, label: 'Trimestrial' },
-                        { value: RenewPeriod.SEMI_ANNUAL, label: 'Semestrial' },
-                        { value: RenewPeriod.ANNUAL, label: 'Anual' },
-                        { value: RenewPeriod.ONE_TIME, label: 'O singură dată' }
-                    ]
-                },
-                {
                     name: 'autoRenew',
                     label: 'Reînnoire automată',
                     type: FieldType.CHECKBOX,
                     required: false
-                }
-            ]
-        },
-        {
-            title: "Perioada",
-            columns: 2,
-            fields: [
-                {
-                    name: 'startedFrom',
-                    label: 'Data început',
-                    type: FieldType.DATE,
-                    placeholder: 'Selectează data de început',
-                    required: true
-                },
-                {
-                    name: 'endedAt',
-                    label: 'Data sfârșit',
-                    type: FieldType.DATE,
-                    placeholder: 'Selectează data de sfârșit',
-                    required: true
                 }
             ]
         },
@@ -146,6 +113,16 @@ export const processPaymentFormConfig = (): DynamicFormConfig => ({
             columns: 1,
             fields: [
                 {
+                    name: 'amount',
+                    label: 'Sumă de plată',
+                    type: FieldType.NUMBER,
+                    placeholder: 'ex: 50',
+                    required: true,
+                    min: 0.01,
+                    step: 0.01,
+                    helperText: 'Introduceți suma plătită de către membru. Poate fi o sumă parțială.'
+                },
+                {
                     name: 'paymentMethod',
                     label: 'Metodă de plată',
                     type: FieldType.SELECT,
@@ -172,6 +149,15 @@ export const processPaymentFormConfig = (): DynamicFormConfig => ({
                     label: 'Data plății',
                     type: FieldType.DATE,
                     required: false
+                },
+                {
+                    name: 'notes',
+                    label: 'Note suplimentare',
+                    type: FieldType.TEXTAREA,
+                    placeholder: 'Note despre plată...',
+                    maxLength: 500,
+                    rows: 2,
+                    required: false
                 }
             ]
         }
@@ -186,6 +172,16 @@ export const processPaymentSelfFormConfig = (): DynamicFormConfig => ({
             title: "Confirmare plată personală",
             columns: 1,
             fields: [
+                {
+                    name: 'amount',
+                    label: 'Sumă de plată',
+                    type: FieldType.NUMBER,
+                    placeholder: 'ex: 50',
+                    required: true,
+                    min: 0.01,
+                    step: 0.01,
+                    helperText: 'Introduceți suma pe care doriți să o plătiți acum. Puteți plăti oricât doriți din suma totală.'
+                },
                 {
                     name: 'paymentMethod',
                     label: 'Metodă de plată',
@@ -221,6 +217,15 @@ export const processPaymentSelfFormConfig = (): DynamicFormConfig => ({
                     name: 'paymentDate',
                     label: 'Data plății',
                     type: FieldType.DATE,
+                    required: false
+                },
+                {
+                    name: 'notes',
+                    label: 'Note suplimentare',
+                    type: FieldType.TEXTAREA,
+                    placeholder: 'Note despre plată...',
+                    maxLength: 500,
+                    rows: 2,
                     required: false
                 }
             ]

@@ -182,14 +182,14 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
 
             const membershipFeeCreateRequest: MembershipFeeCreateRequest = {
                 member: data.memberId,
-                rate_type: data.rateType,
+                rateType: data.rateType,
                 amount: data.rateType === RateType.CUSTOM ? data.customAmount : undefined,
                 currency: data.currency || 'RON',
-                renew_period: data.renewPeriod,
-                started_from: startedFromDate,
-                ended_at: data.endedAt,
-                auto_renew: data.autoRenew || false,
-                payment_method: data.paymentMethod,
+                renewPeriod: data.renewPeriod,
+                startedFrom: startedFromDate,
+                endedAt: data.endedAt,
+                autoRenew: data.autoRenew || false,
+                paymentMethod: data.paymentMethod,
                 notes: data.notes
             };
 
