@@ -314,7 +314,6 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                     }}
                     onSuccess={handleExecuteSuccess}
                     expense={selectedExpense}
-                    project={project}
                 />
             )}
 

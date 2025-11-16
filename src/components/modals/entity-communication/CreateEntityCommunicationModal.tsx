@@ -17,7 +17,6 @@ interface CreateEntityCommunicationModalProps {
     onClose: () => void;
     onSuccess: () => void;
     entityId: string;
-    entities?: SelectOption[];
     organizationMembers?: SelectOption[];
 }
 
@@ -26,7 +25,6 @@ export const CreateEntityCommunicationModal: React.FC<CreateEntityCommunicationM
     onClose,
     onSuccess,
     entityId,
-    entities,
     organizationMembers,
 }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,7 +40,7 @@ export const CreateEntityCommunicationModal: React.FC<CreateEntityCommunicationM
             setIsSubmitting(true);
 
             const entityCommunicationCreateRequest: EntityCommunicationCreateRequest = {
-                entity: data.entity,
+                entity: entityId,
                 responsible: data.responsible,
                 date: data.date,
                 type: data.type,
@@ -65,9 +63,8 @@ export const CreateEntityCommunicationModal: React.FC<CreateEntityCommunicationM
     };
 
 
-    const formConfig = createEntityCommunicationFormConfig(entities, organizationMembers);
+    const formConfig = createEntityCommunicationFormConfig(organizationMembers);
     const defaultValues = getDefaultEntityCommunicationValues(entityId);
-
 
     return (
         <Modal

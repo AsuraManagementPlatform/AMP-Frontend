@@ -18,6 +18,7 @@ export * from './vat.types.ts';
 export * from './entity-donation.types.ts';
 export * from './entity-communication.types.ts'
 export * from './project-partner.types.ts'
+export * from './organization-member.types.ts'
 export * from './communication.types.ts'
 export * from './activity-proposal.types.ts'
 

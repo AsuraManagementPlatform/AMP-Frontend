@@ -4,7 +4,6 @@ import Layout from '@/components/layout/Layout';
 import {PrimaryActionButton} from '@/components/ui/PrimaryActionButton';
 import showToast from '@/components/ui/Toast';
 import {entityService} from '@/services/entity.service';
-import {Entity} from '@/types/entity.types';
 import {UpdateEntityModal} from '@/components/modals/entity/UpdateEntityModal';
 import {EntityDetailsTab} from '@/components/entity-tabs/EntityDetailsTab';
 import {EntityDonationsTab} from '@/components/entity-tabs/EntityDonationsTab';
@@ -12,6 +11,9 @@ import {EntityCommunicationsTab} from '@/components/entity-tabs/EntityCommunicat
 import {EntityPartnersTab} from '@/components/entity-tabs/EntityPartnersTab';
 import {ROUTES} from '@/utils/constants.utils';
 import {t} from 'i18next';
+import organizationMemberService from "@/services/organization-member.service.ts";
+import entityDonationService from "@/services/entity-donation.service.ts";
+import {Entity, EntityDonationStats, OrganizationMemberWithDetails, SelectOption} from "@/types/index.types.ts";
 
 type TabType = 'details' | 'donations' | 'partners' | 'communications';
 
@@ -22,6 +24,10 @@ const EntityPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<TabType>('details');
+
+    const [entities, setEntities] = useState<SelectOption[]>([]);
+    const [organizationMembers, setOrganizationMembers] = useState<SelectOption[]>([]);
+    const [entityDonationStats, setEntityDonationStats] = useState<EntityDonationStats>();
 
     useEffect(() => {
         loadData();
@@ -38,8 +44,25 @@ const EntityPage: React.FC = () => {
             setLoading(true);
             const entity = await entityService.getById(entityId);
             setEntity(entity);
-        } catch (error: any) {
-            const errorMessage = error?.message || t('toast.entity.load_error');
+
+            const entitiesResponse = await entityService.getList({ pageSize: 1000 });
+            const entityOptions: SelectOption[] = (entitiesResponse.results || []).map((e: Entity) => ({
+                value: e.id,
+                label: e.name
+            }));
+            setEntities(entityOptions);
+
+            const organizationMembers = await organizationMemberService.getList();
+            const filtered = (organizationMembers.organizationMembersList || []).filter(
+                m => m.organization === entity.organization
+            );
+            setOrganizationMembers(filtered.map((member: OrganizationMemberWithDetails) => ({value: member.id, label: member.memberDetails.fullName})));
+
+            const entityOrganizationStats = await entityDonationService.getStats({entityId: entityId});
+            setEntityDonationStats(entityOrganizationStats);
+
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : t('toast.entity.load_error');
             showToast.error(errorMessage);
             navigate(ROUTES.CRM_ENTITIES);
         } finally {
@@ -58,8 +81,8 @@ const EntityPage: React.FC = () => {
             const updatedEntity = await entityService.getById(entityId);
             setEntity(updatedEntity);
             showToast.success(t('toast.entity.updated'));
-        } catch (error: any) {
-            const errorMessage = error?.message || t('toast.entity.load_error');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : t('toast.entity.load_error');
             showToast.error(errorMessage);
         }
     };
@@ -142,9 +165,23 @@ const EntityPage: React.FC = () => {
                 </div>
 
                 {activeTab === 'details' && <EntityDetailsTab entity={entity} />}
-                {activeTab === 'donations' && <EntityDonationsTab entityId={entity.id} entityName={entity.name} />}
+                {activeTab === 'donations' && (
+                    <EntityDonationsTab
+                        entityId={entity.id}
+                        entityName={entity.name}
+                        organizationId={entity.organization}
+                        stats={entityDonationStats}
+                    />
+                )}
                 {activeTab === 'partners' && <EntityPartnersTab entityId={entity.id} />}
-                {activeTab === 'communications' && <EntityCommunicationsTab entityId={entity.id} entityName={entity.name} />}
+                {activeTab === 'communications' && (
+                    <EntityCommunicationsTab
+                        entityId={entity.id}
+                        entityName={entity.name}
+                        entities={entities}
+                        organizationMembers={organizationMembers}
+                    />
+                )}
 
                 {isEditModalOpen && (
                     <UpdateEntityModal

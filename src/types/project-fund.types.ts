@@ -74,3 +74,32 @@ export interface ProjectFundAllocation {
     expenseName?: string;
     fundSource?: string;
 }
+
+export interface AvailableFundForExpense extends BaseEntity {
+    project: string;
+    activity?: string;
+    activityTitle?: string;
+    amount: number;
+    allocatedAmount: number;
+    remainingAmount: number;
+    source: string;
+    category: string;
+    sourceName: string;
+    currency: Currency;
+    date?: string;
+    paymentMethod: string;
+    scope: string;
+    status: ProjectFundStatus;
+    priority: 'high' | 'normal';
+}
+
+export interface AvailableFundsResponse {
+    expenseId: string;
+    expenseTotalAmount: number;
+    expenseActivity: string | null;
+    expenseActivityTitle: string | null;
+    totalAvailable: number;
+    hasSufficientFunds: boolean;
+    activityFunds: AvailableFundForExpense[];
+    projectFunds: AvailableFundForExpense[];
+}

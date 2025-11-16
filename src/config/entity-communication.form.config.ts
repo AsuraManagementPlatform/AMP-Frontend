@@ -2,7 +2,6 @@ import {CommunicationType, DynamicFormConfig, FieldType, SelectOption} from '@/t
 
 
 export const createEntityCommunicationFormConfig = (
-    entities: SelectOption[] = [],
     organizationMembers: SelectOption[] = []
 ): DynamicFormConfig => ({
     sections: [
@@ -13,17 +12,15 @@ export const createEntityCommunicationFormConfig = (
                 {
                     name: 'entity',
                     label: 'Entitate',
-                    type: FieldType.SELECT,
+                    type: FieldType.HIDDEN,
                     required: true,
-                    placeholder: 'Selectați entitatea',
-                    options: entities,
-                    helperText: 'Selectează entitatea cu care se comunică'
                 },
                 {
                     name: 'responsible',
                     label: 'Responsabil',
                     type: FieldType.SELECT,
                     required: true,
+                    placeholder: 'Selectați responsabilul',
                     options: organizationMembers,
                 },
                 {
@@ -72,7 +69,7 @@ export const createEntityCommunicationFormConfig = (
             columns: 1,
             fields: [
                 {
-                    name: 'next_steps',
+                    name: 'nextSteps',
                     label: 'Următorii pași',
                     type: FieldType.TEXTAREA,
                     required: false,

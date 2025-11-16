@@ -2,8 +2,10 @@ import {
     ListParams,
     PaginatedResponse,
     ProjectFund,
-    ProjectFundCreateRequest, ProjectFundPayRequest,
-    ProjectFundUpdateRequest
+    ProjectFundCreateRequest,
+    ProjectFundPayRequest,
+    ProjectFundUpdateRequest,
+    AvailableFundsResponse
 } from "@/types/index.types.ts";
 import {apiService} from "@/services/api.service.ts";
 
@@ -14,6 +16,10 @@ export const projectFundService = {
 
     getById: async (id: string): Promise<ProjectFund> => {
         return apiService.get<ProjectFund>(`project_fund/${id}`);
+    },
+
+    getAvailableForExpense: async (expenseId: string): Promise<AvailableFundsResponse> => {
+        return apiService.get<AvailableFundsResponse>(`project_fund/available_for_expense/${expenseId}`);
     },
 
     create: async (data: ProjectFundCreateRequest): Promise<ProjectFund> => {
