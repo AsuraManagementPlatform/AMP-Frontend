@@ -49,57 +49,76 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         }
     };
 
+    const variantStyles = {
+        danger: {
+            iconBg: 'bg-red-100',
+            iconText: 'text-red-600',
+            defaultIcon: '🗑️'
+        },
+        primary: {
+            iconBg: 'bg-blue-100',
+            iconText: 'text-blue-600',
+            defaultIcon: 'ℹ️'
+        }
+    };
+
+    const styles = variantStyles[confirmButtonVariant];
+
     return (
         <div
-            className="fixed inset-0 z-[9999] overflow-y-auto"
+            className="fixed inset-0 z-[99999] overflow-y-auto"
             aria-labelledby="confirm-dialog-title"
             role="dialog"
             aria-modal="true"
         >
             <div
-                className="fixed inset-0 bg-black/50 transition-opacity"
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
                 onClick={handleBackdropClick}
             />
 
             <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                    <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                        <div className="sm:flex sm:items-start">
-                            {icon}
-                            <div className={`mt-3 text-center sm:mt-0 ${icon ? 'sm:ml-4' : ''} sm:text-left flex-1`}>
+                <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                    <div className="bg-white px-6 pt-6 pb-4">
+                        <div className="flex items-start gap-4">
+                            <div className={`flex-shrink-0 w-12 h-12 rounded-full ${styles.iconBg} flex items-center justify-center`}>
+                                {icon ? (
+                                    <span className={`text-2xl ${styles.iconText}`}>{icon}</span>
+                                ) : (
+                                    <span className="text-2xl">{styles.defaultIcon}</span>
+                                )}
+                            </div>
+                            <div className="flex-1 min-w-0 mt-1">
                                 <h3
                                     className="text-lg font-semibold leading-6 text-gray-900 mb-2"
                                     id="confirm-dialog-title"
                                 >
                                     {title}
                                 </h3>
-                                <div className="mt-2">
-                                    <p className="text-sm text-gray-500">
-                                        {message}
-                                    </p>
-                                </div>
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                    {message}
+                                </p>
                             </div>
                         </div>
                     </div>
-                    <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-2">
+                    <div className="bg-gray-50 px-6 py-4 flex items-center justify-end gap-3">
+                        <Button
+                            onClick={onClose}
+                            variant="outline"
+                            size="sm"
+                            disabled={isLoading}
+                            className="w-auto"
+                        >
+                            {cancelText}
+                        </Button>
                         <Button
                             onClick={onConfirm}
                             variant={confirmButtonVariant}
                             size="sm"
                             disabled={isLoading}
                             isLoading={isLoading}
-                            className="w-full sm:w-auto"
+                            className="w-auto shadow-sm"
                         >
                             {confirmText}
-                        </Button>
-                        <Button
-                            onClick={onClose}
-                            variant="danger"
-                            size="sm"
-                            disabled={isLoading}
-                            className="w-full sm:w-auto mt-2 sm:mt-0"
-                        >
-                            {cancelText}
                         </Button>
                     </div>
                 </div>

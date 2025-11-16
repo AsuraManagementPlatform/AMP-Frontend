@@ -126,6 +126,13 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                                     >
                                                         💳 Cotizații Membri
                                                     </Link>
+                                                    <Link
+                                                        to={ROUTES.SONDAJE}
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        onClick={() => setErpDropdownOpen(false)}
+                                                    >
+                                                        📊 Sondaje
+                                                    </Link>
                                                 </div>
                                             )}
                                         </li>

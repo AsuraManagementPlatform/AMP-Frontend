@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+﻿import { useState, useMemo } from 'react';
 import { useAuth } from "@/hooks/useAuth";
 import { User } from "@/types/index.types";
 import { Project } from "@/types/project.types";
@@ -40,6 +40,7 @@ export const useDashboardState = () => {
     const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
     const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
     const [isOrgDetailsModalOpen, setIsOrgDetailsModalOpen] = useState(false);
+    const [isGlobalBroadcastModalOpen, setIsGlobalBroadcastModalOpen] = useState(false);
 
     const isAdmin = useMemo(() => 
         user?.groups?.some(group => group.toLowerCase() === 'admin') || false, [user]);
@@ -115,6 +116,8 @@ export const useDashboardState = () => {
         isCreateActivityModalOpen,
         setIsCreateActivityModalOpen,
         isOrgDetailsModalOpen,
-        setIsOrgDetailsModalOpen
+        setIsOrgDetailsModalOpen,
+        isGlobalBroadcastModalOpen,
+        setIsGlobalBroadcastModalOpen
     };
 };

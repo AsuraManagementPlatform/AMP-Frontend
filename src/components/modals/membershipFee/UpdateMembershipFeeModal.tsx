@@ -5,8 +5,9 @@ import { updateMembershipFeeFormConfig } from '@/config/membershipFee.form.confi
 import { updateMembershipFeeSchema, type UpdateMembershipFeeData } from '@/schemas/membershipFee.schema';
 import { membershipFeeService } from '@/services/membershipFee.service';
 import { userService } from '@/services/user.service';
+import { organizationService } from '@/services/organization.service';
 import showToast from '@/components/ui/Toast';
-import { MembershipFeeUpdateRequest, MembershipFee } from '@/types/membershipFee.types';
+import { MembershipFeeUpdateRequest, MembershipFee, RateType, MembershipFeeStatus, RenewPeriod } from '@/types/membershipFee.types';
 import { useAuth } from '@/hooks/useAuth';
 
 interface UpdateMembershipFeeModalProps {
@@ -24,8 +25,9 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
 }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [formConfig, setFormConfig] = useState(updateMembershipFeeFormConfig());
+    const [formConfig, setFormConfig] = useState<any>(null);
     const [currentFee, setCurrentFee] = useState<MembershipFee | null>(null);
+    const [organization, setOrganization] = useState<any>(null);
     const { user } = useAuth();
 
     useEffect(() => {
@@ -33,13 +35,17 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
             try {
                 setIsLoading(true);
 
-                const [feeResponse, membersResponse] = await Promise.all([
+                const [feeResponse, membersResponse, orgResponse] = await Promise.all([
                     membershipFeeService.getById(membershipFeeId),
-                    userService.getList()
+                    userService.getList(),
+                    organizationService.getById(user?.organizationId || '')
                 ]);
 
                 const fee = (feeResponse as any).membershipFee || (feeResponse as any).membership_fee || feeResponse;
                 setCurrentFee(fee);
+
+                const org = (orgResponse as any).organization || orgResponse;
+                setOrganization(org);
 
                 const members = membersResponse.results || [];
                 const memberOptions = members.map((member: any) => ({
@@ -47,18 +53,74 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
                     label: `${member.fullName} (${member.email})`
                 }));
 
-                const config = updateMembershipFeeFormConfig();
+                const memberGroups = fee.memberGroups || [];
+                const isAdmin = memberGroups.includes('organization_admin') || memberGroups.includes('ORGANIZATION_ADMIN');
+                
+                const rateOptions = [];
+                
+                if (!isAdmin) {
+                    const isEmployee = memberGroups.includes('EMPLOYEE');
+                    const isVolunteer = memberGroups.includes('VOLUNTEER');
+                    const isMember = memberGroups.includes('MEMBER');
+                    
+                    if (isEmployee && org.membershipFeeEmployee) {
+                        const monthlyRate = (org.membershipFeeEmployee / 12).toFixed(2);
+                        rateOptions.push({
+                            value: RateType.EMPLOYEE,
+                            label: `Angajat - ${monthlyRate} ${org.currency || 'RON'}/lună`
+                        });
+                    }
+                    
+                    if (isVolunteer && org.membershipFeeVolunteer) {
+                        const monthlyRate = (org.membershipFeeVolunteer / 12).toFixed(2);
+                        rateOptions.push({
+                            value: RateType.VOLUNTEER,
+                            label: `Voluntar - ${monthlyRate} ${org.currency || 'RON'}/lună`
+                        });
+                    }
+                    
+                    if (isMember && org.membershipFeeMember) {
+                        const monthlyRate = (org.membershipFeeMember / 12).toFixed(2);
+                        rateOptions.push({
+                            value: RateType.MEMBER,
+                            label: `Membru - ${monthlyRate} ${org.currency || 'RON'}/lună`
+                        });
+                    }
+                }
+                
+                rateOptions.push({
+                    value: RateType.CUSTOM,
+                    label: 'Sumă personalizată'
+                });
+
+                const config = updateMembershipFeeFormConfig(rateOptions);
                 const memberField = config.sections[0].fields.find(f => f.name === 'memberId');
                 if (memberField && 'options' in memberField) {
                     memberField.options = memberOptions;
                 }
                 
-                if (fee.status === 'PAID') {
-                    const amountField = config.sections[1].fields.find(f => f.name === 'amount');
-                    if (amountField) {
-                        amountField.disabled = true;
-                        amountField.helperText = 'Suma nu poate fi modificată pentru cotizațiile plătite';
-                    }
+                const startDateField = config.sections[2].fields.find(f => f.name === 'startedFrom');
+                if (startDateField) {
+                    startDateField.disabled = true;
+                    startDateField.helperText = 'Datele nu pot fi modificate';
+                }
+                
+                const endDateField = config.sections[2].fields.find(f => f.name === 'endedAt');
+                if (endDateField) {
+                    endDateField.disabled = true;
+                    endDateField.helperText = 'Data de sfârșit se calculează automat';
+                }
+                
+                const rateTypeField = config.sections[1].fields.find(f => f.name === 'rateType');
+                if (rateTypeField) {
+                    rateTypeField.disabled = true;
+                    rateTypeField.helperText = 'Tipul cotizației nu poate fi modificat';
+                }
+                
+                const customAmountField = config.sections[1].fields.find(f => f.name === 'customAmount');
+                if (customAmountField && fee.status === MembershipFeeStatus.PAID) {
+                    customAmountField.disabled = true;
+                    customAmountField.helperText = 'Suma nu poate fi modificată pentru cotizațiile plătite';
                 }
                 
                 setFormConfig(config);
@@ -78,13 +140,19 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
         try {
             setIsSubmitting(true);
 
+            const multiplier = 
+                data.renewPeriod === RenewPeriod.MONTHLY ? 1 :
+                data.renewPeriod === RenewPeriod.QUARTERLY ? 3 :
+                data.renewPeriod === RenewPeriod.SEMI_ANNUAL ? 6 :
+                data.renewPeriod === RenewPeriod.ANNUAL ? 12 : 1;
+            
+            const monthlyAmount = data.customAmount || (data.amount / multiplier);
+            const totalAmount = monthlyAmount * multiplier;
+
             const updateRequest: MembershipFeeUpdateRequest = {
-                member: data.memberId,
-                amount: data.amount,
+                amount: totalAmount,
                 currency: data.currency || 'RON',
                 renew_period: data.renewPeriod,
-                started_from: data.startedFrom,
-                ended_at: data.endedAt,
                 payment_method: data.paymentMethod,
                 auto_renew: data.autoRenew,
                 notes: data.notes
@@ -102,17 +170,67 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
         }
     };
 
+    const calculateRateType = (): 'EMPLOYEE' | 'VOLUNTEER' | 'MEMBER' | 'CUSTOM' => {
+        if (!currentFee || !organization) return RateType.CUSTOM;
+        
+        const memberGroups = currentFee.memberGroups || [];
+        const isEmployee = memberGroups.includes('EMPLOYEE');
+        const isVolunteer = memberGroups.includes('VOLUNTEER');
+        const isMember = memberGroups.includes('MEMBER');
+        
+        const multiplier = 
+            currentFee.renewPeriod === RenewPeriod.MONTHLY ? 1 :
+            currentFee.renewPeriod === RenewPeriod.QUARTERLY ? 3 :
+            currentFee.renewPeriod === RenewPeriod.SEMI_ANNUAL ? 6 :
+            currentFee.renewPeriod === RenewPeriod.ANNUAL ? 12 : 1;
+        
+        const monthlyAmount = currentFee.amount / multiplier;
+        
+        if (isEmployee && organization.membershipFeeEmployee) {
+            const monthlyRate = organization.membershipFeeEmployee / 12;
+            if (Math.abs(monthlyAmount - monthlyRate) < 0.01) {
+                return RateType.EMPLOYEE;
+            }
+        }
+        if (isVolunteer && organization.membershipFeeVolunteer) {
+            const monthlyRate = organization.membershipFeeVolunteer / 12;
+            if (Math.abs(monthlyAmount - monthlyRate) < 0.01) {
+                return RateType.VOLUNTEER;
+            }
+        }
+        if (isMember && organization.membershipFeeMember) {
+            const monthlyRate = organization.membershipFeeMember / 12;
+            if (Math.abs(monthlyAmount - monthlyRate) < 0.01) {
+                return RateType.MEMBER;
+            }
+        }
+        
+        return RateType.CUSTOM;
+    };
+
+    const calculateMonthlyRate = (fee: MembershipFee): number => {
+        const multiplier = 
+            fee.renewPeriod === RenewPeriod.MONTHLY ? 1 :
+            fee.renewPeriod === RenewPeriod.QUARTERLY ? 3 :
+            fee.renewPeriod === RenewPeriod.SEMI_ANNUAL ? 6 :
+            fee.renewPeriod === RenewPeriod.ANNUAL ? 12 : 1;
+        
+        return fee.amount / multiplier;
+    };
+
     const defaultValues: UpdateMembershipFeeData | undefined = currentFee ? {
         memberId: currentFee.memberId,
         organizationId: currentFee.organizationId || user?.organizationId,
+        rateType: calculateRateType(),
+        customAmount: calculateRateType() === RateType.CUSTOM ? calculateMonthlyRate(currentFee) : undefined,
         amount: currentFee.amount,
         currency: currentFee.currency,
         renewPeriod: currentFee.renewPeriod,
         startedFrom: currentFee.startedFrom,
         endedAt: currentFee.endedAt,
         autoRenew: currentFee.autoRenew,
-        paymentMethod: currentFee.paymentMethod,
-        notes: currentFee.notes
+        paymentMethod: currentFee.paymentMethod || undefined,
+        notes: currentFee.notes || undefined
     } : undefined;
 
     return (
@@ -122,7 +240,7 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
             title="Actualizează cotizație"
             size="lg"
         >
-            {isLoading ? (
+            {isLoading || !formConfig ? (
                 <div className="flex items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
                 </div>

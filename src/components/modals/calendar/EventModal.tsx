@@ -71,22 +71,22 @@ export const EventModal: React.FC<EventModalProps> = ({
     } = useForm<CreateEventFormData>({
         resolver: zodResolver(createEventSchema),
         defaultValues: {
-            event_type: 'CALENDAR_NOTE',
+            eventType: 'CALENDAR_NOTE',
             priority: 'MEDIUM',
-            all_day: false,
-            is_organization_event: false,
-            is_recurring: false,
-            recurrence_pattern: 'NONE'
+            allDay: false,
+            isOrganizationEvent: false,
+            isRecurring: false,
+            recurrencePattern: 'NONE'
         }
     });
 
-    const allDay = watch('all_day');
-    const isRecurring = watch('is_recurring');
+    const allDay = watch('allDay');
+    const isRecurring = watch('isRecurring');
 
     useEffect(() => {
         if (event) {
-            const startDateTime = new Date(event.start_date);
-            const endDateTime = new Date(event.end_date);
+            const startDateTime = new Date(event.startDate);
+            const endDateTime = new Date(event.endDate);
             
             const startDateStr = startDateTime.toISOString().split('T')[0];
             const endDateStr = endDateTime.toISOString().split('T')[0];
@@ -100,17 +100,17 @@ export const EventModal: React.FC<EventModalProps> = ({
             reset({
                 title: event.title,
                 description: event.description || '',
-                start_date: startDateStr,
-                end_date: endDateStr,
-                event_type: event.event_type,
+                startDate: startDateStr,
+                endDate: endDateStr,
+                eventType: event.eventType,
                 priority: event.priority,
                 location: event.location || '',
-                all_day: event.all_day,
-                reminder_minutes: event.reminder_minutes,
-                is_organization_event: event.is_organization_event,
-                is_recurring: event.is_recurring || false,
-                recurrence_pattern: event.recurrence_pattern || 'NONE',
-                recurrence_duration_months: event.recurrence_duration_months || null
+                allDay: event.allDay,
+                reminderMinutes: event.reminderMinutes,
+                isOrganizationEvent: event.isOrganizationEvent,
+                isRecurring: event.isRecurring || false,
+                recurrencePattern: event.recurrencePattern || 'NONE',
+                recurrenceDurationMonths: event.recurrenceDurationMonths || null
             });
         } else if (defaultDate) {
             const year = defaultDate.getFullYear();
@@ -121,17 +121,17 @@ export const EventModal: React.FC<EventModalProps> = ({
             setStartTime('09:00');
             setEndTime('10:00');
             
-            setValue('start_date', dateStr);
-            setValue('end_date', dateStr);
+            setValue('startDate', dateStr);
+            setValue('endDate', dateStr);
         }
     }, [event, defaultDate, reset, setValue]);
 
     const handleFormSubmit = async (data: CreateEventFormData) => {
         const formattedData = { ...data };
         
-        if (!data.all_day) {
-            formattedData.start_date = `${data.start_date}T${startTime}`;
-            formattedData.end_date = `${data.end_date}T${endTime}`;
+        if (!data.allDay) {
+            formattedData.startDate = `${data.startDate}T${startTime}`;
+            formattedData.endDate = `${data.endDate}T${endTime}`;
         }
         
         await onSubmit(formattedData);
@@ -149,8 +149,8 @@ export const EventModal: React.FC<EventModalProps> = ({
 
     const handleReset = () => {
         if (event) {
-            const startDateTime = new Date(event.start_date);
-            const endDateTime = new Date(event.end_date);
+            const startDateTime = new Date(event.startDate);
+            const endDateTime = new Date(event.endDate);
             
             const startDateStr = startDateTime.toISOString().split('T')[0];
             const endDateStr = endDateTime.toISOString().split('T')[0];
@@ -164,17 +164,17 @@ export const EventModal: React.FC<EventModalProps> = ({
             reset({
                 title: event.title,
                 description: event.description || '',
-                start_date: startDateStr,
-                end_date: endDateStr,
-                event_type: event.event_type,
+                startDate: startDateStr,
+                endDate: endDateStr,
+                eventType: event.eventType,
                 priority: event.priority,
                 location: event.location || '',
-                all_day: event.all_day,
-                reminder_minutes: event.reminder_minutes,
-                is_organization_event: event.is_organization_event,
-                is_recurring: event.is_recurring || false,
-                recurrence_pattern: event.recurrence_pattern || 'NONE',
-                recurrence_duration_months: event.recurrence_duration_months || null
+                allDay: event.allDay,
+                reminderMinutes: event.reminderMinutes,
+                isOrganizationEvent: event.isOrganizationEvent,
+                isRecurring: event.isRecurring || false,
+                recurrencePattern: event.recurrencePattern || 'NONE',
+                recurrenceDurationMonths: event.recurrenceDurationMonths || null
             });
         } else if (defaultDate) {
             const year = defaultDate.getFullYear();
@@ -189,15 +189,15 @@ export const EventModal: React.FC<EventModalProps> = ({
                 title: '',
                 description: '',
                 location: '',
-                event_type: 'CALENDAR_NOTE',
+                eventType: 'CALENDAR_NOTE',
                 priority: 'MEDIUM',
-                all_day: false,
-                is_organization_event: false,
-                is_recurring: false,
-                recurrence_pattern: 'NONE',
-                reminder_minutes: undefined,
-                start_date: dateStr,
-                end_date: dateStr
+                allDay: false,
+                isOrganizationEvent: false,
+                isRecurring: false,
+                recurrencePattern: 'NONE',
+                reminderMinutes: undefined,
+                startDate: dateStr,
+                endDate: dateStr
             });
         } else {
             setStartTime('09:00');
@@ -206,13 +206,13 @@ export const EventModal: React.FC<EventModalProps> = ({
                 title: '',
                 description: '',
                 location: '',
-                event_type: 'CALENDAR_NOTE',
+                eventType: 'CALENDAR_NOTE',
                 priority: 'MEDIUM',
-                all_day: false,
-                is_organization_event: false,
-                is_recurring: false,
-                recurrence_pattern: 'NONE',
-                reminder_minutes: undefined
+                allDay: false,
+                isOrganizationEvent: false,
+                isRecurring: false,
+                recurrencePattern: 'NONE',
+                reminderMinutes: undefined
             });
         }
     };
