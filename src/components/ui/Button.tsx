@@ -61,7 +61,7 @@ export const Button: React.FC<ButtonProps> = ({
     const buttonClasses = [
         ...baseClasses,
         sizeClasses[size],
-        variantClasses[variant],
+        !hasCustomClassName && variantClasses[variant],
         fullWidth && 'w-full',
         className
     ].filter(Boolean).join(' ');

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/Card';
@@ -7,13 +7,14 @@ import showToast from '@/components/ui/Toast';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { ROUTES } from '@/utils/constants.utils';
-import { OrganizationMemberWithDetails, OrganizationMemberType, OrganizationMemberStatus } from '@/types/organization-member.types';
+import { OrganizationMemberWithDetails, OrganizationMemberType, OrganizationMemberStatus, ImportJobStatus } from '@/types/organization-member.types';
 import { organizationMemberService } from '@/services/organization-member.service';
 import { CreateUserModal } from '@/components/modals/user/CreateUserModal';
 import { EditUserModal } from '@/components/modals/user/EditUserModal';
 import { userService } from '@/services/user.service';
 import { UserCreateRequest } from '@/schemas/user.schema';
 import { UserMeResponse } from '@/types/user.types';
+import { UserGroup } from '@/types/auth.types';
 
 interface TeamManagementContentProps {
     organizationId: string;
@@ -23,7 +24,8 @@ export const TeamManagementContent: React.FC<TeamManagementContentProps> = ({ or
     const navigate = useNavigate();
     const { t } = useTranslation();
     const confirm = useConfirmDialog();
-    const { user: currentUser } = useAuth();
+    const { user: currentUser, hasAnyUserGroup } = useAuth();
+    const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
     const [teamMembers, setTeamMembers] = useState<OrganizationMemberWithDetails[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -33,6 +35,11 @@ export const TeamManagementContent: React.FC<TeamManagementContentProps> = ({ or
     const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserMeResponse | null>(null);
     const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+    const [importJobId, setImportJobId] = useState<string | null>(null);
+    const [importStatus, setImportStatus] = useState<ImportJobStatus | null>(null);
+    const [isImporting, setIsImporting] = useState(false);
+    const [showErrorReport, setShowErrorReport] = useState<any>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         loadTeamMembers();
@@ -212,6 +219,89 @@ export const TeamManagementContent: React.FC<TeamManagementContentProps> = ({ or
         }
     };
 
+    const handleExportUsers = async () => {
+        try {
+            const blob = await organizationMemberService.exportUsers();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `membri_organizatie_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            showToast.success(t('toast.export.success'));
+        } catch (error: any) {
+            const message = error?.message || t('toast.export.failed');
+            const translatedMessage = message.includes('.') ? t(message) : message;
+            showToast.error(translatedMessage);
+        }
+    };
+
+    const handleImportUsers = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        if (!file.name.endsWith('.csv')) {
+            showToast.error(t('toast.import.invalid_file_type'));
+            return;
+        }
+
+        try {
+            setIsImporting(true);
+            const result = await organizationMemberService.importUsers(file);
+            setImportJobId(result.jobId);
+            showToast.info(t('toast.import.started', { count: result.totalRows }));
+        } catch (error: any) {
+            const message = error?.message || t('toast.import.upload_failed');
+            const translatedMessage = message.includes('.') ? t(message) : message;
+            showToast.error(translatedMessage);
+            setIsImporting(false);
+        } finally {
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (!importJobId) return;
+
+        const pollInterval = setInterval(async () => {
+            try {
+                const status = await organizationMemberService.getImportStatus(importJobId);
+                setImportStatus(status);
+
+                if (status.status === 'COMPLETED') {
+                    clearInterval(pollInterval);
+                    showToast.success(
+                        t('toast.import.success', { count: status.successCount })
+                    );
+                    loadTeamMembers();
+                    setImportJobId(null);
+                    setIsImporting(false);
+                } else if (status.status === 'FAILED') {
+                    clearInterval(pollInterval);
+                    showToast.error(t('toast.import.failed'));
+                    setShowErrorReport(status.errorReport);
+                    setImportJobId(null);
+                    setIsImporting(false);
+                }
+            } catch (error) {
+                clearInterval(pollInterval);
+                showToast.error(t('toast.import.status_error'));
+                setImportJobId(null);
+                setIsImporting(false);
+            }
+        }, 2000);
+
+        return () => clearInterval(pollInterval);
+    }, [importJobId]);
+
     const getTypeBadge = (type: OrganizationMemberType) => {
         const config = {
             [OrganizationMemberType.EMPLOYEE]: { textKey: 'label.organization_member.type_employee', className: 'bg-green-100 text-green-800' },
@@ -285,9 +375,38 @@ export const TeamManagementContent: React.FC<TeamManagementContentProps> = ({ or
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div></div>
-                <Button onClick={handleOpenCreateUser}>
-                    {t('label.organization_member.add_member')}
-                </Button>
+                <div className="flex gap-2">
+                    {isOrgAdmin && (
+                        <>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileSelect}
+                                accept=".csv"
+                                className="hidden"
+                            />
+                            <Button 
+                                onClick={handleImportUsers}
+                                disabled={isImporting}
+                                className="border-0 text-green-600 bg-transparent hover:bg-green-600 hover:text-white transition-colors"
+                            >
+                                {isImporting ? 'Importare în curs...' : 'Importă Utilizatori'}
+                            </Button>
+                            <Button 
+                                onClick={handleExportUsers}
+                                className="border-0 text-blue-600 bg-transparent hover:bg-blue-600 hover:text-white transition-colors"
+                            >
+                                Exportă Utilizatori
+                            </Button>
+                        </>
+                    )}
+                    <Button 
+                        onClick={handleOpenCreateUser}
+                        className="border-0 text-orange-600 bg-transparent hover:bg-orange-600 hover:text-white transition-colors"
+                    >
+                        {t('label.organization_member.add_member')}
+                    </Button>
+                </div>
             </div>
 
             {/* Stats Cards */}
@@ -309,6 +428,81 @@ export const TeamManagementContent: React.FC<TeamManagementContentProps> = ({ or
                     <div className="text-sm text-gray-600">{t('label.organization_member.active_members')}</div>
                 </Card>
             </div>
+
+            {/* Import Progress */}
+            {isImporting && importStatus && (
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-3"></div>
+                            <span className="text-blue-900 font-medium">
+                                Import în curs: {importStatus.processedRows}/{importStatus.totalRows} procesate
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Error Report Modal */}
+            {showErrorReport && (
+                <div 
+                    className="fixed inset-0 flex items-center justify-center z-50 p-4"
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                >
+                    <div className="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[80vh] overflow-auto">
+                        <h3 className="text-lg font-bold text-red-600 mb-4">Erori la import</h3>
+                        <div className="space-y-3">
+                            {Array.isArray(showErrorReport) ? (
+                                showErrorReport.map((error: any, index: number) => (
+                                    <div key={index} className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                                        <div className="mb-2">
+                                            <span className="font-semibold text-gray-900">Rând {error.row}:</span>
+                                            <span className="ml-2 text-gray-700">{error.fullName || error.full_name}</span>
+                                            <span className="ml-2 text-gray-500">({error.email})</span>
+                                        </div>
+                                        <div className="space-y-1">
+                                            {error.errors.map((err: any, i: number) => {
+                                                const message = typeof err === 'string' 
+                                                    ? err 
+                                                    : (err.message?.includes('.') 
+                                                        ? t(err.message, err.params || {}) 
+                                                        : err.message);
+                                                
+                                                return (
+                                                    <div key={i} className="flex items-start text-sm">
+                                                        <span className="inline-block w-32 font-medium text-red-800 flex-shrink-0">
+                                                            {err.field === 'full_name' && '📝 Nume complet:'}
+                                                            {err.field === 'email' && '📧 Email:'}
+                                                            {err.field === 'group' && '👥 Grup:'}
+                                                            {err.field === 'is_contributor' && '💰 Cotizant:'}
+                                                            {err.field === 'auto_generate_fees' && '🔄 Cotizații auto:'}
+                                                            {!err.field && '⚠️ Eroare:'}
+                                                        </span>
+                                                        <span className="text-red-700 flex-1">
+                                                            {message}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                                    <p className="text-red-700 font-medium">
+                                        {showErrorReport.fatalError || showErrorReport.fatal_error || 'Eroare necunoscută'}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                        <div className="mt-6 flex justify-end">
+                            <Button onClick={() => setShowErrorReport(null)} variant="secondary">
+                                Închide
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Filters */}
             <Card title={t('label.organization_member.filters')}>
