@@ -1,20 +1,16 @@
 import {ActivityChangeStatusRequest, TableAction, TableColumn} from '@/types/index.types';
 import React, {useState} from "react";
 import Table from "@/components/ui/Table.tsx";
-import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconView from "@/assets/icons/iconmonstr-eye.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
-import IconX from "@/assets/icons/iconmonstr-x.svg?react";
 import IconStart from "@/assets/icons/iconmonstr-start.svg?react";
 import IconDone from "@/assets/icons/iconmonstr-done.svg?react";
-import {Activity, ActivityStatus} from '@/types/activity.types';
-import {UpdateActivityModal} from '@/components/modals/activity/UpdateActivityModal';
-import {ViewActivityModal} from '@/components/modals/activity/ViewActivityModal';
+import {Activity, ActivityStatus, ActivityCompleteRequest} from '@/types/activity.types';
+import {ActivityDetailsModal} from '@/components/modals/activity/ActivityDetailsModal';
 import activityService from '@/services/activity.service';
 import showToast from '@/components/ui/Toast';
 import {useConfirmDialog} from '@/components/ui/ConfirmDialog';
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
-import {CompleteActivityModal} from "@/components/modals/activity/CompleteActivityModal.tsx";
 import {t} from "i18next";
 
 interface ActivityListProps {
@@ -32,19 +28,12 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                                                           }) => {
     const confirm = useConfirmDialog();
     const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
-    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
 
-    const handleView = (activity: Activity) => {
+    const handleViewDetails = (activity: Activity) => {
         setSelectedActivity(activity);
-        setIsViewModalOpen(true);
-    };
-
-    const handleEdit = (activity: Activity) => {
-        setSelectedActivity(activity);
-        setIsUpdateModalOpen(true);
+        setIsDetailsModalOpen(true);
     };
 
     const handleDelete = async (activity: Activity) => {
@@ -86,22 +75,28 @@ export const ActivityList: React.FC<ActivityListProps> = ({
     };
 
     const handleCompleted = async (activity: Activity) => {
-        setSelectedActivity(activity);
-        setIsCompleteModalOpen(true);
-    };
+        const isConfirmed = await confirm({
+            title: t('label.activity.complete_activity'),
+            message: `${t('label.activity.complete_activity_message')} "${activity.title}"?`,
+            confirmText: t('action.confirm'),
+            cancelText: t('action.cancel'),
+            confirmButtonVariant: 'primary',
+            icon: (<IconDone></IconDone>)
+        });
 
-    const handleCancelled = async (activity: Activity) => {
-        const changeStatusData: ActivityChangeStatusRequest = {
+        if (!isConfirmed) return;
+
+        const completeData: ActivityCompleteRequest = {
             id: activity.id,
-            status: ActivityStatus.CANCELLED
-        }
+            endingDate: new Date().toISOString().split('T')[0]
+        };
 
         try {
-            await activityService.changeStatus(changeStatusData);
-            showToast.success(t('toast.activity.cancelled'));
+            await activityService.complete(completeData);
+            showToast.success(t('toast.activity.completed'));
             setLocalRefresh(prev => prev + 1);
         } catch (error: any) {
-            const errorMessage = error?.message || t('toast.activity.cancel_error');
+            const errorMessage = error?.message || t('toast.activity.complete_error');
             showToast.error(errorMessage);
         }
     };
@@ -118,28 +113,42 @@ export const ActivityList: React.FC<ActivityListProps> = ({
             size: 'lg',
             filterable: true,
             filterType: 'text',
+            sticky: 'left',
         },
         {
-            key: 'type',
-            label: t('label.activity.type'),
+            key: 'startingDate',
+            label: t('label.activity.starting_date'),
             sortable: true,
-            filterable: true,
-            filterType: 'select',
-            size: 'md',
-            filterOptions: [
-                { label: t('label.activity.type_meeting'), value: 'MEETING' },
-                { label: t('label.activity.type_workshop'), value: 'WORKSHOP' },
-                { label: t('label.activity.type_training'), value: 'TRAINING' },
-                { label: t('label.activity.type_conference'), value: 'CONFERENCE' },
-                { label: t('label.activity.type_presentation'), value: 'PRESENTATION' },
-                { label: t('label.activity.type_event'), value: 'EVENT' },
-                { label: t('label.activity.type_task'), value: 'TASK' },
-                { label: t('label.activity.type_milestone'), value: 'MILESTONE' },
-                { label: t('label.activity.type_review'), value: 'REVIEW' },
-                { label: t('label.activity.type_other'), value: 'OTHER' }
-            ],
-            render: (type: string) => {
-                return t(`label.activity.type_${type.toLowerCase()}`);
+            size: 'sm',
+            render: (startingDate: string) => {
+                return startingDate ? new Date(startingDate).toLocaleDateString('ro-RO') : '-';
+            }
+        },
+        {
+            key: 'estimatedEndingDate',
+            label: t('label.activity.estimated_ending_date'),
+            sortable: true,
+            size: 'sm',
+            render: (estimatedEndingDate: string) => {
+                return estimatedEndingDate ? new Date(estimatedEndingDate).toLocaleDateString('ro-RO') : '-';
+            }
+        },
+        {
+            key: 'completedAt',
+            label: t('label.activity.completed_at'),
+            sortable: true,
+            size: 'sm',
+            render: (completedAt: string | undefined, activity: Activity) => {
+                if (activity.status !== ActivityStatus.COMPLETED || !completedAt) {
+                    return '-';
+                }
+                return new Date(completedAt).toLocaleDateString('ro-RO', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
             }
         },
         {
@@ -189,10 +198,10 @@ export const ActivityList: React.FC<ActivityListProps> = ({
         if (canManageActivities) {
             actions.push(
                 {
-                    label: t('action.edit'),
+                    label: t('action.view'),
                     variant: 'primary',
-                    onClick: handleEdit,
-                    icon: <IconEdit />
+                    onClick: handleViewDetails,
+                    icon: <IconView />
                 },
                 {
                     label: t('action.delete'),
@@ -214,20 +223,13 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                     onClick: handleCompleted,
                     icon: <IconDone />,
                     show: (activity: Activity) => activity.status === ActivityStatus.IN_PROGRESS
-                },
-                {
-                    label: t('action.cancel'),
-                    variant: 'primary',
-                    onClick: handleCancelled,
-                    icon: <IconX />,
-                    show: (activity: Activity) => activity.status === ActivityStatus.IN_PROGRESS
                 }
             );
         } else {
             actions.push({
                 label: t('action.view'),
                 variant: 'primary',
-                onClick: handleView,
+                onClick: handleViewDetails,
                 icon: <IconView />
             });
         }
@@ -249,40 +251,17 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                 refreshTrigger={refreshTrigger + localRefresh}
             />
 
-            {isUpdateModalOpen && selectedActivity && (
-                <UpdateActivityModal
-                    isOpen={isUpdateModalOpen}
+            {isDetailsModalOpen && selectedActivity && (
+                <ActivityDetailsModal
+                    isOpen={isDetailsModalOpen}
                     onClose={() => {
-                        setIsUpdateModalOpen(false);
+                        setIsDetailsModalOpen(false);
                         setSelectedActivity(null);
                     }}
                     onSuccess={handleUpdateSuccess}
                     activity={selectedActivity}
                     project={project}
-                />
-            )}
-
-            {isViewModalOpen && selectedActivity && (
-                <ViewActivityModal
-                    isOpen={isViewModalOpen}
-                    onClose={() => {
-                        setIsViewModalOpen(false);
-                        setSelectedActivity(null);
-                    }}
-                    activity={selectedActivity}
-                />
-            )}
-
-            {isCompleteModalOpen && selectedActivity && (
-                <CompleteActivityModal
-                    isOpen={isCompleteModalOpen}
-                    onClose={() => {
-                        setIsCompleteModalOpen(false);
-                        setSelectedActivity(null);
-                    }}
-                    onSuccess={handleUpdateSuccess}
-                    activity={selectedActivity}
-                    project={project}
+                    canEdit={canManageActivities}
                 />
             )}
         </>

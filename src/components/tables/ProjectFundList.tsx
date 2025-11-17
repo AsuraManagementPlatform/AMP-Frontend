@@ -103,7 +103,6 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                 const funds = fundsResponse.results || [];
 
                 const plannedTotal = funds
-                    .filter(fund => fund.status === ProjectFundStatus.PLANNED)
                     .reduce((sum, fund) => sum + (fund.estimatedAmount || 0), 0);
 
                 const paidTotal = funds
@@ -166,6 +165,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
             filterable: true,
             filterType: 'text',
             size: 'md',
+            sticky: 'left',
         },
         {
             key: 'category',
@@ -174,6 +174,17 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
             filterable: true,
             filterType: 'text',
             size: 'sm',
+        },
+        {
+            key: 'activityTitle',
+            label: t('label.project_fund.activity'),
+            sortable: true,
+            filterable: true,
+            filterType: 'text',
+            size: 'md',
+            render: (activityTitle: string | null | undefined) => {
+                return activityTitle || t('label.project_fund.any_activity');
+            }
         },
         {
             key: 'estimatedAmount',
@@ -268,26 +279,23 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
 
                 <Card className="text-center">
                     <div className="text-sm text-gray-600 mb-2">
-                        {t('label.project_fund.total_paid_remaining')}
+                        {t('label.project_fund.total_received_funds')}
                     </div>
-                    <div className="text-lg font-bold text-green-600">
-                        {loadingStats ? '...' : (
-                            <>
-                                <div>{t('label.project_fund.remaining')}: {totalRemainingFunds.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}</div>
-                                <div className="text-sm text-gray-600 font-normal mt-1">
-                                    {totalPaidFunds.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}
-                                </div>
-                            </>
-                        )}
+                    <div className="text-2xl font-bold text-blue-600">
+                        {loadingStats ? '...' : `${totalPaidFunds.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${projectCurrency}`}
                     </div>
                 </Card>
 
                 <Card className="text-center">
                     <div className="text-sm text-gray-600 mb-2">
-                        {t('label.project.planned_budget')}
+                        {t('label.project_fund.available_remaining')}
                     </div>
-                    <div className="text-2xl font-bold text-blue-600">
-                        {projectBudget.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}
+                    <div className="text-2xl font-bold text-green-600">
+                        {loadingStats ? '...' : (
+                            <>
+                                <div>{totalRemainingFunds.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}</div>
+                            </>
+                        )}
                     </div>
                 </Card>
             </div>

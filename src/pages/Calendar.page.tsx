@@ -6,11 +6,14 @@ import { EventList } from '@/components/calendar/EventList';
 import { Card } from '@/components/ui/Card';
 import showToast from '@/components/ui/Toast';
 import calendarService from '@/services/calendar.service';
+import activityService from '@/services/activity.service';
 import { CalendarEvent, CalendarFilters, CreateEventData } from '@/types/calendar.types';
 import { CreateEventFormData } from '@/schemas/calendar.schema';
 import { useAuth } from '@/hooks/useAuth';
 import { UserGroup } from '@/types/index.types';
 import { SurveyVoteModal } from '@/components/modals/survey/SurveyVoteModal';
+import { ActivityDetailsModal } from '@/components/modals/activity/ActivityDetailsModal';
+import { Activity } from '@/types/activity.types';
 
 type ViewMode = 'month' | 'list';
 
@@ -29,6 +32,8 @@ const CalendarPage: React.FC = () => {
     const [defaultDate, setDefaultDate] = useState<Date | undefined>(undefined);
     const [showOnlyCurrentMonth, setShowOnlyCurrentMonth] = useState(true);
     const [votingSurveyId, setVotingSurveyId] = useState<string | null>(null);
+    const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+    const [isActivityDetailsOpen, setIsActivityDetailsOpen] = useState(false);
 
     const loadEvents = async () => {
         setIsLoading(true);
@@ -42,7 +47,7 @@ const CalendarPage: React.FC = () => {
                 filters.endDate = endDate.toISOString();
             }
 
-            const data = await calendarService.getEvents(filters);
+            const data = await calendarService.getMyEvents(filters);
             setEvents(data || []);
         } catch (error) {
             showToast.error('Eroare la încărcarea evenimentelor');
@@ -131,8 +136,23 @@ const CalendarPage: React.FC = () => {
             return;
         }
         
+        if (event.eventType === 'ACTIVITY' && event.activity) {
+            loadActivityDetails(event.activity);
+            return;
+        }
+        
         setSelectedEvent(event);
         setIsEventModalOpen(true);
+    };
+
+    const loadActivityDetails = async (activityId: string) => {
+        try {
+            const activityData = await activityService.getById(activityId);
+            setSelectedActivity(activityData);
+            setIsActivityDetailsOpen(true);
+        } catch (error) {
+            showToast.error('Eroare la încărcarea detaliilor activității');
+        }
     };
 
     const handleDateClick = (date: Date) => {
@@ -165,7 +185,8 @@ const CalendarPage: React.FC = () => {
             VOTE_SCHEDULING: 'Programare vot',
             MEETING: 'Întâlnire',
             EVENT: 'Eveniment',
-            SURVEY: 'Sondaj'
+            SURVEY: 'Sondaj',
+            ACTIVITY: 'Activitate'
         };
         return labels[type] || type;
     };
@@ -176,7 +197,8 @@ const CalendarPage: React.FC = () => {
             VOTE_SCHEDULING: 'purple',
             MEETING: 'green',
             EVENT: 'orange',
-            SURVEY: 'indigo'
+            SURVEY: 'indigo',
+            ACTIVITY: 'blue'
         };
         return colors[type] || 'gray';
     };
@@ -330,6 +352,24 @@ const CalendarPage: React.FC = () => {
                         loadEvents();
                     }}
                 />
+
+                {selectedActivity && (
+                    <ActivityDetailsModal
+                        isOpen={isActivityDetailsOpen}
+                        onClose={() => {
+                            setIsActivityDetailsOpen(false);
+                            setSelectedActivity(null);
+                        }}
+                        onSuccess={() => {
+                            loadEvents();
+                            setIsActivityDetailsOpen(false);
+                            setSelectedActivity(null);
+                        }}
+                        activity={selectedActivity}
+                        project={selectedActivity.project}
+                        canEdit={false}
+                    />
+                )}
             </div>
         </Layout>
     );

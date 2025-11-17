@@ -1,4 +1,4 @@
-export type EventType = 'CALENDAR_NOTE' | 'VOTE_SCHEDULING' | 'MEETING' | 'EVENT' | 'ADMIN_NOTIFICATION' | 'SURVEY';
+export type EventType = 'CALENDAR_NOTE' | 'VOTE_SCHEDULING' | 'MEETING' | 'EVENT' | 'ADMIN_NOTIFICATION' | 'SURVEY' | 'ACTIVITY';
 
 export const EventTypeOptions: { value: EventType; label: string; color: string }[] = [
     { value: 'CALENDAR_NOTE', label: 'Notă calendar', color: 'blue' },
@@ -6,7 +6,8 @@ export const EventTypeOptions: { value: EventType; label: string; color: string 
     { value: 'MEETING', label: 'Întâlnire', color: 'green' },
     { value: 'EVENT', label: 'Eveniment', color: 'orange' },
     { value: 'ADMIN_NOTIFICATION', label: 'Notificare administratori', color: 'red' },
-    { value: 'SURVEY', label: 'Sondaj', color: 'indigo' }
+    { value: 'SURVEY', label: 'Sondaj', color: 'indigo' },
+    { value: 'ACTIVITY', label: 'Activitate proiect', color: 'cyan' }
 ];
 
 export type EventPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
@@ -57,6 +58,11 @@ export interface CalendarEvent {
     createdBy?: string;
     organizationId: string;
     isOrganizationEvent: boolean;
+    project?: string;
+    projectName?: string;
+    activity?: string;
+    activityTitle?: string;
+    activityStatus?: 'PLANNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
     createdAt: string;
     updatedAt: string;
     relatedSurveyQuestion?: string;

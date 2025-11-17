@@ -41,7 +41,20 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
 
     const [totalPlannedExpenses, setTotalPlannedExpenses] = useState<number>(0);
     const [totalPaidExpenses, setTotalPaidExpenses] = useState<number>(0);
+    const [totalReceivedFunds, setTotalReceivedFunds] = useState<number>(0);
     const [loadingStats, setLoadingStats] = useState(true);
+    
+    const [executedSummary, setExecutedSummary] = useState<{
+        totalWithoutVat: number;
+        totalVat: number;
+        totalWithVat: number;
+        vatBreakdown: { rate: number; amount: number; vatAmount: number }[];
+    }>({
+        totalWithoutVat: 0,
+        totalVat: 0,
+        totalWithVat: 0,
+        vatBreakdown: []
+    });
 
     const handleRowClick = async (expense: ProjectExpense) => {
         try {
@@ -108,6 +121,11 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
 
                 setHasPaidFunds(fundsWithRemaining.length > 0);
 
+                const totalReceived = (fundsResponse.results || [])
+                    .reduce((sum, fund) => sum + (fund.amount || 0), 0);
+
+                setTotalReceivedFunds(totalReceived);
+
                 const expensesResponse = await projectExpenseService.getList({
                     pageSize: 1000,
                     filters: {
@@ -118,12 +136,54 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                 const expenses = expensesResponse.results || [];
 
                 const plannedTotal = expenses
-                    .filter(exp => exp.status === ProjectExpenseStatus.PLANNED)
                     .reduce((sum, exp) => sum + (exp.totalAmount || 0), 0);
 
                 const paidTotal = expenses
-                    .filter(exp => exp.status === ProjectExpenseStatus.PAID)
-                    .reduce((sum, exp) => sum + (exp.totalAmount || 0), 0);
+                    .filter(exp => 
+                        exp.status === ProjectExpenseStatus.PAID || 
+                        exp.status === ProjectExpenseStatus.PARTIALLY_PAID
+                    )
+                    .reduce((sum, exp) => {
+                        const executedAmount = exp.executedAmount || 0;
+                        const vatAmount = exp.vatValue ? (executedAmount * exp.vatValue) / 100 : 0;
+                        return sum + executedAmount + vatAmount;
+                    }, 0);
+
+                const executedExpenses = expenses.filter(exp => 
+                    exp.status === ProjectExpenseStatus.PAID || 
+                    exp.status === ProjectExpenseStatus.PARTIALLY_PAID
+                );
+
+                const vatBreakdownMap = new Map<number, { amount: number; vatAmount: number }>();
+                let totalWithoutVat = 0;
+                let totalVat = 0;
+
+                executedExpenses.forEach(exp => {
+                    const executedAmount = exp.executedAmount || 0;
+                    const vatRate = exp.vatValue || 0;
+                    const vatAmount = vatRate > 0 ? (executedAmount * vatRate) / 100 : 0;
+
+                    totalWithoutVat += executedAmount;
+                    totalVat += vatAmount;
+
+                    if (!vatBreakdownMap.has(vatRate)) {
+                        vatBreakdownMap.set(vatRate, { amount: 0, vatAmount: 0 });
+                    }
+                    const current = vatBreakdownMap.get(vatRate)!;
+                    current.amount += executedAmount;
+                    current.vatAmount += vatAmount;
+                });
+
+                const vatBreakdown = Array.from(vatBreakdownMap.entries())
+                    .map(([rate, data]) => ({ rate, ...data }))
+                    .sort((a, b) => b.rate - a.rate);
+
+                setExecutedSummary({
+                    totalWithoutVat,
+                    totalVat,
+                    totalWithVat: totalWithoutVat + totalVat,
+                    vatBreakdown
+                });
 
                 setTotalPlannedExpenses(plannedTotal);
                 setTotalPaidExpenses(paidTotal);
@@ -176,6 +236,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             filterable: true,
             filterType: 'text',
             size: 'lg',
+            sticky: 'left',
         },
         {
             key: 'activityTitle',
@@ -183,12 +244,100 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             size: 'sm',
         },
         {
-            key: 'totalAmount',
-            label: t('label.project_expense.total_amount'),
+            key: 'unitType',
+            label: t('label.project_expense.unit_type'),
+            size: 'sm',
+            render: (unitType: string) => {
+                return t(`label.unit_type.${unitType.toLowerCase()}`);
+            }
+        },
+        {
+            key: 'quantity',
+            label: t('label.project_expense.quantity'),
             sortable: true,
             size: 'sm',
-            render: (totalAmount: number, row: ProjectExpense) => {
-                return `${totalAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${row.currency}`;
+            render: (quantity: number, row: ProjectExpense) => {
+                if (row.status === ProjectExpenseStatus.PARTIALLY_PAID || row.status === ProjectExpenseStatus.PAID) {
+                    const executed = row.executedQuantity || 0;
+                    return (
+                        <span>
+                            <span className="text-blue-600 font-semibold">{executed}</span>
+                            <span className="text-gray-500"> / </span>
+                            <span>{quantity}</span>
+                        </span>
+                    );
+                }
+                return quantity;
+            }
+        },
+        {
+            key: 'unitPrice',
+            label: t('label.project_expense.unit_price'),
+            sortable: true,
+            size: 'sm',
+            render: (unitPrice: number, row: ProjectExpense) => {
+                return `${unitPrice.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${row.currency}`;
+            }
+        },
+        {
+            key: 'amount',
+            label: t('label.project_expense.amount'),
+            sortable: true,
+            size: 'sm',
+            render: (_amount: number, row: ProjectExpense) => {
+                if (row.status === ProjectExpenseStatus.PARTIALLY_PAID || row.status === ProjectExpenseStatus.PAID) {
+                    const executedAmount = row.executedAmount || 0;
+                    return `${executedAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${row.currency}`;
+                }
+                const plannedAmount = row.amount || 0;
+                return `${plannedAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${row.currency}`;
+            }
+        },
+        {
+            key: 'vatValue',
+            label: t('label.project_expense.vat_rate'),
+            size: 'sm',
+            render: (vatValue: number) => {
+                return `${vatValue}%`;
+            }
+        },
+        {
+            key: 'vatAmount',
+            label: t('label.project_expense.vat_amount'),
+            sortable: true,
+            size: 'sm',
+            render: (_vatAmount: number, row: ProjectExpense) => {
+                if (row.status === ProjectExpenseStatus.PARTIALLY_PAID || row.status === ProjectExpenseStatus.PAID) {
+                    const executedAmount = row.executedAmount || 0;
+                    const executedVat = (executedAmount * row.vatValue) / 100;
+                    return `${executedVat.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${row.currency}`;
+                }
+                const plannedVat = row.vatAmount || 0;
+                return `${plannedVat.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${row.currency}`;
+            }
+        },
+        {
+            key: 'totalAmount',
+            label: t('label.project_expense.total'),
+            sortable: true,
+            size: 'sm',
+            render: (_totalAmount: number, row: ProjectExpense) => {
+                if (row.status === ProjectExpenseStatus.PARTIALLY_PAID || row.status === ProjectExpenseStatus.PAID) {
+                    const executedAmount = row.executedAmount || 0;
+                    const executedVat = (executedAmount * row.vatValue) / 100;
+                    const executedTotal = executedAmount + executedVat;
+                    return (
+                        <span className="font-semibold text-green-700">
+                            {executedTotal.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {row.currency}
+                        </span>
+                    );
+                }
+                const plannedTotal = row.totalAmount || 0;
+                return (
+                    <span className="font-semibold text-gray-700">
+                        {plannedTotal.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {row.currency}
+                    </span>
+                );
             }
         },
         {
@@ -199,18 +348,21 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             filterType: 'select',
             filterOptions: [
                 { label: t('label.project_expense.planned'), value: ProjectExpenseStatus.PLANNED},
+                { label: t('label.project_expense.partially_paid'), value: ProjectExpenseStatus.PARTIALLY_PAID},
                 { label: t('label.project_expense.paid'), value: ProjectExpenseStatus.PAID},
                 { label: t('label.project_expense.cancelled'), value: ProjectExpenseStatus.CANCELLED},
             ],
             size: 'sm',
             render: (status: string) => {
                 const statusColors: Record<string, string> = {
-                    'PLANNED': 'bg-yellow-100 text-yellow-800',
+                    'PLANNED': 'bg-blue-100 text-blue-800',
+                    'PARTIALLY_PAID': 'bg-yellow-100 text-yellow-800',
                     'PAID': 'bg-green-100 text-green-800',
                     'CANCELLED': 'bg-red-100 text-red-800'
                 };
                 const statusLabels: Record<string, string> = {
                     'PLANNED': t('label.project_expense.planned'),
+                    'PARTIALLY_PAID': t('label.project_expense.partially_paid'),
                     'PAID': t('label.project_expense.paid'),
                     'CANCELLED': t('label.project_expense.cancelled')
                 };
@@ -230,7 +382,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             onClick: handleExecute,
             icon: <IconCheckList />,
             show: (expense: ProjectExpense) =>
-                expense.status === ProjectExpenseStatus.PLANNED && hasPaidFunds
+                (expense.status === ProjectExpenseStatus.PLANNED || expense.status === ProjectExpenseStatus.PARTIALLY_PAID) && hasPaidFunds
         },
         {
             label: t('action.edit'),
@@ -250,7 +402,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
 
     return (
         <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <Card className="text-center">
                     <div className="text-sm text-gray-600 mb-2">
                         {t('label.project_expense.total_planned_expenses')}
@@ -271,9 +423,18 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
 
                 <Card className="text-center">
                     <div className="text-sm text-gray-600 mb-2">
-                        {t('label.project.planned_budget')}
+                        {t('label.project_expense.total_remaining_funds')}
                     </div>
                     <div className="text-2xl font-bold text-blue-600">
+                        {loadingStats ? '...' : `${(totalReceivedFunds - totalPaidExpenses).toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${projectCurrency}`}
+                    </div>
+                </Card>
+
+                <Card className="text-center">
+                    <div className="text-sm text-gray-600 mb-2">
+                        {t('label.project.planned_budget')}
+                    </div>
+                    <div className="text-2xl font-bold text-purple-600">
                         {projectBudget.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}
                     </div>
                 </Card>
@@ -291,6 +452,73 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                 refreshTrigger={refreshTrigger + localRefresh}
                 onRowClick={handleRowClick}
             />
+
+            {!loadingStats && executedSummary.totalWithVat > 0 && (
+                <div className="mt-6">
+                    <Card>
+                        <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                            {t('label.project_expense.executed_summary')}
+                        </h3>
+                        
+                        {executedSummary.vatBreakdown.length > 0 && (
+                            <div className="overflow-x-auto mb-4">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                {t('label.project_expense.vat_rate')}
+                                            </th>
+                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                {t('label.project_expense.amount_without_vat')}
+                                            </th>
+                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                {t('label.project_expense.vat_amount')}
+                                            </th>
+                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                {t('label.project_expense.total_with_vat')}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {executedSummary.vatBreakdown.map((item) => (
+                                            <tr key={item.rate} className="hover:bg-gray-50">
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    TVA {item.rate}%
+                                                </td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-700">
+                                                    {item.amount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}
+                                                </td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-700">
+                                                    {item.vatAmount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}
+                                                </td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-medium text-gray-900">
+                                                    {(item.amount + item.vatAmount).toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                    <tfoot className="bg-blue-50 border-t-2 border-blue-200">
+                                        <tr>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-gray-900">
+                                                {t('label.project_expense.total')}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-bold text-blue-700">
+                                                {executedSummary.totalWithoutVat.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-bold text-blue-700">
+                                                {executedSummary.totalVat.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-bold text-blue-900 text-lg">
+                                                {executedSummary.totalWithVat.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        )}
+                    </Card>
+                </div>
+            )}
 
             {isUpdateModalOpen && selectedExpense && (
                 <UpdateProjectExpenseModal

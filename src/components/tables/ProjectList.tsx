@@ -51,16 +51,22 @@ const ProjectList: React.FC<ProjectListProps> = ({
             {projects.map((project) => (
                 <div
                     key={project.id}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                    className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer"
                     onClick={() => onRowClick?.(project)}
                 >
                     <div className="flex justify-between items-start">
-                        <div>
+                        <div className="flex-1">
                             <h3 className="font-semibold text-lg text-gray-900">{project.name}</h3>
-                            <p className="text-gray-600 text-sm mt-1">{project.description}</p>
-                            <div className="flex gap-4 mt-2 text-sm text-gray-500">
+                            <p className="text-gray-600 text-sm mt-1 line-clamp-1">{project.description}</p>
+                            <div className="flex gap-4 mt-2 text-sm text-gray-600">
                                 <span>Status: {project.status}</span>
                                 <span>Buget: {project.budget?.toLocaleString()} RON</span>
+                                {project.startingDate && (
+                                    <span>Început: {new Date(project.startingDate).toLocaleDateString('ro-RO')}</span>
+                                )}
+                                {project.endingDate && (
+                                    <span>Final: {new Date(project.endingDate).toLocaleDateString('ro-RO')}</span>
+                                )}
                             </div>
                         </div>
                     </div>

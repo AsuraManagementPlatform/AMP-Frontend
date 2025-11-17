@@ -22,6 +22,8 @@ export interface TableColumn<T> {
     width?: string;
     className?: string;
     size?: ColumnSize;
+    sticky?: 'left' | 'right';
+    headerAlign?: 'left' | 'center' | 'right';
 }
 
 export interface TableAction<T> {

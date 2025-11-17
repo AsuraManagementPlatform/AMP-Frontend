@@ -303,10 +303,15 @@ function Table<T extends Record<string, any>>({
                         <tr>
                             {allColumns.map((column) => {
                                 const widthClass = getColumnWidthClass(column.size as ColumnSize);
+                                const stickyClasses = column.sticky === 'left' 
+                                    ? 'sticky left-0 z-10 bg-gray-50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]' 
+                                    : column.sticky === 'right' 
+                                    ? 'sticky right-0 z-10 bg-gray-50 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]' 
+                                    : '';
                                 return (
                                     <th
                                         key={String(column.key)}
-                                        className={`px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider ${widthClass} ${column.className || ''}`}
+                                        className={`px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider ${widthClass} ${column.className || ''} ${stickyClasses}`}
                                     >
                                         <div className="flex items-center justify-between gap-2 relative">
                                             <div className="flex items-center gap-2 min-w-0">
@@ -374,10 +379,15 @@ function Table<T extends Record<string, any>>({
                                     >
                                         {allColumns.map((column) => {
                                             const widthClass = getColumnWidthClass(column.size as ColumnSize);
+                                            const stickyClasses = column.sticky === 'left' 
+                                                ? 'sticky left-0 z-10 bg-white shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]' 
+                                                : column.sticky === 'right' 
+                                                ? 'sticky right-0 z-10 bg-white shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]' 
+                                                : '';
                                             return (
                                                 <td
                                                     key={String(column.key)}
-                                                    className={`px-6 py-4 text-sm text-gray-900 ${widthClass}`}
+                                                    className={`px-6 py-4 text-sm text-gray-900 ${widthClass} ${stickyClasses}`}
                                                 >
                                                     <div className="truncate">
                                                         {column.render

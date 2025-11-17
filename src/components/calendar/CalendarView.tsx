@@ -196,41 +196,67 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     {/* Layer pentru evenimente ca bare continue */}
                     <div className="absolute inset-0 pointer-events-none" style={{ top: '52px' }}>
                         <div className="grid grid-cols-7 gap-px h-full">
-                            {getEventRows.map((eventRow, idx) => (
-                                <div
-                                    key={`${eventRow.event.id}-${idx}`}
-                                    className="pointer-events-auto cursor-pointer text-xs px-2 py-1 rounded flex items-center gap-1"
-                                    style={{
-                                        gridColumn: `${eventRow.startCol} / span ${eventRow.span}`,
-                                        gridRow: eventRow.row,
-                                        marginTop: `${(idx % 3) * 24}px`,
-                                        height: '20px',
-                                        backgroundColor: 
-                                            eventRow.event.eventType === 'SURVEY' ? '#e0e7ff' :
-                                            eventRow.event.eventType === 'MEETING' ? '#dcfce7' :
-                                            eventRow.event.eventType === 'EVENT' ? '#fed7aa' :
-                                            eventRow.event.eventType === 'VOTE_SCHEDULING' ? '#f3e8ff' : '#dbeafe',
-                                        borderLeft: `3px solid ${
-                                            eventRow.event.eventType === 'SURVEY' ? '#6366f1' :
-                                            eventRow.event.eventType === 'MEETING' ? '#22c55e' :
-                                            eventRow.event.eventType === 'EVENT' ? '#f97316' :
-                                            eventRow.event.eventType === 'VOTE_SCHEDULING' ? '#a855f7' : '#3b82f6'
-                                        }`,
-                                        color: 
-                                            eventRow.event.eventType === 'SURVEY' ? '#3730a3' :
-                                            eventRow.event.eventType === 'MEETING' ? '#166534' :
-                                            eventRow.event.eventType === 'EVENT' ? '#9a3412' :
-                                            eventRow.event.eventType === 'VOTE_SCHEDULING' ? '#6b21a8' : '#1e40af'
-                                    }}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onEventClick(eventRow.event);
-                                    }}
-                                    title={`${eventRow.event.title} - ${getEventTypeLabel(eventRow.event.eventType)}`}
-                                >
-                                    <span className="truncate flex-1">{eventRow.event.title}</span>
-                                </div>
-                            ))}
+                            {getEventRows.map((eventRow, idx) => {
+                                const getActivityColor = () => {
+                                    if (eventRow.event.eventType !== 'ACTIVITY') return null;
+                                    
+                                    switch (eventRow.event.activityStatus) {
+                                        case 'PLANNED':
+                                            return { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af' };
+                                        case 'IN_PROGRESS':
+                                            return { bg: '#fed7aa', border: '#f97316', text: '#9a3412' };
+                                        case 'COMPLETED':
+                                            return { bg: '#dcfce7', border: '#22c55e', text: '#166534' };
+                                        case 'CANCELLED':
+                                            return { bg: '#f3f4f6', border: '#9ca3af', text: '#4b5563' };
+                                        default:
+                                            return { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af' };
+                                    }
+                                };
+
+                                const activityColors = getActivityColor();
+                                const backgroundColor = activityColors?.bg || (
+                                    eventRow.event.eventType === 'SURVEY' ? '#e0e7ff' :
+                                    eventRow.event.eventType === 'MEETING' ? '#dcfce7' :
+                                    eventRow.event.eventType === 'EVENT' ? '#fed7aa' :
+                                    eventRow.event.eventType === 'VOTE_SCHEDULING' ? '#f3e8ff' : '#dbeafe'
+                                );
+                                const borderColor = activityColors?.border || (
+                                    eventRow.event.eventType === 'SURVEY' ? '#6366f1' :
+                                    eventRow.event.eventType === 'MEETING' ? '#22c55e' :
+                                    eventRow.event.eventType === 'EVENT' ? '#f97316' :
+                                    eventRow.event.eventType === 'VOTE_SCHEDULING' ? '#a855f7' : '#3b82f6'
+                                );
+                                const textColor = activityColors?.text || (
+                                    eventRow.event.eventType === 'SURVEY' ? '#3730a3' :
+                                    eventRow.event.eventType === 'MEETING' ? '#166534' :
+                                    eventRow.event.eventType === 'EVENT' ? '#9a3412' :
+                                    eventRow.event.eventType === 'VOTE_SCHEDULING' ? '#6b21a8' : '#1e40af'
+                                );
+
+                                return (
+                                    <div
+                                        key={`${eventRow.event.id}-${idx}`}
+                                        className="pointer-events-auto cursor-pointer text-xs px-2 py-1 rounded flex items-center gap-1"
+                                        style={{
+                                            gridColumn: `${eventRow.startCol} / span ${eventRow.span}`,
+                                            gridRow: eventRow.row,
+                                            marginTop: `${(idx % 3) * 24}px`,
+                                            height: '20px',
+                                            backgroundColor,
+                                            borderLeft: `3px solid ${borderColor}`,
+                                            color: textColor
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onEventClick(eventRow.event);
+                                        }}
+                                        title={`${eventRow.event.title} - ${getEventTypeLabel(eventRow.event.eventType)}`}
+                                    >
+                                        <span className="truncate flex-1">{eventRow.event.title}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

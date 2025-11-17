@@ -2,6 +2,7 @@ import {BaseEntity, Currency, ProjectFundAllocation} from "@/types/index.types";
 
 export const ProjectExpenseStatus = {
     PLANNED: 'PLANNED',
+    PARTIALLY_PAID: 'PARTIALLY_PAID',
     PAID: 'PAID',
     CANCELLED: 'CANCELLED'
 } as const;
@@ -68,6 +69,11 @@ export interface ProjectExpense extends BaseEntity {
     amount: number;
     vatAmount: number;
     totalAmount: number;
+    executedQuantity: number;
+    executedAmount: number;
+    remainingQuantity: number;
+    remainingAmount: number;
+    executionPercentage: number;
     category: ExpenseCategoryType;
     currency: Currency;
     status: ProjectExpenseStatusType;

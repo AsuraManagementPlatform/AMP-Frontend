@@ -91,21 +91,63 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
             key: 'status',
             label: 'Status',
             sortable: false,
+            headerAlign: 'center',
             render: (status: string) => (
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                    status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                    {status}
-                </span>
+                <div className="flex justify-center">
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                        status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                        {status}
+                    </span>
+                </div>
             )
         },
         {
             key: 'id',
             label: 'Progres',
             sortable: false,
+            headerAlign: 'center',
             render: () => (
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-200 rounded-full h-2 max-w-[200px] mx-auto">
                     <div className="bg-blue-500 h-2 rounded-full" style={{ width: '65%' }}></div>
+                </div>
+            )
+        },
+        {
+            key: 'id',
+            label: 'Număr Activități',
+            sortable: false,
+            headerAlign: 'center',
+            render: (_: string, project: Project) => {
+                const projectActivities = activities.filter(a => a.project === project.id);
+                return <div className="text-center font-medium text-gray-700">{projectActivities.length}</div>;
+            }
+        },
+        {
+            key: 'id',
+            label: 'Acțiuni',
+            sortable: false,
+            headerAlign: 'center',
+            render: (_: string, project: Project) => (
+                <div className="flex gap-2 justify-center">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(ROUTES.ERP_PROJECT_DETAILS.replace(':projectId', project.id));
+                        }}
+                        className="px-3 py-1.5 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    >
+                        Vizualizează
+                    </button>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowProposalModal(true);
+                        }}
+                        className="px-3 py-1.5 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
+                    >
+                        Propune activitate
+                    </button>
                 </div>
             )
         }
@@ -200,44 +242,15 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                 <Card title="Tablou informativ - Proiectele și activitățile mele" className="mb-6">
                     <div className="space-y-4">
                         <div className="text-sm text-gray-600 mb-4">
-                            Vezi aici toate proiectele și activitățile la care participi
+                            Vezi aici toate proiectele la care participi
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h4 className="font-semibold text-gray-800 mb-3">Proiectele mele</h4>
-                                <DataTable<Project>
-                                    data={projects}
-                                    columns={getProjectColumns()}
-                                    onRowClick={handleProjectRowClick}
-                                    loading={projectsLoading}
-                                    emptyMessage="Nu participi la niciun proiect în acest moment"
-                                />
-                            </div>
-                            
-                            <div>
-                                <h4 className="font-semibold text-gray-800 mb-3">Activitățile mele</h4>
-                                <DataTable<Activity>
-                                    data={activities}
-                                    columns={getActivityColumns()}
-                                    loading={activitiesLoading}
-                                    emptyMessage="Nu ai activități asignate în acest moment"
-                                />
-                                <div className="mt-4 flex items-center justify-between bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border border-yellow-200">
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium text-gray-800 mb-1">Ai o idee pentru o nouă activitate?</p>
-                                        <p className="text-xs text-gray-600">Contribuie cu propuneri creative care vor fi revizuite de echipa administrativă</p>
-                                    </div>
-                                    <button 
-                                        onClick={handlePropose}
-                                        className="ml-4 px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 hover:shadow-lg transition-all text-base font-semibold flex items-center gap-2 whitespace-nowrap shadow-md"
-                                    >
-                                        <span className="text-xl">💡</span>
-                                        Propune activitate
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        <DataTable<Project>
+                            data={projects}
+                            columns={getProjectColumns()}
+                            loading={projectsLoading}
+                            emptyMessage="Nu participi la niciun proiect în acest moment"
+                        />
                         
                         <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                             <h4 className="font-semibold text-blue-800 mb-2">Informații despre mine</h4>
@@ -333,62 +346,6 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                         </button>
                     </div>
                 </Card>
-
-                {/* 3. Certificate Download - HIDDEN FOR NOW */}
-                {/* 
-                <Card title="📜 Adeverințe" className="hover:shadow-lg transition-shadow">
-                    <div className="space-y-3">
-                        <p className="text-sm text-gray-600">Descarcă adeverințe membru sau voluntar</p>
-                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-lg text-center">
-                            <div className="text-4xl mb-2">🎓</div>
-                            <p className="text-xs text-gray-600">Membru activ din 2024</p>
-                        </div>
-                        <div className="space-y-2">
-                            <button 
-                                onClick={handleDownloadCertificate}
-                                className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
-                            >
-                                📄 Adeverință Membru
-                            </button>
-                            <button 
-                                onClick={handleDownloadCertificate}
-                                className="w-full px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors text-sm font-medium"
-                            >
-                                🤝 Adeverință Voluntar
-                            </button>
-                        </div>
-                    </div>
-                </Card>
-                */}
-
-                {/* 4. CV/Skills Upload - HIDDEN FOR NOW */}
-                {/* 
-                <Card title="📋 CV & Competențe" className="hover:shadow-lg transition-shadow">
-                    <div className="space-y-3">
-                        <p className="text-sm text-gray-600">Încarcă CV-ul și competențele tale</p>
-                        <div className="bg-indigo-50 p-4 rounded-lg">
-                            <div className="text-center">
-                                <div className="text-3xl mb-2">💼</div>
-                                <p className="text-xs text-gray-600">Profilul tău profesional</p>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <button 
-                                onClick={handleUploadCV}
-                                className="w-full px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors text-sm font-medium"
-                            >
-                                📁 Încarcă CV
-                            </button>
-                            <button 
-                                onClick={() => toast('Gestionare competențe în curând')}
-                                className="w-full px-4 py-2 bg-indigo-400 text-white rounded-lg hover:bg-indigo-500 transition-colors text-sm font-medium"
-                            >
-                                ⚡ Adaugă Competențe
-                            </button>
-                        </div>
-                    </div>
-                </Card>
-                */}
 
                 {/* 5. Messages/Requests */}
                 <Card title="✉️ Mesaje" className="hover:shadow-lg transition-shadow">

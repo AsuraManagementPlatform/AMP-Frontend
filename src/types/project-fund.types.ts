@@ -73,6 +73,12 @@ export interface ProjectFundAllocation {
     createdAt: string;
     expenseName?: string;
     fundSource?: string;
+    fundSourceName?: string;
+    fundCategory?: string;
+    fundAmount?: number;
+    fundCurrency?: string;
+    fundDate?: string;
+    entityName?: string;
 }
 
 export interface AvailableFundForExpense extends BaseEntity {
@@ -96,6 +102,10 @@ export interface AvailableFundForExpense extends BaseEntity {
 export interface AvailableFundsResponse {
     expenseId: string;
     expenseTotalAmount: number;
+    expenseExecutedAmount: number;
+    expenseRemainingAmount: number;
+    expenseRemainingQuantity: number;
+    maxExecutableQuantity: number;
     expenseActivity: string | null;
     expenseActivityTitle: string | null;
     totalAvailable: number;

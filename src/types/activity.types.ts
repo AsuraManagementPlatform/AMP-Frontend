@@ -33,6 +33,7 @@ export interface Activity extends BaseEntity {
     startingDate: string;
     estimatedEndingDate: string;
     endingDate?: string;
+    completedAt?: string;
     status: ActivityStatus;
     type: ActivityType;
     location?: string;

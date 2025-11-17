@@ -64,6 +64,20 @@ class CalendarService {
         });
     }
 
+    async getMyEvents(filters?: CalendarFilters): Promise<CalendarEvent[]> {
+        const params = new URLSearchParams();
+        
+        if (filters?.startDate) params.append('start', filters.startDate);
+        if (filters?.endDate) params.append('end', filters.endDate);
+        if (filters?.eventType) params.append('event_type', filters.eventType);
+
+        const queryString = params.toString();
+        const url = `calendar/my-events${queryString ? `?${queryString}` : ''}`;
+        
+        const response = await apiService.get<{ events: CalendarEvent[] }>(url);
+        return response.events || [];
+    }
+
     async searchEvents(searchTerm: string): Promise<CalendarEvent[]> {
         return await apiService.get<CalendarEvent[]>(
             `calendar/events/search?q=${encodeURIComponent(searchTerm)}`

@@ -145,12 +145,17 @@ export const createProjectFormConfig = (
                     label: t('label.project.budget_responsible'),
                     type: FieldType.SELECT,
                     required: true,
-                    options: [
+                    helperText: availableManagers.length === 0 
+                        ? t('label.project.no_managers_helper') 
+                        : undefined,
+                    options: availableManagers.length > 0 ? [
                         { value: '', label: t('label.project.select_budget_responsible') },
                         ...availableManagers.map(manager => ({
                             value: manager.id,
                             label: manager.name
                         }))
+                    ] : [
+                        { value: '', label: t('label.project.no_managers_available') }
                     ]
                 },
                 {
