@@ -30,8 +30,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
     user,
     projects,
     activities,
-    projectsLoading,
-    activitiesLoading
+    projectsLoading
 }) => {
     const [showSponsorshipModal, setShowSponsorshipModal] = useState(false);
     const [showProposalModal, setShowProposalModal] = useState(false);
@@ -153,54 +152,8 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
         }
     ];
 
-    const getActivityColumns = (): TableColumn<Activity>[] => [
-        {
-            key: 'title',
-            label: 'Activitate',
-            sortable: false,
-            render: (title: string) => <span className="font-medium">{title}</span>
-        },
-        {
-            key: 'status',
-            label: 'Status',
-            sortable: false,
-            render: (status: string) => (
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                    status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                    {status}
-                </span>
-            )
-        },
-        {
-            key: 'endingDate',
-            label: 'Deadline',
-            sortable: false,
-            render: (endingDate: string, row: Activity) => (
-                <span className="text-gray-600">{endingDate || row.startingDate || 'N/A'}</span>
-            )
-        }
-    ];
-
-    // Handlers for hidden cards - commented out for now
-    // const handleDownloadCertificate = () => {
-    //     toast.success('Certificatul va fi descărcat în curând...');
-    // };
-
-    // const handleUploadCV = () => {
-    //     toast('Funcția de încărcare CV va fi disponibilă în curând', { icon: 'ℹ️' });
-    // };
-
     const handleSponsor = () => {
         setShowSponsorshipModal(true);
-    };
-
-    const handlePropose = () => {
-        if (!projects || projects.length === 0) {
-            toast.error('Nu poți propune o activitate deoarece nu ești asignat pe niciun proiect.');
-            return;
-        }
-        setShowProposalModal(true);
     };
 
     const handleSendMessage = () => {
@@ -230,10 +183,6 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
 
     const getStatusLabel = (status: string) => {
         return t(`label.communication.status.${status.toLowerCase()}`);
-    };
-
-    const handleProjectRowClick = (project: Project) => {
-        navigate(ROUTES.ERP_PROJECT_DETAILS.replace(':projectId', project.id));
     };
 
     return (

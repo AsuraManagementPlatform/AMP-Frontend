@@ -28,6 +28,7 @@ export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
 export interface Activity extends BaseEntity {
     project: string;
     projectObjective?: string;
+    parentActivity?: string;
     title: string;
     description?: string;
     startingDate: string;
@@ -40,6 +41,10 @@ export interface Activity extends BaseEntity {
     observation?: string;
     results?: string;
     indicators?: string;
+    subActivitiesCount: number;
+    completedSubActivitiesCount: number;
+    progressPercentage: number;
+    canComplete: boolean;
     totalActivityExpensesAmount: number;
     totalFundsAmount: number;
     totalDonationsAmount: number;
@@ -48,6 +53,7 @@ export interface Activity extends BaseEntity {
 export interface ActivityCreateRequest {
     project: string;
     projectObjective?: string;
+    parentActivity?: string;
     title: string;
     description?: string;
     startingDate: string;

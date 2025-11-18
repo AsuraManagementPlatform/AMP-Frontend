@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import showToast from '@/components/ui/Toast';
@@ -24,10 +24,16 @@ const ProjectPage: React.FC = () => {
     const authContext = useAuth();
     const { projectId } = useParams<{ projectId: string }>();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<TabType>('details');
+    const [activeTab, setActiveTab] = useState<TabType>(() => {
+        const tabFromUrl = searchParams.get('tab') as TabType;
+        return tabFromUrl && ['details', 'activities', 'funds', 'expenses', 'members', 'partners'].includes(tabFromUrl) 
+            ? tabFromUrl 
+            : 'details';
+    });
     const [isProjectResponsible, setIsProjectResponsible] = useState<boolean>(false);
 
     useEffect(() => {
@@ -59,6 +65,11 @@ const ProjectPage: React.FC = () => {
 
     const handleEdit = () => {
         setIsEditModalOpen(true);
+    };
+
+    const handleTabChange = (tab: TabType) => {
+        setActiveTab(tab);
+        setSearchParams({ tab });
     };
 
     const handleUpdateSuccess = async () => {
@@ -117,7 +128,7 @@ const ProjectPage: React.FC = () => {
                     <div>
                         <h1 className="text-3xl font-bold mb-2">{project.name}</h1>
                     </div>
-                    {activeTab === 'details' && authContext.hasAllUserGroups([UserGroup.ORGANIZATION_ADMIN]) && (
+                    {activeTab === 'details' && (authContext.hasAllUserGroups([UserGroup.ORGANIZATION_ADMIN]) || isProjectResponsible) && (
                         <PrimaryActionButton onClick={handleEdit}>
                             Editează proiect
                         </PrimaryActionButton>
@@ -127,7 +138,7 @@ const ProjectPage: React.FC = () => {
                 <div className="border-b border-gray-200 mb-6">
                     <nav className="-mb-px flex space-x-8">
                         <button
-                            onClick={() => setActiveTab('details')}
+                            onClick={() => handleTabChange('details')}
                             className={`py-4 px-1 border-b-2 font-medium text-sm ${
                                 activeTab === 'details'
                                     ? 'border-blue-500 text-blue-600'
@@ -137,7 +148,7 @@ const ProjectPage: React.FC = () => {
                             Detalii Proiect
                         </button>
                         <button
-                            onClick={() => setActiveTab('activities')}
+                            onClick={() => handleTabChange('activities')}
                             className={`py-4 px-1 border-b-2 font-medium text-sm ${
                                 activeTab === 'activities'
                                     ? 'border-blue-500 text-blue-600'
@@ -149,7 +160,7 @@ const ProjectPage: React.FC = () => {
                         {(isProjectResponsible || authContext.hasAllUserGroups([UserGroup.ORGANIZATION_ADMIN])) && (
                             <>
                                 <button
-                                    onClick={() => setActiveTab('expenses')}
+                                    onClick={() => handleTabChange('expenses')}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${
                                         activeTab === 'expenses'
                                             ? 'border-blue-500 text-blue-600'
@@ -158,12 +169,8 @@ const ProjectPage: React.FC = () => {
                                 >
                                     {t('tab.project_expenses')}
                                 </button>
-                            </>
-                        )}
-                        {authContext.hasAnyUserGroup([UserGroup.ADMIN, UserGroup.ORGANIZATION_ADMIN]) && (
-                            <>
                                 <button
-                                    onClick={() => setActiveTab('funds')}
+                                    onClick={() => handleTabChange('funds')}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'funds'
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
@@ -171,7 +178,7 @@ const ProjectPage: React.FC = () => {
                                     {t('tab.project_funds')}
                                 </button>
                                 <button
-                                    onClick={() => setActiveTab('members')}
+                                    onClick={() => handleTabChange('members')}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'members'
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
@@ -179,7 +186,7 @@ const ProjectPage: React.FC = () => {
                                     {t('tab.project_members')}
                                 </button>
                                 <button
-                                    onClick={() => setActiveTab('partners')}
+                                    onClick={() => handleTabChange('partners')}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'partners'
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}

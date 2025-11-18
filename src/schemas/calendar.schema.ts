@@ -11,7 +11,7 @@ export const createEventSchema = z.object({
         .min(1, 'Data de început este obligatorie'),
     endDate: z.string()
         .min(1, 'Data de sfârșit este obligatorie'),
-    eventType: z.enum(['CALENDAR_NOTE', 'VOTE_SCHEDULING', 'MEETING', 'EVENT', 'ADMIN_NOTIFICATION', 'SURVEY']),
+    eventType: z.enum(['CALENDAR_NOTE', 'VOTE_SCHEDULING', 'MEETING', 'EVENT', 'ADMIN_NOTIFICATION', 'SURVEY', 'ACTIVITY']),
     priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
     location: z.string()
         .max(200, 'Locația nu poate depăși 200 de caractere')

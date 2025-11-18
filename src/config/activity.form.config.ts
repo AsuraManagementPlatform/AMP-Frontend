@@ -17,7 +17,7 @@ const getActivityTypeOptions = (): SelectOption[] => [
     { value: ActivityType.OTHER, label: t('label.activity.type_other') }
 ];
 
-export const createActivityFormConfig = (): DynamicFormConfig => ({
+export const createActivityFormConfig = (parentActivityOptions: SelectOption[] = []): DynamicFormConfig => ({
     sections: [
         {
             title: t('label.activity.section_info'),
@@ -28,6 +28,21 @@ export const createActivityFormConfig = (): DynamicFormConfig => ({
                     label: t('label.activity.project'),
                     type: FieldType.HIDDEN,
                     required: true
+                },
+                {
+                    name: 'isSubActivity',
+                    label: t('label.activity.is_sub_activity'),
+                    type: FieldType.CHECKBOX,
+                    required: false
+                },
+                {
+                    name: 'parentActivity',
+                    label: t('label.activity.parent_activity'),
+                    type: FieldType.SELECT,
+                    required: false,
+                    placeholder: t('label.activity.parent_activity_placeholder'),
+                    options: parentActivityOptions,
+                    condition: (formValues: any) => formValues.isSubActivity === true
                 },
                 {
                     name: 'title',

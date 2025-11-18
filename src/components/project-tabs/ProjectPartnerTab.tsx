@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/Card';
 import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import { ProjectPartnerList } from '@/components/tables/ProjectPartnerList';
 import { CreateProjectPartnerModal } from '@/components/modals/project-partner/CreateProjectPartnerModal';
+import { useProjectPermissions } from '@/hooks/useProjectPermissions';
 import { t } from 'i18next';
 
 interface ProjectPartnersTabProps {
@@ -12,6 +13,7 @@ interface ProjectPartnersTabProps {
 export const ProjectPartnersTab: React.FC<ProjectPartnersTabProps> = ({
                                                                           projectId
                                                                       }) => {
+    const { canManageProject } = useProjectPermissions(projectId);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -21,12 +23,14 @@ export const ProjectPartnersTab: React.FC<ProjectPartnersTabProps> = ({
                 title={t('tab.project_partners')}
                 className="mb-6"
                 headerActions={
-                    <PrimaryActionButton
-                        onClick={() => setIsCreateModalOpen(true)}
-                        size="sm"
-                    >
-                        {t('label.project_partner.add_partner')}
-                    </PrimaryActionButton>
+                    canManageProject && (
+                        <PrimaryActionButton
+                            onClick={() => setIsCreateModalOpen(true)}
+                            size="sm"
+                        >
+                            {t('label.project_partner.add_partner')}
+                        </PrimaryActionButton>
+                    )
                 }
             >
                 <ProjectPartnerList

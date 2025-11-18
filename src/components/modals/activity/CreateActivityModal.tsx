@@ -1,11 +1,12 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Modal} from '@/components/ui/Modal';
 import {DynamicForm} from '@/components/forms/DynamicForm';
 import {createActivityFormConfig} from '@/config/activity.form.config';
 import {CreateActivityData, createActivitySchema, getCreateActivityDefaultValues} from '@/schemas/activity.schema';
 import activityService from '@/services/activity.service';
 import showToast from '@/components/ui/Toast';
-import {ActivityCreateRequest} from "@/types/activity.types.ts";
+import {Activity, ActivityCreateRequest, ActivityStatus} from "@/types/activity.types.ts";
+import {SelectOption} from "@/types/form.types.ts";
 
 interface CreateActivityModalProps {
     isOpen: boolean;
@@ -21,13 +22,40 @@ export const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
                                                                             project
                                                                         }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [availableParentActivities, setAvailableParentActivities] = useState<SelectOption[]>([]);
+
+    useEffect(() => {
+        if (isOpen && project) {
+            const loadParentActivities = async () => {
+                try {
+                    const response = await activityService.getList({ filters: { project } });
+                    const parentOptions: SelectOption[] = response.results
+                        .filter((activity: Activity) => 
+                            !activity.parentActivity && 
+                            activity.status !== ActivityStatus.COMPLETED && 
+                            activity.status !== ActivityStatus.CANCELLED
+                        )
+                        .map((activity: Activity) => ({
+                            value: activity.id,
+                            label: activity.title
+                        }));
+                    setAvailableParentActivities(parentOptions);
+                } catch (error) {
+                    setAvailableParentActivities([]);
+                }
+            };
+            loadParentActivities();
+        }
+    }, [isOpen, project]);
 
     const handleSubmit = async (data: CreateActivityData) => {
         try {
             setIsSubmitting(true);
+            
             const activityCreateRequest: ActivityCreateRequest = {
                 project: data.project,
                 projectObjective: data.projectObjective,
+                parentActivity: data.isSubActivity && data.parentActivity ? data.parentActivity : undefined,
                 title: data.title,
                 description: data.description,
                 startingDate: data.startingDate,
@@ -53,7 +81,7 @@ export const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
         }
     };
 
-    const formConfig = createActivityFormConfig();
+    const formConfig = createActivityFormConfig(availableParentActivities);
     const defaultValues = getCreateActivityDefaultValues(project);
 
     return (

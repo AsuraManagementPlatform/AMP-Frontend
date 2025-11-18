@@ -8,6 +8,7 @@ import entityService from '@/services/entity.service';
 import projectService from '@/services/project.service';
 import showToast from '@/components/ui/Toast';
 import { SelectOption } from '@/types/form.types';
+import { useProjectPermissions } from '@/hooks/useProjectPermissions';
 import { t } from 'i18next';
 
 interface ProjectFundsTabProps {
@@ -21,6 +22,7 @@ export const ProjectFundsTab: React.FC<ProjectFundsTabProps> = ({
                                                                     projectBudget,
                                                                     projectCurrency
                                                                 }) => {
+    const { canManageProject } = useProjectPermissions(projectId);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [activities, setActivities] = useState<SelectOption[]>([]);
@@ -79,13 +81,15 @@ export const ProjectFundsTab: React.FC<ProjectFundsTabProps> = ({
                 title={t('tab.project_funds')}
                 className="mb-6"
                 headerActions={
-                    <PrimaryActionButton
-                        onClick={() => setIsCreateModalOpen(true)}
-                        size="sm"
-                        disabled={loading}
-                    >
-                        Adaugă finanțare
-                    </PrimaryActionButton>
+                    canManageProject && (
+                        <PrimaryActionButton
+                            onClick={() => setIsCreateModalOpen(true)}
+                            size="sm"
+                            disabled={loading}
+                        >
+                            Adaugă finanțare
+                        </PrimaryActionButton>
+                    )
                 }
             >
                 <ProjectFundList

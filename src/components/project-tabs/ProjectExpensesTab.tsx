@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/Card';
 import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import { ProjectExpenseList } from '@/components/tables/ProjectExpenseList';
 import { CreateProjectExpenseModal } from '@/components/modals/project-expense/CreateProjectExpenseModal';
+import { useProjectPermissions } from '@/hooks/useProjectPermissions';
 import { t } from 'i18next';
 
 interface ProjectExpensesTabProps {
@@ -16,6 +17,7 @@ export const ProjectExpensesTab: React.FC<ProjectExpensesTabProps> = ({
                                                                           projectBudget,
                                                                           projectCurrency
                                                                       }) => {
+    const { canManageProject } = useProjectPermissions(projectId);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -25,12 +27,14 @@ export const ProjectExpensesTab: React.FC<ProjectExpensesTabProps> = ({
                 title={t('tab.project_expenses')}
                 className="mb-6"
                 headerActions={
-                    <PrimaryActionButton
-                        onClick={() => setIsCreateModalOpen(true)}
-                        size="sm"
-                    >
-                        Adaugă cheltuială
-                    </PrimaryActionButton>
+                    canManageProject && (
+                        <PrimaryActionButton
+                            onClick={() => setIsCreateModalOpen(true)}
+                            size="sm"
+                        >
+                            Adaugă cheltuială
+                        </PrimaryActionButton>
+                    )
                 }
             >
                 <ProjectExpenseList

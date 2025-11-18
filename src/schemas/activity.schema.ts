@@ -10,6 +10,13 @@ export const createActivitySchema = z.object({
         .optional()
         .or(z.literal('')),
 
+    isSubActivity: z.boolean()
+        .default(false),
+
+    parentActivity: z.string()
+        .optional()
+        .or(z.literal('')),
+
     title: z.string()
         .min(2, t('schema.activity.title_min'))
         .max(255, t('schema.activity.title_max')),
@@ -243,6 +250,8 @@ export type UpdateActivityData = z.infer<typeof updateActivitySchema>;
 export const getCreateActivityDefaultValues = (project?: string): CreateActivityData => ({
     project: project || '',
     projectObjective: '',
+    isSubActivity: false,
+    parentActivity: '',
     title: '',
     description: '',
     startingDate: '',

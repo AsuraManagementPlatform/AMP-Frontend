@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/Card';
 import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import ProjectMemberList from '@/components/tables/ProjectMemberList';
 import { CreateProjectMemberModal } from '@/components/modals/project-member/CreateProjectMemberModal';
+import { useProjectPermissions } from '@/hooks/useProjectPermissions';
 
 interface ProjectMembersTabProps {
     projectId: string;
@@ -13,6 +14,7 @@ export const ProjectMembersTab: React.FC<ProjectMembersTabProps> = ({
                                                                         projectId,
                                                                         organizationId
                                                                     }) => {
+    const { canManageProject } = useProjectPermissions(projectId);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -22,12 +24,14 @@ export const ProjectMembersTab: React.FC<ProjectMembersTabProps> = ({
                 title="Membri proiect"
                 className="mb-6"
                 headerActions={
-                    <PrimaryActionButton
-                        onClick={() => setIsCreateModalOpen(true)}
-                        size="sm"
-                    >
-                        Adaugă membru
-                    </PrimaryActionButton>
+                    canManageProject && (
+                        <PrimaryActionButton
+                            onClick={() => setIsCreateModalOpen(true)}
+                            size="sm"
+                        >
+                            Adaugă membru
+                        </PrimaryActionButton>
+                    )
                 }
             >
                 <ProjectMemberList

@@ -5,6 +5,7 @@ import IconView from "@/assets/icons/iconmonstr-eye.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
 import IconStart from "@/assets/icons/iconmonstr-start.svg?react";
 import IconDone from "@/assets/icons/iconmonstr-done.svg?react";
+import IconArrowDown from "@/assets/icons/iconmonstr-arrow-down.svg?react";
 import {Activity, ActivityStatus, ActivityCompleteRequest} from '@/types/activity.types';
 import {ActivityDetailsModal} from '@/components/modals/activity/ActivityDetailsModal';
 import activityService from '@/services/activity.service';
@@ -30,6 +31,33 @@ export const ActivityList: React.FC<ActivityListProps> = ({
     const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
+    const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+    const [subActivities, setSubActivities] = useState<Map<string, Activity[]>>(new Map());
+
+    const toggleRow = async (activityId: string, hasSubActivities: boolean) => {
+        if (!hasSubActivities) return;
+
+        const newExpanded = new Set(expandedRows);
+        
+        if (newExpanded.has(activityId)) {
+            newExpanded.delete(activityId);
+            setExpandedRows(newExpanded);
+        } else {
+            newExpanded.add(activityId);
+            setExpandedRows(newExpanded);
+            
+            if (!subActivities.has(activityId)) {
+                try {
+                    const response = await activityService.getList({ 
+                        filters: { project, parent_activity: activityId } 
+                    });
+                    setSubActivities(prev => new Map(prev).set(activityId, response.results));
+                } catch (error) {
+                    showToast.error(t('toast.activity.load_subactivities_error'));
+                }
+            }
+        }
+    };
 
     const handleViewDetails = (activity: Activity) => {
         setSelectedActivity(activity);
@@ -114,6 +142,40 @@ export const ActivityList: React.FC<ActivityListProps> = ({
             filterable: true,
             filterType: 'text',
             sticky: 'left',
+            render: (title: string, activity: Activity) => {
+                const hasSubActivities = activity.subActivitiesCount > 0;
+                const isExpanded = expandedRows.has(activity.id);
+                
+                return (
+                    <div className="flex items-center gap-2">
+                        {hasSubActivities ? (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleRow(activity.id, hasSubActivities);
+                                }}
+                                className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors"
+                            >
+                                {isExpanded ? (
+                                    <IconArrowDown className="w-4 h-4 text-gray-600" />
+                                ) : (
+                                    <span className="inline-block w-4 h-4 text-gray-600 transform -rotate-90">
+                                        <IconArrowDown className="w-4 h-4" />
+                                    </span>
+                                )}
+                            </button>
+                        ) : (
+                            <div className="w-6 flex-shrink-0" />
+                        )}
+                        <span className="truncate">{title}</span>
+                        {hasSubActivities && (
+                            <span className="flex-shrink-0 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                                {activity.completedSubActivitiesCount}/{activity.subActivitiesCount}
+                            </span>
+                        )}
+                    </div>
+                );
+            }
         },
         {
             key: 'startingDate',
@@ -165,7 +227,7 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                 { label: t('label.activity.status_cancelled'), value: ActivityStatus.CANCELLED },
                 { label: t('label.activity.status_postponed'), value: ActivityStatus.POSTPONED }
             ],
-            render: (status: string) => {
+            render: (status: string, activity: Activity) => {
                 const statusColors = {
                     'PLANNED': 'bg-blue-100 text-blue-800',
                     'IN_PROGRESS': 'bg-yellow-100 text-yellow-800',
@@ -174,10 +236,27 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                     'POSTPONED': 'bg-gray-100 text-gray-800'
                 };
 
+                const hasSubActivities = activity.subActivitiesCount > 0;
+
                 return (
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800'}`}>
-                        {t(`label.activity.status_${status.toLowerCase()}`)}
-                    </span>
+                    <div className="flex flex-col gap-1">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800'}`}>
+                            {t(`label.activity.status_${status.toLowerCase()}`)}
+                        </span>
+                        {hasSubActivities && (
+                            <div className="flex items-center gap-2">
+                                <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                                    <div 
+                                        className="bg-green-500 h-full transition-all duration-300"
+                                        style={{ width: `${activity.progressPercentage}%` }}
+                                    />
+                                </div>
+                                <span className="text-xs text-gray-600 flex-shrink-0">
+                                    {activity.progressPercentage}%
+                                </span>
+                            </div>
+                        )}
+                    </div>
                 );
             }
         },
@@ -222,7 +301,8 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                     variant: 'primary',
                     onClick: handleCompleted,
                     icon: <IconDone />,
-                    show: (activity: Activity) => activity.status === ActivityStatus.IN_PROGRESS
+                    show: (activity: Activity) => 
+                        activity.status === ActivityStatus.IN_PROGRESS && activity.canComplete
                 }
             );
         } else {

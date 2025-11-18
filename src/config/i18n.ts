@@ -428,6 +428,9 @@ const resources = {
                     complete_activity_message: "Are you sure you want to mark as completed the activity",
                     activate_activity: "Start Activity",
                     cancel_activity: "Cancel Activity",
+                    is_sub_activity: "This is a subactivity",
+                    parent_activity: "Parent Activity",
+                    parent_activity_placeholder: "Select parent activity",
                     type_meeting: "Meeting",
                     type_workshop: "Workshop",
                     type_training: "Training",
@@ -819,7 +822,8 @@ const resources = {
                     cancelled: "Activity has been cancelled",
                     cancel_error: "Error cancelling activity",
                     updated: "Activity updated successfully!",
-                    update_error: "Error updating activity"
+                    update_error: "Error updating activity",
+                    load_subactivities_error: "Error loading subactivities"
                 },
                 survey: {
                     load_error: "Error loading surveys",
@@ -1320,6 +1324,9 @@ const resources = {
                     complete_activity_message: "Sigur doriți să marcați ca finalizată activitatea",
                     activate_activity: "Pornește activitatea",
                     cancel_activity: "Anulează activitatea",
+                    is_sub_activity: "Aceasta este o subactivitate",
+                    parent_activity: "Activitate principală",
+                    parent_activity_placeholder: "Selectează activitatea principală",
                     type_meeting: "Întâlnire",
                     type_workshop: "Workshop",
                     type_training: "Training",
@@ -1773,7 +1780,8 @@ const resources = {
                     cancelled: "Activitatea a fost anulată",
                     cancel_error: "Eroare la anularea activității",
                     updated: "Activitatea a fost actualizată cu succes!",
-                    update_error: "Eroare la actualizarea activității"
+                    update_error: "Eroare la actualizarea activității",
+                    load_subactivities_error: "Eroare la încărcarea subactivităților"
                 },
                 organization_member: {
                     load_error: "Eroare la încărcarea membrilor echipei",

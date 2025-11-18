@@ -25,7 +25,6 @@ interface ProjectFundListProps {
 
 export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                                                                     project,
-                                                                    projectBudget = 0,
                                                                     projectCurrency = 'RON',
                                                                     refreshTrigger = 0,
                                                                     pageSize = 10
