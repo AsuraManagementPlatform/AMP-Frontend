@@ -5,6 +5,7 @@ import {ROUTES} from "@/utils/constants.utils.ts";
 import {useAuth} from "@/hooks/useAuth.ts";
 import logoImage from '@/assets/img/logo.png';
 import {t} from "i18next";
+import PNRRBanner from './PNRRBanner';
 
 interface LayoutProps extends BaseComponentProps {
     showNavigation?: boolean;
@@ -54,6 +55,7 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
 
     return (
         <div className={`min-h-screen flex flex-col bg-gray-100 ${className}`}>
+            <PNRRBanner />
             <header className="bg-white text-gray-800 shadow-md w-full">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex flex-wrap items-center justify-between h-16">
@@ -288,10 +290,45 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                 </div>
             </main>
 
-            <footer className="bg-gray-300 py-4 mt-auto">
+            <footer className="bg-gray-300 py-6 mt-auto">
                 <div className="max-w-7xl mx-auto px-4">
-                    <div className="text-center text-gray-600 text-sm">
-                        © Asura 2025. Toate drepturile rezervate.
+                    <div className="space-y-4">
+                        <div className="text-center">
+                            <p className="text-sm font-semibold text-gray-700">
+                                PNRR. Finanțat de Uniunea Europeană – NextGenerationEU
+                            </p>
+                        </div>
+                        
+                        <div className="text-center text-xs text-gray-600 max-w-4xl mx-auto">
+                            <p className="italic">
+                                Conținutul acestui material nu reprezintă în mod obligatoriu poziția oficială a Uniunii Europene sau a Guvernului României
+                            </p>
+                        </div>
+
+                        <div className="flex justify-center gap-6 text-xs">
+                            <a
+                                href="https://mfe.gov.ro/pnrr/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 hover:underline"
+                            >
+                                PNRR România
+                            </a>
+                            <a
+                                href="https://www.facebook.com/PNRROficial"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 hover:underline"
+                            >
+                                PNRR Facebook
+                            </a>
+                        </div>
+
+                        <div className="border-t border-gray-400 pt-3 mt-3">
+                            <div className="text-center text-gray-600 text-sm">
+                                © Asura 2025. Toate drepturile rezervate.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </footer>
