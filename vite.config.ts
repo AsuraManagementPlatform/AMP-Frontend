@@ -45,20 +45,8 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'react-vendor';
-            }
-            if (id.includes('@tanstack/react-query')) {
-              return 'query-vendor';
-            }
-            if (id.includes('react-hook-form') || id.includes('zod') || id.includes('@hookform')) {
-              return 'form-vendor';
-            }
             if (id.includes('keycloak-js')) {
               return 'keycloak-vendor';
-            }
-            if (id.includes('i18next') || id.includes('react-i18next')) {
-              return 'i18n-vendor';
             }
             if (id.includes('date-fns')) {
               return 'date-vendor';
@@ -66,19 +54,7 @@ export default defineConfig({
             if (id.includes('recharts') || id.includes('d3-')) {
               return 'chart-vendor';
             }
-            if (id.includes('react-hot-toast')) {
-              return 'ui-vendor';
-            }
             return 'vendor';
-          }
-          if (id.includes('/src/services/')) {
-            return 'services';
-          }
-          if (id.includes('/src/components/ui/')) {
-            return 'ui-components';
-          }
-          if (id.includes('/src/components/modals/')) {
-            return 'modals';
           }
         }
       }
