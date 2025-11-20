@@ -47,17 +47,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     const getEventRows = useMemo(() => {
         interface EventRow {
             event: CalendarEvent;
-            startCol: number;
-            span: number;
-            row: number;
+            startDate: Date;
+            endDate: Date;
+            track: number;
         }
         
         const rows: EventRow[] = [];
         const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
         const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
         
-        // Calculăm offset-ul primei zile (câte celule goale sunt înainte)
-        const firstDayOfWeek = (monthStart.getDay() + 6) % 7;
+        const dayTracks: Map<string, Set<number>> = new Map();
+        
+        const getDayKey = (date: Date) => date.toISOString().split('T')[0];
         
         events.forEach(event => {
             if (!event.startDate || !event.endDate) return;
@@ -65,48 +66,47 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             const eventStart = new Date(event.startDate);
             const eventEnd = new Date(event.endDate);
             
-            // Normalizare date
             eventStart.setHours(0, 0, 0, 0);
             eventEnd.setHours(0, 0, 0, 0);
             
-            // Doar evenimentele care se suprapun cu luna curentă
             if (eventEnd < monthStart || eventStart > monthEnd) return;
             
-            // Calculăm start și end relative la calendar
             const displayStart = eventStart < monthStart ? monthStart : eventStart;
             const displayEnd = eventEnd > monthEnd ? monthEnd : eventEnd;
             
-            // Calculăm poziția în grid
-            const dayOfMonth = displayStart.getDate() - 1; // 0-indexed
-            const startCol = (firstDayOfWeek + dayOfMonth) % 7;
-            const startRow = Math.floor((firstDayOfWeek + dayOfMonth) / 7);
+            const occupiedTracks = new Set<number>();
+            const currentDate = new Date(displayStart);
             
-            const spanDays = Math.ceil((displayEnd.getTime() - displayStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-            const daysUntilEndOfWeek = 7 - startCol;
-            const span = Math.min(spanDays, daysUntilEndOfWeek);
+            while (currentDate <= displayEnd) {
+                const key = getDayKey(currentDate);
+                const tracks = dayTracks.get(key);
+                if (tracks) {
+                    tracks.forEach(t => occupiedTracks.add(t));
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            let track = 0;
+            while (occupiedTracks.has(track)) {
+                track++;
+            }
+            
+            const markDate = new Date(displayStart);
+            while (markDate <= displayEnd) {
+                const key = getDayKey(markDate);
+                if (!dayTracks.has(key)) {
+                    dayTracks.set(key, new Set());
+                }
+                dayTracks.get(key)!.add(track);
+                markDate.setDate(markDate.getDate() + 1);
+            }
             
             rows.push({
                 event,
-                startCol: startCol + 1, // CSS grid is 1-indexed
-                span,
-                row: startRow + 2 // +1 for header row, +1 for 1-indexing
+                startDate: displayStart,
+                endDate: displayEnd,
+                track
             });
-            
-            // Dacă evenimentul continuă pe săptămâna următoare
-            let remainingDays = spanDays - span;
-            let currentRow = startRow + 1;
-            
-            while (remainingDays > 0) {
-                const currentSpan = Math.min(remainingDays, 7);
-                rows.push({
-                    event,
-                    startCol: 1,
-                    span: currentSpan,
-                    row: currentRow + 2,
-                });
-                remainingDays -= currentSpan;
-                currentRow++;
-            }
         });
         
         return rows;
@@ -175,14 +175,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                             return (
                                 <div
                                     key={index}
-                                    className={`bg-white min-h-32 p-2 relative ${
+                                    className={`bg-white min-h-32 relative ${
                                         date ? 'cursor-pointer hover:bg-gray-50' : ''
                                     } ${isCurrentDay ? 'bg-orange-50' : ''}`}
                                     onClick={() => date && onDateClick(date)}
-                                    style={{ gridRow: Math.floor(index / 7) + 2 }}
+                                    style={{ gridRow: Math.floor(index / 7) + 2, paddingTop: '80px' }}
                                 >
                                     {date && (
-                                        <div className={`text-sm font-medium ${
+                                        <div className={`text-sm font-medium absolute top-1 left-2 z-10 ${
                                             isCurrentDay ? 'text-orange-600' : 'text-gray-900'
                                         }`}>
                                             {date.getDate()}
@@ -193,10 +193,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         })}
                     </div>
                     
-                    {/* Layer pentru evenimente ca bare continue */}
-                    <div className="absolute inset-0 pointer-events-none" style={{ top: '52px' }}>
-                        <div className="grid grid-cols-7 gap-px h-full">
-                            {getEventRows.map((eventRow, idx) => {
+                    {/* Layer pentru evenimente ca bare continue - poziționate sus */}
+                    <div className="absolute pointer-events-none" style={{ top: '40px', left: 0, right: 0 }}>
+                        <div className="grid grid-cols-7 gap-px">
+                            {getEventRows.map((eventRow) => {
+                                const firstDayOfWeek = (new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay() + 6) % 7;
+                                const startDay = eventRow.startDate.getDate() - 1;
+                                const startCol = (firstDayOfWeek + startDay) % 7;
+                                const startRow = Math.floor((firstDayOfWeek + startDay) / 7);
+                                
+                                const spanDays = Math.ceil((eventRow.endDate.getTime() - eventRow.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                                
                                 const getActivityColor = () => {
                                     if (eventRow.event.eventType !== 'ACTIVITY') return null;
                                     
@@ -233,29 +240,53 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                                     eventRow.event.eventType === 'EVENT' ? '#9a3412' :
                                     eventRow.event.eventType === 'VOTE_SCHEDULING' ? '#6b21a8' : '#1e40af'
                                 );
-
-                                return (
-                                    <div
-                                        key={`${eventRow.event.id}-${idx}`}
-                                        className="pointer-events-auto cursor-pointer text-xs px-2 py-1 rounded flex items-center gap-1"
-                                        style={{
-                                            gridColumn: `${eventRow.startCol} / span ${eventRow.span}`,
-                                            gridRow: eventRow.row,
-                                            marginTop: `${(idx % 3) * 24}px`,
-                                            height: '20px',
-                                            backgroundColor,
-                                            borderLeft: `3px solid ${borderColor}`,
-                                            color: textColor
-                                        }}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onEventClick(eventRow.event);
-                                        }}
-                                        title={`${eventRow.event.title} - ${getEventTypeLabel(eventRow.event.eventType)}`}
-                                    >
-                                        <span className="truncate flex-1">{eventRow.event.title}</span>
-                                    </div>
-                                );
+                                
+                                const segments = [];
+                                let remainingDays = spanDays;
+                                let currentRow = startRow;
+                                let currentCol = startCol;
+                                let isFirstSegment = true;
+                                
+                                const rowHeight = 128;
+                                const firstRowReservedSpace = 28;
+                                
+                                while (remainingDays > 0) {
+                                    const daysInRow = isFirstSegment 
+                                        ? Math.min(remainingDays, 7 - currentCol) 
+                                        : Math.min(remainingDays, 7);
+                                    
+                                    const topPosition = currentRow * rowHeight + firstRowReservedSpace + eventRow.track * 24;
+                                    
+                                    segments.push(
+                                        <div
+                                            key={`${eventRow.event.id}-${currentRow}`}
+                                            className="pointer-events-auto cursor-pointer text-xs px-2 py-1 rounded flex items-center gap-1 absolute"
+                                            style={{
+                                                left: `calc(${(currentCol / 7) * 100}% + ${currentCol}px)`,
+                                                width: `calc(${(daysInRow / 7) * 100}% - ${1}px)`,
+                                                top: `${topPosition}px`,
+                                                height: '20px',
+                                                backgroundColor,
+                                                borderLeft: `3px solid ${borderColor}`,
+                                                color: textColor
+                                            }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onEventClick(eventRow.event);
+                                            }}
+                                            title={`${eventRow.event.title} - ${getEventTypeLabel(eventRow.event.eventType)}`}
+                                        >
+                                            <span className="truncate">{eventRow.event.title}</span>
+                                        </div>
+                                    );
+                                    
+                                    remainingDays -= daysInRow;
+                                    currentRow++;
+                                    currentCol = 0;
+                                    isFirstSegment = false;
+                                }
+                                
+                                return segments;
                             })}
                         </div>
                     </div>
