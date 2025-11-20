@@ -3,6 +3,7 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import compression from 'compression';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,139 +12,104 @@ const port = parseInt(process.env.PORT || '3000', 10);
 const publicPath = 'dist';
 const fullPath = path.join(__dirname, publicPath);
 
-console.log('=== Server Startup Diagnostics ===');
-console.log('PORT:', port);
-console.log('Working directory:', process.cwd());
-console.log('__dirname:', __dirname);
-console.log('Public path:', publicPath);
-console.log('Full path:', fullPath);
-console.log('Path exists:', fs.existsSync(fullPath));
-
 if (!fs.existsSync(fullPath)) {
   console.error(`ERROR: The "${publicPath}" directory does not exist!`);
-  console.error('Please run "npm run build" before starting the server.');
   process.exit(1);
 }
 
-const files = fs.readdirSync(fullPath);
-console.log('Files in dist:', files);
-
-const indexPath = path.join(fullPath, 'index.html');
-console.log('index.html exists:', fs.existsSync(indexPath));
+// Create compression middleware
+const compress = compression({
+  threshold: 1024,
+  level: 6,
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  }
+});
 
 const server = http.createServer((request, response) => {
-  console.log('=== Incoming Request ===');
-  console.log(`Timestamp: ${new Date().toISOString()}`);
-  console.log(`Method: ${request.method}`);
-  console.log(`URL: ${request.url}`);
-  console.log(`Headers:`, JSON.stringify(request.headers, null, 2));
-  
-  // Add a basic health check endpoint
-  if (request.url === '/health' || request.url === '/healthz') {
-    console.log('Health check endpoint hit - responding with 200');
-    response.writeHead(200, { 'Content-Type': 'application/json' });
-    response.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
-    console.log('Health check response sent');
-    return;
-  }
-  
-  console.log('Passing request to serve-handler...');
-  console.log(`Handler config - public: ${publicPath}`);
-  
-  // Track when the handler completes
-  response.on('finish', () => {
-    console.log(`Response finished - Status: ${response.statusCode}`);
-  });
-  
-  response.on('error', (err) => {
-    console.error('Response error:', err);
-  });
-  
-  try {
-    const result = handler(request, response, {
-      public: publicPath,
-      rewrites: [
-        { source: '/**', destination: '/index.html' }
-      ]
+  compress(request, response, () => {
+    if (request.url === '/health' || request.url === '/healthz') {
+      response.writeHead(200, { 'Content-Type': 'application/json' });
+      response.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
+      return;
+    }
+    
+    response.on('error', (err) => {
+      console.error('Response error:', err);
     });
     
-    console.log('Handler invoked, result:', result);
-    
-    if (result && typeof result.then === 'function') {
-      result.then(() => {
-        console.log('Handler promise resolved');
-      }).catch((err) => {
-        console.error('Handler promise rejected:', err);
+    try {
+      const result = handler(request, response, {
+        public: publicPath,
+        rewrites: [
+          { source: '/**', destination: '/index.html' }
+        ],
+        headers: [
+          {
+            source: '**/*.@(js|css|svg|png|jpg|jpeg|webp|woff|woff2)',
+            headers: [
+              {
+                key: 'Cache-Control',
+                value: 'public, max-age=31536000, immutable'
+              }
+            ]
+          },
+          {
+            source: 'index.html',
+            headers: [
+              {
+                key: 'Cache-Control',
+                value: 'public, max-age=0, must-revalidate'
+              }
+            ]
+          }
+        ]
       });
+      
+      if (result && typeof result.then === 'function') {
+        result.catch((err) => {
+          console.error('Handler error:', err);
+        });
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Handler error:', error.message);
+      if (!response.headersSent) {
+        response.statusCode = 500;
+        response.setHeader('Content-Type', 'text/plain');
+        response.end(`Server Error: ${error.message}`);
+      }
     }
-    
-    return result;
-  } catch (error) {
-    console.error('!!! Handler threw synchronous error:', error);
-    console.error('Error stack:', error.stack);
-    if (!response.headersSent) {
-      response.statusCode = 500;
-      response.setHeader('Content-Type', 'text/plain');
-      response.end(`Server Error: ${error.message}`);
-    }
-  }
+  });
 });
 
 server.listen(port, '0.0.0.0', () => {
-  console.log('=== Server Started Successfully ===');
-  console.log(`✅ Server running at http://0.0.0.0:${port}`);
-  console.log('Server is ready to accept connections');
-  console.log(`Process ID: ${process.pid}`);
-  console.log(`Node version: ${process.version}`);
-  console.log(`Platform: ${process.platform}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'not set'}`);
-});
-
-server.on('connection', (socket) => {
-  console.log('New connection established from:', socket.remoteAddress);
+  console.log(`✅ Server running on port ${port}`);
 });
 
 server.on('error', (error) => {
-  console.error('!!! Server error:', error);
-  console.error('Error code:', error.code);
-  console.error('Error stack:', error.stack);
+  console.error('Server error:', error.code);
   process.exit(1);
-});
-
-server.on('close', () => {
-  console.log('Server closed');
 });
 
 process.on('uncaughtException', (error) => {
-  console.error('!!! Uncaught Exception !!!');
-  console.error('Error:', error);
-  console.error('Stack:', error.stack);
-  console.error('Type:', error.name);
+  console.error('Uncaught Exception:', error.message);
   process.exit(1);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('!!! Unhandled Rejection !!!');
-  console.error('Promise:', promise);
-  console.error('Reason:', reason);
-  if (reason && reason.stack) {
-    console.error('Stack:', reason.stack);
-  }
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
   process.exit(1);
 });
 
 process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
-  });
+  server.close(() => console.log('Server closed'));
 });
 
 process.on('SIGINT', () => {
-  console.log('SIGINT signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
-  });
+  server.close(() => console.log('Server closed'));
 });
-
-console.log('=== Process Error Handlers Registered ===');

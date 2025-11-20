@@ -7,10 +7,12 @@ import { organizationMemberService } from '@/services/organization-member.servic
 import { toast } from 'react-hot-toast';
 import { getUserRoleLabel } from '@/utils/dashboardUtils';
 import { ROUTES } from '@/utils/constants.utils';
+import { useAuth } from '@/context/Auth.context';
 
 export const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
     const { userId, organizationId } = useParams<{ userId: string; organizationId: string }>();
+    const { user: currentUser, fetchUserData } = useAuth();
     const [user, setUser] = useState<User | null>(null);
     const [userProjects, setUserProjects] = useState<any[]>([]);
     const [isEditing, setIsEditing] = useState(false);
@@ -22,7 +24,7 @@ export const ProfilePage: React.FC = () => {
 
     useEffect(() => {
         loadUserData();
-    }, [userId]);
+    }, [userId, currentUser]);
 
     const loadUserData = async () => {
         try {
@@ -32,7 +34,8 @@ export const ProfilePage: React.FC = () => {
             if (userId) {
                 userData = await userService.getById(userId);
             } else {
-                userData = await userService.getCurrentUser();
+                if (!currentUser) return;
+                userData = currentUser;
             }
             
             setUser(userData);
@@ -76,6 +79,7 @@ export const ProfilePage: React.FC = () => {
         try {
             setSaving(true);
             await userService.updateCurrentUser(formData);
+            await fetchUserData();
             toast.success('Profil actualizat cu succes!');
             setIsEditing(false);
             await loadUserData();
