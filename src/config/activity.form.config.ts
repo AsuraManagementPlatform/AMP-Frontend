@@ -63,6 +63,7 @@ export const createActivityFormConfig = (parentActivityOptions: SelectOption[] =
                     name: 'description',
                     label: t('label.activity.description'),
                     type: FieldType.TEXTAREA,
+                    required: true,
                     placeholder: t('label.activity.description_placeholder'),
                     maxLength: 511,
                     rows: 3
@@ -71,6 +72,7 @@ export const createActivityFormConfig = (parentActivityOptions: SelectOption[] =
                     name: 'location',
                     label: t('label.activity.location'),
                     type: FieldType.TEXT,
+                    required: true,
                     placeholder: t('label.activity.location_placeholder'),
                     maxLength: 255
                 }
@@ -120,6 +122,7 @@ export const createActivityFormConfig = (parentActivityOptions: SelectOption[] =
                     name: 'observation',
                     label: t('label.activity.observation'),
                     type: FieldType.TEXTAREA,
+                    required: true,
                     placeholder: t('label.activity.observation_placeholder'),
                     maxLength: 511,
                     rows: 2

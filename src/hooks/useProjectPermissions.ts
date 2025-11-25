@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import projectService from '@/services/project.service';
 import showToast from '@/components/ui/Toast';
 import { t } from 'i18next';
+import {UserGroup} from "@/types/auth.types.ts";
 
 export const useProjectPermissions = (projectId: string) => {
     const { user, hasAllUserGroups } = useAuth();
@@ -15,7 +16,7 @@ export const useProjectPermissions = (projectId: string) => {
                 setIsLoading(true);
                 const project = await projectService.getById(projectId);
 
-                const isOrgAdmin = hasAllUserGroups(['ORGANIZATION_ADMIN']);
+                const isOrgAdmin = hasAllUserGroups([UserGroup.ORGANIZATION_ADMIN]);
                 const isProjectResponsible = project.budgetResponsible === user?.id;
 
                 setCanManageProject(isOrgAdmin || isProjectResponsible);

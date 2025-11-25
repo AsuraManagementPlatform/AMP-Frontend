@@ -97,6 +97,8 @@ export const ProjectFundsTab: React.FC<ProjectFundsTabProps> = ({
                     projectBudget={projectBudget}
                     projectCurrency={projectCurrency}
                     refreshTrigger={refreshTrigger}
+                    activities={activities}
+                    entities={entities}
                 />
             </Card>
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import { Activity, ActivityStatus, ActivityCompleteRequest } from '@/types/activity.types';
 import { ActivityChangeStatusRequest } from '@/types/index.types';
 import activityService from '@/services/activity.service';
@@ -33,25 +33,28 @@ export const ActivityTableWithNested: React.FC<ActivityTableWithNestedProps> = (
     const [subActivities, setSubActivities] = useState<Map<string, Activity[]>>(new Map());
     const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [localRefresh, setLocalRefresh] = useState(0);
 
-    useEffect(() => {
-        loadActivities();
-    }, [project, refreshTrigger]);
-
-    const loadActivities = async () => {
+    const loadActivities = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await activityService.getList({ 
-                filters: { project } 
+            const response = await activityService.getList({
+                filters: { project }
             });
             const parentActivities = response.results.filter((a: Activity) => !a.parentActivity);
             setActivities(parentActivities);
+            setSubActivities(new Map());
+            setExpandedRows(new Set());
         } catch (error: any) {
             showToast.error(error?.message || t('toast.activity.load_error'));
         } finally {
             setLoading(false);
         }
-    };
+    }, [project]);
+
+    useEffect(() => {
+        loadActivities();
+    }, [loadActivities, refreshTrigger, localRefresh]);
 
     const toggleRow = async (activityId: string, hasSubActivities: boolean) => {
         if (!hasSubActivities) return;
@@ -98,7 +101,7 @@ export const ActivityTableWithNested: React.FC<ActivityTableWithNestedProps> = (
         try {
             await activityService.delete(activity.id);
             showToast.success(t('toast.activity.deleted'));
-            loadActivities();
+            setLocalRefresh(prev => prev + 1);
         } catch (error: any) {
             showToast.error(error?.message || t('toast.activity.delete_error'));
         }
@@ -113,7 +116,7 @@ export const ActivityTableWithNested: React.FC<ActivityTableWithNestedProps> = (
         try {
             await activityService.changeStatus(changeStatusData);
             showToast.success(t('toast.activity.activated'));
-            loadActivities();
+            setLocalRefresh(prev => prev + 1);
         } catch (error: any) {
             showToast.error(error?.message || t('toast.activity.activate_error'));
         }
@@ -139,7 +142,7 @@ export const ActivityTableWithNested: React.FC<ActivityTableWithNestedProps> = (
         try {
             await activityService.complete(completeData);
             showToast.success(t('toast.activity.completed'));
-            loadActivities();
+            setLocalRefresh(prev => prev + 1);
         } catch (error: any) {
             showToast.error(error?.message || t('toast.activity.complete_error'));
         }
@@ -210,7 +213,7 @@ export const ActivityTableWithNested: React.FC<ActivityTableWithNestedProps> = (
         };
 
         return (
-            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
+            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
                 {t(`label.activity.status_${status.toLowerCase()}`)}
             </span>
         );

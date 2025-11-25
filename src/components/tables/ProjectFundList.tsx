@@ -1,4 +1,4 @@
-import {ProjectFundStatus, TableAction, TableColumn} from '@/types/index.types';
+import {ProjectFundStatus, SelectOption, TableAction, TableColumn} from '@/types/index.types';
 import React, {useEffect, useState} from "react";
 import Table from "@/components/ui/Table.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
@@ -21,13 +21,17 @@ interface ProjectFundListProps {
     projectCurrency?: string;
     refreshTrigger?: number;
     pageSize?: number;
+    activities?: SelectOption[];
+    entities?: SelectOption[];
 }
 
 export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                                                                     project,
                                                                     projectCurrency = 'RON',
                                                                     refreshTrigger = 0,
-                                                                    pageSize = 10
+                                                                    pageSize = 10,
+                                                                    activities,
+                                                                    entities,
                                                                 }) => {
     const confirm = useConfirmDialog();
     const [selectedFund, setSelectedFund] = useState<ProjectFund | null>(null);
@@ -322,6 +326,8 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                     onSuccess={handleUpdateSuccess}
                     fund={selectedFund}
                     project={project}
+                    activities={activities}
+                    entities={entities}
                 />
             )}
 
