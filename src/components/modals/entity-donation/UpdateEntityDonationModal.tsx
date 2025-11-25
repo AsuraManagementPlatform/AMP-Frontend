@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Modal} from '@/components/ui/Modal';
 import {DynamicForm} from '@/components/forms/DynamicForm';
 import {updateDonationFormConfig} from '@/config/entity-donation.form.config.ts';
@@ -33,6 +33,21 @@ export const UpdateEntityDonationModal: React.FC<UpdateEntityDonationModalProps>
                                                                                         activities = []
                                                                                     }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [typeSuggestions, setTypeSuggestions] = useState<string[]>([]);
+
+    useEffect(() => {
+        const fetchTypeSuggestions = async () => {
+            try {
+                const suggestions = await entityDonationService.getTypeSuggestions();
+                setTypeSuggestions(suggestions);
+            } catch (error) {
+            }
+        };
+
+        if (isOpen) {
+            fetchTypeSuggestions();
+        }
+    }, [isOpen]);
 
     const handleSubmit = async (data: UpdateEntityDonationData) => {
         try {
@@ -65,7 +80,7 @@ export const UpdateEntityDonationModal: React.FC<UpdateEntityDonationModalProps>
         }
     };
 
-    const formConfig = updateDonationFormConfig(entities, projects, activities);
+    const formConfig = updateDonationFormConfig(entities, projects, activities, typeSuggestions);
     const defaultValues = getUpdateDonationDefaultValues(entityDonation);
 
     return (

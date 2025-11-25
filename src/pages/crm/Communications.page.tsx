@@ -195,17 +195,16 @@ const CommunicationsPage: React.FC = () => {
                                 {!isDeleteMode ? (
                                     <>
                                         <Button 
-                                            className="bg-transparent border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all"
                                             onClick={() => setShowCreateMessageModal(true)}
                                         >
                                             Mesaj Nou
                                         </Button>
                                         {communications.length > 0 && (
                                             <Button 
-                                                className="bg-transparent border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                                                variant="danger"
                                                 onClick={toggleDeleteMode}
                                             >
-                                                🗑️ Șterge Mesaje
+                                                Șterge Mesaje
                                             </Button>
                                         )}
                                     </>
@@ -216,7 +215,7 @@ const CommunicationsPage: React.FC = () => {
                                             onClick={handleDeleteMultiple}
                                             disabled={selectedMessages.size === 0 || isDeletingMultiple}
                                         >
-                                            {isDeletingMultiple ? 'Se șterge...' : `🗑️ Șterge (${selectedMessages.size})`}
+                                            {isDeletingMultiple ? 'Se șterge...' : `Șterge (${selectedMessages.size})`}
                                         </Button>
                                         <Button 
                                             className="!bg-white !border-2 !border-gray-400 !text-gray-800 hover:!bg-gray-100 font-semibold px-6"
@@ -232,17 +231,15 @@ const CommunicationsPage: React.FC = () => {
                         {activeTab === 'proposals' && (
                             <>
                                 <Button 
-                                    className="bg-transparent border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all"
                                     onClick={() => setShowCreateMessageModal(true)}
                                 >
                                     Mesaj Nou
                                 </Button>
                                 {!user?.groups?.includes('organization_admin') && (
                                     <Button 
-                                        className="bg-orange-500 hover:bg-orange-600 text-white"
                                         onClick={() => setShowCreateProposalModal(true)}
                                     >
-                                        + Propune Activitate
+                                        Propune Activitate
                                     </Button>
                                 )}
                             </>

@@ -54,7 +54,6 @@ const EntitiesPage: React.FC = () => {
                     </div>
                     <Button
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="bg-orange-500 hover:bg-orange-600 text-white"
                     >
                         {t('label.entity.add_entity')}
                     </Button>

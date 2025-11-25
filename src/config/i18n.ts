@@ -270,7 +270,7 @@ const resources = {
                 entity: {
                     page_title: "Entities (CRM)",
                     page_subtitle: "Manage donors, sponsors and partners",
-                    add_entity: "+ Add Entity",
+                    add_entity: "Add Entity",
                     identification_number: "CUI",
                     name: "Name",
                     organization: "Organization",
@@ -330,6 +330,8 @@ const resources = {
                     delete_donation_message: "Are you sure you want to delete this entity-donation?",
                     entity_helper: "Select the entity making the entity-donation",
                     amount_placeholder: "e.g., 1000",
+                    type_placeholder: "Enter or select donation type",
+                    type_helper: "Enter free text or select from previous values",
                     project_helper: "Optional - select destination project",
                     activity_helper: "Optional - select destination activity",
                     document_reference_placeholder: "e.g., https://drive.google.com/file/...",
@@ -402,10 +404,16 @@ const resources = {
                 },
                 communication: {
                     status: {
-                        pending: "PENDING",
-                        in_progress: "IN PROGRESS",
-                        resolved: "RESOLVED",
-                        closed: "CLOSED"
+                        pending: "Pending",
+                        in_progress: "In Progress",
+                        resolved: "Resolved",
+                        closed: "Closed"
+                    },
+                    status_update_message: {
+                        pending: "Status has been updated to: Pending",
+                        in_progress: "Status has been updated to: In Progress",
+                        resolved: "Status has been updated to: Resolved",
+                        closed: "Status has been updated to: Closed"
                     }
                 },
                 communication_type: {
@@ -625,6 +633,8 @@ const resources = {
                 entity_donation: {
                     entity_required: "Donor is required",
                     entity_invalid: "Donor ID must be valid",
+                    type_required: "Donation type is required",
+                    type_empty: "Donation type cannot be empty",
                     type_invalid: "Donation type is invalid",
                     scope_invalid: "Donation scope is invalid",
                     date_required: "Date is required",
@@ -803,6 +813,9 @@ const resources = {
                     update_error: "Error updating entity-donation",
                     delete_error: "Error deleting entity-donation",
                     load_error: "Error loading donations",
+                    suggestions_error: "Error loading donation type suggestions",
+                    no_organization: "No organization found for user",
+                    access_denied: "Access denied to donation suggestions",
                 },
                 entity_communication: {
                     deleted: "Communication deleted successfully!",
@@ -1160,7 +1173,7 @@ const resources = {
                 entity: {
                     page_title: "Entități (CRM)",
                     page_subtitle: "Gestionează donatori, sponsori și parteneri",
-                    add_entity: "+ Adaugă Entitate",
+                    add_entity: "Adaugă Entitate",
                     identification_number: "CUI",
                     name: "Nume",
                     organization: "Organizație",
@@ -1220,6 +1233,8 @@ const resources = {
                     delete_donation_message: "Sigur doriți să ștergeți această donație?",
                     entity_helper: "Selectează entitatea care face donația",
                     amount_placeholder: "ex: 1000",
+                    type_placeholder: "Introdu sau selectează tipul donației",
+                    type_helper: "Introdu text liber sau selectează din valorile anterioare",
                     project_helper: "Opțional - selectează proiectul destinatar",
                     activity_helper: "Opțional - selectează activitatea destinatară",
                     document_reference_placeholder: "ex: https://drive.google.com/file/...",
@@ -1293,10 +1308,16 @@ const resources = {
                 },
                 communication: {
                     status: {
-                        pending: "ÎN AȘTEPTARE",
-                        in_progress: "ÎN PROGRES",
-                        resolved: "REZOLVAT",
-                        closed: "ÎNCHIS"
+                        pending: "În așteptare",
+                        in_progress: "În progres",
+                        resolved: "Rezolvat",
+                        closed: "Închis"
+                    },
+                    status_update_message: {
+                        pending: "Statusul a fost actualizat la: În așteptare",
+                        in_progress: "Statusul a fost actualizat la: În progres",
+                        resolved: "Statusul a fost actualizat la: Rezolvat",
+                        closed: "Statusul a fost actualizat la: Închis"
                     }
                 },
                 communication_type: {
@@ -1579,6 +1600,8 @@ const resources = {
                 entity_donation: {
                     entity_required: "Donatorul este obligatoriu",
                     entity_invalid: "ID-ul donatorului trebuie să fie valid",
+                    type_required: "Tipul donației este obligatoriu",
+                    type_empty: "Tipul donației nu poate fi gol",
                     type_invalid: "Tipul donației este invalid",
                     scope_invalid: "Scopul donației este invalid",
                     date_required: "Data este obligatorie",
@@ -1760,7 +1783,10 @@ const resources = {
                     create_error: "Eroare la adăugarea donației",
                     update_error: "Eroare la actualizarea donației",
                     delete_error: "Eroare la ștergerea donației",
-                    load_error: "Eroare la încărcarea donațiilor"
+                    load_error: "Eroare la încărcarea donațiilor",
+                    suggestions_error: "Eroare la încărcarea sugestiilor de tipuri de donații",
+                    no_organization: "Nu există organizație pentru utilizator",
+                    access_denied: "Acces interzis la sugestii de donații",
                 },
                 entity_communication: {
                     deleted: "Comunicarea a fost ștearsă cu succes!",

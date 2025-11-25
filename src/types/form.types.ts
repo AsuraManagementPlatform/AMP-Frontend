@@ -11,7 +11,8 @@ export const FieldType = {
     DATE: 'date',
     MONTH: 'month',
     FILE: 'file',
-    HIDDEN: 'hidden'
+    HIDDEN: 'hidden',
+    COMBO: 'combo'
 } as const;
 
 export type FieldType = typeof FieldType[keyof typeof FieldType];
@@ -73,6 +74,11 @@ export interface HiddenFieldConfig extends BaseFieldConfig {
     type: typeof FieldType.HIDDEN;
 }
 
+export interface ComboFieldConfig extends BaseFieldConfig {
+    type: typeof FieldType.COMBO;
+    suggestions?: string[];
+}
+
 export type FieldConfig =
     | TextFieldConfig
     | NumberFieldConfig
@@ -80,7 +86,8 @@ export type FieldConfig =
     | CheckboxFieldConfig
     | TextareaFieldConfig
     | FileFieldConfig
-    | HiddenFieldConfig;
+    | HiddenFieldConfig
+    | ComboFieldConfig;
 
 export interface FormSection {
     title?: string;

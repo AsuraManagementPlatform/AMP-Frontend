@@ -87,7 +87,9 @@ export const createCommunicationFormConfig = (
                     type: FieldType.SELECT,
                     required: false,
                     placeholder: 'Selectează proiectul (opțional)',
-                    options: projects,
+                    options: projects.length > 0 
+                        ? [{ value: '', label: 'Niciun proiect' }, ...projects]
+                        : [{ value: '', label: 'Nu există proiecte disponibile' }],
                     helperText: 'Dacă mesajul este legat de un proiect'
                 },
                 {
@@ -96,7 +98,9 @@ export const createCommunicationFormConfig = (
                     type: FieldType.SELECT,
                     required: false,
                     placeholder: 'Selectează activitatea (opțional)',
-                    options: activities,
+                    options: activities.length > 0
+                        ? [{ value: '', label: 'Nicio activitate' }, ...activities]
+                        : [{ value: '', label: 'Nu există activități disponibile' }],
                     helperText: 'Dacă mesajul este legat de o activitate'
                 }
             ]

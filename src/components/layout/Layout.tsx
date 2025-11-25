@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
-import {Link, useLocation} from 'react-router-dom';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
+import {useQuery} from '@tanstack/react-query';
 import {BaseComponentProps, UserGroup} from "@/types/index.types.ts";
 import {ROUTES} from "@/utils/constants.utils.ts";
 import {useAuth} from "@/hooks/useAuth.ts";
 import logoImage from '@/assets/img/logo.png';
 import {t} from "i18next";
 import PNRRBanner from './PNRRBanner';
+import communicationService from '@/services/communication.service';
 
 interface LayoutProps extends BaseComponentProps {
     showNavigation?: boolean;
@@ -23,9 +25,21 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
     } = useAuth();
 
     const location = useLocation();
+    const navigate = useNavigate();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [erpDropdownOpen, setErpDropdownOpen] = useState(false);
     const [crmDropdownOpen, setCrmDropdownOpen] = useState(false);
+
+    const { data: unreadData } = useQuery({
+        queryKey: ['communications-unread-count'],
+        queryFn: () => communicationService.getUnreadCount(),
+        enabled: isAuthenticated,
+        refetchInterval: 30000,
+        refetchOnWindowFocus: false,
+        staleTime: 5000
+    });
+
+    const unreadCount = unreadData?.unreadCount || 0;
 
     const handleLogout = async (): Promise<void> => {
         setDropdownOpen(false);
@@ -68,28 +82,54 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                         {showNavigation && isAuthenticated && (
                             <nav className="flex items-center">
                                 <ul className="flex items-center space-x-1 md:space-x-4">
-                                    <li className="flex items-center">
+                                    <li className="relative">
                                         <Link
                                             to={ROUTES.DASHBOARD}
-                                            className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                                            className={`relative px-3 py-2 text-sm transition-all duration-300 inline-block ${
                                                 location.pathname === ROUTES.DASHBOARD
-                                                    ? 'font-bold text-orange-500'
-                                                    : 'text-gray-700 hover:text-orange-500 hover:font-semibold'
+                                                    ? 'font-semibold text-orange-600'
+                                                    : 'text-gray-700 hover:text-orange-500'
                                             }`}
+                                            style={{
+                                                textShadow: location.pathname === ROUTES.DASHBOARD 
+                                                    ? '0 0 8px rgba(249, 115, 22, 0.4)' 
+                                                    : undefined
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.textShadow = '0 0 12px rgba(249, 115, 22, 0.5)'}
+                                            onMouseLeave={(e) => {
+                                                if (location.pathname !== ROUTES.DASHBOARD) {
+                                                    e.currentTarget.style.textShadow = '';
+                                                } else {
+                                                    e.currentTarget.style.textShadow = '0 0 8px rgba(249, 115, 22, 0.4)';
+                                                }
+                                            }}
                                         >
                                             Pagina Principală
                                         </Link>
                                     </li>
 
                                     {isAuthenticated && hasAnyUserGroup([UserGroup.ADMIN]) && (
-                                        <li className="relative flex items-center">
+                                        <li className="relative">
                                             <Link
                                                 to={ROUTES.ERP_VATS}
-                                                className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                                                className={`relative px-3 py-2 text-sm transition-all duration-300 inline-block ${
                                                     location.pathname === ROUTES.ERP_VATS
-                                                    ? 'font-bold text-orange-500'
-                                                        : 'text-gray-700 hover:text-orange-500 hover:font-semibold'
+                                                    ? 'font-semibold text-orange-600'
+                                                        : 'text-gray-700 hover:text-orange-500'
                                                 }`}
+                                                style={{
+                                                    textShadow: location.pathname === ROUTES.ERP_VATS 
+                                                        ? '0 0 8px rgba(249, 115, 22, 0.4)' 
+                                                        : undefined
+                                                }}
+                                                onMouseEnter={(e) => e.currentTarget.style.textShadow = '0 0 12px rgba(249, 115, 22, 0.5)'}
+                                                onMouseLeave={(e) => {
+                                                    if (location.pathname !== ROUTES.ERP_VATS) {
+                                                        e.currentTarget.style.textShadow = '';
+                                                    } else {
+                                                        e.currentTarget.style.textShadow = '0 0 8px rgba(249, 115, 22, 0.4)';
+                                                    }
+                                                }}
                                             >
                                                 {t('nav.vats')}
                                             </Link>
@@ -116,24 +156,30 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                                 <div className="absolute left-0 top-full w-48 bg-white rounded-md shadow-lg py-1 z-20 border">
                                                     <Link
                                                         to={ROUTES.ERP_PROJECTS}
-                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:text-orange-600 transition-all duration-200"
                                                         onClick={() => setErpDropdownOpen(false)}
+                                                        onMouseEnter={(e) => e.currentTarget.style.textShadow = '0 0 10px rgba(249, 115, 22, 0.5)'}
+                                                        onMouseLeave={(e) => e.currentTarget.style.textShadow = ''}
                                                     >
-                                                        📋 Proiecte
+                                                        Proiecte
                                                     </Link>
                                                     <Link
                                                         to={ROUTES.ERP_MEMBERSHIP_FEES}
-                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:text-orange-600 transition-all duration-200"
                                                         onClick={() => setErpDropdownOpen(false)}
+                                                        onMouseEnter={(e) => e.currentTarget.style.textShadow = '0 0 10px rgba(249, 115, 22, 0.5)'}
+                                                        onMouseLeave={(e) => e.currentTarget.style.textShadow = ''}
                                                     >
-                                                        💳 Cotizații Membri
+                                                        Cotizații Membri
                                                     </Link>
                                                     <Link
                                                         to={ROUTES.SONDAJE}
-                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:text-orange-600 transition-all duration-200"
                                                         onClick={() => setErpDropdownOpen(false)}
+                                                        onMouseEnter={(e) => e.currentTarget.style.textShadow = '0 0 10px rgba(249, 115, 22, 0.5)'}
+                                                        onMouseLeave={(e) => e.currentTarget.style.textShadow = ''}
                                                     >
-                                                        📊 Sondaje
+                                                        Sondaje
                                                     </Link>
                                                 </div>
                                             )}
@@ -160,45 +206,57 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                                 <div className="absolute left-0 top-full w-48 bg-white rounded-md shadow-lg py-1 z-20 border">
                                                     <Link
                                                         to={ROUTES.CRM_ORGANIZATION_DETAILS}
-                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:text-orange-600 transition-all duration-200"
                                                         onClick={() => setCrmDropdownOpen(false)}
+                                                        onMouseEnter={(e) => e.currentTarget.style.textShadow = '0 0 10px rgba(249, 115, 22, 0.5)'}
+                                                        onMouseLeave={(e) => e.currentTarget.style.textShadow = ''}
                                                     >
-                                                        🏢 Organizația Mea
+                                                        Organizația Mea
                                                     </Link>
                                                     <Link
                                                         to={ROUTES.CRM_ENTITIES}
-                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:text-orange-600 transition-all duration-200"
                                                         onClick={() => setCrmDropdownOpen(false)}
+                                                        onMouseEnter={(e) => e.currentTarget.style.textShadow = '0 0 10px rgba(249, 115, 22, 0.5)'}
+                                                        onMouseLeave={(e) => e.currentTarget.style.textShadow = ''}
                                                     >
-                                                        👥 Entități
+                                                        Entități
                                                     </Link>
                                                     <Link
                                                         to={ROUTES.CRM_DONATIONS}
-                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:text-orange-600 transition-all duration-200"
                                                         onClick={() => setCrmDropdownOpen(false)}
+                                                        onMouseEnter={(e) => e.currentTarget.style.textShadow = '0 0 10px rgba(249, 115, 22, 0.5)'}
+                                                        onMouseLeave={(e) => e.currentTarget.style.textShadow = ''}
                                                     >
-                                                        💰 Donații
-                                                    </Link>
-                                                    <Link
-                                                        to={ROUTES.CRM_COMMUNICATIONS}
-                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                                                        onClick={() => setCrmDropdownOpen(false)}
-                                                    >
-                                                        📧 Comunicări
+                                                        Donații
                                                     </Link>
                                                 </div>
                                             )}
                                         </li>
                                     )}
 
-                                    <li className="flex items-center">
+                                    <li className="relative">
                                         <Link
                                             to={ROUTES.CALENDAR}
-                                            className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                                            className={`relative px-3 py-2 text-sm transition-all duration-300 inline-block ${
                                                 location.pathname === ROUTES.CALENDAR
-                                                    ? 'font-bold text-orange-500'
-                                                    : 'text-gray-700 hover:text-orange-500 hover:font-semibold'
+                                                    ? 'font-semibold text-orange-600'
+                                                    : 'text-gray-700 hover:text-orange-500'
                                             }`}
+                                            style={{
+                                                textShadow: location.pathname === ROUTES.CALENDAR 
+                                                    ? '0 0 8px rgba(249, 115, 22, 0.4)' 
+                                                    : undefined
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.textShadow = '0 0 12px rgba(249, 115, 22, 0.5)'}
+                                            onMouseLeave={(e) => {
+                                                if (location.pathname !== ROUTES.CALENDAR) {
+                                                    e.currentTarget.style.textShadow = '';
+                                                } else {
+                                                    e.currentTarget.style.textShadow = '0 0 8px rgba(249, 115, 22, 0.4)';
+                                                }
+                                            }}
                                         >
                                             Calendar
                                         </Link>
@@ -207,70 +265,97 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                             </nav>
                         )}
 
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-3">
                             {isAuthenticated ? (
-                                <div className="relative">
+                                <>
                                     <button
-                                        className="flex items-center cursor-pointer rounded-md hover:bg-gray-100 p-1 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                        onClick={() => setDropdownOpen(!dropdownOpen)}
-                                        aria-expanded={dropdownOpen}
-                                        aria-haspopup="true"
+                                        onClick={() => navigate(hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) ? ROUTES.CRM_COMMUNICATIONS : ROUTES.DASHBOARD)}
+                                        className="relative p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                        title="Notificări mesaje"
                                     >
-                                        <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white mr-2">
-                                            {getUserInitials()}
-                                        </div>
-                                        <div className="hidden md:block text-left">
-                                            <div className="text-sm font-medium">{getUserDisplayName()}</div>
-                                            {user?.email && (
-                                                <div className="text-xs text-gray-500">@{user.email}</div>
-                                            )}
-                                        </div>
                                         <svg
-                                            className="ml-1 w-4 h-4 transition-transform duration-200"
-                                            style={{ transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                                            className="w-6 h-6"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
                                         >
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                                            />
                                         </svg>
+                                        {unreadCount > 0 && (
+                                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                                {unreadCount > 9 ? '9+' : unreadCount}
+                                            </span>
+                                        )}
                                     </button>
 
-                                    {dropdownOpen && (
-                                        <>
-                                            <div
-                                                className="fixed inset-0 z-10"
-                                                onClick={() => setDropdownOpen(false)}
-                                            />
+                                    <div className="relative">
+                                        <button
+                                            className="flex items-center cursor-pointer rounded-md hover:bg-gray-100 p-1 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                            onClick={() => setDropdownOpen(!dropdownOpen)}
+                                            aria-expanded={dropdownOpen}
+                                            aria-haspopup="true"
+                                        >
+                                            <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white mr-2">
+                                                {getUserInitials()}
+                                            </div>
+                                            <div className="hidden md:block text-left">
+                                                <div className="text-sm font-medium">{getUserDisplayName()}</div>
+                                                {user?.email && (
+                                                    <div className="text-xs text-gray-500">@{user.email}</div>
+                                                )}
+                                            </div>
+                                            <svg
+                                                className="ml-1 w-4 h-4 transition-transform duration-200"
+                                                style={{ transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
 
-                                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 border">
-                                                <Link
-                                                    to={ROUTES.PROFILE}
-                                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                        {dropdownOpen && (
+                                            <>
+                                                <div
+                                                    className="fixed inset-0 z-10"
                                                     onClick={() => setDropdownOpen(false)}
-                                                >
-                                                    Profil
-                                                </Link>
-                                                {isAuthenticated && (
+                                                />
+
+                                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 border">
                                                     <Link
-                                                        to={ROUTES.SETTINGS}
+                                                        to={ROUTES.PROFILE}
                                                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                                                         onClick={() => setDropdownOpen(false)}
                                                     >
-                                                        Setări
+                                                        Profil
                                                     </Link>
-                                                )}
-                                                <div className="border-t border-gray-100 my-1"></div>
-                                                <button
-                                                    onClick={handleLogout}
-                                                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
-                                                >
-                                                    Delogheaza-te
-                                                </button>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
+                                                    {isAuthenticated && (
+                                                        <Link
+                                                            to={ROUTES.SETTINGS}
+                                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                                            onClick={() => setDropdownOpen(false)}
+                                                        >
+                                                            Setări
+                                                        </Link>
+                                                    )}
+                                                    <div className="border-t border-gray-100 my-1"></div>
+                                                    <button
+                                                        onClick={handleLogout}
+                                                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
+                                                    >
+                                                        Delogheaza-te
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </>
                             ) : (
                                 <button
                                     onClick={() => login()}

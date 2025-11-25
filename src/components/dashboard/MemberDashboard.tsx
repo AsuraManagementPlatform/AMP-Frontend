@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { t } from 'i18next';
 import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { Project, Activity, User, TableColumn } from '@/types/index.types';
 import toast from 'react-hot-toast';
 import { MyCotizatii } from './MyCotizatii';
@@ -129,24 +130,25 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
             headerAlign: 'center',
             render: (_: string, project: Project) => (
                 <div className="flex gap-2 justify-center">
-                    <button
+                    <Button
                         onClick={(e) => {
                             e.stopPropagation();
                             navigate(ROUTES.ERP_PROJECT_DETAILS.replace(':projectId', project.id));
                         }}
-                        className="px-3 py-1.5 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                        className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white hover:border-blue-500"
+                        size="sm"
                     >
                         Vizualizează
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         onClick={(e) => {
                             e.stopPropagation();
                             setShowProposalModal(true);
                         }}
-                        className="px-3 py-1.5 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
+                        size="sm"
                     >
                         Propune activitate
-                    </button>
+                    </Button>
                 </div>
             )
         }
@@ -179,6 +181,10 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
         setSelectedCommunication(null);
         queryClient.invalidateQueries({ queryKey: ['communications'] });
         queryClient.invalidateQueries({ queryKey: ['communications-unread-count'] });
+        
+        setTimeout(() => {
+            queryClient.refetchQueries({ queryKey: ['communications-unread-count'] });
+        }, 100);
     };
 
     const getStatusLabel = (status: string) => {
@@ -243,12 +249,13 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                                 <p className="text-xs text-gray-600">Fă o donație</p>
                             </div>
                         </div>
-                        <button 
+                        <Button 
                             onClick={handleSponsor}
-                            className="w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 transition-colors text-sm font-medium"
+                            className="w-full border-orange-500 text-orange-500 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-500 hover:text-white hover:border-orange-500"
+                            size="sm"
                         >
                             Sponsorizează acum
-                        </button>
+                        </Button>
                     </div>
                 </Card>
 
@@ -287,12 +294,13 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                                 ))
                             }
                         </div>
-                        <button 
+                        <Button 
                             onClick={() => navigate('/sondaje')}
-                            className="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm font-medium"
+                            className="w-full border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white hover:border-purple-500"
+                            size="sm"
                         >
                             Participă la sondaje
-                        </button>
+                        </Button>
                     </div>
                 </Card>
 
@@ -332,7 +340,8 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                                                     </span>
                                                 </div>
                                             </div>
-                                            {!comm.isReadByRecipient && comm.status !== 'CLOSED' && (
+                                            {((comm.recipient === authContext?.user?.id && !comm.isReadByRecipient) || 
+                                              (comm.sender === authContext?.user?.id && comm.unreadCountForSender > 0)) && (
                                                 <span className="ml-2 text-xs font-semibold text-red-600">NOU</span>
                                             )}
                                         </div>
@@ -344,12 +353,13 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                                 </div>
                             )}
                         </div>
-                        <button 
+                        <Button 
                             onClick={handleSendMessage}
-                            className="w-full px-4 py-2 bg-transparent border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white rounded-lg transition-all text-sm font-medium"
+                            size="sm"
+                            fullWidth
                         >
-                            ✍️ Trimite mesaj nou
-                        </button>
+                            Trimite mesaj nou
+                        </Button>
                     </div>
                 </Card>
             </div>

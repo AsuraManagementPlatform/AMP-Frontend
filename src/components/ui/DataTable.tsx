@@ -169,9 +169,9 @@ export function DataTable<T extends Record<string, any>>({
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                     <tr>
-                        {columns.map((column) => (
+                        {columns.map((column, colIndex) => (
                             <th
-                                key={String(column.key)}
+                                key={`col-${colIndex}-${String(column.key)}`}
                                 className={`px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider ${
                                     column.headerAlign === 'center' ? 'text-center' :
                                     column.headerAlign === 'right' ? 'text-right' : 'text-left'
@@ -205,8 +205,8 @@ export function DataTable<T extends Record<string, any>>({
                             onClick={() => onRowClick?.(item)}
                             className={`${onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                         >
-                            {columns.map((column) => (
-                                <td key={String(column.key)} className="px-6 py-4 whitespace-nowrap">
+                            {columns.map((column, colIndex) => (
+                                <td key={`cell-${index}-${colIndex}-${String(column.key)}`} className="px-6 py-4 whitespace-nowrap">
                                     {column.render
                                         ? column.render(item[column.key], item, index)
                                         : item[column.key]?.toString() || '-'

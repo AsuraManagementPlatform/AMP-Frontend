@@ -1,5 +1,5 @@
-import {DonationType, EntityDonation, SelectOption, TableAction, TableColumn} from '@/types/index.types';
-import React, {useState} from "react";
+import {EntityDonation, SelectOption, TableAction, TableColumn} from '@/types/index.types';
+import React, {useState, useEffect} from "react";
 import Table from "@/components/ui/Table.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
@@ -27,6 +27,20 @@ export const EntityDonationList: React.FC<EntityDonationListProps> = ({
     const [selectedDonation, setSelectedDonation] = useState<EntityDonation | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
+    const [typeSuggestions, setTypeSuggestions] = useState<string[]>([]);
+
+    useEffect(() => {
+        const fetchTypeSuggestions = async () => {
+            try {
+                const suggestions = await entityDonationService.getTypeSuggestions();
+                setTypeSuggestions(suggestions);
+            } catch (error) {
+                setTypeSuggestions([]);
+            }
+        };
+
+        fetchTypeSuggestions();
+    }, []);
 
     const handleEdit = (donation: EntityDonation) => {
         setSelectedDonation(donation);
@@ -86,24 +100,12 @@ export const EntityDonationList: React.FC<EntityDonationListProps> = ({
             sortable: true,
             filterable: true,
             filterType: 'select',
-            filterOptions: [
-                { label: t('label.donation_type.monetary'), value: DonationType.MONETARY },
-                { label: t('label.donation_type.in_kind'), value: DonationType.IN_KIND },
-                { label: t('label.donation_type.service'), value: DonationType.SERVICE },
-                { label: t('label.donation_type.sponsorship'), value: DonationType.SPONSORSHIP },
-                { label: t('label.donation_type.other'), value: DonationType.OTHER },
-            ],
+            filterOptions: typeSuggestions.map(type => ({
+                label: type,
+                value: type.toLowerCase()
+            })),
             size: 'sm',
-            render: (type: string) => {
-                const typeLabels: Record<string, string> = {
-                    'monetary': t('label.donation_type.monetary'),
-                    'in_kind': t('label.donation_type.in_kind'),
-                    'service': t('label.donation_type.service'),
-                    'sponsorship': t('label.donation_type.sponsorship'),
-                    'other': t('label.donation_type.other')
-                };
-                return typeLabels[type] || type;
-            }
+            render: (type: string) => type
         },
         {
             key: 'amount',
@@ -136,7 +138,7 @@ export const EntityDonationList: React.FC<EntityDonationListProps> = ({
     return (
         <>
             <Table<EntityDonation>
-                endpoint={entityId ? `entity_donation/list?entity_id=${entityId}` : 'entity-donation/list'}
+                endpoint={entityId ? `entity_donation/list?entity_id=${entityId}` : 'entity_donation/list'}
                 columns={getColumns()}
                 actions={getActions()}
                 initialPageSize={pageSize}

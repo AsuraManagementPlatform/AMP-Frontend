@@ -1,6 +1,7 @@
 import React from 'react';
 import { Control, useController } from 'react-hook-form';
-import {FieldConfig, FieldType, SelectFieldConfig} from "@/types/form.types.ts";
+import {ComboFieldConfig, FieldConfig, FieldType, SelectFieldConfig} from "@/types/form.types.ts";
+import { ComboField } from '@/components/ui/ComboField';
 
 interface DynamicFormFieldProps {
     field: FieldConfig;
@@ -165,6 +166,24 @@ export const DynamicFormField: React.FC<DynamicFormFieldProps> = ({
                         type="hidden"
                     />
                 );
+
+            case FieldType.COMBO: {
+                const comboField = field as ComboFieldConfig;
+                return (
+                    <ComboField
+                        id={field.name}
+                        name={field.name}
+                        value={fieldProps.value || ''}
+                        onChange={fieldProps.onChange}
+                        onBlur={fieldProps.onBlur}
+                        suggestions={comboField.suggestions || []}
+                        placeholder={field.placeholder}
+                        disabled={field.disabled}
+                        className={field.className}
+                        helperText={field.helperText}
+                    />
+                );
+            }
 
             default:
                 return null;

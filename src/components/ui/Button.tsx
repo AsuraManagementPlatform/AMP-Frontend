@@ -23,8 +23,6 @@ export const Button: React.FC<ButtonProps> = ({
                                                   disabled,
                                                   ...props
                                               }) => {
-    const hasCustomClassName = className.includes('border-') || className.includes('text-');
-    
     const baseClasses = [
         'relative',
         'inline-flex',
@@ -32,18 +30,14 @@ export const Button: React.FC<ButtonProps> = ({
         'justify-center',
         'font-medium',
         'rounded-lg',
-        !hasCustomClassName && 'border-2',
-        !hasCustomClassName && 'border-orange-500',
+        'bg-transparent',
         'transition-all',
         'duration-200',
         'ease-in-out',
-        'focus:outline-none',
-        'focus:ring-2',
-        'focus:ring-orange-500',
-        'focus:ring-offset-2',
         'active:scale-95',
         'disabled:opacity-50',
-        'disabled:cursor-not-allowed'
+        'disabled:cursor-not-allowed',
+        'hover:text-white'
     ];
     const sizeClasses = {
         sm: 'px-4 py-2.5 text-sm',
@@ -52,16 +46,16 @@ export const Button: React.FC<ButtonProps> = ({
         xl: 'px-10 py-5 text-xl'
     };
     const variantClasses = {
-        primary: 'bg-transparent text-orange-500 hover:bg-orange-500 hover:text-white',
-        secondary: 'bg-transparent text-orange-500 hover:bg-orange-500 hover:text-white',
-        danger: 'bg-transparent text-red-500 hover:bg-red-500 hover:text-white border-red-500',
-        ghost: 'bg-transparent text-orange-500 hover:bg-orange-500 hover:text-white',
-        outline: 'bg-transparent text-orange-500 hover:bg-orange-500 hover:text-white'
+        primary: 'border-orange-500 text-orange-500 hover:bg-orange-500',
+        secondary: 'border-orange-500 text-orange-500 hover:bg-orange-500',
+        danger: 'border-red-500 text-red-500 hover:bg-red-500',
+        ghost: 'border-orange-500 text-orange-500 hover:bg-orange-500',
+        outline: 'border-orange-500 text-orange-500 hover:bg-orange-500'
     };
     const buttonClasses = [
         ...baseClasses,
         sizeClasses[size],
-        !hasCustomClassName && variantClasses[variant],
+        !className.includes('border-') && !className.includes('text-') && !className.includes('hover:') && variantClasses[variant],
         fullWidth && 'w-full',
         className
     ].filter(Boolean).join(' ');

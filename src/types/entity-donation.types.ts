@@ -1,16 +1,6 @@
 import {BaseEntity, Currency} from "@/types/index.types.ts";
 import {EngagementLevel} from "@/types/project-partner.types.ts";
 
-export const DonationType = {
-    MONETARY: 'monetary',
-    IN_KIND: 'in_kind',
-    SERVICE: 'service',
-    SPONSORSHIP: 'sponsorship',
-    OTHER: 'other'
-} as const;
-
-export type DonationType = typeof DonationType[keyof typeof DonationType];
-
 export const PaymentMethod = {
     CASH: 'cash',
     BANK_TRANSFER: 'bank_transfer',
@@ -41,7 +31,7 @@ export interface EntityDonation extends BaseEntity {
     date: string;
     amount: number;
     currency: Currency;
-    type: DonationType;
+    type: string;
     paymentMethod: PaymentMethod;
     scope: DonationScope;
     documentReference?: string;
@@ -56,7 +46,7 @@ export interface EntityDonationCreateRequest {
     date: string;
     amount: number;
     currency: Currency;
-    type: DonationType;
+    type: string;
     paymentMethod: PaymentMethod;
     scope: DonationScope;
     documentReference?: string;

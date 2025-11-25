@@ -1,15 +1,7 @@
 import { DynamicFormConfig, FieldType, SelectOption } from "@/types/form.types.ts";
-import { DonationType, PaymentMethod, DonationScope } from "@/types/entity-donation.types.ts";
+import { PaymentMethod, DonationScope } from "@/types/entity-donation.types.ts";
 import { Currency } from "@/types/index.types.ts";
 import { t } from "i18next";
-
-const getDonationTypeOptions = (): SelectOption[] => [
-    { value: DonationType.MONETARY, label: t('label.donation_type.monetary') },
-    { value: DonationType.IN_KIND, label: t('label.donation_type.in_kind') },
-    { value: DonationType.SERVICE, label: t('label.donation_type.service') },
-    { value: DonationType.SPONSORSHIP, label: t('label.donation_type.sponsorship') },
-    { value: DonationType.OTHER, label: t('label.donation_type.other') }
-];
 
 const getPaymentMethodOptions = (): SelectOption[] => [
     { value: PaymentMethod.CASH, label: t('label.payment_method.cash') },
@@ -35,6 +27,7 @@ export const createDonationFormConfig = (
     entities: SelectOption[] = [],
     projects: SelectOption[] = [],
     activities: SelectOption[] = [],
+    typeSuggestions: string[] = []
 ): DynamicFormConfig => ({
     sections: [
         {
@@ -55,9 +48,11 @@ export const createDonationFormConfig = (
                 {
                     name: 'type',
                     label: t('label.entity_donation.type'),
-                    type: FieldType.SELECT,
+                    type: FieldType.COMBO,
                     required: true,
-                    options: getDonationTypeOptions()
+                    suggestions: typeSuggestions,
+                    placeholder: t('label.entity_donation.type_placeholder'),
+                    helperText: t('label.entity_donation.type_helper')
                 },
                 {
                     name: 'scope',
@@ -163,7 +158,8 @@ export const updateDonationFormConfig = (
     entities: SelectOption[] = [],
     projects: SelectOption[] = [],
     activities: SelectOption[] = [],
+    typeSuggestions: string[] = []
 ): DynamicFormConfig => ({
-    ...createDonationFormConfig(entities, projects, activities),
+    ...createDonationFormConfig(entities, projects, activities, typeSuggestions),
     submitButtonText: t('form.entity_donation.submit_update')
 });

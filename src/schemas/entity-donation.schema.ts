@@ -1,12 +1,11 @@
 import {z} from 'zod';
 import {t} from 'i18next';
-import {DonationScope, DonationType, EntityDonation, PaymentMethod} from '@/types/entity-donation.types.ts';
+import {DonationScope, PaymentMethod, EntityDonation} from '@/types/entity-donation.types.ts';
 import {validateMaxTwoDecimals} from "@/utils/validateTwoDegits.ts";
 import {Currency} from "@/types/index.types.ts";
 
 const URL_REGEX = /^https?:\/\/.+/i;
 
-export const DONATION_TYPES = Object.values(DonationType);
 export const PAYMENT_METHODS = Object.values(PaymentMethod);
 export const DONATION_SCOPES = Object.values(DonationScope);
 export const CURRENCIES = Object.values(Currency);
@@ -38,9 +37,12 @@ export const createDonationSchema = z.object({
     entity: z.uuid(t('schema.entity_donation.entity_invalid'))
         .min(1, t('schema.entity_donation.entity_required')),
 
-    type: z.enum(DONATION_TYPES as [DonationType, ...DonationType[]], {
-        message: t('schema.entity_donation.type_invalid')
-    }),
+    type: z.string()
+        .transform((value) => value.trim())
+        .refine(
+            (value) => value.length > 0,
+            t('schema.entity_donation.type_required')
+        ),
 
     scope: z.enum(DONATION_SCOPES as [DonationScope, ...DonationScope[]], {
         message: t('schema.entity_donation.scope_invalid')
@@ -106,7 +108,7 @@ export type UpdateEntityDonationData = z.infer<typeof updateDonationSchema>;
 
 export const getCreateDonationDefaultValues = (entity?: string): CreateEntityDonationData => ({
     entity: entity || '',
-    type: DonationType.MONETARY,
+    type: '',
     scope: DonationScope.GENERAL,
     date: new Date().toISOString().split('T')[0],
     amount: 0,
@@ -121,7 +123,7 @@ export const getCreateDonationDefaultValues = (entity?: string): CreateEntityDon
 export const getUpdateDonationDefaultValues = (entityDonation: EntityDonation): UpdateEntityDonationData => ({
     id: entityDonation.id,
     entity: entityDonation.entity,
-    type: entityDonation.type || DonationType.MONETARY,
+    type: entityDonation.type || '',
     scope: entityDonation.scope || DonationScope.GENERAL,
     date: entityDonation.date || new Date().toISOString().split('T')[0],
     amount: entityDonation.amount || 0,

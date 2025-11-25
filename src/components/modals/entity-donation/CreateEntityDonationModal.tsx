@@ -32,10 +32,25 @@ export const CreateEntityDonationModal: React.FC<CreateEntityDonationModalProps>
                                                                                         activities = []
                                                                                     }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [typeSuggestions, setTypeSuggestions] = useState<string[]>([]);
 
     useEffect(() => {
         if (!isOpen) {
             setIsSubmitting(false);
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        const fetchTypeSuggestions = async () => {
+            try {
+                const suggestions = await entityDonationService.getTypeSuggestions();
+                setTypeSuggestions(suggestions);
+            } catch (error) {
+            }
+        };
+
+        if (isOpen) {
+            fetchTypeSuggestions();
         }
     }, [isOpen]);
 
@@ -69,7 +84,7 @@ export const CreateEntityDonationModal: React.FC<CreateEntityDonationModalProps>
         }
     };
 
-    const formConfig = createDonationFormConfig(entities, projects, activities);
+    const formConfig = createDonationFormConfig(entities, projects, activities, typeSuggestions);
     const defaultValues = getCreateDonationDefaultValues(entityId);
 
     return (

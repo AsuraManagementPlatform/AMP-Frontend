@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import showToast from '@/components/ui/Toast';
@@ -21,6 +22,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
     communication,
     onUpdate
 }) => {
+    const { t } = useTranslation();
     const [replyMessage, setReplyMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [markedAsRead, setMarkedAsRead] = useState(false);
@@ -67,9 +69,17 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
 
         try {
             setIsSubmitting(true);
-            await communicationService.reply(communication.id, { message: replyMessage });
+            const response = await communicationService.reply(communication.id, { message: replyMessage });
             showToast.success('Răspunsul a fost trimis cu succes!');
             setReplyMessage('');
+            
+            if (response?.conversationHistory) {
+                communication.conversationHistory = response.conversationHistory;
+                communication.lastMessageAt = response.lastMessageAt;
+            }
+            
+            await communicationService.markAsRead(communication.id);
+            
             onUpdate();
         } catch (error: any) {
             showToast.error(error.message || 'Nu s-a putut trimite răspunsul');
@@ -82,6 +92,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
         try {
             await communicationService.updateStatus(communication.id, { status: newStatus });
             showToast.success('Statusul a fost actualizat!');
+            await communicationService.markAsRead(communication.id);
             onUpdate();
         } catch (error: any) {
             showToast.error(error.message || 'Nu s-a putut actualiza statusul');
@@ -101,6 +112,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
             setIsSubmitting(true);
             await apiService.post(`entity-donation/${donationId}/confirm`);
             showToast.success('Sponsorizarea a fost confirmată! Suma a fost adăugată la buget.');
+            await communicationService.markAsRead(communication.id);
             onUpdate();
         } catch (error: any) {
             showToast.error(error.message || 'Nu s-a putut confirma sponsorizarea');
@@ -122,6 +134,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
             setIsSubmitting(true);
             await apiService.post(`entity-donation/${donationId}/reject`);
             showToast.success('Sponsorizarea a fost respinsă.');
+            await communicationService.markAsRead(communication.id);
             onUpdate();
         } catch (error: any) {
             showToast.error(error.message || 'Nu s-a putut respinge sponsorizarea');
@@ -164,13 +177,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
     const isSponsorshipRequest = communication.type === 'SPONSORSHIP_REQUEST';
 
     const getStatusLabel = (status: UserCommunicationStatus) => {
-        const labels: Record<UserCommunicationStatus, string> = {
-            'PENDING': 'În așteptare',
-            'IN_PROGRESS': 'În progres',
-            'RESOLVED': 'Rezolvat',
-            'CLOSED': 'Închis'
-        };
-        return labels[status] || status;
+        return t(`label.communication.status.${status.toLowerCase()}`);
     };
 
     return (
@@ -224,22 +231,28 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
                     {communication.conversationHistory && communication.conversationHistory.length > 0 && (
                         communication.conversationHistory
                             .filter(msg => !communication.deletedAt || new Date(msg.timestamp) > new Date(communication.deletedAt))
-                            .map((msg, index) => (
-                                <div 
-                                    key={index}
-                                    className={`p-4 rounded-lg ${msg.isAdmin ? 'bg-green-50' : 'bg-gray-50'}`}
-                                >
-                                    <div className="flex items-start gap-3">
-                                        <div className="flex-1">
-                                            <div className="font-semibold text-sm text-gray-900">{msg.senderName}</div>
-                                            <p className="text-gray-700 mt-1">{msg.message}</p>
-                                            <div className="text-xs text-gray-500 mt-2">
-                                                {new Date(msg.timestamp).toLocaleString('ro-RO')}
+                            .map((msg, index) => {
+                                const displayMessage = msg.message.startsWith('label.') 
+                                    ? t(msg.message) 
+                                    : msg.message;
+                                
+                                return (
+                                    <div 
+                                        key={index}
+                                        className={`p-4 rounded-lg ${msg.isAdmin ? 'bg-green-50' : 'bg-gray-50'}`}
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            <div className="flex-1">
+                                                <div className="font-semibold text-sm text-gray-900">{msg.senderName}</div>
+                                                <p className="text-gray-700 mt-1">{displayMessage}</p>
+                                                <div className="text-xs text-gray-500 mt-2">
+                                                    {new Date(msg.timestamp).toLocaleString('ro-RO')}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))
+                                );
+                            })
                     )}
                 </div>
 
@@ -260,7 +273,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
                             <Button
                                 onClick={handleReply}
                                 disabled={isSubmitting || !replyMessage.trim()}
-                                variant="primary"
+                                size="sm"
                             >
                                 {isSubmitting ? 'Se trimite...' : 'Trimite răspuns'}
                             </Button>
@@ -289,28 +302,23 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
                             </div>
                         </div>
                         <div className="flex gap-3">
-                            <button
+                            <Button
                                 onClick={handleConfirmSponsorship}
                                 disabled={isSubmitting}
-                                className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium text-sm shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="flex-1 border-green-500 text-green-500 hover:bg-green-500 hover:text-white hover:border-green-500"
+                                size="sm"
                             >
-                                {isSubmitting ? (
-                                    <>⏳ Se procesează...</>
-                                ) : (
-                                    <>✓ Confirmă</>
-                                )}
-                            </button>
-                            <button
+                                {isSubmitting ? 'Se procesează...' : 'Confirmă'}
+                            </Button>
+                            <Button
                                 onClick={handleRejectSponsorship}
                                 disabled={isSubmitting}
-                                className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium text-sm shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                variant="danger"
+                                size="sm"
+                                className="flex-1"
                             >
-                                {isSubmitting ? (
-                                    <>⏳ Se procesează...</>
-                                ) : (
-                                    <>✗ Respinge</>
-                                )}
-                            </button>
+                                {isSubmitting ? 'Se procesează...' : 'Respinge'}
+                            </Button>
                         </div>
                     </div>
                 )}
@@ -341,41 +349,45 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
                     </label>
                     <div className="flex gap-2 flex-wrap">
                         {communication.status === 'PENDING' && (
-                            <button
+                            <Button
                                 onClick={() => handleStatusChange('IN_PROGRESS')}
-                                className="px-4 py-2 bg-transparent border-2 border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-white rounded-lg font-medium text-sm transition-all"
+                                className="border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-white hover:border-yellow-500"
+                                size="sm"
                             >
                                 Marchează în progres
-                            </button>
+                            </Button>
                         )}
                         {(communication.status === 'PENDING' || communication.status === 'IN_PROGRESS') && (
-                            <button
+                            <Button
                                 onClick={() => handleStatusChange('RESOLVED')}
-                                className="px-4 py-2 bg-transparent border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white rounded-lg font-medium text-sm transition-all"
+                                className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white hover:border-green-500"
+                                size="sm"
                             >
                                 Marchează rezolvat
-                            </button>
+                            </Button>
                         )}
                         {communication.status !== 'CLOSED' && (
-                            <button
+                            <Button
                                 onClick={() => handleStatusChange('CLOSED')}
-                                className="px-4 py-2 bg-transparent border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white rounded-lg font-medium text-sm transition-all"
+                                variant="danger"
+                                size="sm"
                             >
                                 Închide conversația
-                            </button>
+                            </Button>
                         )}
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className="flex justify-between items-center border-t pt-4">
-                    <button
+                    <Button
                         onClick={handleDelete}
                         disabled={isSubmitting}
-                        className="px-4 py-2 bg-transparent border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white rounded-lg font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        variant="danger"
+                        size="sm"
                     >
-                        🗑️ Șterge mesajul
-                    </button>
+                        Șterge mesajul
+                    </Button>
                     <Button
                         onClick={onClose}
                         variant="outline"

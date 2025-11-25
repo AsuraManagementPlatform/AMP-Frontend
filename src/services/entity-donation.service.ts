@@ -59,6 +59,11 @@ export const entityDonationService = {
     }): Promise<{ message: string }> => {
         return apiService.post('entity-donation/direct-sponsorship', data);
     },
+
+    getTypeSuggestions: async (): Promise<string[]> => {
+        const response = await apiService.get<{ typeSuggestions: string[] }>('entity_donation/type-suggestions');
+        return response.typeSuggestions;
+    },
 };
 
 export default entityDonationService;
