@@ -8,6 +8,7 @@ import { Communication, UserCommunicationStatus } from '@/types/communication.ty
 import { apiService } from '@/services/api.service';
 import { AuthContext } from '@/context/Auth.context';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { ActionIcons } from '@/components/ui/ActionIcons';
 
 interface ViewCommunicationModalProps {
     isOpen: boolean;
@@ -146,7 +147,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
     const handleDelete = async () => {
         setIsModalVisible(false);
         
-        const confirmed = await showConfirmDialog({
+        const confirmed = await confirm({
             title: 'Șterge mesajul',
             message: 'Ești sigur că vrei să ștergi acest mesaj? Această acțiune va șterge mesajul doar pentru tine.',
             confirmText: 'Șterge',
@@ -377,14 +378,14 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
 
                 {/* Footer */}
                 <div className="flex justify-between items-center border-t pt-4">
-                    <Button
+                    <button
                         onClick={handleDelete}
                         disabled={isSubmitting}
-                        variant="danger"
-                        size="sm"
+                        className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                        title="Șterge mesajul"
                     >
-                        Șterge mesajul
-                    </Button>
+                        <ActionIcons.Delete />
+                    </button>
                     <Button
                         onClick={onClose}
                         variant="outline"

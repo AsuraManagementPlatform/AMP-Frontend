@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
-
-interface CalendarEvent {
-    id: string;
-    title: string;
-    date: Date;
-    type: 'meeting' | 'voting' | 'event';
-    time?: string;
-    description?: string;
-}
+import { DayEventsModal } from '@/components/modals/calendar/DayEventsModal';
+import { CalendarEvent } from '@/types/calendar.types';
 
 interface CalendarProps {
     events?: CalendarEvent[];
@@ -21,6 +14,9 @@ export const Calendar: React.FC<CalendarProps> = ({
     onDateClick 
 }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [isDayModalOpen, setIsDayModalOpen] = useState(false);
+    const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
     
     const today = new Date();
     const year = currentDate.getFullYear();
@@ -51,9 +47,26 @@ export const Calendar: React.FC<CalendarProps> = ({
     };
     
     const getEventsForDate = (date: Date): CalendarEvent[] => {
-        return events.filter(event => 
-            event.date.toDateString() === date.toDateString()
-        );
+        return events.filter(event => {
+            const eventStartDate = new Date(event.startDate);
+            return eventStartDate.toDateString() === date.toDateString();
+        });
+    };
+    
+    const handleDateClick = (date: Date) => {
+        const dayEvents = getEventsForDate(date);
+        if (dayEvents.length > 3) {
+            setSelectedDate(date);
+            setIsDayModalOpen(true);
+        } else {
+            onDateClick?.(date);
+        }
+    };
+    
+    const handleMoreEventsClick = (date: Date, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setSelectedDate(date);
+        setIsDayModalOpen(true);
     };
     
     const isToday = (date: Date): boolean => {
@@ -73,6 +86,8 @@ export const Calendar: React.FC<CalendarProps> = ({
             const date = new Date(year, month, day);
             const dayEvents = getEventsForDate(date);
             const isCurrentDay = isToday(date);
+            const maxVisibleEvents = 3;
+            const hasMoreEvents = dayEvents.length > maxVisibleEvents;
             
             days.push(
                 <div
@@ -80,7 +95,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                     className={`h-24 border border-gray-200 p-1 cursor-pointer hover:bg-gray-50 ${
                         isCurrentDay ? 'bg-orange-50 border-orange-300' : ''
                     }`}
-                    onClick={() => onDateClick?.(date)}
+                    onClick={() => handleDateClick(date)}
                 >
                     <div className={`text-sm font-medium mb-1 ${
                         isCurrentDay ? 'text-orange-600' : 'text-gray-900'
@@ -88,13 +103,13 @@ export const Calendar: React.FC<CalendarProps> = ({
                         {day}
                     </div>
                     <div className="space-y-1">
-                        {dayEvents.slice(0, 2).map((event) => (
+                        {dayEvents.slice(0, maxVisibleEvents).map((event) => (
                             <div
                                 key={event.id}
                                 className={`text-xs p-1 rounded cursor-pointer truncate ${
-                                    event.type === 'voting' 
+                                    event.eventType === 'VOTE_SCHEDULING' 
                                         ? 'bg-red-100 text-red-800'
-                                        : event.type === 'meeting'
+                                        : event.eventType === 'MEETING'
                                         ? 'bg-blue-100 text-blue-800'
                                         : 'bg-green-100 text-green-800'
                                 }`}
@@ -107,10 +122,13 @@ export const Calendar: React.FC<CalendarProps> = ({
                                 {event.title}
                             </div>
                         ))}
-                        {dayEvents.length > 2 && (
-                            <div className="text-xs text-gray-500">
-                                +{dayEvents.length - 2} mai multe
-                            </div>
+                        {hasMoreEvents && (
+                            <button
+                                className="text-xs text-gray-600 hover:text-gray-900 font-medium w-full text-left px-1 py-0.5 hover:bg-gray-100 rounded transition-colors"
+                                onClick={(e) => handleMoreEventsClick(date, e)}
+                            >
+                                ... +{dayEvents.length - maxVisibleEvents} mai multe
+                            </button>
                         )}
                     </div>
                 </div>
@@ -134,6 +152,17 @@ export const Calendar: React.FC<CalendarProps> = ({
                     >
                         Astăzi
                     </button>
+                    
+                    {/* View Mode Selector */}
+                    <select
+                        value={viewMode}
+                        onChange={(e) => setViewMode(e.target.value as 'month' | 'week' | 'day')}
+                        className="px-3 py-1 text-sm border border-gray-300 rounded hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+                    >
+                        <option value="day">Zi</option>
+                        <option value="week">Săptămână</option>
+                        <option value="month">Lună</option>
+                    </select>
                 </div>
                 <div className="flex items-center space-x-2">
                     <button
@@ -191,6 +220,15 @@ export const Calendar: React.FC<CalendarProps> = ({
                     </div>
                 </div>
             </div>
+            
+            {/* Day Events Modal */}
+            <DayEventsModal
+                isOpen={isDayModalOpen}
+                onClose={() => setIsDayModalOpen(false)}
+                date={selectedDate}
+                events={selectedDate ? getEventsForDate(selectedDate) : []}
+                onEventClick={onEventClick}
+            />
         </div>
     );
 };

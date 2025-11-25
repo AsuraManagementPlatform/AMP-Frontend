@@ -1,9 +1,7 @@
 import {TableAction, TableColumn, User, UserStatus} from '@/types/index.types';
 import React from "react";
 import Table from "@/components/ui/Table.tsx";
-import IconView from "@/assets/icons/iconmonstr-view.svg?react";
-import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
-import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
+import { ActionIcons } from '@/components/ui/ActionIcons';
 
 interface UserListProps {
     onEdit?: (user: User) => void;
@@ -82,7 +80,7 @@ export const UserList: React.FC<UserListProps> = ({
                 label: 'View',
                 variant: 'secondary',
                 onClick: onView,
-                icon: <IconView></IconView>
+                icon: <ActionIcons.View />
             });
         }
 
@@ -91,7 +89,7 @@ export const UserList: React.FC<UserListProps> = ({
                 label: 'Edit',
                 variant: 'primary',
                 onClick: onEdit,
-                icon: <IconEdit></IconEdit>
+                icon: <ActionIcons.Edit />
             });
         }
 
@@ -100,7 +98,7 @@ export const UserList: React.FC<UserListProps> = ({
                 label: 'Delete',
                 variant: 'danger',
                 onClick: onDelete,
-                icon: <IconDelete></IconDelete>,
+                icon: <ActionIcons.Delete />,
                 show: canDeleteUser
             });
         }

@@ -100,7 +100,7 @@ export function SurveyResults() {
             <div className="flex items-center space-x-4">
               <div className="text-center">
                 <div className="text-3xl font-bold text-purple-600">{avgRating}</div>
-                <div className="text-sm text-gray-600">Average</div>
+                <div className="text-sm text-gray-600">{t('label.survey.average')}</div>
               </div>
               <div className="flex-1 space-y-2">
                 {[5, 4, 3, 2, 1].map((rating) => {
@@ -125,19 +125,19 @@ export function SurveyResults() {
         );
 
       case QuestionType.YES_NO:
-        const yesCount = answers.filter((a: string) => a === 'Yes').length;
-        const noCount = answers.filter((a: string) => a === 'No').length;
+        const yesCount = answers.filter((a: any) => a === true || a === 'Yes').length;
+        const noCount = answers.filter((a: any) => a === false || a === 'No').length;
         const totalYesNo = answers.length;
 
         return (
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-4 bg-green-50 rounded-lg border-2 border-green-200">
               <div className="text-3xl font-bold text-green-600">{yesCount}</div>
-              <div className="text-sm text-gray-600">Yes ({((yesCount / totalYesNo) * 100).toFixed(1)}%)</div>
+              <div className="text-sm text-gray-600">{t('label.survey.yes')} ({((yesCount / totalYesNo) * 100).toFixed(1)}%)</div>
             </div>
             <div className="text-center p-4 bg-red-50 rounded-lg border-2 border-red-200">
               <div className="text-3xl font-bold text-red-600">{noCount}</div>
-              <div className="text-sm text-gray-600">No ({((noCount / totalYesNo) * 100).toFixed(1)}%)</div>
+              <div className="text-sm text-gray-600">{t('label.survey.no')} ({((noCount / totalYesNo) * 100).toFixed(1)}%)</div>
             </div>
           </div>
         );

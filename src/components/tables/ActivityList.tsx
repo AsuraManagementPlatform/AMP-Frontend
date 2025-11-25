@@ -1,8 +1,7 @@
 import {ActivityChangeStatusRequest, TableAction, TableColumn} from '@/types/index.types';
 import React, {useState} from "react";
 import Table from "@/components/ui/Table.tsx";
-import IconView from "@/assets/icons/iconmonstr-eye.svg?react";
-import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
+import { ActionIcons } from '@/components/ui/ActionIcons';
 import IconStart from "@/assets/icons/iconmonstr-start.svg?react";
 import IconDone from "@/assets/icons/iconmonstr-done.svg?react";
 import IconArrowDown from "@/assets/icons/iconmonstr-arrow-down.svg?react";
@@ -280,13 +279,13 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                     label: t('action.view'),
                     variant: 'primary',
                     onClick: handleViewDetails,
-                    icon: <IconView />
+                    icon: <ActionIcons.View />
                 },
                 {
                     label: t('action.delete'),
                     variant: 'danger',
                     onClick: handleDelete,
-                    icon: <IconDelete />,
+                    icon: <ActionIcons.Delete />,
                     show: (activity: Activity) => activity.status === ActivityStatus.PLANNED
                 },
                 {
@@ -310,7 +309,7 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                 label: t('action.view'),
                 variant: 'primary',
                 onClick: handleViewDetails,
-                icon: <IconView />
+                icon: <ActionIcons.View />
             });
         }
 

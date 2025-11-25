@@ -279,7 +279,7 @@ export function SurveyDetail() {
                 Se trimite...
               </>
             ) : (
-              `📤 ${t('label.survey.submit')}`
+              t('label.survey.submit')
             )}
           </Button>
         </div>

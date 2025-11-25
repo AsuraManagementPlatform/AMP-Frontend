@@ -8,6 +8,7 @@ import { toast } from 'react-hot-toast';
 import { getUserRoleLabel } from '@/utils/dashboardUtils';
 import { ROUTES } from '@/utils/constants.utils';
 import { useAuth } from '@/context/Auth.context';
+import { ActionIcons } from '@/components/ui/ActionIcons';
 
 export const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
@@ -137,14 +138,15 @@ export const ProfilePage: React.FC = () => {
                 </h1>
                 {isViewingOtherUser ? (
                     <div className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg">
-                        📖 Vizualizare Read-Only
+                        Vizualizare Read-Only
                     </div>
                 ) : !isEditing ? (
                     <button
                         onClick={() => setIsEditing(true)}
-                        className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                     >
-                        Editează Profilul
+                        <ActionIcons.Edit />
+                        <span>Editează Profilul</span>
                     </button>
                 ) : (
                     <div className="flex gap-2">
@@ -160,7 +162,7 @@ export const ProfilePage: React.FC = () => {
                             className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                             disabled={saving}
                         >
-                            {saving ? 'Se salvează...' : '💾 Salvează'}
+                            {saving ? 'Se salvează...' : 'Salvează'}
                         </button>
                     </div>
                 )}
@@ -404,7 +406,7 @@ export const ProfilePage: React.FC = () => {
             </Card>
 
             {userProjects.length > 0 && (
-                <Card title="📂 Proiecte" className="mb-6">
+                <Card title="Proiecte" className="mb-6">
                     <div className="space-y-2">
                         {userProjects.map((project: any, idx: number) => (
                             <div key={idx} className="flex items-center justify-between bg-blue-50 p-3 rounded-lg border border-blue-200">
@@ -412,7 +414,7 @@ export const ProfilePage: React.FC = () => {
                                     <span className="font-medium text-gray-900">{project.name}</span>
                                     <span className="text-sm text-gray-600 ml-2">• {project.role}</span>
                                 </div>
-                                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">📂 Proiect</span>
+                                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">Proiect</span>
                             </div>
                         ))}
                     </div>

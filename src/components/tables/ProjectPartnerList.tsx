@@ -1,7 +1,7 @@
 import {TableAction, TableColumn} from '@/types/index.types';
 import React, {useState} from "react";
 import Table from "@/components/ui/Table.tsx";
-import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
+import { ActionIcons } from '@/components/ui/ActionIcons';
 import {ProjectPartner} from '@/types/project-partner.types';
 import {UpdateProjectPartnerModal} from '@/components/modals/project-partner/UpdateProjectPartnerModal';
 import {ViewProjectPartnerModal} from '@/components/modals/project-partner/ViewProjectPartnerModal.tsx';
@@ -106,7 +106,7 @@ export const ProjectPartnerList: React.FC<ProjectPartnerListProps> = ({
             label: t('action.edit'),
             variant: 'primary',
             onClick: handleEdit,
-            icon: <IconEdit />
+            icon: <ActionIcons.Edit />
         }
     ];
 

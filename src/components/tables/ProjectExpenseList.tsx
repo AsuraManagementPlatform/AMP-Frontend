@@ -1,8 +1,7 @@
 import {ProjectExpenseStatus, TableAction, TableColumn} from '@/types/index.types';
 import React, {useEffect, useState} from "react";
 import Table from "@/components/ui/Table.tsx";
-import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
-import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
+import { ActionIcons } from '@/components/ui/ActionIcons';
 import IconCheckList from "@/assets/icons/iconmonstr-ckeck-list.svg?react";
 import {ProjectExpense} from '@/types/project-expense.types';
 import {UpdateProjectExpenseModal} from '@/components/modals/project-expense/UpdateProjectExpenseModal';
@@ -388,14 +387,14 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             label: t('action.edit'),
             variant: 'primary',
             onClick: handleEdit,
-            icon: <IconEdit />,
+            icon: <ActionIcons.Edit />,
             show: (expense: ProjectExpense) => expense.status === ProjectExpenseStatus.PLANNED
         },
         {
             label: t('action.delete'),
             variant: 'danger',
             onClick: handleDelete,
-            icon: <IconDelete />,
+            icon: <ActionIcons.Delete />,
             show: (expense: ProjectExpense) => expense.status === ProjectExpenseStatus.PLANNED
         }
     ];

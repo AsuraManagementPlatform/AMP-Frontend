@@ -140,18 +140,8 @@ const ActionButton = <T,>({ action, item, index }: ActionButtonProps<T>) => {
     }
 
     const getButtonStyles = () => {
-        const baseStyles = "inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-150 shadow-sm";
-        
-        switch (action.variant) {
-            case 'primary':
-                return `${baseStyles} border border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-400 focus:ring-blue-500`;
-            case 'secondary':
-                return `${baseStyles} border border-green-300 text-green-700 bg-green-50 hover:bg-green-100 hover:border-green-400 focus:ring-green-500`;
-            case 'danger':
-                return `${baseStyles} border border-yellow-300 text-yellow-700 bg-yellow-50 hover:bg-yellow-100 hover:border-yellow-400 focus:ring-yellow-500`;
-            default:
-                return `${baseStyles} border border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100 hover:border-purple-400 focus:ring-purple-500`;
-        }
+        const baseStyles = "inline-flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors";
+        return `${baseStyles}`;
     };
 
     return (

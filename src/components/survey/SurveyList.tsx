@@ -205,14 +205,14 @@ export function SurveyList() {
                             <>
                               <button
                                 onClick={() => handleSendReminder(survey.id)}
-                                className="p-2 text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                                className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                                 title="Trimite reminder"
                               >
                                 <ActionIcons.Reminder />
                               </button>
                               <button
                                 onClick={() => setSurveyToDelete(survey.id)}
-                                className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                                 title={t('label.common.delete')}
                               >
                                 <ActionIcons.Delete />
@@ -229,12 +229,12 @@ export function SurveyList() {
                           const effectiveStatus = calculateEffectiveStatus(survey);
                           return (
                             <div className="text-sm font-medium">
-                              {effectiveStatus === 'ACTIVE' && <span className="text-green-600">Activ</span>}
-                              {effectiveStatus === 'COMPLETED' && <span className="text-blue-600">Încheiat</span>}
-                              {effectiveStatus === 'PARTIAL' && <span className="text-orange-600">Parțial</span>}
-                              {effectiveStatus === 'ABANDONED' && <span className="text-red-600">Abandonat</span>}
-                              {effectiveStatus === 'DRAFT' && <span className="text-gray-600">Draft</span>}
-                              {effectiveStatus === 'CLOSED' && <span className="text-gray-800">Închis</span>}
+                              {effectiveStatus === 'ACTIVE' && <span className="text-green-600">{t('label.survey.status_active')}</span>}
+                              {effectiveStatus === 'COMPLETED' && <span className="text-blue-600">{t('label.survey.status_completed')}</span>}
+                              {effectiveStatus === 'PARTIAL' && <span className="text-orange-600">{t('label.survey.status_partial')}</span>}
+                              {effectiveStatus === 'ABANDONED' && <span className="text-red-600">{t('label.survey.status_abandoned')}</span>}
+                              {effectiveStatus === 'DRAFT' && <span className="text-gray-600">{t('label.survey.status_draft')}</span>}
+                              {effectiveStatus === 'CLOSED' && <span className="text-gray-800">{t('label.survey.status_closed')}</span>}
                             </div>
                           );
                         })()}

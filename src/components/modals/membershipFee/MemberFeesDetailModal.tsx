@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
-import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
+import { Button } from '@/components/ui/Button';
 import { SecondaryButton } from '@/components/ui/SecondaryButton';
 import { MembershipFee, MembershipFeeStatus, MembershipFeePayment } from '@/types/membershipFee.types';
 import { membershipFeeService } from '@/services/membershipFee.service';
@@ -12,8 +12,7 @@ import { ProcessPaymentModal } from './ProcessPaymentModal';
 import { ApprovePaymentModal } from './ApprovePaymentModal';
 import { useAuth } from '@/hooks/useAuth';
 import { UserGroup } from '@/types/index.types';
-import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
-import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
+import { ActionIcons } from '@/components/ui/ActionIcons';
 import IconWallet from "@/assets/icons/iconmonstr-wallet.svg?react";
 import IconDone from "@/assets/icons/iconmonstr-done.svg?react";
 
@@ -244,14 +243,13 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
                             Lista cotizațiilor ({sortedFees.length})
                         </h3>
                         {isOrgAdmin && (
-                            <PrimaryActionButton
-                                variant="create"
+                            <Button
+                                variant="primary"
                                 onClick={handleGenerateNext}
                                 disabled={isGenerating}
-                                className="!border-0"
                             >
                                 {isGenerating ? 'Se generează...' : 'Plătește în avans'}
-                            </PrimaryActionButton>
+                            </Button>
                         )}
                     </div>
 
@@ -342,10 +340,10 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
                                                     {isOrgAdmin && fee.id === latestFee?.id && fee.status !== MembershipFeeStatus.PENDING_VERIFICATION && fee.status !== MembershipFeeStatus.PAID && (
                                                         <button
                                                             onClick={() => handleEdit(fee)}
-                                                            className="p-1.5 text-orange-500 hover:text-orange-700 hover:bg-orange-50 rounded transition-colors"
+                                                            className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                                                             title="Editează"
                                                         >
-                                                            <IconEdit className="w-5 h-5" />
+                                                            <ActionIcons.Edit className="w-5 h-5" />
                                                         </button>
                                                     )}
                                                     {(() => {
@@ -356,7 +354,7 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
                                                             return (
                                                                 <button
                                                                     onClick={() => handleApprovePayment(fee)}
-                                                                    className="p-1.5 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded transition-colors"
+                                                                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                                                                     title="Confirmă plata"
                                                                 >
                                                                     <IconDone className="w-5 h-5" />
@@ -368,7 +366,7 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
                                                             return (
                                                                 <button
                                                                     onClick={() => handleProcessPayment(fee)}
-                                                                    className="p-1.5 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded transition-colors"
+                                                                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                                                                     title="Plătește"
                                                                 >
                                                                     <IconWallet className="w-5 h-5" />
@@ -381,7 +379,7 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
                                                     {isOrgAdmin && fee.status === MembershipFeeStatus.PENDING_VERIFICATION && (
                                                         <button
                                                             onClick={() => handleProcessPayment(fee)}
-                                                            className="p-1.5 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded transition-colors"
+                                                            className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                                                             title="Validează plată"
                                                         >
                                                             <IconDone className="w-5 h-5" />
@@ -390,10 +388,10 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
                                                     {isOrgAdmin && (
                                                         <button
                                                             onClick={() => handleDelete(fee.id)}
-                                                            className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
+                                                            className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                                                             title="Șterge"
                                                         >
-                                                            <IconDelete className="w-5 h-5" />
+                                                            <ActionIcons.Delete className="w-5 h-5" />
                                                         </button>
                                                     )}
                                                 </div>

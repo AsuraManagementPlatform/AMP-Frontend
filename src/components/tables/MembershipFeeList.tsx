@@ -1,8 +1,7 @@
 import { TableColumn } from '@/types/index.types';
 import React, { useState } from "react";
 import Table from "@/components/ui/Table.tsx";
-import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
-import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
+import { ActionIcons } from '@/components/ui/ActionIcons';
 import IconMoneyBag from "@/assets/icons/iconmonstr-money-bag.svg?react";
 import IconDone from "@/assets/icons/iconmonstr-done.svg?react";
 import { MembershipFee, MembershipFeeStatus, MembershipFeePayment, RenewPeriod } from '@/types/membershipFee.types';
@@ -237,7 +236,7 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
                 label: 'Confirmă plata',
                 icon: <IconDone className="w-4 h-4" />,
                 onClick: handleApprovePayment,
-                className: 'text-green-600 hover:text-green-800',
+                className: 'text-gray-600 hover:bg-gray-100',
                 show: (fee: MembershipFee) => {
                     const hasPendingPayments = fee.payments?.some(p => p.status === 'PENDING_APPROVAL');
                     const isOwnFee = user?.id === fee.memberId;
@@ -248,7 +247,7 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
                 label: 'Plătește',
                 icon: <IconMoneyBag className="w-4 h-4" />,
                 onClick: handleProcessPayment,
-                className: 'text-emerald-600 hover:text-emerald-800',
+                className: 'text-gray-600 hover:bg-gray-100',
                 show: (fee: MembershipFee) => {
                     const hasPendingPayments = fee.payments?.some(p => p.status === 'PENDING_APPROVAL');
                     const isOwnFee = user?.id === fee.memberId;
@@ -258,15 +257,15 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
             },
             {
                 label: 'Editează',
-                icon: <IconEdit className="w-4 h-4" />,
+                icon: <ActionIcons.Edit className="w-4 h-4" />,
                 onClick: handleEdit,
-                className: 'text-blue-600 hover:text-blue-800'
+                className: 'text-gray-600 hover:bg-gray-100'
             },
             {
                 label: 'Șterge',
-                icon: <IconDelete className="w-4 h-4" />,
+                icon: <ActionIcons.Delete className="w-4 h-4" />,
                 onClick: handleDelete,
-                className: 'text-red-600 hover:text-red-800'
+                className: 'text-gray-600 hover:bg-gray-100'
             }
         ];
     };

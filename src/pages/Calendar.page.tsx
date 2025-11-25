@@ -16,6 +16,7 @@ import { ActivityDetailsModal } from '@/components/modals/activity/ActivityDetai
 import { Activity } from '@/types/activity.types';
 
 type ViewMode = 'month' | 'list';
+type CalendarViewMode = 'month' | 'week' | 'day';
 
 const CalendarPage: React.FC = () => {
     const { hasAnyUserGroup, user } = useAuth();
@@ -24,6 +25,7 @@ const CalendarPage: React.FC = () => {
 
     const [currentDate, setCurrentDate] = useState(new Date());
     const [viewMode, setViewMode] = useState<ViewMode>('month');
+    const [calendarViewMode, setCalendarViewMode] = useState<CalendarViewMode>('month');
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [upcomingEvents, setUpcomingEvents] = useState<CalendarEvent[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -261,6 +263,8 @@ const CalendarPage: React.FC = () => {
                                             onDateChange={setCurrentDate}
                                             onEventClick={handleEventClick}
                                             onDateClick={handleDateClick}
+                                            viewMode={calendarViewMode}
+                                            onViewModeChange={setCalendarViewMode}
                                         />
                                     ) : (
                                         <EventList

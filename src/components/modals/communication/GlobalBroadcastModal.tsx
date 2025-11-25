@@ -63,7 +63,7 @@ export const GlobalBroadcastModal: React.FC<GlobalBroadcastModalProps> = ({
         <Modal
             isOpen={isOpen}
             onClose={handleClose}
-            title="📢 Mesaj Global către Toți Utilizatorii"
+            title="Mesaj Global către Toți Utilizatorii"
             size="lg"
         >
             <div className="space-y-4">
@@ -137,7 +137,7 @@ export const GlobalBroadcastModal: React.FC<GlobalBroadcastModalProps> = ({
                         variant="primary"
                         disabled={isSubmitting || !subject.trim() || !message.trim()}
                     >
-                        {isSubmitting ? 'Se trimite...' : '📢 Trimite Mesaj Global'}
+                        {isSubmitting ? 'Se trimite...' : 'Trimite Mesaj Global'}
                     </Button>
                 </div>
             </div>

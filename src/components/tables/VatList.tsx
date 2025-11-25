@@ -1,8 +1,7 @@
 import {TableAction, TableColumn, Vat} from '@/types/index.types';
 import React, {useState} from "react";
 import Table from "@/components/ui/Table.tsx";
-import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
-import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
+import { ActionIcons } from '@/components/ui/ActionIcons';
 import showToast from '@/components/ui/Toast';
 import {useConfirmDialog} from '@/components/ui/ConfirmDialog';
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
@@ -82,13 +81,13 @@ export const VatList: React.FC<VatListProps> = ({
             label: 'Edit',
             variant: 'primary',
             onClick: handleEdit,
-            icon: <IconEdit />
+            icon: <ActionIcons.Edit />
         },
         {
             label: 'Delete',
             variant: 'danger',
             onClick: handleDelete,
-            icon: <IconDelete />
+            icon: <ActionIcons.Delete />
         }
     ];
 

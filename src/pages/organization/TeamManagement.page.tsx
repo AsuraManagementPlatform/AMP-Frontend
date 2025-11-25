@@ -16,6 +16,7 @@ import { userService } from '@/services/user.service';
 import { UserCreateRequest } from '@/schemas/user.schema';
 import { UserMeResponse } from '@/types/user.types';
 import { UserGroup } from '@/types/auth.types';
+import { ActionIcons } from '@/components/ui/ActionIcons';
 
 const TeamManagementPage: React.FC = () => {
     const { organizationId } = useParams<{ organizationId: string }>();
@@ -614,7 +615,7 @@ const TeamManagementPage: React.FC = () => {
                                                         {member.currentProjects && member.currentProjects.length > 0 ? (
                                                             <div className="flex items-center gap-2">
                                                                 <span className="text-gray-900">
-                                                                    📂 {member.currentProjects.length} {member.currentProjects.length === 1 ? 'proiect' : 'proiecte'}
+                                                                    {member.currentProjects.length} {member.currentProjects.length === 1 ? 'proiect' : 'proiecte'}
                                                                 </span>
                                                             </div>
                                                         ) : (
@@ -638,26 +639,28 @@ const TeamManagementPage: React.FC = () => {
                                                     <div className="flex gap-2">
                                                         <button
                                                             onClick={() => handleViewMemberDetails(member.member)}
-                                                            className="px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
+                                                            className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                                                            title="Detalii"
                                                         >
-                                                            Detalii
+                                                            <ActionIcons.View />
                                                         </button>
                                                         <button
                                                             onClick={() => handleOpenEditUser(member)}
-                                                            className="px-3 py-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-md transition-colors"
+                                                            className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                                                            title="Editează"
                                                         >
-                                                            Editează
+                                                            <ActionIcons.Edit />
                                                         </button>
                                                         {member.member !== currentUser?.id && (
                                                             <button
                                                                 onClick={() => handleToggleMemberStatus(member.id, member.status)}
-                                                                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                                                                    member.status === OrganizationMemberStatus.ACTIVE 
-                                                                        ? 'text-red-600 hover:text-red-700 hover:bg-red-50' 
-                                                                        : 'text-green-600 hover:text-green-700 hover:bg-green-50'
-                                                                }`}
+                                                                className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                                                                title={member.status === OrganizationMemberStatus.ACTIVE ? 'Dezactivează' : 'Activează'}
                                                             >
-                                                                {member.status === OrganizationMemberStatus.ACTIVE ? 'Dezactivează' : 'Activează'}
+                                                                {member.status === OrganizationMemberStatus.ACTIVE 
+                                                                    ? <ActionIcons.Reject />
+                                                                    : <ActionIcons.Approve />
+                                                                }
                                                             </button>
                                                         )}
                                                     </div>

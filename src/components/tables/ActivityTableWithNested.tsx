@@ -6,14 +6,11 @@ import showToast from '@/components/ui/Toast';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { t } from 'i18next';
-import IconView from '@/assets/icons/iconmonstr-eye.svg?react';
-import IconDelete from '@/assets/icons/iconmonstr-delete.svg?react';
-import IconStart from '@/assets/icons/iconmonstr-start.svg?react';
-import IconDone from '@/assets/icons/iconmonstr-done.svg?react';
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
+import IconDone from '@/assets/icons/iconmonstr-done.svg?react';
 import IconArrowDown from '@/assets/icons/iconmonstr-arrow-down.svg?react';
 import { ActivityDetailsModal } from '@/components/modals/activity/ActivityDetailsModal';
-import { SecondaryButton } from '@/components/ui/SecondaryButton';
+import { ActionIcons } from '@/components/ui/ActionIcons';
 
 interface ActivityTableWithNestedProps {
     project: string;
@@ -151,51 +148,43 @@ export const ActivityTableWithNested: React.FC<ActivityTableWithNestedProps> = (
     const renderActions = (activity: Activity) => {
         return (
             <div className="flex items-center gap-2">
-                <SecondaryButton
+                <button
                     onClick={() => handleViewDetails(activity)}
-                    variant="ghost"
-                    size="sm"
-                    className="!p-2"
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                     title={t('action.view')}
                 >
-                    <IconView className="w-4 h-4" />
-                </SecondaryButton>
+                    <ActionIcons.View />
+                </button>
                 
                 {canManageActivities && (
                     <>
                         {activity.status === ActivityStatus.PLANNED && (
                             <>
-                                <SecondaryButton
+                                <button
                                     onClick={() => handleActivate(activity)}
-                                    variant="ghost"
-                                    size="sm"
-                                    className="!p-2 text-blue-600 hover:text-blue-700"
+                                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                                     title={t('action.activate')}
                                 >
-                                    <IconStart className="w-4 h-4" />
-                                </SecondaryButton>
-                                <SecondaryButton
+                                    <ActionIcons.Approve />
+                                </button>
+                                <button
                                     onClick={() => handleDelete(activity)}
-                                    variant="ghost"
-                                    size="sm"
-                                    className="!p-2 text-red-600 hover:text-red-700"
+                                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                                     title={t('action.delete')}
                                 >
-                                    <IconDelete className="w-4 h-4" />
-                                </SecondaryButton>
+                                    <ActionIcons.Delete />
+                                </button>
                             </>
                         )}
                         
                         {activity.status === ActivityStatus.IN_PROGRESS && activity.canComplete && (
-                            <SecondaryButton
+                            <button
                                 onClick={() => handleCompleted(activity)}
-                                variant="ghost"
-                                size="sm"
-                                className="!p-2 text-green-600 hover:text-green-700"
+                                className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                                 title={t('action.complete')}
                             >
-                                <IconDone className="w-4 h-4" />
-                            </SecondaryButton>
+                                <ActionIcons.Approve />
+                            </button>
                         )}
                     </>
                 )}

@@ -1,8 +1,7 @@
 import {CommunicationType, EntityCommunication, SelectOption, TableAction, TableColumn} from '@/types/index.types';
 import React, { useState } from "react";
 import Table from "@/components/ui/Table.tsx";
-import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
-import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
+import { ActionIcons } from '@/components/ui/ActionIcons';
 import showToast from '@/components/ui/Toast';
 import { useConfirmDialog } from "@/components/ui/ConfirmDialog";
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
@@ -134,13 +133,13 @@ export const EntityCommunicationList: React.FC<EntityCommunicationListProps> = (
             label: t('action.edit'),
             variant: 'primary',
             onClick: handleEdit,
-            icon: <IconEdit />
+            icon: <ActionIcons.Edit />
         },
         {
             label: t('action.delete'),
             variant: 'danger',
             onClick: handleDelete,
-            icon: <IconDelete />
+            icon: <ActionIcons.Delete />
         }
     ];
 

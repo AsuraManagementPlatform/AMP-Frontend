@@ -1,8 +1,6 @@
 import {TableAction, TableColumn} from '@/types/index.types';
 import React, {useState} from "react";
 import Table from "@/components/ui/Table.tsx";
-import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
-import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
 import {Entity, EntityType} from '@/types/entity.types';
 import {UpdateEntityModal} from '@/components/modals/entity/UpdateEntityModal';
 import entityService from '@/services/entity.service';
@@ -10,6 +8,7 @@ import showToast from '@/components/ui/Toast';
 import {useConfirmDialog} from '@/components/ui/ConfirmDialog';
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
 import {t} from 'i18next';
+import { ActionIcons } from '@/components/ui/ActionIcons';
 
 interface EntityListProps {
     organizationId: string;
@@ -116,13 +115,13 @@ export const EntityList: React.FC<EntityListProps> = ({
             label: t('action.edit'),
             variant: 'primary',
             onClick: handleEdit,
-            icon: <IconEdit />
+            icon: <ActionIcons.Edit />
         },
         {
             label: t('action.delete'),
             variant: 'danger',
             onClick: handleDelete,
-            icon: <IconDelete />
+            icon: <ActionIcons.Delete />
         }
     ];
 

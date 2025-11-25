@@ -541,6 +541,12 @@ const resources = {
                     enter_answer: "Enter your answer...",
                     yes: "Yes",
                     no: "No",
+                    average: "Average",
+                    status_active: "Active",
+                    status_completed: "Completed",
+                    status_partial: "Partial",
+                    status_abandoned: "Abandoned",
+                    no_answer: "No answer",
                 },
             },
             tab: {
@@ -885,6 +891,11 @@ const resources = {
                     payment_exceeds_remaining_balance: "Payment amount exceeds remaining balance",
                     cannot_pay_cancelled_fee: "Cannot make payment for cancelled or refunded fee",
                     load_error: "Error loading membership fee data"
+                },
+                user: {
+                    no_access: "You don't have permission to edit this user",
+                    update_success: "User updated successfully",
+                    update_error: "Error updating user",
                 },
             },
             nav: {
@@ -1513,6 +1524,12 @@ const resources = {
                     enter_answer: "Introdu răspunsul...",
                     yes: "Da",
                     no: "Nu",
+                    average: "Medie",
+                    status_active: "Activ",
+                    status_completed: "Încheiat",
+                    status_partial: "Parțial",
+                    status_abandoned: "Abandonat",
+                    no_answer: "Fără răspuns",
                 },
             },
             tab: {
@@ -1890,6 +1907,11 @@ const resources = {
                     payment_exceeds_remaining_balance: "Suma plății depășește suma rămasă de plată",
                     cannot_pay_cancelled_fee: "Nu se poate efectua plată pentru cotizație anulată sau rambursată",
                     load_error: "Eroare la încărcarea datelor cotizației"
+                },
+                user: {
+                    no_access: "Nu aveți permisiunea de a edita acest utilizator",
+                    update_success: "Utilizator actualizat cu succes",
+                    update_error: "Eroare la actualizarea utilizatorului",
                 },
                 survey: {
                     load_error: "Eroare la încărcarea sondajelor",

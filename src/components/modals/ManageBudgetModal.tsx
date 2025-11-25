@@ -3,6 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { ModalButton } from '@/components/ui/ModalButton';
 import { Button } from '@/components/ui/Button';
 import { Project } from '@/types/index.types';
+import { ActionIcons } from '@/components/ui/ActionIcons';
 
 interface ManageBudgetModalProps {
     project: Project | null;
@@ -334,14 +335,13 @@ export const ManageBudgetModal: React.FC<ManageBudgetModalProps> = ({
                                     <td className="border border-gray-300 p-2">{formatAmount(entry.vatValueLei)}</td>
                                     <td className="border border-gray-300 p-2">{entry.activity || '-'}</td>
                                     <td className="border border-gray-300 p-2">
-                                        <Button 
-                                            variant="outline" 
-                                            size="sm"
+                                        <button
                                             onClick={() => handleDeleteEntry(entry.id)}
-                                            className="text-red-600 hover:bg-red-50"
+                                            className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                                            title="Șterge intrare"
                                         >
-                                            Șterge
-                                        </Button>
+                                            <ActionIcons.Delete />
+                                        </button>
                                     </td>
                                 </tr>
                             ))}

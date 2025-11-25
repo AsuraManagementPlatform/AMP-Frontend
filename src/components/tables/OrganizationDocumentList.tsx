@@ -1,8 +1,7 @@
 import {TableAction, TableColumn} from '@/types/index.types';
 import React, {useState} from "react";
 import Table from "@/components/ui/Table.tsx";
-import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
-import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
+import { ActionIcons } from '@/components/ui/ActionIcons';
 import {OrganizationDocument, DocumentType} from '@/types/organization-document.types';
 import {UpdateOrganizationDocumentModal} from '@/components/modals/organization/UpdateOrganizationDocumentModal';
 import organizationDocumentService from '@/services/organization-document.service';
@@ -179,13 +178,13 @@ export const OrganizationDocumentList: React.FC<OrganizationDocumentListProps> =
             label: 'Edit',
             variant: 'primary',
             onClick: handleEdit,
-            icon: <IconEdit />
+            icon: <ActionIcons.Edit />
         },
         {
             label: 'Delete',
             variant: 'danger',
             onClick: handleDelete,
-            icon: <IconDelete />
+            icon: <ActionIcons.Delete />
         }
     ];
 

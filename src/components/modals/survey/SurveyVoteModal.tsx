@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { apiService } from '@/services/api.service';
 import { SurveyQuestionDetail, QuestionType } from '@/types/survey.types';
 import { Button } from '@/components/ui/Button';
@@ -13,6 +13,7 @@ interface SurveyVoteModalProps {
 }
 
 export function SurveyVoteModal({ surveyId, isOpen, onClose, onSuccess }: SurveyVoteModalProps) {
+  const { t } = useTranslation();
   const [survey, setSurvey] = useState<SurveyQuestionDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);

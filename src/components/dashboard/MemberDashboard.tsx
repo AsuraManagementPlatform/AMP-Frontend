@@ -240,7 +240,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
             {/* Feature Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 {/* 1. Direct Sponsorship */}
-                <Card title="🎁 Sponsorizare" className="hover:shadow-lg transition-shadow">
+                <Card title="Sponsorizare" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Susține financiar ONG-ul sau un proiect specific</p>
                         <div className="bg-gradient-to-br from-orange-50 to-yellow-50 p-4 rounded-lg">

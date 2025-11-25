@@ -1,8 +1,7 @@
 import {ProjectFundStatus, SelectOption, TableAction, TableColumn} from '@/types/index.types';
 import React, {useEffect, useState} from "react";
 import Table from "@/components/ui/Table.tsx";
-import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
-import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
+import { ActionIcons } from '@/components/ui/ActionIcons';
 import IconWallet from "@/assets/icons/iconmonstr-wallet.svg?react";
 import {ProjectFund} from '@/types/project-fund.types';
 import {UpdateProjectFundModal} from '@/components/modals/project-fund/UpdateProjectFundModal';
@@ -256,14 +255,14 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
             label: t('action.edit'),
             variant: 'primary',
             onClick: handleEdit,
-            icon: <IconEdit />,
+            icon: <ActionIcons.Edit />,
             show: (fund: ProjectFund) => fund.status === ProjectFundStatus.PLANNED
         },
         {
             label: t('action.delete'),
             variant: 'danger',
             onClick: handleDelete,
-            icon: <IconDelete />,
+            icon: <ActionIcons.Delete />,
             show: (fund: ProjectFund) => fund.status === ProjectFundStatus.PLANNED
         }
     ];

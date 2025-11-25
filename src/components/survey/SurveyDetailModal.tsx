@@ -60,18 +60,18 @@ export default function SurveyDetailModal({ surveyId, onClose }: SurveyDetailMod
 
   const getQuestionTypeLabel = (type: string) => {
     const types: Record<string, string> = {
-      TEXT: 'Text liber',
-      SINGLE_CHOICE: 'Alegere unică',
-      MULTIPLE_CHOICE: 'Alegere multiplă',
-      RATING: 'Rating',
-      YES_NO: 'Da/Nu'
+      TEXT: t('label.survey.question_type_text'),
+      SINGLE_CHOICE: t('label.survey.question_type_single'),
+      MULTIPLE_CHOICE: t('label.survey.question_type_multiple'),
+      RATING: t('label.survey.question_type_rating'),
+      YES_NO: t('label.survey.question_type_yes_no')
     };
     return types[type] || type;
   };
 
   const renderAnswer = (answer: any, questionType: string) => {
     if (answer === null || answer === undefined) {
-      return <span className="text-gray-400 italic">Fără răspuns</span>;
+      return <span className="text-gray-400 italic">{t('label.survey.no_answer')}</span>;
     }
 
     if (questionType === 'RATING') {
@@ -79,7 +79,7 @@ export default function SurveyDetailModal({ surveyId, onClose }: SurveyDetailMod
     }
 
     if (questionType === 'YES_NO') {
-      return <span className="font-medium">{answer ? 'Da' : 'Nu'}</span>;
+      return <span className="font-medium">{answer ? t('label.survey.yes') : t('label.survey.no')}</span>;
     }
 
     if (Array.isArray(answer)) {

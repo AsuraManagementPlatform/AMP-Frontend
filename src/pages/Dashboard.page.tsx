@@ -64,7 +64,6 @@ const DashboardPage: React.FC = () => {
                                 onClick={() => state.setIsGlobalBroadcastModalOpen(true)}
                                 variant="ghost"
                                 size="sm"
-                                leftIcon={<span className="text-lg">📢</span>}
                             >
                                 Mesaj Global
                             </Button>

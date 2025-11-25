@@ -37,7 +37,7 @@ export const Alert: React.FC<AlertProps> = ({children, variant = 'info', title, 
                             className="alert-dismiss-btn"
                         >
                             <span className="sr-only">Dismiss</span>
-                            ✕
+                            &times;
                         </button>
                     </div>
                 )}

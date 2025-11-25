@@ -1,8 +1,7 @@
 import { TableAction, TableColumn } from '@/types/index.types';
 import React, { useState } from "react";
 import Table from "@/components/ui/Table.tsx";
-import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
-import IconDelete from "@/assets/icons/iconmonstr-delete.svg?react";
+import { ActionIcons } from '@/components/ui/ActionIcons';
 import { ProjectMember, ProjectMemberStatus, ProjectMemberType } from '@/types/project-member.types';
 import { UpdateProjectMemberModal } from '@/components/modals/project-member/UpdateProjectMemberModal';
 import projectMemberService from '@/services/project-member.service';
@@ -153,13 +152,13 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
             label: 'Edit',
             variant: 'primary',
             onClick: handleEdit,
-            icon: <IconEdit />
+            icon: <ActionIcons.Edit />
         },
         {
             label: 'Delete',
             variant: 'danger',
             onClick: handleDelete,
-            icon: <IconDelete />
+            icon: <ActionIcons.Delete />
         }
     ];
 

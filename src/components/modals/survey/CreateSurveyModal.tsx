@@ -8,6 +8,7 @@ import { getQuestionTypeOptions } from '@/config/survey.form.config';
 import { AuthContext } from '@/context/Auth.context';
 import { organizationMemberService } from '@/services/organization-member.service';
 import { OrganizationMemberWithDetails } from '@/types/organization-member.types';
+import { ActionIcons } from '@/components/ui/ActionIcons';
 
 interface CreateSurveyModalProps {
   isOpen: boolean;
@@ -365,9 +366,10 @@ export function CreateSurveyModal({ isOpen, onClose, onSuccess }: CreateSurveyMo
                     <button
                       type="button"
                       onClick={() => removeQuestion(qIndex)}
-                      className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                      title={t('label.survey.delete_question')}
                     >
-                      Șterge
+                      <ActionIcons.Delete />
                     </button>
                   )}
                 </div>
@@ -450,9 +452,10 @@ export function CreateSurveyModal({ isOpen, onClose, onSuccess }: CreateSurveyMo
                               <button
                                 type="button"
                                 onClick={() => removeOption(qIndex, oIndex)}
-                                className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors flex-shrink-0"
+                                className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors flex-shrink-0"
+                                title={t('label.survey.delete_option')}
                               >
-                                Șterge
+                                <ActionIcons.Delete />
                               </button>
                             )}
                           </div>
