@@ -160,29 +160,32 @@ export function SurveyVoteModal({ surveyId, isOpen, onClose, onSuccess }: Survey
         );
 
       case QuestionType.YES_NO:
+        const yesText = t('label.survey.yes') || 'Da';
+        const noText = t('label.survey.no') || 'Nu';
+        
         return (
           <div className="flex space-x-4">
             <button
               type="button"
               onClick={() => handleAnswerChange(questionOrder, true)}
-              className={`px-6 py-2 rounded-md border-2 transition-all ${
+              className={`px-6 py-2 rounded-md border border-gray-300 transition-all ${
                 currentAnswer === true
-                  ? 'border-green-600 bg-green-600 text-white'
-                  : 'border-gray-300 hover:border-green-400'
+                  ? 'bg-gray-200 border-gray-400'
+                  : 'bg-white hover:bg-gray-50'
               }`}
             >
-              {t('label.survey.yes')}
+              {yesText}
             </button>
             <button
               type="button"
               onClick={() => handleAnswerChange(questionOrder, false)}
-              className={`px-6 py-2 rounded-md border-2 transition-all ${
+              className={`px-6 py-2 rounded-md border border-gray-300 transition-all ${
                 currentAnswer === false
-                  ? 'border-red-600 bg-red-600 text-white'
-                  : 'border-gray-300 hover:border-red-400'
+                  ? 'bg-gray-200 border-gray-400'
+                  : 'bg-white hover:bg-gray-50'
               }`}
             >
-              {t('label.survey.no')}
+              {noText}
             </button>
           </div>
         );

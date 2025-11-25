@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { apiService } from '@/services/api.service';
 import { SurveyQuestionDetail, QuestionType } from '@/types/survey.types';
 import { Button } from '@/components/ui/Button';
@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import showToast from '@/components/ui/Toast';
 
 export function SurveyDetail() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [survey, setSurvey] = useState<SurveyQuestionDetail | null>(null);
@@ -163,7 +164,7 @@ export function SurveyDetail() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              Yes
+              {t('label.survey.yes')}
             </button>
             <button
               type="button"
@@ -174,7 +175,7 @@ export function SurveyDetail() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              No
+              {t('label.survey.no')}
             </button>
           </div>
         );
