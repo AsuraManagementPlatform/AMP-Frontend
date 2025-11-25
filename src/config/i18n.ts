@@ -56,7 +56,8 @@ const resources = {
                     category_health: "Health",
                     category_technology: "Technology",
                     category_other: "Other",
-                    organization: "Organization"
+                    organization: "Organization",
+                    select_category: "Select category",
                 },
                 project_fund: {
                     source: "Source",
@@ -228,6 +229,7 @@ const resources = {
                     total_donations_amount: "Total Donations",
                     donations_list: "Donations List",
                     no_donations: "No donations from this partner",
+                    select_entity: "Select entity",
                 },
                 vat: {
                     name: "Unique name",
@@ -659,6 +661,7 @@ const resources = {
                     title_min: "Title must be at least 2 characters",
                     title_max: "Title cannot exceed 255 characters",
                     title_length: "Title must be between 2 and 255 characters",
+                    description_required: "Description cannot ne empty",
                     description_max: "Description cannot exceed 511 characters",
                     starting_date_required: "Starting date is required",
                     starting_date_invalid: "Starting date is not valid",
@@ -671,7 +674,9 @@ const resources = {
                     ending_date_future: "Ending date cannot be in the future",
                     status_invalid: "Activity status is invalid",
                     type_invalid: "Activity type is invalid",
+                    location_required: "Location cannot be empty",
                     location_max: "Location cannot exceed 255 characters",
+                    observation_required: "Observation cannot be empty",
                     observation_max: "Observation cannot exceed 511 characters",
                     results_max: "Results cannot exceed 511 characters",
                     indicators_max: "Indicators cannot exceed 511 characters"
@@ -960,6 +965,7 @@ const resources = {
                     category_technology: "Tehnologie",
                     category_other: "Altele",
                     organization: "Organizație",
+                    select_category: "Selectează categoria",
                 },
                 project_fund: {
                     source: "Sursă",
@@ -1131,6 +1137,7 @@ const resources = {
                     total_donations_amount: "Total donații",
                     donations_list: "Lista donațiilor",
                     no_donations: "Nu există donații de la acest partener",
+                    select_entity: "Selectează entitatea",
                 },
                 vat: {
                     name: "Denumire unica",
@@ -1626,6 +1633,7 @@ const resources = {
                     title_min: "Titlul trebuie să aibă cel puțin 2 caractere",
                     title_max: "Titlul nu poate depăși 255 de caractere",
                     title_length: "Titlul trebuie să aibă între 2 și 255 caractere",
+                    description_required: "Descrierea este obligatorie",
                     description_max: "Descrierea nu poate depăși 511 caractere",
                     starting_date_required: "Data de început este obligatorie",
                     starting_date_invalid: "Data de început nu este validă",
@@ -1638,7 +1646,9 @@ const resources = {
                     ending_date_future: "Data de sfârșit nu poate fi în viitor",
                     status_invalid: "Statusul activității este invalid",
                     type_invalid: "Tipul activității este invalid",
+                    location_required: "Locația este obligatorie",
                     location_max: "Locația nu poate depăși 255 de caractere",
+                    observation_required: "Observația este obligatorie",
                     observation_max: "Observația nu poate depăși 511 caractere",
                     results_max: "Rezultatele nu pot depăși 511 caractere",
                     indicators_max: "Indicatorii nu pot depăși 511 caractere"

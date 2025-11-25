@@ -219,7 +219,7 @@ export const ActivityList: React.FC<ActivityListProps> = ({
             sortable: true,
             filterable: true,
             filterType: 'select',
-            size: 'md',
+            size: 'sm',
             filterOptions: [
                 { label: t('label.activity.status_planned'), value: ActivityStatus.PLANNED },
                 { label: t('label.activity.status_in_progress'), value: ActivityStatus.IN_PROGRESS },

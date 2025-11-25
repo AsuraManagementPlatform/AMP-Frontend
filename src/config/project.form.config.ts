@@ -63,7 +63,10 @@ export const createProjectFormConfig = (
                     label: t('label.project.category'),
                     type: FieldType.SELECT,
                     required: true,
-                    options: getCategoryOptions()
+                    options: [
+                        { value: '', label: t('label.project.select_category') },
+                        ...getCategoryOptions()
+                    ]
                 },
                 {
                     name: 'location',

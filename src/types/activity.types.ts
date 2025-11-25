@@ -30,15 +30,15 @@ export interface Activity extends BaseEntity {
     projectObjective?: string;
     parentActivity?: string;
     title: string;
-    description?: string;
+    description: string;
     startingDate: string;
     estimatedEndingDate: string;
     endingDate?: string;
     completedAt?: string;
     status: ActivityStatus;
     type: ActivityType;
-    location?: string;
-    observation?: string;
+    location: string;
+    observation: string;
     results?: string;
     indicators?: string;
     subActivitiesCount: number;
@@ -55,14 +55,14 @@ export interface ActivityCreateRequest {
     projectObjective?: string;
     parentActivity?: string;
     title: string;
-    description?: string;
+    description: string;
     startingDate: string;
     estimatedEndingDate: string;
     endingDate?: string;
     status: ActivityStatus;
     type: ActivityType;
-    location?: string;
-    observation?: string;
+    location: string;
+    observation: string;
     results?: string;
     indicators?: string;
 }
