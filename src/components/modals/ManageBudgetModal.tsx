@@ -196,7 +196,7 @@ export const ManageBudgetModal: React.FC<ManageBudgetModalProps> = ({
                     </div>
                 </div>{totalExpenses > projectBudget && (
                     <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                        ⚠️ Atenție: Cheltuielile planificate ({formatAmount(totalExpenses)}) depășesc bugetul proiectului ({formatAmount(projectBudget)})!
+                        Atenție: Cheltuielile planificate ({formatAmount(totalExpenses)}) depășesc bugetul proiectului ({formatAmount(projectBudget)})!
                     </div>
                 )}<div className="flex justify-between items-center">
                     <h3 className="text-lg font-semibold">Intrări buget</h3>
@@ -210,7 +210,7 @@ export const ManageBudgetModal: React.FC<ManageBudgetModalProps> = ({
                                 setShowAddEntry(true);
                             }}
                         >
-                            ➕ Adaugă cheltuială
+                            Adaugă cheltuială
                         </Button>
                         <Button 
                             variant="outline" 
@@ -221,7 +221,7 @@ export const ManageBudgetModal: React.FC<ManageBudgetModalProps> = ({
                                 setShowAddEntry(true);
                             }}
                         >
-                            💰 Adaugă finanțare
+                            Adaugă finanțare
                         </Button>
                     </div>
                 </div>{showAddEntry && (
@@ -340,7 +340,7 @@ export const ManageBudgetModal: React.FC<ManageBudgetModalProps> = ({
                                             onClick={() => handleDeleteEntry(entry.id)}
                                             className="text-red-600 hover:bg-red-50"
                                         >
-                                            🗑️
+                                            Șterge
                                         </Button>
                                     </td>
                                 </tr>

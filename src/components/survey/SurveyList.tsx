@@ -9,6 +9,7 @@ import { CreateSurveyModal } from '@/components/modals/survey/CreateSurveyModal'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { AuthContext } from '@/context/Auth.context';
 import SurveyDetailModal from './SurveyDetailModal';
+import { ActionIcons } from '@/components/ui/ActionIcons';
 
 export function SurveyList() {
   const [surveys, setSurveys] = useState<SurveyQuestion[]>([]);
@@ -139,7 +140,6 @@ export function SurveyList() {
 
       {surveys.length === 0 ? (
         <Card className="p-8 text-center">
-          <div className="text-6xl mb-4">📋</div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">{t('label.survey.no_active_surveys')}</h3>
           <p className="text-gray-500">{t('label.survey.no_active_surveys')}</p>
         </Card>
@@ -187,8 +187,8 @@ export function SurveyList() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <div className="text-sm font-medium text-gray-900">{survey.title}</div>
-                          {needsAttention && !surveyOverdue && <span className="text-yellow-500" title="Sondaj necompletat">⚠️</span>}
-                          {surveyOverdue && !surveyResponded && <span className="text-red-500" title="Sondaj expirat">🔴</span>}
+                          {needsAttention && !surveyOverdue && <span className="text-yellow-500" title="Sondaj necompletat"></span>}
+                          {surveyOverdue && !surveyResponded && <span className="text-red-500" title="Sondaj expirat"></span>}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
@@ -198,7 +198,6 @@ export function SurveyList() {
                               onClick={() => navigate(`/sondaje/${survey.id}`)}
                               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-800 bg-orange-100 border border-orange-300 rounded-lg hover:bg-orange-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all shadow-sm hover:shadow-md"
                             >
-                              <span>📝</span>
                               <span>Răspunde la sondaj</span>
                             </button>
                           )}
@@ -206,17 +205,17 @@ export function SurveyList() {
                             <>
                               <button
                                 onClick={() => handleSendReminder(survey.id)}
-                                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+                                className="p-2 text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
                                 title="Trimite reminder"
                               >
-                                🔔
+                                <ActionIcons.Reminder />
                               </button>
                               <button
                                 onClick={() => setSurveyToDelete(survey.id)}
-                                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
                                 title={t('label.common.delete')}
                               >
-                                🗑️
+                                <ActionIcons.Delete />
                               </button>
                             </>
                           )}
@@ -230,12 +229,12 @@ export function SurveyList() {
                           const effectiveStatus = calculateEffectiveStatus(survey);
                           return (
                             <div className="text-sm font-medium">
-                              {effectiveStatus === 'ACTIVE' && <span className="text-green-600">🟢 Activ</span>}
-                              {effectiveStatus === 'COMPLETED' && <span className="text-blue-600">🔵 Încheiat</span>}
-                              {effectiveStatus === 'PARTIAL' && <span className="text-orange-600">🟠 Parțial</span>}
-                              {effectiveStatus === 'ABANDONED' && <span className="text-red-600">🔴 Abandonat</span>}
-                              {effectiveStatus === 'DRAFT' && <span className="text-gray-600">⚪ Draft</span>}
-                              {effectiveStatus === 'CLOSED' && <span className="text-gray-800">⚫ Închis</span>}
+                              {effectiveStatus === 'ACTIVE' && <span className="text-green-600">Activ</span>}
+                              {effectiveStatus === 'COMPLETED' && <span className="text-blue-600">Încheiat</span>}
+                              {effectiveStatus === 'PARTIAL' && <span className="text-orange-600">Parțial</span>}
+                              {effectiveStatus === 'ABANDONED' && <span className="text-red-600">Abandonat</span>}
+                              {effectiveStatus === 'DRAFT' && <span className="text-gray-600">Draft</span>}
+                              {effectiveStatus === 'CLOSED' && <span className="text-gray-800">Închis</span>}
                             </div>
                           );
                         })()}

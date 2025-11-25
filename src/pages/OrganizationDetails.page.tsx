@@ -117,10 +117,10 @@ const OrganizationDetailsPage: React.FC = () => {
     }
 
     const tabs = [
-        { id: 'profile', name: 'Profil organizațional', icon: '🏢' },
-        { id: 'team', name: 'Management echipă', icon: '👥' },
-        { id: 'documents', name: 'Documente oficiale', icon: '📄' },
-        { id: 'financial', name: 'Configurări financiare', icon: '💰' }
+        { id: 'profile', name: 'Profil organizațional', icon: '' },
+        { id: 'team', name: 'Management echipă', icon: '' },
+        { id: 'documents', name: 'Documente oficiale', icon: '' },
+        { id: 'financial', name: 'Configurări financiare', icon: '' }
     ];
 
     const handleSave = async (formData: UpdateOrganizationData) => {
@@ -548,7 +548,7 @@ const OrganizationDetailsPage: React.FC = () => {
 
                             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                                 <label className="block text-sm font-medium text-green-900 mb-2">
-                                    🤝 Voluntar
+                                    Voluntar
                                 </label>
                                 <div className="flex items-center gap-2">
                                     <input
@@ -568,7 +568,7 @@ const OrganizationDetailsPage: React.FC = () => {
 
                             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                                 <label className="block text-sm font-medium text-purple-900 mb-2">
-                                    👥 Membru
+                                    Membru
                                 </label>
                                 <div className="flex items-center gap-2">
                                     <input
@@ -589,7 +589,7 @@ const OrganizationDetailsPage: React.FC = () => {
 
                         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                             <label className="block text-sm font-medium text-orange-900 mb-2">
-                                ⏰ Perioadă de grație pentru cotizații restante
+                                Perioadă de grație pentru cotizații restante
                             </label>
                             <div className="flex items-center gap-2">
                                 <input
@@ -609,7 +609,7 @@ const OrganizationDetailsPage: React.FC = () => {
                         </div>
 
                         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <h4 className="font-semibold text-yellow-900 mb-3">📊 Estimare venituri anuale din cotizații</h4>
+                            <h4 className="font-semibold text-yellow-900 mb-3">Estimare venituri anuale din cotizații</h4>
                             <p className="text-sm text-gray-600 mb-4">
                                 Exemplu de calcul bazat pe 20 angajați, 15 voluntari și 30 membri:
                             </p>

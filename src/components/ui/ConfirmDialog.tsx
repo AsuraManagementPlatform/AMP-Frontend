@@ -53,12 +53,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         danger: {
             iconBg: 'bg-red-100',
             iconText: 'text-red-600',
-            defaultIcon: '🗑️'
+            defaultIcon: ''
         },
         primary: {
             iconBg: 'bg-blue-100',
             iconText: 'text-blue-600',
-            defaultIcon: 'ℹ️'
+            defaultIcon: ''
         }
     };
 

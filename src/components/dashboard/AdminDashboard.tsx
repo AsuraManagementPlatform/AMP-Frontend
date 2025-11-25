@@ -190,7 +190,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             }`}
                             title={modules.includes('ERP') ? 'Click pentru a dezactiva ERP' : 'Click pentru a activa ERP'}
                         >
-                            ERP {modules.includes('ERP') ? '✓' : '✗'}
+                            ERP {modules.includes('ERP') ? 'Da' : 'Nu'}
                         </button>
                         <button
                             onClick={() => handleToggleModule(row.id, 'CRM', modules.includes('CRM'))}
@@ -201,7 +201,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             }`}
                             title={modules.includes('CRM') ? 'Click pentru a dezactiva CRM' : 'Click pentru a activa CRM'}
                         >
-                            CRM {modules.includes('CRM') ? '✓' : '✗'}
+                            CRM {modules.includes('CRM') ? 'Da' : 'Nu'}
                         </button>
                     </div>
                 );

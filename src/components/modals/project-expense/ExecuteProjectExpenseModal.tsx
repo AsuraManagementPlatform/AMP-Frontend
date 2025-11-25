@@ -312,7 +312,7 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
             {hasInsufficientFunds && (
                 <div className="mb-4 p-3 bg-yellow-50 border border-yellow-300 rounded-lg">
                     <p className="text-sm text-yellow-900 font-semibold">
-                        ⚠️ {t('label.project_expense.insufficient_funds_warning')}
+                        {t('label.project_expense.insufficient_funds_warning')}
                     </p>
                     <p className="text-xs text-yellow-700 mt-1">
                         {t('label.project_expense.available')}: {availableFundsData?.totalAvailable.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {expense.currency} | 
@@ -358,7 +358,7 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
             {availableFundsData && availableFundsData.maxExecutableQuantity > 0 && (
                 <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-sm text-blue-900">
-                        <span className="font-semibold">ℹ️ {t('label.project_expense.max_executable_quantity', {
+                        <span className="font-semibold">{t('label.project_expense.max_executable_quantity', {
                             max: availableFundsData.maxExecutableQuantity,
                             unitType: expense.unitType
                         })}</span>

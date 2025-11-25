@@ -97,7 +97,7 @@ export const ApprovePaymentModal: React.FC<ApprovePaymentModalProps> = ({
             <div className="space-y-4">
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-sm text-blue-800">
-                        ℹ️ Verifică informațiile plății efectuate de {memberName} și decide dacă o aprobi sau o respingi.
+                        Verifică informațiile plății efectuate de {memberName} și decide dacă o aprobi sau o respingi.
                     </p>
                 </div>
 

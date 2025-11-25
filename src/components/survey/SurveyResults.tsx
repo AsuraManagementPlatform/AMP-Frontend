@@ -172,11 +172,9 @@ export function SurveyResults() {
       <Card className="p-8 mb-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
-            <div className="text-4xl">📊</div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{t('label.survey.results_title')}</h1>
               <div className="flex items-center text-gray-600 mt-1">
-                <span className="mr-2">👥</span>
                 <span>{results.totalResponses} {t('label.survey.responses')}</span>
               </div>
             </div>

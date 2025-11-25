@@ -75,7 +75,6 @@ export const DirectSponsorshipModal: React.FC<DirectSponsorshipModalProps> = ({
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="bg-gradient-to-br from-orange-50 to-yellow-50 p-4 rounded-lg border border-orange-200">
                     <div className="text-center mb-3">
-                        <div className="text-4xl mb-2">❤️</div>
                         <p className="text-sm text-gray-700 font-medium">Mulțumim pentru susținere!</p>
                     </div>
                 </div>

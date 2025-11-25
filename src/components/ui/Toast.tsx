@@ -173,7 +173,6 @@ export const showToast = {
     info: (message: string, options?: ToastOptions) => {
         return toast(message, {
             duration: 4000,
-            icon: 'ℹ️',
             style: {
                 background: '#3B82F6',
                 color: '#ffffff',

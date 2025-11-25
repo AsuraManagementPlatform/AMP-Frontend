@@ -144,7 +144,7 @@ export const ProfilePage: React.FC = () => {
                         onClick={() => setIsEditing(true)}
                         className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                     >
-                        ✏️ Editează Profilul
+                        Editează Profilul
                     </button>
                 ) : (
                     <div className="flex gap-2">
@@ -203,7 +203,7 @@ export const ProfilePage: React.FC = () => {
                     </div>
                 </Card>
 
-                <Card title="📋 Informații Personale" className="col-span-1 md:col-span-2">
+                <Card title="Informații Personale" className="col-span-1 md:col-span-2">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Nume Complet</label>
@@ -329,7 +329,7 @@ export const ProfilePage: React.FC = () => {
                 </Card>
             </div>
 
-            <Card title="📍 Adresă și Contact" className="mb-6">
+            <Card title="Adresă și Contact" className="mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Adresă</label>
@@ -420,7 +420,7 @@ export const ProfilePage: React.FC = () => {
             )}
 
             {(user.companyName || user.companyNumber || user.cui) && (
-                <Card title="🏢 Informații Companie" className="mb-6">
+                <Card title="Informații Companie" className="mb-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Nume Companie</label>

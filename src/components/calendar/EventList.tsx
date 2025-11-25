@@ -84,7 +84,6 @@ export const EventList: React.FC<EventListProps> = ({
 
                                 <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                                     <div className="flex items-center gap-1">
-                                        <span>📅</span>
                                         <span>
                                             {formatDate(event.startDate)}
                                             {!event.allDay && event.endDate !== event.startDate && 
@@ -95,14 +94,12 @@ export const EventList: React.FC<EventListProps> = ({
 
                                     {event.location && (
                                         <div className="flex items-center gap-1">
-                                            <span>📍</span>
                                             <span>{event.location}</span>
                                         </div>
                                     )}
 
                                     {event.reminderMinutes && (
                                         <div className="flex items-center gap-1">
-                                            <span>⏰</span>
                                             <span>{event.reminderMinutes} min înainte</span>
                                         </div>
                                     )}

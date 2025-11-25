@@ -245,7 +245,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                         <p className="text-sm text-gray-600">Susține financiar ONG-ul sau un proiect specific</p>
                         <div className="bg-gradient-to-br from-orange-50 to-yellow-50 p-4 rounded-lg">
                             <div className="text-center">
-                                <div className="text-3xl mb-2">❤️</div>
+                                <p className="text-lg font-semibold text-orange-600 mb-2">Donație</p>
                                 <p className="text-xs text-gray-600">Fă o donație</p>
                             </div>
                         </div>
@@ -260,7 +260,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                 </Card>
 
                 {/* 2. Surveys & Voting */}
-                <Card title="📊 Sondaje & Voturi" className="hover:shadow-lg transition-shadow">
+                <Card title="Sondaje & Voturi" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Sondaje active care așteaptă răspunsul tău</p>
                         <div className="bg-purple-50 p-3 rounded-lg">
@@ -286,7 +286,6 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                                 .map((survey: any) => (
                                     <div key={survey.id} className="text-sm p-2 bg-red-50 border border-red-200 rounded cursor-pointer hover:bg-red-100" onClick={() => navigate(`/sondaje/${survey.id}`)}>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-red-500">🔴</span>
                                             <div className="font-medium text-red-700">{survey.title}</div>
                                         </div>
                                         <div className="text-xs text-red-600">Expirat: {new Date(survey.endDate).toLocaleDateString('ro-RO')}</div>
@@ -305,7 +304,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                 </Card>
 
                 {/* 5. Messages/Requests */}
-                <Card title="✉️ Mesaje" className="hover:shadow-lg transition-shadow">
+                <Card title="Mesaje" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
                         <p className="text-sm text-gray-600">Trimite solicitări către ONG</p>
                         {unreadCount > 0 && (

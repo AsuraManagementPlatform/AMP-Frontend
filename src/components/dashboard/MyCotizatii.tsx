@@ -151,7 +151,7 @@ export const MyCotizatii: React.FC = () => {
 
     return (
         <>
-            <Card title="💳 Cotizațiile mele">
+            <Card title="Cotizațiile mele">
                 <div className="space-y-6">
                     <div className={`grid ${isOrgAdmin ? 'grid-cols-3' : 'grid-cols-4'} gap-4`}>
                         <div className="bg-green-50 p-4 rounded-lg">
@@ -188,7 +188,6 @@ export const MyCotizatii: React.FC = () => {
                             disabled={isGeneratingAdvance}
                             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <span>➕</span>
                             {isGeneratingAdvance ? 'Se procesează...' : 'Plătește în avans'}
                         </button>
                     </div>
@@ -275,7 +274,7 @@ export const MyCotizatii: React.FC = () => {
                                                         </button>
                                                     )}
                                                     {fee.status === MembershipFeeStatus.PAID && (
-                                                        <span className="text-xs text-gray-400">Plătită ✓</span>
+                                                        <span className="text-xs text-gray-400">Plătită</span>
                                                     )}
                                                 </div>
                                             </td>

@@ -22,41 +22,41 @@ export const SettingsPage: React.FC = () => {
 
             <h1 className="text-3xl font-bold text-gray-800 mb-6">Setări</h1>
 
-            <Card title="⚙️ Setări Generale" className="mb-6">
+            <Card title="Setări Generale" className="mb-6">
                 <div className="space-y-4">
                     <div className="text-gray-600">
                         <p className="mb-4">Aici vor apărea setările aplicației:</p>
                         <ul className="list-disc list-inside space-y-2">
-                            <li>🌐 Limba aplicației (Română/Engleză)</li>
-                            <li>📧 Preferințe notificări email</li>
-                            <li>🔔 Notificări în aplicație</li>
-                            <li>🎨 Temă (Light/Dark)</li>
+                            <li>Limba aplicației (Română/Engleză)</li>
+                            <li>Preferințe notificări email</li>
+                            <li>Notificări în aplicație</li>
+                            <li>Temă (Light/Dark)</li>
                         </ul>
                     </div>
                 </div>
             </Card>
 
-            <Card title="📅 Setări Calendar" className="mb-6">
+            <Card title="Setări Calendar" className="mb-6">
                 <div className="space-y-4">
                     <div className="text-gray-600">
                         <p className="mb-4">Preferințe pentru calendar:</p>
                         <ul className="list-disc list-inside space-y-2">
-                            <li>📅 Ziua de start săptămână (Luni/Duminică)</li>
-                            <li>⏰ Program de lucru (8:00 - 17:00)</li>
-                            <li>🔔 Reminder-uri (15 min/30 min/1h înainte)</li>
+                            <li>Ziua de start săptămână (Luni/Duminică)</li>
+                            <li>Program de lucru (8:00 - 17:00)</li>
+                            <li>Reminder-uri (15 min/30 min/1h înainte)</li>
                         </ul>
                     </div>
                 </div>
             </Card>
 
-            <Card title="🔐 Securitate" className="mb-6">
+            <Card title="Securitate" className="mb-6">
                 <div className="space-y-4">
                     <div className="text-gray-600">
                         <p className="mb-4">Opțiuni de securitate:</p>
                         <ul className="list-disc list-inside space-y-2">
-                            <li>🔐 Schimbare parolă (Keycloak)</li>
-                            <li>📱 Sesiuni active</li>
-                            <li>🔒 Autentificare cu doi factori (2FA)</li>
+                            <li>Schimbare parolă (Keycloak)</li>
+                            <li>Sesiuni active</li>
+                            <li>Autentificare cu doi factori (2FA)</li>
                         </ul>
                     </div>
                 </div>
@@ -64,7 +64,7 @@ export const SettingsPage: React.FC = () => {
 
             <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-800">
-                    💡 <strong>Notă:</strong> Setările vor fi implementate în versiunile viitoare ale aplicației.
+                    <strong>Notă:</strong> Setările vor fi implementate în versiunile viitoare ale aplicației.
                 </p>
             </div>
         </div>

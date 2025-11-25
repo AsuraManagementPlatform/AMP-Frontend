@@ -130,7 +130,6 @@ const CommunicationsPage: React.FC = () => {
             confirmText: 'Șterge',
             cancelText: 'Anulează',
             confirmButtonVariant: 'danger',
-            icon: '🗑️'
         });
 
         if (!confirmed) return;

@@ -367,7 +367,7 @@ export function CreateSurveyModal({ isOpen, onClose, onSuccess }: CreateSurveyMo
                       onClick={() => removeQuestion(qIndex)}
                       className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
                     >
-                      🗑️
+                      Șterge
                     </button>
                   )}
                 </div>
@@ -452,7 +452,7 @@ export function CreateSurveyModal({ isOpen, onClose, onSuccess }: CreateSurveyMo
                                 onClick={() => removeOption(qIndex, oIndex)}
                                 className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors flex-shrink-0"
                               >
-                                🗑️
+                                Șterge
                               </button>
                             )}
                           </div>

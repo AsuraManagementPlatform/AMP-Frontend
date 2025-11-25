@@ -470,12 +470,12 @@ const TeamManagementPage: React.FC = () => {
                                                         return (
                                                             <div key={i} className="flex items-start text-sm">
                                                                 <span className="inline-block w-32 font-medium text-red-800 flex-shrink-0">
-                                                                    {err.field === 'full_name' && '📝 Nume complet:'}
-                                                                    {err.field === 'email' && '📧 Email:'}
-                                                                    {err.field === 'group' && '👥 Grup:'}
-                                                                    {err.field === 'is_contributor' && '💰 Cotizant:'}
-                                                                    {err.field === 'auto_generate_fees' && '🔄 Cotizații auto:'}
-                                                                    {!err.field && '⚠️ Eroare:'}
+                                                                    {err.field === 'full_name' && 'Nume complet:'}
+                                                                    {err.field === 'email' && 'Email:'}
+                                                                    {err.field === 'group' && 'Grup:'}
+                                                                    {err.field === 'is_contributor' && 'Cotizant:'}
+                                                                    {err.field === 'auto_generate_fees' && 'Cotizații auto:'}
+                                                                    {!err.field && 'Eroare:'}
                                                                 </span>
                                                                 <span className="text-red-700 flex-1">
                                                                     {message}

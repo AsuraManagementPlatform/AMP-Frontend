@@ -69,7 +69,6 @@ export const GlobalBroadcastModal: React.FC<GlobalBroadcastModalProps> = ({
             <div className="space-y-4">
                 <div className="bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200 rounded-lg p-4">
                     <div className="flex items-start gap-3">
-                        <div className="text-2xl">⚠️</div>
                         <div className="flex-1">
                             <h4 className="font-semibold text-orange-800 mb-1">Atenție: Mesaj Global</h4>
                             <p className="text-sm text-gray-700">

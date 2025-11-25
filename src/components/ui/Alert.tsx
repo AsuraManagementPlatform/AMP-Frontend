@@ -19,10 +19,10 @@ export const Alert: React.FC<AlertProps> = ({children, variant = 'info', title, 
         <div className={alertClasses}>
             <div className="alert-content">
                 <div className="alert-icon">
-                    {variant === 'success' && '✓'}
-                    {variant === 'error' && '✗'}
-                    {variant === 'warning' && '⚠'}
-                    {variant === 'info' && 'ⓘ'}
+                    {variant === 'success' && ''}
+                    {variant === 'error' && ''}
+                    {variant === 'warning' && ''}
+                    {variant === 'info' && ''}
                 </div>
                 <div className="alert-body">
                     {title && (

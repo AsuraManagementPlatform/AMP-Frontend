@@ -170,7 +170,7 @@ export function SurveyVoteModal({ surveyId, isOpen, onClose, onSuccess }: Survey
                   : 'border-gray-300 hover:border-green-400'
               }`}
             >
-              ✓ {t('label.survey.yes')}
+              {t('label.survey.yes')}
             </button>
             <button
               type="button"
@@ -181,7 +181,7 @@ export function SurveyVoteModal({ surveyId, isOpen, onClose, onSuccess }: Survey
                   : 'border-gray-300 hover:border-red-400'
               }`}
             >
-              ✗ {t('label.survey.no')}
+              {t('label.survey.no')}
             </button>
           </div>
         );
@@ -220,7 +220,6 @@ export function SurveyVoteModal({ surveyId, isOpen, onClose, onSuccess }: Survey
       >
         <div className="bg-white rounded-lg max-w-3xl w-full p-8">
           <div className="text-center">
-            <div className="text-6xl mb-4">✅</div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Mulțumim!</h2>
             <p className="text-gray-600 mb-6">{t('toast.survey.already_responded')}</p>
             <Button onClick={onClose} variant="primary">
@@ -257,7 +256,7 @@ export function SurveyVoteModal({ surveyId, isOpen, onClose, onSuccess }: Survey
           {survey.isAnonymous && (
             <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
               <p className="text-sm text-purple-600 font-medium">
-                🕵️ Acest sondaj este anonim
+                Acest sondaj este anonim
               </p>
             </div>
           )}

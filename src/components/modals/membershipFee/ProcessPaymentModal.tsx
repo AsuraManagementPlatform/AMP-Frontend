@@ -112,7 +112,7 @@ export const ProcessPaymentModal: React.FC<ProcessPaymentModalProps> = ({
                 {isOwnFee && (
                     <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded">
                         <p className="text-xs text-blue-800">
-                            ℹ️ Pentru plata personală, te rugăm să completezi toate câmpurile și să adaugi un link către dovada plății.
+                            Pentru plata personală, te rugăm să completezi toate câmpurile și să adaugi un link către dovada plății.
                         </p>
                     </div>
                 )}

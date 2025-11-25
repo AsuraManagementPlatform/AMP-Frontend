@@ -146,13 +146,12 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
     const handleDelete = async () => {
         setIsModalVisible(false);
         
-        const confirmed = await confirm({
+        const confirmed = await showConfirmDialog({
             title: 'Șterge mesajul',
             message: 'Ești sigur că vrei să ștergi acest mesaj? Această acțiune va șterge mesajul doar pentru tine.',
             confirmText: 'Șterge',
             cancelText: 'Anulează',
             confirmButtonVariant: 'danger',
-            icon: '🗑️'
         });
 
         if (!confirmed) {
@@ -286,7 +285,6 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
                     <div className="border-t pt-4">
                         <div className="bg-gradient-to-br from-orange-50 to-yellow-50 p-4 rounded-lg border border-orange-200 mb-4">
                             <div className="flex items-start gap-3">
-                                <div className="text-3xl">💰</div>
                                 <div className="flex-1">
                                     <h4 className="font-semibold text-orange-800 mb-2">Cerere de Sponsorizare</h4>
                                     <p className="text-sm text-gray-700 mb-3">
@@ -328,12 +326,11 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
                     <div className="border-t pt-4">
                         <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                             <div className="flex items-start gap-3">
-                                <div className="text-2xl">ℹ️</div>
                                 <div className="flex-1">
                                     <h4 className="font-semibold text-blue-800 mb-2">Status Sponsorizare</h4>
                                     <p className="text-sm text-gray-700">
                                         {communication.status === 'PENDING' && 'Cererea ta de sponsorizare este în așteptare. Adminul organizației va verifica și confirma suma.'}
-                                        {communication.status === 'RESOLVED' && 'Sponsorizarea ta a fost confirmată! Suma a fost adăugată la bugetul organizației. Mulțumim pentru susținere! ❤️'}
+                                        {communication.status === 'RESOLVED' && 'Sponsorizarea ta a fost confirmată! Suma a fost adăugată la bugetul organizației. Mulțumim pentru susținere!'}
                                         {communication.status === 'CLOSED' && 'Această sponsorizare a fost respinsă sau închisă.'}
                                     </p>
                                 </div>

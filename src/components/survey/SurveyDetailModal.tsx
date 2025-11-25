@@ -79,7 +79,7 @@ export default function SurveyDetailModal({ surveyId, onClose }: SurveyDetailMod
     }
 
     if (questionType === 'YES_NO') {
-      return <span className="font-medium">{answer ? '✅ Da' : '❌ Nu'}</span>;
+      return <span className="font-medium">{answer ? 'Da' : 'Nu'}</span>;
     }
 
     if (Array.isArray(answer)) {
@@ -100,13 +100,13 @@ export default function SurveyDetailModal({ surveyId, onClose }: SurveyDetailMod
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'COMPLETED':
-        return <span className="text-green-600">✅ Răspuns</span>;
+        return <span className="text-green-600">Răspuns</span>;
       case 'REMINDED':
-        return <span className="text-orange-600">🔔 Reminded</span>;
+        return <span className="text-orange-600">Reminded</span>;
       case 'EXPIRED':
-        return <span className="text-red-600">⏰ Expirat</span>;
+        return <span className="text-red-600">Expirat</span>;
       default:
-        return <span className="text-gray-400">⏳ În așteptare</span>;
+        return <span className="text-gray-400">În așteptare</span>;
     }
   };
 
@@ -195,7 +195,7 @@ export default function SurveyDetailModal({ surveyId, onClose }: SurveyDetailMod
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              📊 Sumar
+              Sumar
             </button>
             <button
               onClick={() => setActiveTab('responses')}
@@ -205,7 +205,7 @@ export default function SurveyDetailModal({ surveyId, onClose }: SurveyDetailMod
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              📝 Răspunsuri ({respondedCount}/{totalMembers})
+              Răspunsuri ({respondedCount}/{totalMembers})
             </button>
           </nav>
         </div>
@@ -230,12 +230,12 @@ export default function SurveyDetailModal({ surveyId, onClose }: SurveyDetailMod
                   <div>
                     <span className="text-sm text-gray-500">Status:</span>
                     <p className="font-medium">
-                      {effectiveStatus === 'ACTIVE' && <span className="text-green-600">🟢 Activ</span>}
-                      {effectiveStatus === 'COMPLETED' && <span className="text-blue-600">🔵 Încheiat</span>}
-                      {effectiveStatus === 'PARTIAL' && <span className="text-orange-600">🟠 Parțial</span>}
-                      {effectiveStatus === 'ABANDONED' && <span className="text-red-600">🔴 Abandonat</span>}
-                      {effectiveStatus === 'DRAFT' && <span className="text-gray-600">⚪ Draft</span>}
-                      {effectiveStatus === 'CLOSED' && <span className="text-gray-800">⚫ Închis</span>}
+                      {effectiveStatus === 'ACTIVE' && <span className="text-green-600">Activ</span>}
+                      {effectiveStatus === 'COMPLETED' && <span className="text-blue-600">Încheiat</span>}
+                      {effectiveStatus === 'PARTIAL' && <span className="text-orange-600">Parțial</span>}
+                      {effectiveStatus === 'ABANDONED' && <span className="text-red-600">Abandonat</span>}
+                      {effectiveStatus === 'DRAFT' && <span className="text-gray-600">Draft</span>}
+                      {effectiveStatus === 'CLOSED' && <span className="text-gray-800">Închis</span>}
                     </p>
                   </div>
                 </div>
@@ -279,7 +279,6 @@ export default function SurveyDetailModal({ surveyId, onClose }: SurveyDetailMod
                 
                 {assignments.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
-                    <p className="text-4xl mb-2">👥</p>
                     <p>Nu există membri selectați</p>
                   </div>
                 ) : (

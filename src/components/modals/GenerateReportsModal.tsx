@@ -38,7 +38,7 @@ export const GenerateReportsModal: React.FC<GenerateReportsModalProps> = ({
             description: 'Sumar complet al cheltuielilor și bugetului proiectului',
             type: 'financial',
             format: 'excel',
-            icon: '💰'
+            icon: ''
         },
         {
             id: 'activity-progress',
@@ -46,7 +46,7 @@ export const GenerateReportsModal: React.FC<GenerateReportsModalProps> = ({
             description: 'Raport detaliat despre progresul tuturor activităților',
             type: 'activity',
             format: 'pdf',
-            icon: '📊'
+            icon: ''
         },
         {
             id: 'team-performance',
@@ -54,7 +54,7 @@ export const GenerateReportsModal: React.FC<GenerateReportsModalProps> = ({
             description: 'Analiza contribuției și performanței membrilor echipei',
             type: 'team',
             format: 'pdf',
-            icon: '👥'
+            icon: ''
         },
         {
             id: 'impact-assessment',
@@ -62,7 +62,7 @@ export const GenerateReportsModal: React.FC<GenerateReportsModalProps> = ({
             description: 'Măsurarea impactului proiectului asupra comunității',
             type: 'impact',
             format: 'word',
-            icon: '🎯'
+            icon: ''
         },
         {
             id: 'quarterly-report',
@@ -70,7 +70,7 @@ export const GenerateReportsModal: React.FC<GenerateReportsModalProps> = ({
             description: 'Raport complet pentru perioada selectată',
             type: 'general',
             format: 'pdf',
-            icon: '📋'
+            icon: ''
         },
         {
             id: 'donor-report',
@@ -78,7 +78,7 @@ export const GenerateReportsModal: React.FC<GenerateReportsModalProps> = ({
             description: 'Raport special pentru prezentarea către donatori și parteneri',
             type: 'general',
             format: 'pdf',
-            icon: '🤝'
+            icon: ''
         }
     ];
 
