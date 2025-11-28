@@ -1796,6 +1796,17 @@ const resources = {
                     membership_fee_reports: "Rapoarte Cotizații Membri",
                     membership_fee_reports_description: "Analizează și vizualizează statistici despre cotizațiile membrilor organizației",
                 },
+                report: {
+                    start_date: "Dată început",
+                    end_date: "Dată sfârșit",
+                    generating: "Se generează...",
+                    generate_report: "Generează raport",
+                    download_pdf: "Descarcă PDF",
+                    download_excel: "Descarcă Excel",
+                    no_report_generated: "Niciun raport generat",
+                    select_date_range_and_generate: "Selectează perioada și generează raportul pentru a vedea statisticile",
+                    alerts: "Alerte",
+                },
                 survey: {
                     page_title: "Sondaje",
                     active_surveys: "Sondaje active",
