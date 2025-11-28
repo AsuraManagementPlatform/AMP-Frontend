@@ -28,7 +28,7 @@ export interface AuthContextType {
     login: (redirectUri?: string) => void;
     logout: () => Promise<void>;
     refreshToken: () => Promise<boolean>;
-    fetchUserData: () => Promise<void>;
+    fetchUserData: (useCache?: boolean) => Promise<void>;
 
     hasAnyUserGroup: (userGroup: string[]) => boolean;
     hasAllUserGroups: (userGroup: string[]) => boolean;

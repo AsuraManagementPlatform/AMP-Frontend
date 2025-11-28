@@ -134,8 +134,8 @@ export const createActivityFormConfig = (parentActivityOptions: SelectOption[] =
     cancelButtonText: t('form.activity.cancel')
 });
 
-export const updateActivityFormConfig = (): DynamicFormConfig => ({
-    ...createActivityFormConfig(),
+export const updateActivityFormConfig = (parentActivityOptions: SelectOption[] = []): DynamicFormConfig => ({
+    ...createActivityFormConfig(parentActivityOptions),
     submitButtonText: t('form.activity.submit_update')
 });
 

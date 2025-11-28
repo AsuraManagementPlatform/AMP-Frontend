@@ -95,6 +95,41 @@ export const createProjectExpenseSchema = z.object({
 
 export type CreateProjectExpenseData = z.infer<typeof createProjectExpenseSchema>;
 
+export const createProjectExpenseSchemaWithProjectBudget = (
+    projectBudget?: number,
+    totalPlannedExpenses?: number
+) => {
+    let schema = createProjectExpenseSchema;
+    
+    if (projectBudget !== undefined && projectBudget !== null) {
+        schema = schema.refine(
+            (data) => {
+                const totalAmount = data.quantity * data.unitPrice;
+                return totalAmount <= projectBudget;
+            },
+            {
+                message: t('schema.project_expense.amount_exceeds_project_budget'),
+                path: ['quantity']
+            }
+        );
+    }
+    
+    if (totalPlannedExpenses !== undefined && totalPlannedExpenses !== null && projectBudget !== undefined) {
+        schema = schema.refine(
+            (data) => {
+                const totalAmount = data.quantity * data.unitPrice;
+                return (totalPlannedExpenses + totalAmount) <= projectBudget;
+            },
+            {
+                message: t('schema.project_expense.total_planned_exceeds_budget'),
+                path: ['quantity']
+            }
+        );
+    }
+    
+    return schema;
+};
+
 export const updateProjectExpenseSchema = z.object({
     id: z.string(),
 

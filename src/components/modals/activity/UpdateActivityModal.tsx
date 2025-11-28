@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { DynamicForm } from '@/components/forms/DynamicForm';
 import { updateActivityFormConfig } from '@/config/activity.form.config';
 import { updateActivitySchema, UpdateActivityData } from '@/schemas/activity.schema';
 import activityService from '@/services/activity.service';
 import showToast from '@/components/ui/Toast';
-import { Activity } from '@/types/activity.types';
+import { Activity, ActivityStatus } from '@/types/activity.types';
+import { SelectOption } from '@/types/form.types';
 
 interface UpdateActivityModalProps {
     isOpen: boolean;
@@ -20,8 +21,35 @@ export const UpdateActivityModal: React.FC<UpdateActivityModalProps> = ({
                                                                             onClose,
                                                                             onSuccess,
                                                                             activity,
+                                                                            project
                                                                         }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [availableParentActivities, setAvailableParentActivities] = useState<SelectOption[]>([]);
+
+    useEffect(() => {
+        if (isOpen && project) {
+            const loadParentActivities = async () => {
+                try {
+                    const response = await activityService.getList({ filters: { project } });
+                    const parentOptions: SelectOption[] = response.results
+                        .filter((act: Activity) => 
+                            !act.parentActivity && 
+                            act.id !== activity.id &&
+                            act.status !== ActivityStatus.COMPLETED && 
+                            act.status !== ActivityStatus.CANCELLED
+                        )
+                        .map((act: Activity) => ({
+                            value: act.id,
+                            label: act.title
+                        }));
+                    setAvailableParentActivities(parentOptions);
+                } catch (error) {
+                    setAvailableParentActivities([]);
+                }
+            };
+            loadParentActivities();
+        }
+    }, [isOpen, project, activity.id]);
 
     const handleSubmit = async (data: UpdateActivityData) => {
         try {
@@ -38,7 +66,7 @@ export const UpdateActivityModal: React.FC<UpdateActivityModalProps> = ({
         }
     };
 
-    const formConfig = updateActivityFormConfig();
+    const formConfig = updateActivityFormConfig(availableParentActivities);
 
     const defaultValues: UpdateActivityData = {
         id: activity.id,

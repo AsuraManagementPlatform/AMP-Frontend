@@ -21,6 +21,15 @@ export const DonationScope = {
 
 export type DonationScope = typeof DonationScope[keyof typeof DonationScope];
 
+export const DonationStatus = {
+    PENDING: 'PENDING',
+    CONFIRMED: 'CONFIRMED',
+    REJECTED: 'REJECTED',
+    CANCELLED: 'CANCELLED'
+} as const;
+
+export type DonationStatus = typeof DonationStatus[keyof typeof DonationStatus];
+
 export interface EntityDonation extends BaseEntity {
     entity: string;
     entityName: string;
@@ -34,9 +43,13 @@ export interface EntityDonation extends BaseEntity {
     type: string;
     paymentMethod: PaymentMethod;
     scope: DonationScope;
+    status: DonationStatus;
     documentReference?: string;
     notes?: string;
     projectFund?: string;
+    confirmedBy?: string;
+    confirmedByName?: string;
+    confirmedAt?: string;
 }
 
 export interface EntityDonationCreateRequest {

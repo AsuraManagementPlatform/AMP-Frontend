@@ -13,6 +13,7 @@ import { OrganizationEditForm } from "@/components/forms/OrganizationEditForm";
 import { OrganizationDocumentList } from "@/components/tables/OrganizationDocumentList";
 import { CreateOrganizationDocumentModal } from "@/components/modals/organization/CreateOrganizationDocumentModal";
 import { TeamManagementContent } from "@/components/organization/TeamManagementContent";
+import { ReportsHub } from "@/components/organization/ReportsHub";
 
 const OrganizationDetailsPage: React.FC = () => {
     const { user, hasAnyUserGroup } = useAuth();
@@ -120,7 +121,8 @@ const OrganizationDetailsPage: React.FC = () => {
         { id: 'profile', name: 'Profil organizațional', icon: '' },
         { id: 'team', name: 'Management echipă', icon: '' },
         { id: 'documents', name: 'Documente oficiale', icon: '' },
-        { id: 'financial', name: 'Configurări financiare', icon: '' }
+        { id: 'financial', name: 'Configurări financiare', icon: '' },
+        { id: 'reports', name: 'Statistici și Rapoarte', icon: '' }
     ];
 
     const handleSave = async (formData: UpdateOrganizationData) => {
@@ -680,6 +682,13 @@ const OrganizationDetailsPage: React.FC = () => {
                 return renderDocumentsContent();
             case 'financial':
                 return renderFinancialContent();
+            case 'reports':
+                return organization ? (
+                    <ReportsHub 
+                        organizationId={organization.id} 
+                        organizationName={organization.name}
+                    />
+                ) : null;
             default:
                 return renderProfileContent();
         }

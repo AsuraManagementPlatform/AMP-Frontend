@@ -64,6 +64,14 @@ export const entityDonationService = {
         const response = await apiService.get<{ typeSuggestions: string[] }>('entity_donation/type-suggestions');
         return response.typeSuggestions;
     },
+
+    confirm: async (id: string, proofDocument?: string): Promise<{ message: string; donationId: string; status: string }> => {
+        return apiService.post(`entity_donation/${id}/confirm`, { proofDocument });
+    },
+
+    reject: async (id: string, reason: string): Promise<{ message: string; donationId: string; status: string }> => {
+        return apiService.post(`entity_donation/${id}/reject`, { reason });
+    },
 };
 
 export default entityDonationService;

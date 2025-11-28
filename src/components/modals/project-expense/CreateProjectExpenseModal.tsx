@@ -2,17 +2,19 @@ import React, {useEffect, useState} from 'react';
 import {Modal} from '@/components/ui/Modal';
 import {DynamicForm} from '@/components/forms/DynamicForm';
 import projectExpenseService from '@/services/project-expense.service.ts';
+import projectService from '@/services/project.service.ts';
 import activityService from '@/services/activity.service.ts';
 import showToast from '@/components/ui/Toast';
 import {createProjectExpenseFormConfig} from "@/config/project-expense.form.config.ts";
 import {
   CreateProjectExpenseData,
-  createProjectExpenseSchema,
+  createProjectExpenseSchemaWithProjectBudget,
   getCreateProjectExpenseDefaultValues
 } from "@/schemas/project-expense.schema.ts";
 import {Activity} from "@/types/activity.types.ts";
-import {ProjectExpenseCreateRequest} from "@/types/project-expense.types.ts";
+import {ProjectExpenseCreateRequest, ProjectExpenseStatus} from "@/types/project-expense.types.ts";
 import {Vat} from "@/types/vat.types.ts";
+import {Project} from "@/types/project.types.ts";
 import vatService from "@/services/vat.service.ts";
 
 interface CreateProjectExpenseModalProps {
@@ -33,8 +35,34 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
     const [loadingActivities, setLoadingActivities] = useState(true);
     const [vats, setVats] = useState<Vat[]>([]);
     const [loadingVats, setLoadingVats] = useState(true);
+    const [projectData, setProjectData] = useState<Project | null>(null);
+    const [totalPlannedExpenses, setTotalPlannedExpenses] = useState<number>(0);
 
     useEffect(() => {
+        const loadProjectAndExpenses = async () => {
+            try {
+                const projectResponse = await projectService.getById(project);
+                setProjectData(projectResponse);
+
+                const expensesResponse = await projectExpenseService.getList({
+                    pageSize: 1000,
+                    filters: { 
+                        project_id: project, 
+                        status: ProjectExpenseStatus.PLANNED 
+                    }
+                });
+                
+                const total = expensesResponse.results.reduce((sum, expense) => {
+                    const expenseTotal = (expense.quantity || 0) * (expense.unitPrice || 0);
+                    return sum + expenseTotal;
+                }, 0);
+                setTotalPlannedExpenses(total);
+            } catch (error) {
+                setProjectData(null);
+                setTotalPlannedExpenses(0);
+            }
+        };
+
         const loadActivities = async () => {
             try {
                 setLoadingActivities(true);
@@ -75,6 +103,7 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
         };
 
         if (isOpen) {
+            loadProjectAndExpenses();
             loadActivities();
             loadVats();
         }
@@ -110,6 +139,7 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
 
     const formConfig = createProjectExpenseFormConfig(activities, vats);
     const defaultValues = getCreateProjectExpenseDefaultValues(project);
+    const schema = createProjectExpenseSchemaWithProjectBudget(projectData?.budget, totalPlannedExpenses);
 
     if (loadingActivities || loadingVats) {
         return (
@@ -130,7 +160,7 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
         >
             <DynamicForm<CreateProjectExpenseData>
                 config={formConfig}
-                schema={createProjectExpenseSchema}
+                schema={schema}
                 onSubmit={handleSubmit}
                 onCancel={onClose}
                 defaultValues={defaultValues}

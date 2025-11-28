@@ -21,8 +21,63 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     const initializingRef = useRef<boolean>(false);
     const tokenRefreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    const fetchUserData = useCallback(async (): Promise<void> => {
+    const USER_CACHE_KEY = 'auth_user_cache';
+    const USER_CACHE_EXPIRY = 'auth_user_cache_expiry';
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+    const getCachedUser = useCallback((): User | null => {
         try {
+            const cached = localStorage.getItem(USER_CACHE_KEY);
+            const expiry = localStorage.getItem(USER_CACHE_EXPIRY);
+            
+            if (!cached || !expiry) return null;
+            
+            if (Date.now() > parseInt(expiry)) {
+                localStorage.removeItem(USER_CACHE_KEY);
+                localStorage.removeItem(USER_CACHE_EXPIRY);
+                return null;
+            }
+            
+            return JSON.parse(cached);
+        } catch {
+            return null;
+        }
+    }, []);
+
+    const setCachedUser = useCallback((userData: User): void => {
+        try {
+            localStorage.setItem(USER_CACHE_KEY, JSON.stringify(userData));
+            localStorage.setItem(USER_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
+        } catch {
+            // Ignore localStorage errors
+        }
+    }, []);
+
+    const clearCachedUser = useCallback((): void => {
+        localStorage.removeItem(USER_CACHE_KEY);
+        localStorage.removeItem(USER_CACHE_EXPIRY);
+    }, []);
+
+    const fetchUserData = useCallback(async (useCache: boolean = true): Promise<void> => {
+        try {
+            if (useCache) {
+                const cachedUser = getCachedUser();
+                if (cachedUser) {
+                    setUser(cachedUser);
+                    
+                    if (cachedUser.organizationId) {
+                        try {
+                            const response = await organizationService.getById(cachedUser.organizationId);
+                            const organization = (response as any).organization || response;
+                            setOrganizationModules(organization.activeModules || []);
+                        } catch {
+                            setOrganizationModules([]);
+                        }
+                    }
+                    return;
+                }
+            }
+
             const userData = await userService.getCurrentUser();
             
             const newUserData = {
@@ -38,6 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             };
 
             setUser(newUserData);
+            setCachedUser(newUserData);
 
             if (userData.organizationId) {
                 try {
@@ -51,6 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
                 setOrganizationModules([]);
             }
         } catch (error: any) {
+            clearCachedUser();
             if (error?.response?.status === 401 || 
                 (error?.message && error.message.includes('Utilizatorul este dezactivat'))) {
                 setError('Contul dvs. a fost dezactivat. Contactați administratorul pentru mai multe informații.');
@@ -65,7 +122,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             }
             throw error;
         }
-    }, []);
+    }, [getCachedUser, setCachedUser, clearCachedUser]);
 
     const initializeAuth = useCallback(async (): Promise<void> => {
         if (initializingRef.current || authInitialized) {
@@ -132,6 +189,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
 
     const logout = useCallback(async (): Promise<void> => {
         try {
+            clearCachedUser();
             if (tokenRefreshIntervalRef.current) {
                 clearInterval(tokenRefreshIntervalRef.current);
                 tokenRefreshIntervalRef.current = null;
@@ -147,6 +205,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
                 initializingRef.current = false;
             }
         } catch (error) {
+            clearCachedUser();
             setUser(null);
             setAuthState(AuthState.UNAUTHENTICATED);
             setError(null);
@@ -155,7 +214,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             sessionStorage.clear();
             window.location.href = '/';
         }
-    }, []);
+    }, [clearCachedUser]);
 
     const refreshToken = useCallback(async (): Promise<boolean> => {
         if (!keycloakService.authenticated) return false;

@@ -1,4 +1,5 @@
 import {EntityDonation, SelectOption, TableAction, TableColumn} from '@/types/index.types';
+import {DonationStatus} from '@/types/entity-donation.types';
 import React, {useState, useEffect} from "react";
 import Table from "@/components/ui/Table.tsx";
 import entityDonationService from '@/services/entity-donation.service';
@@ -7,6 +8,8 @@ import {useConfirmDialog} from "@/components/ui/ConfirmDialog";
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
 import {t} from 'i18next';
 import {UpdateEntityDonationModal} from "@/components/modals/entity-donation/UpdateEntityDonationModal.tsx";
+import {ConfirmDonationModal} from "@/components/modals/entity-donation/ConfirmDonationModal.tsx";
+import {RejectDonationModal} from "@/components/modals/entity-donation/RejectDonationModal.tsx";
 import { ActionIcons } from '@/components/ui/ActionIcons';
 
 interface EntityDonationListProps {
@@ -25,6 +28,8 @@ export const EntityDonationList: React.FC<EntityDonationListProps> = ({
     const confirm = useConfirmDialog();
     const [selectedDonation, setSelectedDonation] = useState<EntityDonation | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
     const [typeSuggestions, setTypeSuggestions] = useState<string[]>([]);
 
@@ -44,6 +49,44 @@ export const EntityDonationList: React.FC<EntityDonationListProps> = ({
     const handleEdit = (donation: EntityDonation) => {
         setSelectedDonation(donation);
         setIsUpdateModalOpen(true);
+    };
+
+    const handleConfirmDonation = (donation: EntityDonation) => {
+        setSelectedDonation(donation);
+        setIsConfirmModalOpen(true);
+    };
+
+    const handleRejectDonation = (donation: EntityDonation) => {
+        setSelectedDonation(donation);
+        setIsRejectModalOpen(true);
+    };
+
+    const handleConfirmSubmit = async (proofDocument?: string) => {
+        if (!selectedDonation) return;
+        try {
+            await entityDonationService.confirm(selectedDonation.id, proofDocument);
+            showToast.success(t('toast.entity_donation.confirmed'));
+            setLocalRefresh(prev => prev + 1);
+        } catch (error: any) {
+            const errorKey = error?.message || 'toast.entity_donation.confirm_error';
+            const errorMessage = errorKey.includes('.') ? t(errorKey) : errorKey;
+            showToast.error(errorMessage);
+            throw error;
+        }
+    };
+
+    const handleRejectSubmit = async (reason: string) => {
+        if (!selectedDonation) return;
+        try {
+            await entityDonationService.reject(selectedDonation.id, reason);
+            showToast.success(t('toast.entity_donation.rejected'));
+            setLocalRefresh(prev => prev + 1);
+        } catch (error: any) {
+            const errorKey = error?.message || 'toast.entity_donation.reject_error';
+            const errorMessage = errorKey.includes('.') ? t(errorKey) : errorKey;
+            showToast.error(errorMessage);
+            throw error;
+        }
     };
 
     const handleDelete = async (donation: EntityDonation) => {
@@ -117,9 +160,55 @@ export const EntityDonationList: React.FC<EntityDonationListProps> = ({
                 return `${amount.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${row.currency}`;
             }
         },
+        {
+            key: 'status',
+            label: t('label.entity_donation.status'),
+            sortable: true,
+            filterable: true,
+            filterType: 'select',
+            filterOptions: [
+                { label: t('label.entity_donation.status_pending'), value: 'PENDING' },
+                { label: t('label.entity_donation.status_confirmed'), value: 'CONFIRMED' },
+                { label: t('label.entity_donation.status_rejected'), value: 'REJECTED' },
+            ],
+            size: 'sm',
+            render: (status: string) => {
+                const statusStyles: Record<string, string> = {
+                    PENDING: 'bg-yellow-100 text-yellow-800',
+                    CONFIRMED: 'bg-green-100 text-green-800',
+                    REJECTED: 'bg-red-100 text-red-800',
+                    CANCELLED: 'bg-gray-100 text-gray-800',
+                };
+                const statusLabels: Record<string, string> = {
+                    PENDING: t('label.entity_donation.status_pending'),
+                    CONFIRMED: t('label.entity_donation.status_confirmed'),
+                    REJECTED: t('label.entity_donation.status_rejected'),
+                    CANCELLED: t('label.entity_donation.status_cancelled'),
+                };
+                return (
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyles[status] || 'bg-gray-100 text-gray-800'}`}>
+                        {statusLabels[status] || status}
+                    </span>
+                );
+            }
+        },
     ];
 
     const getActions = (): TableAction<EntityDonation>[] => [
+        {
+            label: t('action.confirm'),
+            variant: 'primary',
+            onClick: handleConfirmDonation,
+            icon: <ActionIcons.Approve />,
+            condition: (donation: EntityDonation) => donation.status === DonationStatus.PENDING
+        },
+        {
+            label: t('action.reject'),
+            variant: 'danger',
+            onClick: handleRejectDonation,
+            icon: <ActionIcons.Reject />,
+            condition: (donation: EntityDonation) => donation.status === DonationStatus.PENDING
+        },
         {
             label: t('action.edit'),
             variant: 'primary',
@@ -158,6 +247,30 @@ export const EntityDonationList: React.FC<EntityDonationListProps> = ({
                     onSuccess={handleUpdateSuccess}
                     entityDonation={selectedDonation}
                     entities={entities}
+                />
+            )}
+
+            {isConfirmModalOpen && selectedDonation && (
+                <ConfirmDonationModal
+                    isOpen={isConfirmModalOpen}
+                    onClose={() => {
+                        setIsConfirmModalOpen(false);
+                        setSelectedDonation(null);
+                    }}
+                    onConfirm={handleConfirmSubmit}
+                    donation={selectedDonation}
+                />
+            )}
+
+            {isRejectModalOpen && selectedDonation && (
+                <RejectDonationModal
+                    isOpen={isRejectModalOpen}
+                    onClose={() => {
+                        setIsRejectModalOpen(false);
+                        setSelectedDonation(null);
+                    }}
+                    onReject={handleRejectSubmit}
+                    donation={selectedDonation}
                 />
             )}
         </>

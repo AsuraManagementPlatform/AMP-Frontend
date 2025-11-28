@@ -225,6 +225,8 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
 
     const handleExecuteSuccess = () => {
         setLocalRefresh(prev => prev + 1);
+        setSelectedExpense(null);
+        setIsExecuteModalOpen(false);
     };
 
     const getColumns = (): TableColumn<ProjectExpense>[] => [

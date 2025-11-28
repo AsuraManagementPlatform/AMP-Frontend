@@ -23,17 +23,17 @@ export const createProjectFundSchema = z.object({
     ]).transform((value) => {
         if (typeof value === 'string') {
             if (value === '' || value === null || value === undefined) {
-                throw new Error(t('schema.project_fund.estimated_amount_required'));
+                return 0;
             }
             const num = parseFloat(value);
             if (isNaN(num)) {
-                throw new Error(t('schema.project_fund.estimated_amount_must_be_number'));
+                return 0;
             }
             return num;
         }
         return value;
     }).refine(
-        (value) => value >= 0,
+        (value) => value > 0,
         t('schema.project_fund.estimated_amount_must_be_positive')
     ).refine(
         (value) => validateMaxTwoDecimals(value),
@@ -97,6 +97,35 @@ export const createProjectFundSchema = z.object({
 });
 
 export type CreateProjectFundData = z.infer<typeof createProjectFundSchema>;
+
+export const createProjectFundSchemaWithProjectBudget = (
+    projectBudget?: number,
+    totalReceivedFunds?: number
+) => {
+    let schema = createProjectFundSchema;
+    
+    if (projectBudget !== undefined && projectBudget !== null) {
+        schema = schema.refine(
+            (data) => data.estimatedAmount <= projectBudget,
+            {
+                message: t('schema.project_fund.amount_exceeds_project_budget'),
+                path: ['estimatedAmount']
+            }
+        );
+    }
+    
+    if (totalReceivedFunds !== undefined && totalReceivedFunds !== null && projectBudget !== undefined) {
+        schema = schema.refine(
+            (data) => (totalReceivedFunds + data.estimatedAmount) <= projectBudget,
+            {
+                message: t('schema.project_fund.total_received_exceeds_budget'),
+                path: ['estimatedAmount']
+            }
+        );
+    }
+    
+    return schema;
+};
 
 export const updateProjectFundSchema = createProjectFundSchema.partial().extend({
     id: z.string()

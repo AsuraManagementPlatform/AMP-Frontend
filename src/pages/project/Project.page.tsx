@@ -17,8 +17,9 @@ import IconBack from "@/assets/icons/iconmonstr-back.svg?react";
 import {useAuth} from "@/hooks/useAuth.ts";
 import {UserGroup} from "@/types/auth.types.ts";
 import {ProjectPartnersTab} from "@/components/project-tabs/ProjectPartnerTab.tsx";
+import {ProjectReportsTab} from "@/components/project-tabs/ProjectReportsTab";
 
-type TabType = 'details' | 'activities' | 'funds' | 'expenses' | 'members' | 'partners';
+type TabType = 'details' | 'activities' | 'funds' | 'expenses' | 'members' | 'partners' | 'reports';
 
 const ProjectPage: React.FC = () => {
     const authContext = useAuth();
@@ -30,7 +31,7 @@ const ProjectPage: React.FC = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<TabType>(() => {
         const tabFromUrl = searchParams.get('tab') as TabType;
-        return tabFromUrl && ['details', 'activities', 'funds', 'expenses', 'members', 'partners'].includes(tabFromUrl) 
+        return tabFromUrl && ['details', 'activities', 'funds', 'expenses', 'members', 'partners', 'reports'].includes(tabFromUrl) 
             ? tabFromUrl 
             : 'details';
     });
@@ -193,6 +194,14 @@ const ProjectPage: React.FC = () => {
                                 >
                                     {t('tab.project_partners')}
                                 </button>
+                                <button
+                                    onClick={() => handleTabChange('reports')}
+                                    className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'reports'
+                                        ? 'border-blue-500 text-blue-600'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                                >
+                                    Statistici și Rapoarte
+                                </button>
                             </>
                         )}
                     </nav>
@@ -223,6 +232,15 @@ const ProjectPage: React.FC = () => {
                 {activeTab === 'partners' && (
                     <ProjectPartnersTab
                         projectId={project.id}
+                    />
+                )}
+                {activeTab === 'reports' && (
+                    <ProjectReportsTab
+                        projectId={project.id}
+                        projectName={project.name}
+                        projectStatus={project.status}
+                        projectStartDate={project.startingDate}
+                        projectEndDate={project.endingDate}
                     />
                 )}
 
