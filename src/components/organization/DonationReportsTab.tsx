@@ -141,7 +141,7 @@ export const DonationReportsTab: React.FC<DonationReportsTabProps> = ({
                   </svg>
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {t('label.reports.donations.no_data')}
+                  {t('label.reports.donation_stats.no_data')}
                 </h3>
                 <p className="text-sm text-gray-500">
                   Nu există donații înregistrate în perioada {yearFrom} - {yearTo}
@@ -154,7 +154,7 @@ export const DonationReportsTab: React.FC<DonationReportsTabProps> = ({
             <Card>
               <div className="p-6">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">
-                  {t('label.reports.donations.total_donations')}
+                  {t('label.reports.donation_stats.total_donations')}
                 </h3>
                 <p className="text-3xl font-bold text-blue-600">
                   {reportData.summary.totalDonations}
@@ -165,7 +165,7 @@ export const DonationReportsTab: React.FC<DonationReportsTabProps> = ({
             <Card>
               <div className="p-6">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">
-                  {t('label.reports.donations.total_amount')}
+                  {t('label.reports.donation_stats.total_amount')}
                 </h3>
                 <p className="text-3xl font-bold text-green-600">
                   {formatCurrency(reportData.summary.totalAmount)} LEI
@@ -176,7 +176,7 @@ export const DonationReportsTab: React.FC<DonationReportsTabProps> = ({
             <Card>
               <div className="p-6">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">
-                  {t('label.reports.donations.unique_entities')}
+                  {t('label.reports.donation_stats.unique_entities')}
                 </h3>
                 <p className="text-3xl font-bold text-purple-600">
                   {reportData.summary.uniqueEntities}
@@ -189,7 +189,7 @@ export const DonationReportsTab: React.FC<DonationReportsTabProps> = ({
             <div className="p-6">
               <div className="mb-4">
                 <h3 className="text-lg font-semibold">
-                  {t('label.reports.donations.top_donors')}
+                  {t('label.reports.donation_stats.top_donors')}
                 </h3>
               </div>
               <div className="overflow-x-auto">
@@ -197,19 +197,19 @@ export const DonationReportsTab: React.FC<DonationReportsTabProps> = ({
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {t('label.reports.donations.entity_name')}
+                        {t('label.reports.donation_stats.entity_name')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {t('label.reports.donations.entity_type')}
+                        {t('label.reports.donation_stats.entity_type')}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {t('label.reports.donations.donations_count')}
+                        {t('label.reports.donation_stats.donations_count')}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {t('label.reports.donations.total_amount')}
+                        {t('label.reports.donation_stats.total_amount')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {t('label.reports.donations.last_donation')}
+                        {t('label.reports.donation_stats.last_donation')}
                       </th>
                     </tr>
                   </thead>
@@ -237,7 +237,7 @@ export const DonationReportsTab: React.FC<DonationReportsTabProps> = ({
                     ) : (
                       <tr>
                         <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
-                          {t('label.reports.donations.no_data')}
+                          {t('label.reports.donation_stats.no_data')}
                         </td>
                       </tr>
                     )}

@@ -11,7 +11,6 @@ interface ProjectReportsTabProps {
 }
 
 export const ProjectReportsTab: React.FC<ProjectReportsTabProps> = ({
-  organizationId,
   organizationName
 }) => {
   const { t } = useTranslation();

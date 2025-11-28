@@ -200,14 +200,14 @@ export const EntityDonationList: React.FC<EntityDonationListProps> = ({
             variant: 'primary',
             onClick: handleConfirmDonation,
             icon: <ActionIcons.Approve />,
-            condition: (donation: EntityDonation) => donation.status === DonationStatus.PENDING
+            show: (donation: EntityDonation) => donation.status === DonationStatus.PENDING
         },
         {
             label: t('action.reject'),
             variant: 'danger',
             onClick: handleRejectDonation,
             icon: <ActionIcons.Reject />,
-            condition: (donation: EntityDonation) => donation.status === DonationStatus.PENDING
+            show: (donation: EntityDonation) => donation.status === DonationStatus.PENDING
         },
         {
             label: t('action.edit'),
