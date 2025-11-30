@@ -33,9 +33,9 @@ const OrganizationDonationsPage: React.FC = () => {
             const entityOrganizationStats = await entityDonationService.getStats();
             setOrganizationDonationStats(entityOrganizationStats);
 
-            const projects = await projectService.getList({ pageSize: 1000 });
+            const projects = await projectService.getList({ pageSize: 100 });
             setProjects(projects.results.map((project) =>  ({value: project.id, label: project.name})));
-            const activities = await activityService.getList({ pageSize: 1000 });
+            const activities = await activityService.getList({ pageSize: 100 });
             setActivities(activities.results.map((activity: Activity) => ({value: activity.id, label: activity.title})));
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Eroare la încărcarea datelor';

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { FilterConfig, SortConfig, TableState } from '@/types/table.types';
 import {PaginatedResponse} from "@/types/index.types.ts";
 import {apiService} from "@/services/api.service.ts";
@@ -39,6 +39,42 @@ const toSnakeCase = (str: string): string => {
     return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 };
 
+const buildQueryParams = (state: TableState): URLSearchParams => {
+    const params = new URLSearchParams();
+
+    params.append('page', state.currentPage.toString());
+    params.append('page_size', state.pageSize.toString());
+
+    if (state.search.trim()) {
+        params.append('search', state.search.trim());
+    }
+
+    state.filters.forEach(filter => {
+        if (filter.value !== '' && filter.value != null) {
+            const operator = filter.operator || 'exact';
+            const snakeField = toSnakeCase(filter.field);
+            const paramKey = operator === 'exact'
+                ? snakeField
+                : `${snakeField}__${operator}`;
+
+            if (Array.isArray(filter.value)) {
+                filter.value.forEach(val => {
+                    params.append(paramKey, val.toString());
+                });
+            } else {
+                params.append(paramKey, filter.value.toString());
+            }
+        }
+    });
+
+    if (state.sort) {
+        params.append('sort_by', toSnakeCase(state.sort.field));
+        params.append('sort_direction', state.sort.direction);
+    }
+
+    return params;
+};
+
 export function useTableData<T>({
                                     endpoint,
                                     initialPageSize = 20,
@@ -62,73 +98,61 @@ export function useTableData<T>({
         sort: initialSort
     });
 
-    const buildQueryParams = useCallback((): URLSearchParams => {
-        const params = new URLSearchParams();
-
-        params.append('page', tableState.currentPage.toString());
-        params.append('page_size', tableState.pageSize.toString());
-
-        if (tableState.search.trim()) {
-            params.append('search', tableState.search.trim());
-        }
-
-        tableState.filters.forEach(filter => {
-            if (filter.value !== '' && filter.value != null) {
-                const operator = filter.operator || 'exact';
-                const snakeField = toSnakeCase(filter.field);
-                const paramKey = operator === 'exact'
-                    ? snakeField
-                    : `${snakeField}__${operator}`;
-
-                if (Array.isArray(filter.value)) {
-                    filter.value.forEach(val => {
-                        params.append(paramKey, val.toString());
-                    });
-                } else {
-                    params.append(paramKey, filter.value.toString());
-                }
-            }
-        });
-
-        if (tableState.sort) {
-            params.append('sort_by', toSnakeCase(tableState.sort.field));
-            params.append('sort_direction', tableState.sort.direction);
-        }
-
-        return params;
-    }, [tableState]);
+    const isMounted = useRef(true);
+    const abortControllerRef = useRef<AbortController | null>(null);
 
     const fetchData = useCallback(async () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+        abortControllerRef.current = new AbortController();
+
         setLoading(true);
         setError(null);
 
         try {
-            const queryParams = buildQueryParams();
+            const queryParams = buildQueryParams(tableState);
             const separator = endpoint.includes('?') ? '&' : '?';
             const url = `${endpoint}${separator}${queryParams.toString()}`;
 
             const response = await apiService.get<PaginatedResponse<T>>(url);
 
-            setData(response.results);
-            setTotalCount(response.count);
-            setHasNext(!!response.next);
-            setHasPrevious(!!response.previous);
+            if (isMounted.current) {
+                setData(response.results);
+                setTotalCount(response.count);
+                setHasNext(!!response.next);
+                setHasPrevious(!!response.previous);
+            }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
-            setData([]);
-            setTotalCount(0);
-            setHasNext(false);
-            setHasPrevious(false);
+            if (isMounted.current) {
+                setError(err instanceof Error ? err.message : 'An error occurred');
+                setData([]);
+                setTotalCount(0);
+                setHasNext(false);
+                setHasPrevious(false);
+            }
         } finally {
-            setLoading(false);
+            if (isMounted.current) {
+                setLoading(false);
+            }
         }
-    }, [endpoint, buildQueryParams]);
+    }, [endpoint, tableState]);
+
+    useEffect(() => {
+        isMounted.current = true;
+        return () => {
+            isMounted.current = false;
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+    }, []);
 
     useEffect(() => {
         if (autoFetch) {
             fetchData();
         }
-    }, [fetchData, autoFetch, refreshTrigger]);
+    }, [autoFetch, fetchData, refreshTrigger]);
 
     const setPage = useCallback((page: number) => {
         setTableState(prev => ({ ...prev, currentPage: page }));

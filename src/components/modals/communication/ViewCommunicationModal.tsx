@@ -4,6 +4,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import showToast from '@/components/ui/Toast';
 import communicationService from '@/services/communication.service';
+import leaveRequestService from '@/services/leave-request.service';
 import { Communication, UserCommunicationStatus } from '@/types/communication.types';
 import { apiService } from '@/services/api.service';
 import { AuthContext } from '@/context/Auth.context';
@@ -144,6 +145,54 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
         }
     };
 
+    const handleApproveLeaveRequest = async () => {
+        const leaveRequestIdMatch = communication.initialMessage.match(/leave_request_id:([a-f0-9-]+)/);
+        if (!leaveRequestIdMatch) {
+            showToast.error(t('toast.leave_request.id_not_found'));
+            return;
+        }
+
+        const leaveRequestId = leaveRequestIdMatch[1];
+
+        try {
+            setIsSubmitting(true);
+            await leaveRequestService.approve(leaveRequestId);
+            showToast.success(t('toast.leave_request.approve_success'));
+            await communicationService.markAsRead(communication.id);
+            onUpdate();
+            onClose();
+        } catch (error: any) {
+            const message = error?.message?.includes('.') ? t(error.message) : error.message;
+            showToast.error(message || t('toast.leave_request.approve_error'));
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleRejectLeaveRequest = async () => {
+        const leaveRequestIdMatch = communication.initialMessage.match(/leave_request_id:([a-f0-9-]+)/);
+        if (!leaveRequestIdMatch) {
+            showToast.error(t('toast.leave_request.id_not_found'));
+            return;
+        }
+
+        const leaveRequestId = leaveRequestIdMatch[1];
+
+        try {
+            setIsSubmitting(true);
+            await leaveRequestService.reject(leaveRequestId);
+            showToast.success(t('toast.leave_request.reject_success'));
+            await communicationService.markAsRead(communication.id);
+            onUpdate();
+            onClose();
+        } catch (error: any) {
+            const message = error?.message?.includes('.') ? t(error.message) : error.message;
+            showToast.error(message || t('toast.leave_request.reject_error'));
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const handleDelete = async () => {
         setIsModalVisible(false);
         
@@ -175,9 +224,77 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
     };
 
     const isSponsorshipRequest = communication.type === 'SPONSORSHIP_REQUEST';
+    const isLeaveRequest = communication.type === 'LEAVE_REQUEST';
 
     const getStatusLabel = (status: UserCommunicationStatus) => {
         return t(`label.communication.status.${status.toLowerCase()}`);
+    };
+
+    const getPriorityLabel = (priority: string) => {
+        return t(`label.communication.priority.${priority.toLowerCase()}`);
+    };
+
+    const cleanMessageFromIds = (message: string): string => {
+        return message
+            .replace(/\[leave_request_id:[a-f0-9-]+\]/gi, '')
+            .replace(/\[donation_id:[a-f0-9-]+\]/gi, '')
+            .trim();
+    };
+
+    const formatLeaveRequestMessage = (message: string): string => {
+        const dataMatch = message.match(/\[LEAVE_REQUEST_DATA\]([\s\S]*?)\[\/LEAVE_REQUEST_DATA\]/);
+        if (dataMatch) {
+            const dataContent = dataMatch[1];
+            const getData = (key: string): string => {
+                const match = dataContent.match(new RegExp(`${key}:(.+)`));
+                return match ? match[1].trim() : '';
+            };
+
+            const userName = getData('user_name');
+            const vacationDays = getData('vacation_days');
+            const startDate = getData('start_date');
+            const endDate = getData('end_date');
+            const notes = getData('notes');
+
+            let formattedMessage = t('label.leave_request.request_message', {
+                userName,
+                vacationDays,
+                startDate,
+                endDate
+            });
+
+            if (notes) {
+                formattedMessage += `\n${t('label.leave_request.notes')}: ${notes}`;
+            }
+
+            return formattedMessage;
+        }
+
+        const oldFormatMatch = message.match(/(.+) has requested (\d+) vacation day\(s\)\.\s*Period: (\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})/);
+        if (oldFormatMatch) {
+            const userName = oldFormatMatch[1];
+            const vacationDays = oldFormatMatch[2];
+            const startDate = oldFormatMatch[3];
+            const endDate = oldFormatMatch[4];
+            
+            const notesMatch = message.match(/Notes: (.+?)(?:\[|$)/s);
+            const notes = notesMatch ? notesMatch[1].trim() : '';
+
+            let formattedMessage = t('label.leave_request.request_message', {
+                userName,
+                vacationDays,
+                startDate,
+                endDate
+            });
+
+            if (notes) {
+                formattedMessage += `\n${t('label.leave_request.notes')}: ${notes}`;
+            }
+
+            return formattedMessage;
+        }
+
+        return cleanMessageFromIds(message);
     };
 
     return (
@@ -205,7 +322,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
                         </div>
                         <div>
                             <span className="text-gray-600">Prioritate:</span>
-                            <span className="ml-2 font-medium">{communication.priority}</span>
+                            <span className="ml-2 font-medium">{getPriorityLabel(communication.priority)}</span>
                         </div>
                     </div>
                 </div>
@@ -218,7 +335,12 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
                             <div className="flex items-start gap-3">
                                 <div className="flex-1">
                                     <div className="font-semibold text-sm text-gray-900">{communication.senderName}</div>
-                                    <p className="text-gray-700 mt-1">{communication.initialMessage}</p>
+                                    <p className="text-gray-700 mt-1 whitespace-pre-line">
+                                        {isLeaveRequest 
+                                            ? formatLeaveRequestMessage(communication.initialMessage)
+                                            : cleanMessageFromIds(communication.initialMessage)
+                                        }
+                                    </p>
                                     <div className="text-xs text-gray-500 mt-2">
                                         {new Date(communication.createdAt).toLocaleString('ro-RO')}
                                     </div>
@@ -232,8 +354,9 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
                         communication.conversationHistory
                             .filter(msg => !communication.deletedAt || new Date(msg.timestamp) > new Date(communication.deletedAt))
                             .map((msg, index) => {
-                                const displayMessage = msg.message.startsWith('label.') 
-                                    ? t(msg.message) 
+                                const isTranslationKey = msg.message.startsWith('label.') || msg.message.startsWith('leave_request.');
+                                const displayMessage = isTranslationKey 
+                                    ? t(`label.${msg.message}`)
                                     : msg.message;
                                 
                                 return (
@@ -257,7 +380,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
                 </div>
 
                 {/* Reply Section */}
-                {communication.status !== 'CLOSED' && !isSponsorshipRequest && (
+                {communication.status !== 'CLOSED' && !isSponsorshipRequest && !isLeaveRequest && (
                     <div className="border-t pt-4">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Răspunde
@@ -333,6 +456,65 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
                                         {communication.status === 'PENDING' && 'Cererea ta de sponsorizare este în așteptare. Adminul organizației va verifica și confirma suma.'}
                                         {communication.status === 'RESOLVED' && 'Sponsorizarea ta a fost confirmată! Suma a fost adăugată la bugetul organizației. Mulțumim pentru susținere!'}
                                         {communication.status === 'CLOSED' && 'Această sponsorizare a fost respinsă sau închisă.'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Leave Request Approval Section - Only for recipient (admin) */}
+                {isLeaveRequest && communication.status === 'PENDING' && currentUserId === communication.recipient && (
+                    <div className="border-t pt-4">
+                        <div className="bg-gradient-to-br from-teal-50 to-cyan-50 p-4 rounded-lg border border-teal-200 mb-4">
+                            <div className="flex items-start gap-3">
+                                <div className="flex-1">
+                                    <h4 className="font-semibold text-teal-800 mb-2">{t('label.leave_request.title')}</h4>
+                                    <p className="text-sm text-gray-700 mb-3">
+                                        {t('label.leave_request.admin_review_message')}
+                                    </p>
+                                    <div className="bg-white rounded p-3 text-sm">
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div><span className="text-gray-600">{t('label.leave_request.status')}:</span> <span className="font-medium">{t('label.leave_request.status_pending')}</span></div>
+                                            <div><span className="text-gray-600">{t('label.leave_request.priority')}:</span> <span className="font-medium text-teal-600">{t('label.communication.priority.normal')}</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex gap-3">
+                            <Button
+                                onClick={handleApproveLeaveRequest}
+                                disabled={isSubmitting}
+                                className="flex-1 border-green-500 text-green-500 hover:bg-green-500 hover:text-white hover:border-green-500"
+                                size="sm"
+                            >
+                                {isSubmitting ? t('label.processing') : t('label.leave_request.approve')}
+                            </Button>
+                            <Button
+                                onClick={handleRejectLeaveRequest}
+                                disabled={isSubmitting}
+                                variant="danger"
+                                size="sm"
+                                className="flex-1"
+                            >
+                                {isSubmitting ? t('label.processing') : t('label.leave_request.reject')}
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Leave Request Status - For sender (member who sent the request) */}
+                {isLeaveRequest && currentUserId === communication.sender && (
+                    <div className="border-t pt-4">
+                        <div className="bg-teal-50 p-4 rounded-lg border border-teal-200">
+                            <div className="flex items-start gap-3">
+                                <div className="flex-1">
+                                    <h4 className="font-semibold text-teal-800 mb-2">{t('label.leave_request.status')}</h4>
+                                    <p className="text-sm text-gray-700">
+                                        {communication.status === 'PENDING' && t('label.leave_request.status_pending_message')}
+                                        {communication.status === 'RESOLVED' && t('label.leave_request.status_approved_message')}
+                                        {communication.status === 'CLOSED' && t('label.leave_request.status_rejected_message')}
                                     </p>
                                 </div>
                             </div>

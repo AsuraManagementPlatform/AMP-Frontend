@@ -1,4 +1,4 @@
-export type EventType = 'CALENDAR_NOTE' | 'VOTE_SCHEDULING' | 'MEETING' | 'EVENT' | 'ADMIN_NOTIFICATION' | 'SURVEY' | 'ACTIVITY';
+export type EventType = 'CALENDAR_NOTE' | 'VOTE_SCHEDULING' | 'MEETING' | 'EVENT' | 'ADMIN_NOTIFICATION' | 'SURVEY' | 'ACTIVITY' | 'VACATION';
 
 export const EventTypeOptions: { value: EventType; label: string; color: string }[] = [
     { value: 'CALENDAR_NOTE', label: 'Notă calendar', color: 'blue' },
@@ -7,7 +7,8 @@ export const EventTypeOptions: { value: EventType; label: string; color: string 
     { value: 'EVENT', label: 'Eveniment', color: 'orange' },
     { value: 'ADMIN_NOTIFICATION', label: 'Notificare administratori', color: 'red' },
     { value: 'SURVEY', label: 'Sondaj', color: 'indigo' },
-    { value: 'ACTIVITY', label: 'Activitate proiect', color: 'cyan' }
+    { value: 'ACTIVITY', label: 'Activitate proiect', color: 'cyan' },
+    { value: 'VACATION', label: 'Concediu', color: 'teal' }
 ];
 
 export type EventPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
@@ -66,6 +67,8 @@ export interface CalendarEvent {
     createdAt: string;
     updatedAt: string;
     relatedSurveyQuestion?: string;
+    leaveRequestStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+    leaveRequestId?: string;
 }
 
 export interface CreateEventData {

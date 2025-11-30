@@ -296,7 +296,15 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                             <div className="space-y-2">
                                 {getEventsForDate(currentDate).length > 0 ? (
                                     getEventsForDate(currentDate).map((event) => {
-                                        const getEventTypeColor = (type: string) => {
+                                        const getEventTypeColor = (type: string, leaveStatus?: string) => {
+                                            if (type === 'VACATION') {
+                                                switch (leaveStatus) {
+                                                    case 'APPROVED': return 'bg-green-100 border-green-500';
+                                                    case 'REJECTED': return 'bg-red-100 border-red-500';
+                                                    case 'PENDING': return 'bg-yellow-100 border-yellow-500';
+                                                    default: return 'bg-yellow-100 border-yellow-500';
+                                                }
+                                            }
                                             switch (type) {
                                                 case 'SURVEY': return 'bg-indigo-100 border-indigo-300';
                                                 case 'MEETING': return 'bg-green-100 border-green-300';
@@ -310,7 +318,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                                         return (
                                             <div
                                                 key={event.id}
-                                                className={`p-3 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition-shadow ${getEventTypeColor(event.eventType)}`}
+                                                className={`p-3 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition-shadow ${getEventTypeColor(event.eventType, event.leaveRequestStatus)}`}
                                                 onClick={() => onEventClick(event)}
                                             >
                                                 <div className="flex justify-between items-start">
@@ -358,7 +366,15 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                                     </div>
                                     <div className="space-y-1">
                                         {dayEvents.slice(0, MAX_VISIBLE_EVENTS).map((event) => {
-                                            const getEventTypeColor = (type: string) => {
+                                            const getEventTypeColor = (type: string, leaveStatus?: string) => {
+                                                if (type === 'VACATION') {
+                                                    switch (leaveStatus) {
+                                                        case 'APPROVED': return 'bg-green-100 text-green-800';
+                                                        case 'REJECTED': return 'bg-red-100 text-red-800';
+                                                        case 'PENDING': return 'bg-yellow-100 text-yellow-800';
+                                                        default: return 'bg-yellow-100 text-yellow-800';
+                                                    }
+                                                }
                                                 switch (type) {
                                                     case 'SURVEY': return 'bg-indigo-100 text-indigo-800';
                                                     case 'MEETING': return 'bg-green-100 text-green-800';
@@ -372,7 +388,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                                             return (
                                                 <div
                                                     key={event.id}
-                                                    className={`text-xs p-1.5 rounded cursor-pointer truncate ${getEventTypeColor(event.eventType)}`}
+                                                    className={`text-xs p-1.5 rounded cursor-pointer truncate ${getEventTypeColor(event.eventType, event.leaveRequestStatus)}`}
                                                     onClick={() => onEventClick(event)}
                                                     title={event.title}
                                                 >
@@ -473,19 +489,34 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                                 };
 
                                 const activityColors = getActivityColor();
-                                const backgroundColor = activityColors?.bg || (
+                                
+                                const getVacationColors = () => {
+                                    switch (eventRow.event.leaveRequestStatus) {
+                                        case 'APPROVED':
+                                            return { bg: '#dcfce7', border: '#22c55e', text: '#166534' };
+                                        case 'REJECTED':
+                                            return { bg: '#fee2e2', border: '#ef4444', text: '#991b1b' };
+                                        case 'PENDING':
+                                        default:
+                                            return { bg: '#fef9c3', border: '#eab308', text: '#854d0e' };
+                                    }
+                                };
+                                
+                                const vacationColors = eventRow.event.eventType === 'VACATION' ? getVacationColors() : null;
+                                
+                                const backgroundColor = vacationColors?.bg || activityColors?.bg || (
                                     eventRow.event.eventType === 'SURVEY' ? '#e0e7ff' :
                                     eventRow.event.eventType === 'MEETING' ? '#dcfce7' :
                                     eventRow.event.eventType === 'EVENT' ? '#fed7aa' :
                                     eventRow.event.eventType === 'VOTE_SCHEDULING' ? '#f3e8ff' : '#dbeafe'
                                 );
-                                const borderColor = activityColors?.border || (
+                                const borderColor = vacationColors?.border || activityColors?.border || (
                                     eventRow.event.eventType === 'SURVEY' ? '#6366f1' :
                                     eventRow.event.eventType === 'MEETING' ? '#22c55e' :
                                     eventRow.event.eventType === 'EVENT' ? '#f97316' :
                                     eventRow.event.eventType === 'VOTE_SCHEDULING' ? '#a855f7' : '#3b82f6'
                                 );
-                                const textColor = activityColors?.text || (
+                                const textColor = vacationColors?.text || activityColors?.text || (
                                     eventRow.event.eventType === 'SURVEY' ? '#3730a3' :
                                     eventRow.event.eventType === 'MEETING' ? '#166534' :
                                     eventRow.event.eventType === 'EVENT' ? '#9a3412' :

@@ -17,7 +17,7 @@ import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import showToast from '@/components/ui/Toast';
 
 const CommunicationsPage: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'messages' | 'proposals'>('messages');
+    const [activeTab, setActiveTab] = useState<'messages' | 'proposals' | 'leave-requests'>('messages');
     const [showCreateMessageModal, setShowCreateMessageModal] = useState(false);
     const [showCreateProposalModal, setShowCreateProposalModal] = useState(false);
     const [selectedCommunication, setSelectedCommunication] = useState<Communication | null>(null);
@@ -50,9 +50,20 @@ const CommunicationsPage: React.FC = () => {
         queryFn: () => organizationMemberService.getList()
     });
 
-    const communications = communicationsData?.results || [];
+    const allCommunications = communicationsData?.results || [];
     const proposals = proposalsData?.results || [];
-    const unreadCount = unreadData?.unreadCount || 0;
+    const messagesUnread = unreadData?.messagesUnread || 0;
+    const leaveRequestsUnread = unreadData?.leaveRequestsUnread || 0;
+
+    const communications = useMemo(() => 
+        allCommunications.filter((c: Communication) => c.type !== 'LEAVE_REQUEST'),
+        [allCommunications]
+    );
+
+    const leaveRequestCommunications = useMemo(() => 
+        allCommunications.filter((c: Communication) => c.type === 'LEAVE_REQUEST'),
+        [allCommunications]
+    );
 
     const availableRecipients = useMemo((): SelectOption[] => {
         if (!organizationMembersData?.organizationMembersList) return [];
@@ -154,6 +165,13 @@ const CommunicationsPage: React.FC = () => {
         }
     };
 
+    const cleanMessageFromIds = (message: string): string => {
+        return message
+            .replace(/\[leave_request_id:[a-f0-9-]+\]/gi, '')
+            .replace(/\[donation_id:[a-f0-9-]+\]/gi, '')
+            .trim();
+    };
+
     const getStatusBadge = (status: UserCommunicationStatus | ProposalStatus) => {
         const badges: Record<string, string> = {
             'PENDING': 'bg-yellow-100 text-yellow-800',
@@ -247,21 +265,25 @@ const CommunicationsPage: React.FC = () => {
                 </div>
 
                 <Card className="mb-6">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <div className="bg-blue-50 p-4 rounded-lg">
                             <div className="text-sm text-gray-600">Total Mesaje</div>
                             <div className="text-2xl font-bold text-blue-600">{communications.length}</div>
                         </div>
                         <div className="bg-red-50 p-4 rounded-lg">
-                            <div className="text-sm text-gray-600">Necitite</div>
-                            <div className="text-2xl font-bold text-red-600">{unreadCount}</div>
+                            <div className="text-sm text-gray-600">Mesaje Necitite</div>
+                            <div className="text-2xl font-bold text-red-600">{messagesUnread}</div>
+                        </div>
+                        <div className="bg-orange-50 p-4 rounded-lg">
+                            <div className="text-sm text-gray-600">Cereri Concediu</div>
+                            <div className="text-2xl font-bold text-orange-600">{leaveRequestCommunications.length}</div>
                         </div>
                         <div className="bg-yellow-50 p-4 rounded-lg">
                             <div className="text-sm text-gray-600">Total Propuneri</div>
                             <div className="text-2xl font-bold text-yellow-600">{proposals.length}</div>
                         </div>
                         <div className="bg-purple-50 p-4 rounded-lg">
-                            <div className="text-sm text-gray-600">Propuneri în Așteptare</div>
+                            <div className="text-sm text-gray-600">Propuneri in Asteptare</div>
                             <div className="text-2xl font-bold text-purple-600">
                                 {proposals.filter(p => p.status === 'PENDING').length}
                             </div>
@@ -274,23 +296,48 @@ const CommunicationsPage: React.FC = () => {
                         <div className="flex gap-4">
                             <button
                                 onClick={() => setActiveTab('messages')}
-                                className={`px-4 py-2 font-semibold border-b-2 transition-colors ${
+                                className={`px-4 py-2 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
                                     activeTab === 'messages'
                                         ? 'border-orange-500 text-orange-600'
                                         : 'border-transparent text-gray-600 hover:text-gray-900'
                                 }`}
                             >
                                 Mesaje ({communications.length})
+                                {messagesUnread > 0 && (
+                                    <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center">
+                                        {messagesUnread > 99 ? '99+' : messagesUnread}
+                                    </span>
+                                )}
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('leave-requests')}
+                                className={`px-4 py-2 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
+                                    activeTab === 'leave-requests'
+                                        ? 'border-orange-500 text-orange-600'
+                                        : 'border-transparent text-gray-600 hover:text-gray-900'
+                                }`}
+                            >
+                                Concedii ({leaveRequestCommunications.length})
+                                {leaveRequestsUnread > 0 && (
+                                    <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center">
+                                        {leaveRequestsUnread > 99 ? '99+' : leaveRequestsUnread}
+                                    </span>
+                                )}
                             </button>
                             <button
                                 onClick={() => setActiveTab('proposals')}
-                                className={`px-4 py-2 font-semibold border-b-2 transition-colors ${
+                                className={`px-4 py-2 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
                                     activeTab === 'proposals'
                                         ? 'border-orange-500 text-orange-600'
                                         : 'border-transparent text-gray-600 hover:text-gray-900'
                                 }`}
                             >
                                 Propuneri ({proposals.length})
+                                {proposals.filter(p => p.status === 'PENDING').length > 0 && (
+                                    <span className="bg-yellow-500 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center">
+                                        {proposals.filter(p => p.status === 'PENDING').length}
+                                    </span>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -325,7 +372,7 @@ const CommunicationsPage: React.FC = () => {
                                                 <p className="text-sm text-gray-600 mt-1">
                                                     De la: {comm.senderName} · Către: {comm.recipientName}
                                                 </p>
-                                                <p className="text-sm text-gray-700 mt-2">{comm.initialMessage}</p>
+                                                <p className="text-sm text-gray-700 mt-2">{cleanMessageFromIds(comm.initialMessage)}</p>
                                                 <div className="mt-3 flex items-center gap-3">
                                                     {getStatusBadge(comm.status)}
                                                     <span className="text-xs text-gray-500">
@@ -341,7 +388,41 @@ const CommunicationsPage: React.FC = () => {
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-8 text-gray-500">Nu există mesaje încă.</div>
+                            <div className="text-center py-8 text-gray-500">Nu exista mesaje inca.</div>
+                        )
+                    )}
+
+                    {activeTab === 'leave-requests' && (
+                        loadingCommunications ? (
+                            <div className="text-center py-8 text-gray-500">Se incarca...</div>
+                        ) : leaveRequestCommunications.length > 0 ? (
+                            <div className="space-y-4">
+                                {leaveRequestCommunications.map((comm: Communication) => (
+                                    <div 
+                                        key={comm.id} 
+                                        className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                                        onClick={() => handleViewCommunication(comm)}
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            <div className="flex-1">
+                                                <h3 className="font-semibold text-gray-900">{comm.subject}</h3>
+                                                <p className="text-sm text-gray-600 mt-1">
+                                                    De la: {comm.senderName}
+                                                </p>
+                                                <p className="text-sm text-gray-700 mt-2">{cleanMessageFromIds(comm.initialMessage)}</p>
+                                                <div className="mt-3 flex items-center gap-3">
+                                                    {getStatusBadge(comm.status)}
+                                                    {!comm.isReadByRecipient && user?.id === comm.recipient && (
+                                                        <span className="text-xs font-semibold text-red-600">NOU</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-8 text-gray-500">Nu exista cereri de concediu.</div>
                         )
                     )}
 

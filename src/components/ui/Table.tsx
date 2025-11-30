@@ -210,9 +210,9 @@ function Table<T extends Record<string, any>>({
         hasPrevious,
         tableState,
         setPage,
+        setPageSize,
         setSort,
-        setFilters,
-        refresh
+        setFilters
     } = useTableData<T>({
         endpoint,
         initialPageSize,
@@ -220,12 +220,6 @@ function Table<T extends Record<string, any>>({
         initialFilters,
         refreshTrigger
     });
-
-    React.useEffect(() => {
-        if (refreshTrigger !== undefined) {
-            refresh();
-        }
-    }, [refreshTrigger, refresh]);
 
     const handleSort = (field: string) => {
         const currentSort = tableState.sort;
@@ -406,7 +400,7 @@ function Table<T extends Record<string, any>>({
                 </div>
             </div>
 
-            {showPagination && totalPages > 1 && (
+            {showPagination && (
                 <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
                     <div className="flex justify-between flex-1 sm:hidden">
                         <SecondaryButton
@@ -428,14 +422,30 @@ function Table<T extends Record<string, any>>({
                     </div>
 
                     <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                        <div>
+                        <div className="flex items-center gap-4">
                             <p className="text-sm text-gray-700">
-                                Showing <span className="font-medium">{((currentPage - 1) * tableState.pageSize) + 1}</span> to{' '}
+                                Showing <span className="font-medium">{totalCount > 0 ? ((currentPage - 1) * tableState.pageSize) + 1 : 0}</span> to{' '}
                                 <span className="font-medium">{Math.min(currentPage * tableState.pageSize, totalCount)}</span> of{' '}
                                 <span className="font-medium">{totalCount}</span> results
                             </p>
+                            <div className="flex items-center gap-2">
+                                <label htmlFor="pageSize" className="text-sm text-gray-700">Per page:</label>
+                                <select
+                                    id="pageSize"
+                                    value={tableState.pageSize}
+                                    onChange={(e) => setPageSize(Number(e.target.value))}
+                                    className="px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    disabled={loading}
+                                >
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={50}>50</option>
+                                    <option value={100}>100</option>
+                                </select>
+                            </div>
                         </div>
 
+                        {totalPages > 1 && (
                         <div className="flex items-center space-x-2">
                             <SecondaryButton
                                 onClick={() => setPage(1)}
@@ -475,6 +485,7 @@ function Table<T extends Record<string, any>>({
                                 Last
                             </SecondaryButton>
                         </div>
+                        )}
                     </div>
                 </div>
             )}

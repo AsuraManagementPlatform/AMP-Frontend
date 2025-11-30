@@ -12,6 +12,7 @@ export const UserCommunicationType = {
     POLL_QUESTION: 'POLL_QUESTION',
     SPONSORSHIP_REQUEST: 'SPONSORSHIP_REQUEST',
     BROADCAST_TO_ORGANIZATION: 'BROADCAST_TO_ORGANIZATION',
+    LEAVE_REQUEST: 'LEAVE_REQUEST',
     OTHER: 'OTHER'
 } as const;
 
@@ -91,4 +92,6 @@ export interface CommunicationUpdateStatusRequest {
 
 export interface UnreadCountResponse {
     unreadCount: number;
+    messagesUnread: number;
+    leaveRequestsUnread: number;
 }
