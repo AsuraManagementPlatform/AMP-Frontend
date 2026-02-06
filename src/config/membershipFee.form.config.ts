@@ -1,5 +1,5 @@
 import { DynamicFormConfig, FieldType } from "@/types/form.types";
-import { PaymentMethod } from "@/types/membershipFee.types";
+import { PaymentMethod, RenewPeriod } from "@/types/membershipFee.types";
 
 export const createMembershipFeeFormConfig = (rateOptions: Array<{value: string, label: string}> = []): DynamicFormConfig => ({
     sections: [
@@ -52,6 +52,28 @@ export const createMembershipFeeFormConfig = (rateOptions: Array<{value: string,
                         { value: 'EUR', label: 'Euro (EUR)' },
                         { value: 'USD', label: 'Dolari Americani (USD)' }
                     ]
+                },
+                {
+                    name: 'renewPeriod',
+                    label: 'Perioada de plată',
+                    type: FieldType.SELECT,
+                    placeholder: 'Selectează perioada',
+                    required: true,
+                    options: [
+                        { value: RenewPeriod.MONTHLY, label: 'Lunar' },
+                        { value: RenewPeriod.QUARTERLY, label: 'Trimestrial' },
+                        { value: RenewPeriod.SEMI_ANNUAL, label: 'Semestrial' },
+                        { value: RenewPeriod.ANNUAL, label: 'Anual' }
+                    ],
+                    helperText: 'Perioada pentru care se calculează cotizația'
+                },
+                {
+                    name: 'startedFrom',
+                    label: 'Luna de început',
+                    type: FieldType.MONTH,
+                    placeholder: 'Selectează luna',
+                    required: true,
+                    helperText: 'Luna din care începe cotizația'
                 },
                 {
                     name: 'autoRenew',
@@ -197,21 +219,13 @@ export const processPaymentSelfFormConfig = (): DynamicFormConfig => ({
                     ]
                 },
                 {
-                    name: 'transactionReference',
-                    label: 'Referință tranzacție',
-                    type: FieldType.TEXT,
-                    placeholder: 'ex: TRX123456789',
+                    name: 'paymentProof',
+                    label: 'Dovadă plată',
+                    type: FieldType.FILE,
                     required: true,
-                    maxLength: 255
-                },
-                {
-                    name: 'documentReference',
-                    label: 'Link dovadă plată',
-                    type: FieldType.TEXT,
-                    placeholder: 'ex: https://drive.google.com/file/...',
-                    required: true,
-                    maxLength: 500,
-                    helperText: 'Încarcă dovada plății (chitanță/bon fiscal) și adaugă link-ul aici'
+                    accept: '.pdf,.jpg,.jpeg,.png,.doc,.docx',
+                    multiple: true,
+                    helperText: 'Încarcă chitanțe sau bonuri fiscale (PDF, imagine sau document) - poți selecta mai multe fișiere simultan'
                 },
                 {
                     name: 'paymentDate',

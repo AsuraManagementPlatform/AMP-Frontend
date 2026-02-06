@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { DynamicForm } from '@/components/forms/DynamicForm';
 import showToast from '@/components/ui/Toast';
@@ -32,6 +33,7 @@ export const CreateCommunicationModal: React.FC<CreateCommunicationModalProps> =
     projects = [],
     activities = []
 }) => {
+    const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const authContext = useContext(AuthContext);
     const isOrganizationAdmin = authContext?.user?.groups?.includes('organization_admin') || false;
@@ -58,11 +60,11 @@ export const CreateCommunicationModal: React.FC<CreateCommunicationModalProps> =
             };
 
             await communicationService.create(communicationCreateRequest);
-            showToast.success('Mesajul a fost trimis cu succes!');
+            showToast.success(t('toast.communication.sent'));
             onSuccess();
             onClose();
         } catch (error: any) {
-            showToast.error(error.message || 'Nu s-a putut trimite mesajul. Încercați din nou.');
+            showToast.error(error.message || t('toast.default_error_message'));
         } finally {
             setIsSubmitting(false);
         }

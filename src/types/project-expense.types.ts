@@ -79,6 +79,7 @@ export interface ProjectExpense extends BaseEntity {
     status: ProjectExpenseStatusType;
     fundAllocations: ProjectFundAllocation[];
     transactions: ProjectExpenseTransaction[];
+    documentsCount?: number;
 }
 
 export interface ProjectExpenseCreateRequest {
@@ -106,4 +107,5 @@ export interface ProjectExpenseExecuteRequest {
         fundId: string;
         amount: number;
     }[];
+    documentId?: string;
 }

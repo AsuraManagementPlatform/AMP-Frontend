@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Modal } from '@/components/ui/Modal';
@@ -28,6 +29,7 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
     onSuccess,
     memberId
 }) => {
+    const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [members, setMembers] = useState<any[]>([]);
     const [organizationData, setOrganizationData] = useState<any>(null);
@@ -51,6 +53,12 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
     const renewPeriod = watch('renewPeriod');
     const startedFrom = watch('startedFrom');
     const selectedMember = members.find(m => m.id === selectedMemberId);
+
+    useEffect(() => {
+        if (organizationData?.defaultRenewPeriod) {
+            setValue('renewPeriod', organizationData.defaultRenewPeriod);
+        }
+    }, [organizationData, setValue]);
 
     useEffect(() => {
         if (!startedFrom || !renewPeriod) return;
@@ -99,7 +107,7 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
                 setMembers(membersList);
                 setOrganizationData(organization);
             } catch (error) {
-                showToast.error('Eroare la încărcarea datelor');
+                showToast.error(t('label.membership_fee.load_error'));
             }
         };
 
@@ -158,7 +166,9 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
         return rateOptions;
     };
 
-    const formConfig = createMembershipFeeFormConfig(getRateOptionsForMember());
+    const formConfig = createMembershipFeeFormConfig(
+        getRateOptionsForMember()
+    );
     
     const memberField = formConfig.sections[0].fields.find(f => f.name === 'memberId');
     if (memberField && 'options' in memberField) {
@@ -238,7 +248,7 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Adaugă cotizație membru"
+            title={t('label.membership_fee.create_title')}
             size="lg"
         >
             <form onSubmit={handleFormSubmit(handleSubmit as any)} className="space-y-6">
@@ -277,10 +287,10 @@ export const CreateMembershipFeeModal: React.FC<CreateMembershipFeeModalProps> =
 
                 <div className="flex justify-end gap-3 pt-4 border-t">
                     <ModalButton variant="secondary" onClick={onClose} disabled={isSubmitting}>
-                        {formConfig.cancelButtonText || 'Anulează'}
+                        {formConfig.cancelButtonText || t('label.button.cancel')}
                     </ModalButton>
                     <ModalButton type="submit" variant="primary" disabled={isSubmitting}>
-                        {isSubmitting ? 'Se procesează...' : (formConfig.submitButtonText || 'Salvează')}
+                        {isSubmitting ? t('label.membership_fee.processing') : (formConfig.submitButtonText || t('label.button.save'))}
                     </ModalButton>
                 </div>
             </form>

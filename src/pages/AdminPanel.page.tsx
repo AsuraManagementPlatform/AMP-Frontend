@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useAuth} from '@/hooks/useAuth';
 import Layout from '@/components/layout/Layout';
 import {Card} from "@/components/ui/Card.tsx";
+import {useConfirmDialog} from "@/components/ui/ConfirmDialog";
 import {Alert} from "@/components/ui/Alert.tsx";
 import {Button} from "@/components/ui/Button.tsx";
 import userService from "@/services/user.service.ts";
@@ -22,6 +23,7 @@ import {t} from "i18next";
 
 const AdminPanel: React.FC = () => {
     const { user } = useAuth();
+    const confirm = useConfirmDialog();
     const [users, setUsers] = useState<PaginatedResponse<User>>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -64,7 +66,7 @@ const AdminPanel: React.FC = () => {
 
     const handleCreateUser = async (data: UserCreateRequest): Promise<void> => {
         const newUser = await userService.create(data);
-        showToast.success('Utilizator creat cu succes!');
+        showToast.success(t('toast.user.created'));
         await fetchUsers();
 
         if (data.isLegalEntity) {
@@ -92,11 +94,11 @@ const AdminPanel: React.FC = () => {
         try {
             setIsSubmittingOrg(true);
             await organizationService.create(data);
-            showToast.success('Organizație creată cu succes!');
+            showToast.success(t('toast.organization.created'));
             setIsCreateOrgModalOpen(false);
             setCreatedUser(null);
         } catch (error) {
-            showToast.error('Eroare la crearea organizației');
+            showToast.error(t('toast.organization.create_error'));
             throw error;
         } finally {
             setIsSubmittingOrg(false);
@@ -117,7 +119,7 @@ const AdminPanel: React.FC = () => {
         if (!selectedUser) return;
 
         await userService.update(selectedUser.id, data);
-        showToast.success('Utilizator actualizat cu succes!');
+        showToast.success(t('toast.user.updated'));
         await fetchUsers();
         setIsEditUserModalOpen(false);
         setIsPasswordResetModalOpen(true);
@@ -133,25 +135,30 @@ const AdminPanel: React.FC = () => {
 
         try {
             const result = await userService.resetPassword(selectedUser.id);
-            showToast.success(`Email de resetare parolă trimis cu succes la ${result.email}!`);
+            showToast.success(t('toast.user.password_reset_sent', { email: result.email }));
             setIsPasswordResetModalOpen(false);
             setSelectedUser(null);
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Eroare la trimiterea emailului de resetare parolă';
+            const errorMessage = error instanceof Error ? error.message : t('toast.user.password_reset_error');
             showToast.error(errorMessage);
         }
     };
 
     const handleResetPassword = async (user: UserMeResponse): Promise<void> => {
-        if (!window.confirm('Sigur doriți să resetați parola acestui utilizator? Va primi un email cu o parolă temporară.')) {
-            return;
-        }
+        const confirmed = await confirm({
+            title: t('label.admin.reset_password_title'),
+            message: t('label.admin.reset_password_confirm'),
+            confirmText: t('button.confirm'),
+            cancelText: t('button.cancel'),
+            confirmButtonVariant: 'danger'
+        });
+        if (!confirmed) return;
 
         try {
             const result = await userService.resetPassword(user.id);
-            showToast.success(`Email de resetare parolă trimis cu succes la ${result.email}!`);
+            showToast.success(t('toast.user.password_reset_sent', { email: result.email }));
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Eroare la trimiterea emailului de resetare parolă';
+            const errorMessage = error instanceof Error ? error.message : t('toast.user.password_reset_error');
             showToast.error(errorMessage);
         }
     };
@@ -193,6 +200,15 @@ const AdminPanel: React.FC = () => {
                         <span className="text-gray-400 text-sm">No groups</span>
                     )}
                 </div>
+            )
+        },
+        {
+            key: 'interestArea',
+            label: 'Interest Area',
+            render: (interestArea: string) => (
+                <span className="text-sm text-gray-600">
+                    {interestArea || '-'}
+                </span>
             )
         },
     ];

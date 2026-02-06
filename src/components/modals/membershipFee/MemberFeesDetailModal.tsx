@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { SecondaryButton } from '@/components/ui/SecondaryButton';
@@ -33,6 +34,7 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
     fees,
     onRefresh
 }) => {
+    const { t } = useTranslation();
     const { hasAnyUserGroup, user } = useAuth();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -155,10 +157,10 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
 
         try {
             await membershipFeeService.delete(feeId);
-            showToast.success('Cotizația a fost ștearsă cu succes');
+            showToast.success(t('toast.membership_fee.delete_success'));
             onRefresh();
         } catch (error: any) {
-            const errorMessage = error?.message || 'Eroare la ștergerea cotizației';
+            const errorMessage = error?.message || t('toast.membership_fee.delete_error');
             showToast.error(errorMessage);
         }
     };
@@ -179,21 +181,21 @@ export const MemberFeesDetailModal: React.FC<MemberFeesDetailModalProps> = ({
 
     const handleGenerateNext = async () => {
         if (fees.length === 0) {
-            showToast.error('Nu există cotizații. Închide acest dialog și folosește butonul "Adaugă cotizație" din pagina principală pentru a crea prima cotizație.');
+            showToast.error(t('toast.membership_fee.no_fees_to_generate'));
             return;
         }
 
         setIsGenerating(true);
-        const toastId = showToast.loading('Se generează cotizația...');
+        const toastId = showToast.loading(t('toast.membership_fee.generating'));
 
         try {
             await membershipFeeService.generateNext(memberId);
             toast.remove(toastId);
-            showToast.success('Cotizația următoare a fost generată automat');
+            showToast.success(t('toast.membership_fee.generate_success'));
             onRefresh();
         } catch (error: any) {
             toast.remove(toastId);
-            const errorMessage = error?.message || 'Eroare la generarea cotizației';
+            const errorMessage = error?.message || t('toast.membership_fee.generate_error');
             showToast.error(errorMessage);
         } finally {
             setIsGenerating(false);

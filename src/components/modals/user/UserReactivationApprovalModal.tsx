@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Modal from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { PendingReactivationUser, userReactivationService } from '@/services/userReactivation.service';
@@ -17,6 +18,7 @@ export default function UserReactivationApprovalModal({
     user,
     onRefresh
 }: UserReactivationApprovalModalProps) {
+    const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
     const [showRejectForm, setShowRejectForm] = useState(false);
@@ -27,11 +29,11 @@ export default function UserReactivationApprovalModal({
         setIsSubmitting(true);
         try {
             await userReactivationService.approveReactivation(user.id);
-            showToast.success('Reactivare aprobată cu succes');
+            showToast.success(t('toast.user.reactivation_approved'));
             onRefresh();
             onClose();
         } catch (error: any) {
-            showToast.error(error.response?.data?.error || 'Eroare la aprobarea reactivării');
+            showToast.error(error.response?.data?.error || t('toast.user.reactivation_approve_error'));
         } finally {
             setIsSubmitting(false);
         }
@@ -39,20 +41,20 @@ export default function UserReactivationApprovalModal({
 
     const handleReject = async () => {
         if (!rejectionReason.trim()) {
-            showToast.error('Te rugăm să introduci motivul respingerii');
+            showToast.error(t('toast.user.rejection_reason_required'));
             return;
         }
 
         setIsSubmitting(true);
         try {
             await userReactivationService.rejectReactivation(user.id, rejectionReason);
-            showToast.success('Reactivare respinsă');
+            showToast.success(t('toast.user.reactivation_rejected'));
             onRefresh();
             onClose();
             setRejectionReason('');
             setShowRejectForm(false);
         } catch (error: any) {
-            showToast.error(error.response?.data?.error || 'Eroare la respingerea reactivării');
+            showToast.error(error.response?.data?.error || t('toast.user.reactivation_reject_error'));
         } finally {
             setIsSubmitting(false);
         }

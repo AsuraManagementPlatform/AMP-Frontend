@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { DynamicForm } from '@/components/forms/DynamicForm';
 import { updateMembershipFeeFormConfig } from '@/config/membershipFee.form.config';
@@ -23,6 +24,7 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
     onSuccess,
     membershipFeeId
 }) => {
+    const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [formConfig, setFormConfig] = useState<any>(null);
@@ -99,25 +101,27 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
                     memberField.options = memberOptions;
                 }
                 
-                const startDateField = config.sections[2].fields.find(f => f.name === 'startedFrom');
+                const findField = (fieldName: string) => {
+                    for (const section of config.sections) {
+                        const field = section.fields.find(f => f.name === fieldName);
+                        if (field) return field;
+                    }
+                    return null;
+                };
+                
+                const startDateField = findField('startedFrom');
                 if (startDateField) {
                     startDateField.disabled = true;
-                    startDateField.helperText = 'Datele nu pot fi modificate';
+                    startDateField.helperText = 'Data de început nu poate fi modificată';
                 }
                 
-                const endDateField = config.sections[2].fields.find(f => f.name === 'endedAt');
-                if (endDateField) {
-                    endDateField.disabled = true;
-                    endDateField.helperText = 'Data de sfârșit se calculează automat';
-                }
-                
-                const rateTypeField = config.sections[1].fields.find(f => f.name === 'rateType');
+                const rateTypeField = findField('rateType');
                 if (rateTypeField) {
                     rateTypeField.disabled = true;
                     rateTypeField.helperText = 'Tipul cotizației nu poate fi modificat';
                 }
                 
-                const customAmountField = config.sections[1].fields.find(f => f.name === 'customAmount');
+                const customAmountField = findField('customAmount');
                 if (customAmountField && fee.status === MembershipFeeStatus.PAID) {
                     customAmountField.disabled = true;
                     customAmountField.helperText = 'Suma nu poate fi modificată pentru cotizațiile plătite';
@@ -125,7 +129,7 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
                 
                 setFormConfig(config);
             } catch (error) {
-                showToast.error('Eroare la încărcarea datelor');
+                showToast.error(t('label.membership_fee.load_error'));
             } finally {
                 setIsLoading(false);
             }
@@ -159,11 +163,11 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
             };
 
             await membershipFeeService.update(membershipFeeId, updateRequest);
-            showToast.success('Cotizația a fost actualizată cu succes!');
+            showToast.success(t('toast.membership_fee.update_success'));
             onSuccess();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.message || 'Eroare la actualizarea cotizației';
+            const errorMessage = error?.message || t('toast.membership_fee.update_error');
             showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
@@ -237,7 +241,7 @@ export const UpdateMembershipFeeModal: React.FC<UpdateMembershipFeeModalProps> =
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Actualizează cotizație"
+            title={t('label.membership_fee.edit_title')}
             size="lg"
         >
             {isLoading || !formConfig ? (

@@ -1,5 +1,5 @@
 import {ListParams, PaginatedResponse} from "@/types/index.types.ts";
-import {Project, ProjectCreateRequest, ProjectUpdateRequest, ProjectStats} from "@/types/project.types.ts";
+import {Project, ProjectCreateRequest, ProjectUpdateRequest, ProjectStats, ProjectDeletionPreview} from "@/types/project.types.ts";
 import {apiService} from "@/services/api.service.ts";
 
 export const projectService = {
@@ -33,6 +33,10 @@ export const projectService = {
 
     delete: async (id: string): Promise<void> => {
         return apiService.delete<void>(`project/delete/${id}`);
+    },
+
+    getDeletionPreview: async (id: string): Promise<ProjectDeletionPreview> => {
+        return apiService.get<ProjectDeletionPreview>(`project/delete/${id}/preview`);
     },
 };
 

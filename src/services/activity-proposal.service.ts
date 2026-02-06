@@ -28,7 +28,7 @@ export const activityProposalService = {
     },
 
     reject: async (id: string, data: ActivityProposalRejectRequest): Promise<ActivityProposal> => {
-        return apiService.post<ActivityProposal>(`activity-proposal/${id}/reject`, data);
+        return apiService.patch<ActivityProposal>(`activity-proposal/${id}/reject`, data);
     }
 };
 

@@ -1,73 +1,152 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
-import { ROUTES } from '@/utils/constants.utils';
+import Layout from '@/components/layout/Layout';
+import { useAccessibility, initAccessibilityStyles } from '@/hooks/useAccessibility';
+
+interface ToggleProps {
+    label: string;
+    checked: boolean;
+    onChange: (checked: boolean) => void;
+}
+
+const Toggle: React.FC<ToggleProps> = ({ label, checked, onChange }) => (
+    <label className="flex items-center justify-between py-2 cursor-pointer">
+        <span className="text-gray-700">{label}</span>
+        <button
+            type="button"
+            role="switch"
+            aria-checked={checked}
+            onClick={() => onChange(!checked)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                checked ? 'bg-orange-500' : 'bg-gray-300'
+            }`}
+        >
+            <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    checked ? 'translate-x-6' : 'translate-x-1'
+                }`}
+            />
+        </button>
+    </label>
+);
 
 export const SettingsPage: React.FC = () => {
-    const navigate = useNavigate();
+    const {
+        settings,
+        updateSetting,
+        resetSettings,
+        increaseFontSize,
+        decreaseFontSize,
+    } = useAccessibility();
+
+    useEffect(() => {
+        initAccessibilityStyles();
+    }, []);
 
     return (
-        <div className="max-w-4xl mx-auto">
-            <div className="mb-4">
-                <button
-                    onClick={() => navigate(ROUTES.DASHBOARD)}
-                    className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-orange-500 transition-colors"
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Înapoi la pagina principală
-                </button>
+        <Layout showNavigation={true}>
+            <div className="container mx-auto">
+                <h1 className="text-3xl font-bold text-gray-800 mb-2">Setări</h1>
+                <p className="text-gray-600 mb-6">Personalizează-ți experiența în aplicație</p>
+
+                <Card title="Accesibilitate" className="mb-6">
+                <div className="space-y-6">
+                    <div>
+                        <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Dimensiune Text</h4>
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={decreaseFontSize}
+                                disabled={settings.fontSize <= 80}
+                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-bold text-lg"
+                            >
+                                A-
+                            </button>
+                            <span className="text-gray-700 font-medium min-w-[80px] text-center">
+                                {settings.fontSize}%
+                            </span>
+                            <button
+                                onClick={increaseFontSize}
+                                disabled={settings.fontSize >= 150}
+                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-bold text-lg"
+                            >
+                                A+
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                        <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Text</h4>
+                        <div className="space-y-1">
+                            <Toggle
+                                label="Evidențiază titlurile"
+                                checked={settings.highlightTitles}
+                                onChange={(v) => updateSetting('highlightTitles', v)}
+                            />
+                            <Toggle
+                                label="Evidențiază legăturile"
+                                checked={settings.highlightLinks}
+                                onChange={(v) => updateSetting('highlightLinks', v)}
+                            />
+                            <Toggle
+                                label="Font pentru dislexie"
+                                checked={settings.dyslexicFont}
+                                onChange={(v) => updateSetting('dyslexicFont', v)}
+                            />
+                            <Toggle
+                                label="Spațiere litere"
+                                checked={settings.letterSpacing}
+                                onChange={(v) => updateSetting('letterSpacing', v)}
+                            />
+                            <Toggle
+                                label="Înălțime linie"
+                                checked={settings.lineHeight}
+                                onChange={(v) => updateSetting('lineHeight', v)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                        <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Vizualizare</h4>
+                        <div className="space-y-1">
+                            <Toggle
+                                label="Mod întunecat"
+                                checked={settings.darkMode}
+                                onChange={(v) => updateSetting('darkMode', v)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                        <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Instrumente</h4>
+                        <div className="space-y-1">
+                            <Toggle
+                                label="Oprește animațiile"
+                                checked={settings.reduceMotion}
+                                onChange={(v) => updateSetting('reduceMotion', v)}
+                            />
+                            <Toggle
+                                label="Cursor mare"
+                                checked={settings.bigCursor}
+                                onChange={(v) => updateSetting('bigCursor', v)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                        <button
+                            onClick={resetSettings}
+                            className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                        >
+                            Resetare setări
+                        </button>
+                        <p className="text-xs text-gray-500 mt-2 text-center">
+                            Preferințele sunt salvate local în acest browser.
+                        </p>
+                    </div>
+                </div>
+            </Card>
             </div>
-
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Setări</h1>
-
-            <Card title="Setări Generale" className="mb-6">
-                <div className="space-y-4">
-                    <div className="text-gray-600">
-                        <p className="mb-4">Aici vor apărea setările aplicației:</p>
-                        <ul className="list-disc list-inside space-y-2">
-                            <li>Limba aplicației (Română/Engleză)</li>
-                            <li>Preferințe notificări email</li>
-                            <li>Notificări în aplicație</li>
-                            <li>Temă (Light/Dark)</li>
-                        </ul>
-                    </div>
-                </div>
-            </Card>
-
-            <Card title="Setări Calendar" className="mb-6">
-                <div className="space-y-4">
-                    <div className="text-gray-600">
-                        <p className="mb-4">Preferințe pentru calendar:</p>
-                        <ul className="list-disc list-inside space-y-2">
-                            <li>Ziua de start săptămână (Luni/Duminică)</li>
-                            <li>Program de lucru (8:00 - 17:00)</li>
-                            <li>Reminder-uri (15 min/30 min/1h înainte)</li>
-                        </ul>
-                    </div>
-                </div>
-            </Card>
-
-            <Card title="Securitate" className="mb-6">
-                <div className="space-y-4">
-                    <div className="text-gray-600">
-                        <p className="mb-4">Opțiuni de securitate:</p>
-                        <ul className="list-disc list-inside space-y-2">
-                            <li>Schimbare parolă (Keycloak)</li>
-                            <li>Sesiuni active</li>
-                            <li>Autentificare cu doi factori (2FA)</li>
-                        </ul>
-                    </div>
-                </div>
-            </Card>
-
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-800">
-                    <strong>Notă:</strong> Setările vor fi implementate în versiunile viitoare ale aplicației.
-                </p>
-            </div>
-        </div>
+        </Layout>
     );
 };
 

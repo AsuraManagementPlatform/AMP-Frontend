@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import {Modal} from '@/components/ui/Modal.tsx';
 import {DynamicForm} from '@/components/forms/DynamicForm.tsx';
 import showToast from '@/components/ui/Toast.tsx';
@@ -27,6 +28,7 @@ export const UpdateEntityCommunicationModal: React.FC<UpdateEntityCommunicationM
     entityCommunication,
     organizationMembers
 }) => {
+    const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (data: UpdateEntityCommunicationData) => {
@@ -46,12 +48,12 @@ export const UpdateEntityCommunicationModal: React.FC<UpdateEntityCommunicationM
             };
 
             await entityCommunicationService.update(entityCommunicationUpdateRequest);
-            showToast.success('Comunicarea a fost actualizată cu succes!');
+            showToast.success(t('toast.entity_communication.updated'));
             onSuccess?.();
             onClose();
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Nu s-a putut actualiza comunicarea. Încercați din nou.';
-            showToast.error(errorMessage);
+            const errorMessage = error instanceof Error ? error.message : t('toast.entity_communication.update_error');
+            showToast.error(errorMessage.includes('.') ? t(errorMessage) : errorMessage);
         } finally {
             setIsSubmitting(false);
         }
@@ -64,7 +66,7 @@ export const UpdateEntityCommunicationModal: React.FC<UpdateEntityCommunicationM
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Editează Comunicare"
+            title={t('label.entity_communication.edit_title')}
             size="lg"
         >
             <DynamicForm

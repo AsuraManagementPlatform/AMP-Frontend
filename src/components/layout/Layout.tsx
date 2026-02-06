@@ -8,6 +8,8 @@ import logoImage from '@/assets/img/logo.png';
 import {t} from "i18next";
 import PNRRBanner from './PNRRBanner';
 import communicationService from '@/services/communication.service';
+import { AIChatWidget } from '@/components/ai-chat/AIChatWidget';
+import { AccessibilityWidget } from '@/components/ui/AccessibilityWidget';
 
 interface LayoutProps extends BaseComponentProps {
     showNavigation?: boolean;
@@ -29,6 +31,16 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [erpDropdownOpen, setErpDropdownOpen] = useState(false);
     const [crmDropdownOpen, setCrmDropdownOpen] = useState(false);
+    const [aiChatOpen, setAiChatOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [mobileErpOpen, setMobileErpOpen] = useState(false);
+    const [mobileCrmOpen, setMobileCrmOpen] = useState(false);
+
+    const closeMobileMenu = () => {
+        setMobileMenuOpen(false);
+        setMobileErpOpen(false);
+        setMobileCrmOpen(false);
+    };
 
     const { data: unreadData } = useQuery({
         queryKey: ['communications-unread-count'],
@@ -70,17 +82,29 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
     return (
         <div className={`min-h-screen flex flex-col bg-gray-100 ${className}`}>
             <PNRRBanner />
-            <header className="bg-white text-gray-800 shadow-md w-full">
+            <header className="bg-white text-gray-800 shadow-md w-full relative z-50">
                 <div className="max-w-7xl mx-auto px-4">
-                    <div className="flex flex-wrap items-center justify-between h-16">
+                    <div className="flex items-center justify-between h-16">
                         <div className="flex items-center">
-                            <Link to={ROUTES.HOME} className="flex items-center">
+                            <a href="https://www.asociatia-asura.ro/" target="_blank" rel="noopener noreferrer" className="flex items-center">
                                 <img src={logoImage} alt="Asura" className="h-10" />
-                            </Link>
+                            </a>
                         </div>
 
                         {showNavigation && isAuthenticated && (
-                            <nav className="flex items-center">
+                            <button
+                                className="lg:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                aria-label="Toggle menu"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            </button>
+                        )}
+
+                        {showNavigation && isAuthenticated && (
+                            <nav className="hidden lg:flex items-center">
                                 <ul className="flex items-center space-x-1 md:space-x-4">
                                     <li className="relative">
                                         <Link
@@ -231,6 +255,15 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                                     >
                                                         Donații
                                                     </Link>
+                                                    <Link
+                                                        to={ROUTES.CRM_GENERAL_ASSEMBLY}
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:text-orange-600 transition-all duration-200"
+                                                        onClick={() => setCrmDropdownOpen(false)}
+                                                        onMouseEnter={(e) => e.currentTarget.style.textShadow = '0 0 10px rgba(249, 115, 22, 0.5)'}
+                                                        onMouseLeave={(e) => e.currentTarget.style.textShadow = ''}
+                                                    >
+                                                        Organizează Ședință
+                                                    </Link>
                                                 </div>
                                             )}
                                         </li>
@@ -268,6 +301,28 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                         <div className="flex items-center gap-3">
                             {isAuthenticated ? (
                                 <>
+                                    {hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && (
+                                        <button
+                                            onClick={() => setAiChatOpen(!aiChatOpen)}
+                                            className="relative p-2 text-gray-700 hover:bg-gradient-to-r hover:from-orange-100 hover:to-orange-50 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 group"
+                                            title="Ask AI"
+                                        >
+                                            <svg
+                                                className="w-6 h-6 group-hover:scale-110 transition-transform"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                                                />
+                                            </svg>
+                                        </button>
+                                    )}
+
                                     <button
                                         onClick={() => navigate(hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) ? ROUTES.CRM_COMMUNICATIONS : ROUTES.DASHBOARD)}
                                         className="relative p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -367,6 +422,182 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                         </div>
                     </div>
                 </div>
+
+                {mobileMenuOpen && (
+                    <div className="absolute top-full left-0 right-0 bg-white shadow-lg border-t border-gray-200 z-50 lg:hidden max-h-[calc(100vh-4rem)] overflow-y-auto">
+                        <div className="py-2">
+                            <Link
+                                to={ROUTES.DASHBOARD}
+                                onClick={closeMobileMenu}
+                                className={`block px-6 py-3 text-base ${
+                                    location.pathname === ROUTES.DASHBOARD
+                                        ? 'text-orange-600 font-semibold bg-orange-50'
+                                        : 'text-gray-700 hover:bg-gray-50'
+                                }`}
+                            >
+                                Pagina Principala
+                            </Link>
+
+                            {hasAnyUserGroup([UserGroup.ADMIN]) && (
+                                <Link
+                                    to={ROUTES.ERP_VATS}
+                                    onClick={closeMobileMenu}
+                                    className={`block px-6 py-3 text-base ${
+                                        location.pathname === ROUTES.ERP_VATS
+                                            ? 'text-orange-600 font-semibold bg-orange-50'
+                                            : 'text-gray-700 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {t('nav.vats')}
+                                </Link>
+                            )}
+
+                            {hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && hasERP && (
+                                <>
+                                    <button
+                                        onClick={() => setMobileErpOpen(!mobileErpOpen)}
+                                        className="flex items-center justify-between w-full px-6 py-3 text-base text-gray-700 hover:bg-gray-50"
+                                    >
+                                        <span className={location.pathname.startsWith('/erp') ? 'text-orange-600 font-semibold' : ''}>
+                                            ERP
+                                        </span>
+                                        <svg 
+                                            className={`w-5 h-5 transition-transform ${mobileErpOpen ? 'rotate-180' : ''}`} 
+                                            fill="none" 
+                                            stroke="currentColor" 
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                    {mobileErpOpen && (
+                                        <div className="bg-gray-50 border-l-4 border-orange-300">
+                                            <Link
+                                                to={ROUTES.ERP_PROJECTS}
+                                                onClick={closeMobileMenu}
+                                                className="block px-10 py-2.5 text-sm text-gray-600 hover:text-orange-600"
+                                            >
+                                                Proiecte
+                                            </Link>
+                                            <Link
+                                                to={ROUTES.ERP_MEMBERSHIP_FEES}
+                                                onClick={closeMobileMenu}
+                                                className="block px-10 py-2.5 text-sm text-gray-600 hover:text-orange-600"
+                                            >
+                                                Cotizatii Membri
+                                            </Link>
+                                            <Link
+                                                to={ROUTES.SONDAJE}
+                                                onClick={closeMobileMenu}
+                                                className="block px-10 py-2.5 text-sm text-gray-600 hover:text-orange-600"
+                                            >
+                                                Sondaje
+                                            </Link>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            {hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && hasCRM && (
+                                <>
+                                    <button
+                                        onClick={() => setMobileCrmOpen(!mobileCrmOpen)}
+                                        className="flex items-center justify-between w-full px-6 py-3 text-base text-gray-700 hover:bg-gray-50"
+                                    >
+                                        <span className={location.pathname.startsWith('/crm') ? 'text-orange-600 font-semibold' : ''}>
+                                            CRM
+                                        </span>
+                                        <svg 
+                                            className={`w-5 h-5 transition-transform ${mobileCrmOpen ? 'rotate-180' : ''}`} 
+                                            fill="none" 
+                                            stroke="currentColor" 
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                    {mobileCrmOpen && (
+                                        <div className="bg-gray-50 border-l-4 border-orange-300">
+                                            <Link
+                                                to={ROUTES.CRM_ORGANIZATION_DETAILS}
+                                                onClick={closeMobileMenu}
+                                                className="block px-10 py-2.5 text-sm text-gray-600 hover:text-orange-600"
+                                            >
+                                                Organizatia Mea
+                                            </Link>
+                                            <Link
+                                                to={ROUTES.CRM_ENTITIES}
+                                                onClick={closeMobileMenu}
+                                                className="block px-10 py-2.5 text-sm text-gray-600 hover:text-orange-600"
+                                            >
+                                                Entitati
+                                            </Link>
+                                            <Link
+                                                to={ROUTES.CRM_DONATIONS}
+                                                onClick={closeMobileMenu}
+                                                className="block px-10 py-2.5 text-sm text-gray-600 hover:text-orange-600"
+                                            >
+                                                Donatii
+                                            </Link>
+                                            <Link
+                                                to={ROUTES.CRM_GENERAL_ASSEMBLY}
+                                                onClick={closeMobileMenu}
+                                                className="block px-10 py-2.5 text-sm text-gray-600 hover:text-orange-600"
+                                            >
+                                                Organizează Ședință
+                                            </Link>
+                                            <Link
+                                                to={ROUTES.CRM_COMMUNICATIONS}
+                                                onClick={closeMobileMenu}
+                                                className="block px-10 py-2.5 text-sm text-gray-600 hover:text-orange-600"
+                                            >
+                                                Comunicari
+                                            </Link>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            <Link
+                                to={ROUTES.CALENDAR}
+                                onClick={closeMobileMenu}
+                                className={`block px-6 py-3 text-base ${
+                                    location.pathname === ROUTES.CALENDAR
+                                        ? 'text-orange-600 font-semibold bg-orange-50'
+                                        : 'text-gray-700 hover:bg-gray-50'
+                                }`}
+                            >
+                                Calendar
+                            </Link>
+
+                            <div className="border-t border-gray-200 mt-2 pt-2">
+                                <Link
+                                    to={ROUTES.PROFILE}
+                                    onClick={closeMobileMenu}
+                                    className="block px-6 py-3 text-base text-gray-700 hover:bg-gray-50"
+                                >
+                                    Profil
+                                </Link>
+                                <Link
+                                    to={ROUTES.SETTINGS}
+                                    onClick={closeMobileMenu}
+                                    className="block px-6 py-3 text-base text-gray-700 hover:bg-gray-50"
+                                >
+                                    Setari
+                                </Link>
+                                <button
+                                    onClick={() => {
+                                        closeMobileMenu();
+                                        handleLogout();
+                                    }}
+                                    className="block w-full text-left px-6 py-3 text-base text-red-600 hover:bg-red-50"
+                                >
+                                    Delogheaza-te
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </header>
 
             <main className="flex-grow">
@@ -417,6 +648,9 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                     </div>
                 </div>
             </footer>
+
+            {isAuthenticated && <AIChatWidget isOpen={aiChatOpen} onClose={() => setAiChatOpen(false)} />}
+            <AccessibilityWidget />
         </div>
     );
 };

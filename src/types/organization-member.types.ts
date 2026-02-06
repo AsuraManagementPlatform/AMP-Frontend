@@ -59,6 +59,7 @@ export interface OrganizationMemberWithDetails extends OrganizationMember {
         fullName: string;
         email: string;
         phoneNumber?: string;
+        branch?: string;
     };
     organizationDetails?: {
         id: string;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import showToast from '@/components/ui/Toast';
@@ -14,6 +15,7 @@ export const GlobalBroadcastModal: React.FC<GlobalBroadcastModalProps> = ({
     isOpen,
     onClose
 }) => {
+    const { t } = useTranslation();
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
     const [priority, setPriority] = useState<CommunicationPriority>('NORMAL');
@@ -21,12 +23,12 @@ export const GlobalBroadcastModal: React.FC<GlobalBroadcastModalProps> = ({
 
     const handleSubmit = async () => {
         if (!subject.trim()) {
-            showToast.error('Subiectul este obligatoriu');
+            showToast.error(t('toast.communication.broadcast_subject_required'));
             return;
         }
 
         if (!message.trim()) {
-            showToast.error('Mesajul este obligatoriu');
+            showToast.error(t('toast.communication.broadcast_message_required'));
             return;
         }
 
@@ -38,13 +40,13 @@ export const GlobalBroadcastModal: React.FC<GlobalBroadcastModalProps> = ({
                 priority
             });
 
-            showToast.success(`Mesaj trimis cu succes către ${result.recipients_count || 0} utilizatori!`);
+            showToast.success(t('toast.communication.broadcast_sent', { count: result.recipients_count || 0 }));
             setSubject('');
             setMessage('');
             setPriority('NORMAL');
             onClose();
         } catch (error: any) {
-            showToast.error(error.message || 'Nu s-a putut trimite mesajul global');
+            showToast.error(error.message || t('toast.default_error_message'));
         } finally {
             setIsSubmitting(false);
         }

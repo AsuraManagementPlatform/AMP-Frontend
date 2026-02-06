@@ -150,6 +150,38 @@ export const updateActivitySchema = createActivitySchema.partial().extend({
 
 export type UpdateActivityData = z.infer<typeof updateActivitySchema>;
 
+export const updateActivitySchemaWithProjectDates = (projectStartDate?: string, projectEndDate?: string) => {
+    const baseSchema = updateActivitySchema;
+    
+    if (!projectStartDate || !projectEndDate) {
+        return baseSchema;
+    }
+    
+    return baseSchema
+        .refine((data) => {
+            if (data.startingDate && projectStartDate) {
+                const activityStart = new Date(data.startingDate);
+                const projectStart = new Date(projectStartDate);
+                return activityStart >= projectStart;
+            }
+            return true;
+        }, {
+            message: t('schema.activity.starting_date_before_project'),
+            path: ['startingDate']
+        })
+        .refine((data) => {
+            if (data.estimatedEndingDate && projectEndDate) {
+                const activityEnd = new Date(data.estimatedEndingDate);
+                const projectEnd = new Date(projectEndDate);
+                return activityEnd <= projectEnd;
+            }
+            return true;
+        }, {
+            message: t('schema.activity.estimated_ending_date_after_project'),
+            path: ['estimatedEndingDate']
+        });
+};
+
 export const getCreateActivityDefaultValues = (project?: string): CreateActivityData => ({
     project: project || '',
     projectObjective: '',

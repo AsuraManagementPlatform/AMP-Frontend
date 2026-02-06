@@ -65,14 +65,14 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
 
     const handleReply = async () => {
         if (!replyMessage.trim()) {
-            showToast.error('Te rog scrie un răspuns');
+            showToast.error(t('toast.communication.reply_required'));
             return;
         }
 
         try {
             setIsSubmitting(true);
             const response = await communicationService.reply(communication.id, { message: replyMessage });
-            showToast.success('Răspunsul a fost trimis cu succes!');
+            showToast.success(t('toast.communication.reply_sent'));
             setReplyMessage('');
             
             if (response?.conversationHistory) {
@@ -93,7 +93,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
     const handleStatusChange = async (newStatus: UserCommunicationStatus) => {
         try {
             await communicationService.updateStatus(communication.id, { status: newStatus });
-            showToast.success('Statusul a fost actualizat!');
+            showToast.success(t('toast.communication.status_updated'));
             await communicationService.markAsRead(communication.id);
             onUpdate();
         } catch (error: any) {
@@ -104,7 +104,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
     const handleConfirmSponsorship = async () => {
         const donationIdMatch = communication.initialMessage.match(/donation_id:([a-f0-9-]+)/);
         if (!donationIdMatch) {
-            showToast.error('Nu s-a putut găsi ID-ul sponsorizării');
+            showToast.error(t('toast.communication.sponsorship_id_not_found'));
             return;
         }
 
@@ -113,7 +113,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
         try {
             setIsSubmitting(true);
             await apiService.post(`entity-donation/${donationId}/confirm`);
-            showToast.success('Sponsorizarea a fost confirmată! Suma a fost adăugată la buget.');
+            showToast.success(t('toast.communication.sponsorship_confirmed'));
             await communicationService.markAsRead(communication.id);
             onUpdate();
         } catch (error: any) {
@@ -126,7 +126,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
     const handleRejectSponsorship = async () => {
         const donationIdMatch = communication.initialMessage.match(/donation_id:([a-f0-9-]+)/);
         if (!donationIdMatch) {
-            showToast.error('Nu s-a putut găsi ID-ul sponsorizării');
+            showToast.error(t('toast.communication.sponsorship_id_not_found'));
             return;
         }
 
@@ -135,7 +135,7 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
         try {
             setIsSubmitting(true);
             await apiService.post(`entity-donation/${donationId}/reject`);
-            showToast.success('Sponsorizarea a fost respinsă.');
+            showToast.success(t('toast.communication.sponsorship_rejected'));
             await communicationService.markAsRead(communication.id);
             onUpdate();
         } catch (error: any) {
@@ -197,10 +197,10 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
         setIsModalVisible(false);
         
         const confirmed = await confirm({
-            title: 'Șterge mesajul',
-            message: 'Ești sigur că vrei să ștergi acest mesaj? Această acțiune va șterge mesajul doar pentru tine.',
-            confirmText: 'Șterge',
-            cancelText: 'Anulează',
+            title: t('label.communication.delete_title'),
+            message: t('label.communication.delete_confirm'),
+            confirmText: t('button.delete'),
+            cancelText: t('button.cancel'),
             confirmButtonVariant: 'danger',
         });
 
@@ -212,11 +212,11 @@ export const ViewCommunicationModal: React.FC<ViewCommunicationModalProps> = ({
         try {
             setIsSubmitting(true);
             await communicationService.delete(communication.id);
-            showToast.success('Mesajul a fost șters cu succes');
+            showToast.success(t('toast.communication.deleted_single'));
             onClose();
             onUpdate();
         } catch (error: any) {
-            showToast.error(error.message || 'Nu s-a putut șterge mesajul');
+            showToast.error(error.message || t('toast.default_error_message'));
             setIsModalVisible(true);
         } finally {
             setIsSubmitting(false);

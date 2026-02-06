@@ -1,4 +1,4 @@
-import {CommunicationType, EntityCommunication, SelectOption, TableAction, TableColumn} from '@/types/index.types';
+import {CommunicationType, EntityCommunication, SelectOption, TableAction, TableColumn, UserGroup} from '@/types/index.types';
 import React, { useState } from "react";
 import Table from "@/components/ui/Table.tsx";
 import { ActionIcons } from '@/components/ui/ActionIcons';
@@ -8,6 +8,7 @@ import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
 import { t } from 'i18next';
 import { UpdateEntityCommunicationModal } from "@/components/modals/entity-communication/UpdateEntityCommunicationModal.tsx";
 import entityCommunicationService from "@/services/entity-communicationService.ts";
+import { useAuth } from '@/hooks/useAuth';
 
 interface EntityCommunicationListProps {
     entityId: string;
@@ -22,9 +23,12 @@ export const EntityCommunicationList: React.FC<EntityCommunicationListProps> = (
     pageSize = 10,
     organizationMembers = [],}) => {
     const confirm = useConfirmDialog();
+    const { hasAnyUserGroup } = useAuth();
     const [selectedCommunication, setSelectedCommunication] = useState<EntityCommunication | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
+    
+    const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
     const handleEdit = (communication: EntityCommunication) => {
         setSelectedCommunication(communication);
@@ -139,7 +143,8 @@ export const EntityCommunicationList: React.FC<EntityCommunicationListProps> = (
             label: t('action.delete'),
             variant: 'danger',
             onClick: handleDelete,
-            icon: <ActionIcons.Delete />
+            icon: <ActionIcons.Delete />,
+            show: () => isOrgAdmin
         }
     ];
 

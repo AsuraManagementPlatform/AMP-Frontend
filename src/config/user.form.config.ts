@@ -1,14 +1,17 @@
 import { DynamicFormConfig, FieldType, SelectOption } from "@/types/form.types.ts";
 import { UserGroup } from "@/types/auth.types.ts";
 import { UserStatus } from "@/types/user.types.ts";
+import i18next from 'i18next';
+
+const t = (key: string) => i18next.t(key);
 
 const getUserGroupOptions = (isAdmin: boolean, isOrgAdmin: boolean): SelectOption[] => {
     const allGroups = [
-        { value: UserGroup.ORGANIZATION_ADMIN, label: 'Administrator Organizație' },
-        { value: UserGroup.MANAGER, label: 'Manager' },
-        { value: UserGroup.EMPLOYEE, label: 'Angajat' },
-        { value: UserGroup.MEMBER, label: 'Membru' },
-        { value: UserGroup.VOLUNTEER, label: 'Voluntar' }
+        { value: UserGroup.ORGANIZATION_ADMIN, label: t('label.user.group_organization_admin') },
+        { value: UserGroup.MANAGER, label: t('label.user.group_manager') },
+        { value: UserGroup.EMPLOYEE, label: t('label.user.group_employee') },
+        { value: UserGroup.MEMBER, label: t('label.user.group_member') },
+        { value: UserGroup.VOLUNTEER, label: t('label.user.group_volunteer') }
     ];
 
     if (isAdmin) {
@@ -22,9 +25,9 @@ const getUserGroupOptions = (isAdmin: boolean, isOrgAdmin: boolean): SelectOptio
 
 const getUserStatusOptions = (formValues?: any): SelectOption[] => {
     const baseOptions = [
-        { value: UserStatus.ACTIVE, label: 'Activ' },
-        { value: UserStatus.INACTIVE, label: 'Inactiv' },
-        { value: UserStatus.DRAFT, label: 'În așteptare' }
+        { value: UserStatus.ACTIVE, label: t('label.user.status_active') },
+        { value: UserStatus.INACTIVE, label: t('label.user.status_inactive') },
+        { value: UserStatus.DRAFT, label: t('label.user.status_draft') }
     ];
 
     if (formValues?.group === UserGroup.ORGANIZATION_ADMIN) {
@@ -43,64 +46,80 @@ export const createUserFormConfig = (
 ): DynamicFormConfig => ({
     sections: [
         {
-            title: "Informații utilizator",
+            title: t('label.user.section_info'),
             columns: 1,
             fields: [
                 {
                     name: 'full_name',
-                    label: 'Nume complet',
+                    label: t('label.user.full_name'),
                     type: FieldType.TEXT,
-                    placeholder: 'Ex: Ion Popescu',
+                    placeholder: t('label.user.full_name_placeholder'),
                     required: true,
                     maxLength: 100
                 },
                 {
                     name: 'email',
-                    label: 'Email',
+                    label: t('label.user.email'),
                     type: FieldType.EMAIL,
-                    placeholder: 'utilizator@exemplu.com',
+                    placeholder: t('label.user.email_placeholder'),
                     required: true
                 },
                 {
                     name: 'personal_numerical_number',
-                    label: 'CNP (Cod Numeric Personal)',
+                    label: t('label.user.cnp'),
                     type: FieldType.TEXT,
-                    placeholder: 'Ex: 1234567890123',
+                    placeholder: t('label.user.cnp_placeholder'),
                     required: true,
                     maxLength: 13,
                 },
                 {
                     name: 'phone_number',
-                    label: 'Număr telefon',
+                    label: t('label.user.phone_number'),
                     type: FieldType.TEL,
-                    placeholder: 'Ex: +40712345678',
+                    placeholder: t('label.user.phone_number_placeholder'),
                 },
                 {
                     name: 'isLegalEntity',
-                    label: 'Entitate juridică (companie)',
+                    label: t('label.user.is_legal_entity'),
                     type: FieldType.CHECKBOX,
-                    helperText: 'Bifați această opțiune dacă utilizatorul reprezintă o companie sau organizație'
+                    helperText: t('label.user.is_legal_entity_helper')
                 },
                 {
                     name: 'company_number',
-                    label: 'Număr înregistrare companie',
+                    label: t('label.user.company_number'),
                     type: FieldType.TEXT,
-                    placeholder: 'Ex: RO12345678 sau 12345678',
+                    placeholder: t('label.user.company_number_placeholder'),
                     required: true,
-                    helperText: 'Codul de Identificare Fiscală (CIF/CUI)',
+                    helperText: t('label.user.company_number_helper'),
                     condition: (formValues: any) => formValues?.isLegalEntity === true,
                 },
                 {
                     name: 'company_name',
-                    label: 'Numele companiei',
+                    label: t('label.user.company_name'),
                     type: FieldType.TEXT,
-                    placeholder: 'Ex: SC Asura SRL',
+                    placeholder: t('label.user.company_name_placeholder'),
                     required: true,
                     condition: (formValues: any) => formValues?.isLegalEntity === true,
                 },
                 {
+                    name: 'branch',
+                    label: t('label.user.branch'),
+                    type: FieldType.TEXT,
+                    placeholder: t('label.user.branch_placeholder'),
+                    maxLength: 100,
+                    helperText: t('label.user.branch_helper')
+                },
+                {
+                    name: 'registration_number',
+                    label: t('label.user.registration_number'),
+                    type: FieldType.TEXT,
+                    placeholder: t('label.user.registration_number_placeholder'),
+                    maxLength: 50,
+                    helperText: t('label.user.registration_number_helper')
+                },
+                {
                     name: 'group',
-                    label: 'Grup utilizator',
+                    label: t('label.user.group'),
                     type: FieldType.SELECT,
                     required: true,
                     disabled: isAdmin,
@@ -109,7 +128,7 @@ export const createUserFormConfig = (
                 },
                 {
                     name: 'status',
-                    label: 'Status',
+                    label: t('label.user.status'),
                     type: FieldType.SELECT,
                     required: true,
                     options: getUserStatusOptions,
@@ -117,21 +136,21 @@ export const createUserFormConfig = (
                 },
                 {
                     name: 'is_contributor',
-                    label: 'Este cotizant?',
+                    label: t('label.user.is_contributor'),
                     type: FieldType.CHECKBOX,
-                    helperText: 'Utilizatorul plătește cotizații către organizație',
+                    helperText: t('label.user.is_contributor_helper'),
                     condition: () => !isAdmin,
                 },
                 {
                     name: 'auto_generate_fees',
-                    label: 'Generare automată cotizații',
+                    label: t('label.user.auto_generate_fees'),
                     type: FieldType.CHECKBOX,
-                    helperText: 'Generează automat cotizații recurente pentru acest utilizator',
+                    helperText: t('label.user.auto_generate_fees_helper'),
                     condition: (formValues: any) => formValues?.is_contributor === true,
                 }
             ]
         }
     ],
-    submitButtonText: 'Creează utilizator',
-    cancelButtonText: 'Anulează'
+    submitButtonText: t('label.user.submit_create'),
+    cancelButtonText: t('label.button.cancel')
 });

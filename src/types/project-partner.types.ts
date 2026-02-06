@@ -15,6 +15,8 @@ export interface ProjectPartner extends BaseEntity {
     entity: string;
     entityName: string;
     engagementLevel?: EngagementLevel;
+    budget: number;
+    projectCurrency?: string;
     projectFunds?: ProjectFund[];
     totalDonations?: number;
     totalDonationsCount?: number;
@@ -24,9 +26,11 @@ export interface ProjectPartnerCreateRequest {
     project: string;
     entity: string;
     engagementLevel?: EngagementLevel;
+    budget?: number;
 }
 
 export interface ProjectPartnerUpdateRequest {
     id: string;
     engagementLevel?: EngagementLevel;
+    budget?: number;
 }

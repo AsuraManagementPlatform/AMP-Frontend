@@ -31,14 +31,12 @@ export const useProjectReport = () => {
       const blob = await projectReportService.downloadExcel(request);
       
       if (!(blob instanceof Blob)) {
-        console.error('Response is not a Blob:', blob);
-        showToast.error('Format răspuns invalid');
+        showToast.error(t('toast.report.invalid_response_format'));
         return;
       }
       
       if (blob.size === 0) {
-        console.error('Blob size is 0');
-        showToast.error('Fișier gol primit de la server');
+        showToast.error(t('toast.report.empty_file'));
         return;
       }
       
@@ -65,14 +63,12 @@ export const useProjectReport = () => {
       const blob = await projectReportService.downloadPDF(request);
       
       if (!(blob instanceof Blob)) {
-        console.error('Response is not a Blob:', blob);
-        showToast.error('Format răspuns invalid');
+        showToast.error(t('toast.report.invalid_response_format'));
         return;
       }
       
       if (blob.size === 0) {
-        console.error('Blob size is 0');
-        showToast.error('Fișier gol primit de la server');
+        showToast.error(t('toast.report.empty_file'));
         return;
       }
       

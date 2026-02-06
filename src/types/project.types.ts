@@ -40,6 +40,9 @@ export interface Project extends BaseEntity {
     activitiesCount: number;
     activeFunds: number;
     activeExpenses: number;
+    partnersBudget: number;
+    ownBudget: number;
+    partnersCount: number;
 }
 
 export interface ProjectCreateRequest {
@@ -70,6 +73,23 @@ export interface ProjectStats {
     completedProjects: number;
     totalBudget: number;
     spentBudget: number;
+}
+
+export interface ProjectDeletionPreview {
+    projectName: string;
+    projectStatus: string;
+    canDelete: boolean;
+    itemsToDelete: {
+        fundAllocations: number;
+        projectExpenses: number;
+        projectFunds: number;
+        activities: number;
+        activityDocuments: number;
+        projectPartners: number;
+        projectMembers: number;
+        projectObjectives: number;
+        projectDocuments: number;
+    };
 }
 
 export interface ProjectFilter {

@@ -1,4 +1,4 @@
-import {TableAction, TableColumn} from '@/types/index.types';
+import {TableAction, TableColumn, UserGroup} from '@/types/index.types';
 import React, {useState} from "react";
 import Table from "@/components/ui/Table.tsx";
 import {Entity, EntityType} from '@/types/entity.types';
@@ -9,6 +9,7 @@ import {useConfirmDialog} from '@/components/ui/ConfirmDialog';
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
 import {t} from 'i18next';
 import { ActionIcons } from '@/components/ui/ActionIcons';
+import { useAuth } from '@/hooks/useAuth';
 
 interface EntityListProps {
     organizationId: string;
@@ -24,9 +25,12 @@ export const EntityList: React.FC<EntityListProps> = ({
                                                           onRowClick,
                                                       }) => {
     const confirm = useConfirmDialog();
+    const { hasAnyUserGroup } = useAuth();
     const [selectedEntity, setSelectedEntity] = useState<Entity | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
+    
+    const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
     const handleEdit = (entity: Entity) => {
         setSelectedEntity(entity);
@@ -121,7 +125,8 @@ export const EntityList: React.FC<EntityListProps> = ({
             label: t('action.delete'),
             variant: 'danger',
             onClick: handleDelete,
-            icon: <ActionIcons.Delete />
+            icon: <ActionIcons.Delete />,
+            show: () => isOrgAdmin
         }
     ];
 

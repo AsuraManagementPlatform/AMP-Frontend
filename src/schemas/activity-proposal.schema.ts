@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const createActivityProposalSchema = z.object({
     project: z.uuid('Proiectul este obligatoriu'),
     organization: z.uuid('Organizația este obligatorie'),
+    parentActivity: z.uuid('ID activitate părinte invalid').optional().or(z.literal('')),
     activityTitle: z.string()
         .min(3, 'Titlul trebuie să conțină cel puțin 3 caractere')
         .max(255, 'Titlul nu poate depăși 255 de caractere'),
@@ -38,6 +39,7 @@ export type CreateActivityProposalData = z.infer<typeof createActivityProposalSc
 export const getDefaultActivityProposalValues = (projectId?: string, organizationId?: string): CreateActivityProposalData => ({
     project: projectId || '',
     organization: organizationId || '',
+    parentActivity: '',
     activityTitle: '',
     description: '',
     startDate: new Date().toISOString().split('T')[0],

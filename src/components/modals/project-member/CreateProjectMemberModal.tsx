@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import {Modal} from '@/components/ui/Modal';
 import {DynamicForm} from '@/components/forms/DynamicForm';
 import projectMemberService from '@/services/project-member.service.ts';
@@ -28,6 +29,7 @@ export const CreateProjectMemberModal: React.FC<CreateProjectMemberModalProps> =
                                                                                       project,
                                                                                       organizationId
                                                                                   }) => {
+    const {t} = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [organizationUsers, setOrganizationUsers] = useState<User[]>([]);
     const [loadingUsers, setLoadingUsers] = useState(true);
@@ -44,7 +46,7 @@ export const CreateProjectMemberModal: React.FC<CreateProjectMemberModalProps> =
                 });
                 setOrganizationUsers(response.results || []);
             } catch (error) {
-                showToast.error('Eroare la încărcarea utilizatorilor');
+                showToast.error(t('toast.project_member.load_error'));
             } finally {
                 setLoadingUsers(false);
             }
@@ -72,11 +74,11 @@ export const CreateProjectMemberModal: React.FC<CreateProjectMemberModalProps> =
             };
 
             await projectMemberService.create(projectMemberCreateRequest);
-            showToast.success('Membrul a fost adăugat cu succes!');
+            showToast.success(t('toast.project_member.create_success'));
             onSuccess();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.message || 'Eroare la adăugarea membrului';
+            const errorMessage = error?.message || t('toast.project_member.create_error');
             showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
@@ -88,9 +90,9 @@ export const CreateProjectMemberModal: React.FC<CreateProjectMemberModalProps> =
 
     if (loadingUsers) {
         return (
-            <Modal isOpen={isOpen} onClose={onClose} title="Adaugă membru" size="lg">
+            <Modal isOpen={isOpen} onClose={onClose} title={t('label.project_member.add_member')} size="lg">
                 <div className="flex justify-center items-center py-8">
-                    <div className="text-gray-600">Se încarcă...</div>
+                    <div className="text-gray-600">{t('label.project_member.loading')}</div>
                 </div>
             </Modal>
         );
@@ -100,7 +102,7 @@ export const CreateProjectMemberModal: React.FC<CreateProjectMemberModalProps> =
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Adaugă membru în proiect"
+            title={t('label.project_member.create_title')}
             size="lg"
         >
             <DynamicForm<CreateProjectMemberData>

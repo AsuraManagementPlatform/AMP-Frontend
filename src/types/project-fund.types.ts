@@ -29,6 +29,7 @@ export interface ProjectFund extends BaseEntity {
     notes?: string;
     status: ProjectFundStatus;
     allocations: ProjectFundAllocation[];
+    documentsCount?: number;
 }
 
 export interface ProjectFundCreateRequest {
@@ -55,6 +56,7 @@ export interface ProjectFundPayRequest {
     id: string;
     amount: number;
     date: string;
+    documentId?: string;
 }
 
 export const FundAllocationStatus = {

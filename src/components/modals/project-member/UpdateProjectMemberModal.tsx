@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { DynamicForm } from '@/components/forms/DynamicForm';
 import projectMemberService from '@/services/project-member.service.ts';
@@ -32,6 +33,7 @@ export const UpdateProjectMemberModal: React.FC<UpdateProjectMemberModalProps> =
                                                                                       member,
                                                                                       organizationId
                                                                                   }) => {
+    const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [organizationUsers, setOrganizationUsers] = useState<User[]>([]);
     const [loadingUsers, setLoadingUsers] = useState(true);
@@ -48,7 +50,7 @@ export const UpdateProjectMemberModal: React.FC<UpdateProjectMemberModalProps> =
                 });
                 setOrganizationUsers(response.results || []);
             } catch (error) {
-                showToast.error('Eroare la încărcarea utilizatorilor');
+                showToast.error(t('toast.project_member.load_error'));
             } finally {
                 setLoadingUsers(false);
             }
@@ -79,11 +81,11 @@ export const UpdateProjectMemberModal: React.FC<UpdateProjectMemberModalProps> =
             }
 
             await projectMemberService.update(member.id, projectMemberUpdateRequest);
-            showToast.success('Membrul a fost actualizat cu succes!');
+            showToast.success(t('toast.project_member.update_success'));
             onSuccess();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.message || 'Eroare la actualizarea membrului';
+            const errorMessage = error?.message || t('toast.project_member.update_error');
             showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
@@ -107,9 +109,9 @@ export const UpdateProjectMemberModal: React.FC<UpdateProjectMemberModalProps> =
 
     if (loadingUsers) {
         return (
-            <Modal isOpen={isOpen} onClose={onClose} title="Actualizează membru" size="lg">
+            <Modal isOpen={isOpen} onClose={onClose} title={t('label.project_member.edit_title')} size="lg">
                 <div className="flex justify-center items-center py-8">
-                    <div className="text-gray-600">Se încarcă...</div>
+                    <div className="text-gray-600">{t('label.project_member.loading')}</div>
                 </div>
             </Modal>
         );
@@ -119,7 +121,7 @@ export const UpdateProjectMemberModal: React.FC<UpdateProjectMemberModalProps> =
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Actualizează membru"
+            title={t('label.project_member.edit_title')}
             size="lg"
         >
             <DynamicForm<UpdateProjectMemberData>

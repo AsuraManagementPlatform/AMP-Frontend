@@ -1,7 +1,8 @@
 import React from 'react';
 import { Control, useController } from 'react-hook-form';
-import {ComboFieldConfig, FieldConfig, FieldType, SelectFieldConfig} from "@/types/form.types.ts";
+import {ComboFieldConfig, FieldConfig, FieldType, SearchableSelectFieldConfig, SelectFieldConfig} from "@/types/form.types.ts";
 import { ComboField } from '@/components/ui/ComboField';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 
 interface DynamicFormFieldProps {
     field: FieldConfig;
@@ -181,6 +182,26 @@ export const DynamicFormField: React.FC<DynamicFormFieldProps> = ({
                         disabled={field.disabled}
                         className={field.className}
                         helperText={field.helperText}
+                    />
+                );
+            }
+
+            case FieldType.SEARCHABLE_SELECT: {
+                const searchableField = field as SearchableSelectFieldConfig;
+                const options = typeof searchableField.options === 'function'
+                    ? searchableField.options()
+                    : searchableField.options;
+
+                return (
+                    <SearchableSelect
+                        name={field.name}
+                        value={fieldProps.value || ''}
+                        onChange={fieldProps.onChange}
+                        onBlur={fieldProps.onBlur}
+                        options={options}
+                        placeholder={field.placeholder}
+                        disabled={field.disabled}
+                        className={field.className}
                     />
                 );
             }

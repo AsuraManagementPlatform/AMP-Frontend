@@ -9,12 +9,17 @@ export const createProjectPartnerSchema = z.object({
     engagementLevel: z.enum(ENGAGEMENT_LEVEL_TYPES as [EngagementLevel, ...EngagementLevel[]], {
         message: 'Engagement selectat nu este valid'
     }).default(EngagementLevel.NONE),
+    budget: z.coerce.number().min(0, 'Bugetul nu poate fi negativ').default(0),
 });
 
 export type CreateProjectPartnerData = z.infer<typeof createProjectPartnerSchema>;
 
-export const updateProjectPartnerSchema = createProjectPartnerSchema.partial().extend({
-    id: z.string()
+export const updateProjectPartnerSchema = z.object({
+    id: z.string(),
+    engagementLevel: z.enum(ENGAGEMENT_LEVEL_TYPES as [EngagementLevel, ...EngagementLevel[]], {
+        message: 'Engagement selectat nu este valid'
+    }).optional(),
+    budget: z.coerce.number().min(0, 'Bugetul nu poate fi negativ').optional(),
 });
 
 export type UpdateProjectPartnerData = z.infer<typeof updateProjectPartnerSchema>;
@@ -23,11 +28,11 @@ export const getCreateProjectPartnerDefaultValues = (project?: string, entity?: 
     project: project || '',
     entity: entity || '',
     engagementLevel: EngagementLevel.NONE,
+    budget: 0,
 });
 
 export const getUpdateProjectPartnerDefaultValues = (projectPartner: ProjectPartner): UpdateProjectPartnerData => ({
     id: projectPartner.id,
-    project: projectPartner.project,
-    entity: projectPartner.entity,
     engagementLevel: projectPartner.engagementLevel,
+    budget: projectPartner.budget || 0,
 });

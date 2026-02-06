@@ -4,6 +4,7 @@ import { userService } from "@/services/user.service";
 import showToast from "@/components/ui/Toast";
 import { cacheInvalidation, CACHE_KEYS } from "@/utils/cacheInvalidation";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "react-i18next";
 
 interface DashboardHandlersProps {
     setIsCreateUserModalOpen: (open: boolean) => void;
@@ -41,6 +42,7 @@ export const useDashboardHandlers = ({
     refreshUsers
 }: DashboardHandlersProps) => {
     const { refreshOrganizationModules } = useAuth();
+    const { t } = useTranslation();
 
     const handleCreateUser = async (data: UserCreateRequest) => {
         try {
@@ -54,14 +56,14 @@ export const useDashboardHandlers = ({
                 setCreatedUserData(userData);
                 setIsCreateOrgModalOpen(true);
             } else {
-                showToast.success('Utilizatorul a fost creat cu succes!');
+                showToast.success(t('toast.user.created'));
             }
             
             if (refreshUsers) {
                 refreshUsers();
             }
         } catch (error: any) {
-            showToast.error('Eroare la crearea utilizatorului');
+            showToast.error(t('toast.user.create_error'));
         }
     };
 
@@ -93,7 +95,7 @@ export const useDashboardHandlers = ({
     const handleSkipOrganization = () => {
         setIsCreateOrgModalOpen(false);
         setCreatedUserData(null);
-        showToast.success('Utilizatorul a fost creat cu succes!');
+        showToast.success(t('toast.user.created'));
     };
 
     const handleProjectClick = (projectId: string) => {
@@ -102,23 +104,23 @@ export const useDashboardHandlers = ({
     };
 
     const handleProjectCreated = () => {
-        showToast.success('Proiectul a fost creat cu succes!');
+        showToast.success(t('toast.project.created'));
         setIsCreateProjectModalOpen(false);
     };
 
     const handleActivityCreated = () => {
-        showToast.success('Activitatea a fost creată cu succes!');
+        showToast.success(t('toast.activity.created'));
         setIsCreateActivityModalOpen(false);
     };
 
     const handleOrganizationUpdate = () => {
-        showToast.success('Organizația a fost actualizată cu succes!');
+        showToast.success(t('toast.organization.updated'));
     };
 
     const handleActivateOrganization = async (organizationId: string) => {
         try {
             await organizationService.update(organizationId, { status: 'active' });
-            showToast.success('Organizația și toți utilizatorii au fost activați cu succes!');
+            showToast.success(t('toast.organization.activated'));
             if (refreshOrganizations) {
                 refreshOrganizations();
             }
@@ -126,14 +128,14 @@ export const useDashboardHandlers = ({
                 refreshUsers();
             }
         } catch (error) {
-            showToast.error('Eroare la activarea organizației');
+            showToast.error(t('toast.organization.activate_error'));
         }
     };
 
     const handleDeactivateOrganization = async (organizationId: string) => {
         try {
             await organizationService.update(organizationId, { status: 'inactive' });
-            showToast.success('Organizația și toți utilizatorii au fost dezactivați cu succes!');
+            showToast.success(t('toast.organization.deactivated'));
             if (refreshOrganizations) {
                 refreshOrganizations();
             }
@@ -141,7 +143,7 @@ export const useDashboardHandlers = ({
                 refreshUsers();
             }
         } catch (error) {
-            showToast.error('Eroare la dezactivarea organizației');
+            showToast.error(t('toast.organization.deactivate_error'));
         }
     };
 
@@ -149,7 +151,9 @@ export const useDashboardHandlers = ({
         try {
             await organizationService.toggleModule(organizationId, module, !currentlyEnabled);
             
-            showToast.success(`Modulul ${module} a fost ${currentlyEnabled ? 'dezactivat' : 'activat'} cu succes!`);
+            showToast.success(currentlyEnabled 
+                ? t('toast.organization.module_disabled', { module }) 
+                : t('toast.organization.module_enabled', { module }));
             
             await refreshOrganizationModules();
             cacheInvalidation.invalidate(CACHE_KEYS.ORGANIZATIONS);
@@ -158,44 +162,44 @@ export const useDashboardHandlers = ({
                 await refreshOrganizations();
             }
         } catch (error) {
-            showToast.error(`Eroare la ${module === 'ERP' ? 'activarea/dezactivarea' : 'activarea/dezactivarea'} modulului ${module}`);
+            showToast.error(t('toast.organization.module_toggle_error', { module }));
         }
     };
 
     const handleDeactivateUser = async (userId: string) => {
         try {
             await userService.deactivateUser(userId);
-            showToast.success('Utilizatorul a fost dezactivat cu succes!');
+            showToast.success(t('toast.user.deactivated'));
             if (refreshUsers) {
                 refreshUsers();
             }
         } catch (error) {
-            showToast.error('Eroare la dezactivarea utilizatorului');
+            showToast.error(t('toast.user.deactivate_error'));
         }
     };
 
     const handleReactivateUser = async (userId: string) => {
         try {
             await userService.reactivateUser(userId);
-            showToast.success('Utilizatorul a fost reactivat cu succes!');
+            showToast.success(t('toast.user.reactivated'));
             if (refreshUsers) {
                 refreshUsers();
             }
         } catch (error) {
-            showToast.error('Eroare la reactivarea utilizatorului');
+            showToast.error(t('toast.user.reactivate_error'));
         }
     };
 
     const handleResetPassword = async (userId: string) => {
-        if (!window.confirm('Sigur doriți să resetați parola acestui utilizator? Va primi un email cu o parolă temporară.')) {
+        if (!window.confirm(t('toast.user.password_reset_confirm'))) {
             return;
         }
 
         try {
             const result = await userService.resetPassword(userId);
-            showToast.success(`Email de resetare parolă trimis cu succes la ${result.email}!`);
+            showToast.success(t('toast.user.password_reset_sent', { email: result.email }));
         } catch (error) {
-            showToast.error('Eroare la trimiterea emailului de resetare parolă');
+            showToast.error(t('toast.user.password_reset_error'));
         }
     };
 
@@ -215,7 +219,7 @@ export const useDashboardHandlers = ({
         try {
             await userService.update(selectedUser.id, data);
             
-            showToast.success('Utilizator actualizat cu succes!');
+            showToast.success(t('toast.user.updated'));
             
             if (refreshUsers) {
                 refreshUsers();

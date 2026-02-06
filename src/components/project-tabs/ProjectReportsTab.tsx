@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFinancialReport, useProgressReport } from '@/hooks/useReports';
 import { Button } from '@/components/ui/Button';
 import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
@@ -25,12 +25,19 @@ export const ProjectReportsTab: React.FC<ProjectReportsTabProps> = ({
 }) => {
     const [activeReport, setActiveReport] = useState<ReportType>(null);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [filterStartDate, setFilterStartDate] = useState(projectStartDate);
+    const [filterEndDate, setFilterEndDate] = useState(projectEndDate);
+
+    useEffect(() => {
+        setFilterStartDate(projectStartDate);
+        setFilterEndDate(projectEndDate);
+    }, [projectStartDate, projectEndDate]);
 
     const financialReportQuery = useFinancialReport(
         {
             projectId,
-            startDate: projectStartDate,
-            endDate: projectEndDate,
+            startDate: filterStartDate,
+            endDate: filterEndDate,
         },
         activeReport === 'financial'
     );
@@ -38,8 +45,8 @@ export const ProjectReportsTab: React.FC<ProjectReportsTabProps> = ({
     const progressReportQuery = useProgressReport(
         {
             projectId,
-            startDate: projectStartDate,
-            endDate: projectEndDate,
+            startDate: filterStartDate,
+            endDate: filterEndDate,
         },
         activeReport === 'progress'
     );
@@ -53,8 +60,8 @@ export const ProjectReportsTab: React.FC<ProjectReportsTabProps> = ({
             setIsDownloading(true);
             const params = {
                 projectId,
-                startDate: projectStartDate,
-                endDate: projectEndDate,
+                startDate: filterStartDate,
+                endDate: filterEndDate,
             };
 
             const blob = reportType === 'financial'
@@ -65,7 +72,7 @@ export const ProjectReportsTab: React.FC<ProjectReportsTabProps> = ({
             const link = document.createElement('a');
             link.href = url;
             const romanianType = reportType === 'financial' ? 'raport_financiar' : 'raport_progres';
-            link.setAttribute('download', `${romanianType}_${projectName}_${projectStartDate}_${projectEndDate}.pdf`);
+            link.setAttribute('download', `${romanianType}_${projectName}_${filterStartDate}_${filterEndDate}.pdf`);
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -85,8 +92,8 @@ export const ProjectReportsTab: React.FC<ProjectReportsTabProps> = ({
             setIsDownloading(true);
             const params = {
                 projectId,
-                startDate: projectStartDate,
-                endDate: projectEndDate,
+                startDate: filterStartDate,
+                endDate: filterEndDate,
             };
 
             const blob = reportType === 'financial'
@@ -97,7 +104,7 @@ export const ProjectReportsTab: React.FC<ProjectReportsTabProps> = ({
             const link = document.createElement('a');
             link.href = url;
             const romanianType = reportType === 'financial' ? 'raport_financiar' : 'raport_progres';
-            link.setAttribute('download', `${romanianType}_${projectName}_${projectStartDate}_${projectEndDate}.xlsx`);
+            link.setAttribute('download', `${romanianType}_${projectName}_${filterStartDate}_${filterEndDate}.xlsx`);
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -117,9 +124,48 @@ export const ProjectReportsTab: React.FC<ProjectReportsTabProps> = ({
             <div className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-xl font-semibold mb-4">Rapoarte Proiect: {projectName}</h2>
                 
-                <p className="text-sm text-gray-600 mb-6">
-                    Perioada raportului: {new Date(projectStartDate).toLocaleDateString('ro-RO')} - {new Date(projectEndDate).toLocaleDateString('ro-RO')}
-                </p>
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                    <h3 className="text-sm font-medium text-gray-700 mb-3">{t('label.report.filter_period')}</h3>
+                    <div className="flex flex-wrap gap-4 items-end">
+                        <div className="flex-1 min-w-[200px]">
+                            <label className="block text-sm text-gray-600 mb-1">{t('label.report.start_date')}</label>
+                            <input
+                                type="date"
+                                value={filterStartDate}
+                                onChange={(e) => setFilterStartDate(e.target.value)}
+                                min={projectStartDate}
+                                max={filterEndDate}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div className="flex-1 min-w-[200px]">
+                            <label className="block text-sm text-gray-600 mb-1">{t('label.report.end_date')}</label>
+                            <input
+                                type="date"
+                                value={filterEndDate}
+                                onChange={(e) => setFilterEndDate(e.target.value)}
+                                min={filterStartDate}
+                                max={projectEndDate}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div>
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => {
+                                    setFilterStartDate(projectStartDate);
+                                    setFilterEndDate(projectEndDate);
+                                }}
+                            >
+                                {t('label.report.reset_period')}
+                            </Button>
+                        </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                        {t('label.report.project_period')}: {new Date(projectStartDate).toLocaleDateString('ro-RO')} - {new Date(projectEndDate).toLocaleDateString('ro-RO')}
+                    </p>
+                </div>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
                     <button

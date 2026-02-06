@@ -44,7 +44,7 @@ const CalendarPage: React.FC = () => {
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [selectedLeaveRequest, setSelectedLeaveRequest] = useState<LeaveRequest | null>(null);
     const [defaultDate, setDefaultDate] = useState<Date | undefined>(undefined);
-    const [showOnlyCurrentMonth, setShowOnlyCurrentMonth] = useState(true);
+    const [showOnlyCurrentMonth, setShowOnlyCurrentMonth] = useState(false);
     const [votingSurveyId, setVotingSurveyId] = useState<string | null>(null);
     const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
     const [isActivityDetailsOpen, setIsActivityDetailsOpen] = useState(false);
@@ -173,10 +173,10 @@ const CalendarPage: React.FC = () => {
 
             if (selectedEvent) {
                 await calendarService.updateEvent({ ...eventData, id: selectedEvent.id });
-                showToast.success('Eveniment actualizat cu succes!');
+                showToast.success(t('toast.calendar.event_updated'));
             } else {
                 await calendarService.createEvent(eventData);
-                showToast.success('Eveniment creat cu succes!');
+                showToast.success(t('toast.calendar.event_created'));
             }
             await loadEvents();
             await loadUpcomingEvents();
@@ -185,9 +185,9 @@ const CalendarPage: React.FC = () => {
             setDefaultDate(undefined);
         } catch (error) {
             if (error instanceof Error) {
-                showToast.error(`Eroare: ${error.message}`);
+                showToast.error(`${t('toast.default_error_message')}: ${error.message}`);
             } else {
-                showToast.error('Eroare la salvarea evenimentului');
+                showToast.error(t('toast.calendar.event_save_error'));
             }
         }
     };
@@ -195,19 +195,24 @@ const CalendarPage: React.FC = () => {
     const handleDeleteEvent = async (id: string) => {
         try {
             await calendarService.deleteEvent(id);
-            showToast.success('Eveniment șters cu succes!');
+            showToast.success(t('toast.calendar.event_deleted'));
             await loadEvents();
             await loadUpcomingEvents();
             setIsEventModalOpen(false);
             setSelectedEvent(null);
         } catch (error) {
-            showToast.error('Eroare la ștergerea evenimentului');
+            showToast.error(t('toast.calendar.event_delete_error'));
         }
     };
 
     const handleEventClick = (event: CalendarEvent) => {
         if (event.eventType === 'SURVEY' && event.relatedSurveyQuestion) {
             setVotingSurveyId(event.relatedSurveyQuestion);
+            return;
+        }
+
+        if (event.eventType === 'VOTE_SCHEDULING' && event.location) {
+            window.open(event.location, '_blank', 'noopener');
             return;
         }
         

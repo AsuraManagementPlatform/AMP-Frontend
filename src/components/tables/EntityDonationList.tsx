@@ -1,4 +1,4 @@
-import {EntityDonation, SelectOption, TableAction, TableColumn} from '@/types/index.types';
+import {EntityDonation, SelectOption, TableAction, TableColumn, UserGroup} from '@/types/index.types';
 import {DonationStatus} from '@/types/entity-donation.types';
 import React, {useState, useEffect} from "react";
 import Table from "@/components/ui/Table.tsx";
@@ -11,6 +11,7 @@ import {UpdateEntityDonationModal} from "@/components/modals/entity-donation/Upd
 import {ConfirmDonationModal} from "@/components/modals/entity-donation/ConfirmDonationModal.tsx";
 import {RejectDonationModal} from "@/components/modals/entity-donation/RejectDonationModal.tsx";
 import { ActionIcons } from '@/components/ui/ActionIcons';
+import { useAuth } from '@/hooks/useAuth';
 
 interface EntityDonationListProps {
     entityId?: string;
@@ -26,12 +27,15 @@ export const EntityDonationList: React.FC<EntityDonationListProps> = ({
     entities = [],
                                                                       }) => {
     const confirm = useConfirmDialog();
+    const { hasAnyUserGroup } = useAuth();
     const [selectedDonation, setSelectedDonation] = useState<EntityDonation | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
     const [typeSuggestions, setTypeSuggestions] = useState<string[]>([]);
+    
+    const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
     useEffect(() => {
         const fetchTypeSuggestions = async () => {
@@ -219,7 +223,8 @@ export const EntityDonationList: React.FC<EntityDonationListProps> = ({
             label: t('action.delete'),
             variant: 'danger',
             onClick: handleDelete,
-            icon: <ActionIcons.Delete />
+            icon: <ActionIcons.Delete />,
+            show: () => isOrgAdmin
         }
     ];
 

@@ -56,7 +56,8 @@ export const CreateProjectPartnerModal: React.FC<CreateProjectPartnerModalProps>
             const createRequest: ProjectPartnerCreateRequest = {
                 project: data.project,
                 entity: data.entity,
-                engagementLevel: data.engagementLevel
+                engagementLevel: data.engagementLevel,
+                budget: data.budget || 0
             };
 
             await projectPartnerService.create(createRequest);

@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import {Modal} from '@/components/ui/Modal.tsx';
 import {DynamicForm} from '@/components/forms/DynamicForm.tsx';
 import showToast from '@/components/ui/Toast.tsx';
@@ -27,6 +28,7 @@ export const CreateEntityCommunicationModal: React.FC<CreateEntityCommunicationM
     entityId,
     organizationMembers,
 }) => {
+    const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -51,12 +53,12 @@ export const CreateEntityCommunicationModal: React.FC<CreateEntityCommunicationM
             };
 
             await entityCommunicationService.create(entityCommunicationCreateRequest);
-            showToast.success('Comunicarea a fost creată cu succes!');
+            showToast.success(t('toast.entity_communication.created'));
             onSuccess();
             onClose();
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Nu s-a putut crea comunicarea. Încercați din nou.';
-            showToast.error(errorMessage);
+            const errorMessage = error instanceof Error ? error.message : t('toast.entity_communication.create_error');
+            showToast.error(errorMessage.includes('.') ? t(errorMessage) : errorMessage);
         } finally {
             setIsSubmitting(false);
         }
@@ -70,7 +72,7 @@ export const CreateEntityCommunicationModal: React.FC<CreateEntityCommunicationM
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Adaugă Comunicare"
+            title={t('label.entity_communication.create_title')}
             size="lg"
         >
             <DynamicForm<CreateEntityCommunicationData>

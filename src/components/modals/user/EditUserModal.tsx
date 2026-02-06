@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { DynamicForm } from '@/components/forms/DynamicForm.tsx';
 import { createUserFormConfig } from '@/config/user.form.config.ts';
@@ -24,13 +25,14 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
     isAdmin = false,
     isOrgAdmin = false
 }) => {
+    const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [key, setKey] = useState(0);
 
     const formConfig = {
         ...createUserFormConfig(isAdmin, isOrgAdmin),
-        submitButtonText: 'Salvează',
-        cancelButtonText: 'Anulează'
+        submitButtonText: t('label.button.save'),
+        cancelButtonText: t('label.button.cancel')
     };
 
     const defaultValues: Partial<UserCreateRequest> = user ? {
@@ -115,7 +117,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
         <Modal
             isOpen={isOpen}
             onClose={handleClose}
-            title="Editează utilizator"
+            title={t('label.user.edit_title')}
             size="md"
             showResetButton={true}
             onReset={handleReset}

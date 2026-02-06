@@ -2,7 +2,7 @@ import React from 'react';
 import { BaseButton, BaseButtonProps } from './BaseButton';
 
 interface PrimaryActionButtonProps extends Omit<BaseButtonProps, 'size'> {
-    variant?: 'create' | 'action' | 'important';
+    variant?: 'create' | 'action' | 'important' | 'danger';
     size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
@@ -21,7 +21,8 @@ export const PrimaryActionButton: React.FC<PrimaryActionButtonProps> = ({
     const variantClasses = {
         create: 'bg-transparent text-orange-500 hover:bg-orange-500 hover:text-white shadow-sm hover:shadow-md',
         action: 'bg-transparent text-orange-500 hover:bg-orange-500 hover:text-white shadow-sm hover:shadow-md',
-        important: 'bg-transparent text-orange-600 hover:bg-orange-600 hover:text-white shadow-md hover:shadow-lg'
+        important: 'bg-transparent text-orange-600 hover:bg-orange-600 hover:text-white shadow-md hover:shadow-lg',
+        danger: 'bg-transparent text-red-500 hover:bg-red-500 hover:text-white shadow-sm hover:shadow-md'
     };
 
     const styleClasses = `${variantClasses[variant]} font-semibold`;

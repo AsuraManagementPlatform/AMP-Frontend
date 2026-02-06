@@ -1,18 +1,21 @@
-import {ProjectFundStatus, SelectOption, TableAction, TableColumn} from '@/types/index.types';
+import {ProjectFundStatus, SelectOption, TableAction, TableColumn, UserGroup} from '@/types/index.types';
 import React, {useEffect, useState} from "react";
 import Table from "@/components/ui/Table.tsx";
 import { ActionIcons } from '@/components/ui/ActionIcons';
 import IconWallet from "@/assets/icons/iconmonstr-wallet.svg?react";
+import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import {ProjectFund} from '@/types/project-fund.types';
 import {UpdateProjectFundModal} from '@/components/modals/project-fund/UpdateProjectFundModal';
 import {PayProjectFundModal} from '@/components/modals/project-fund/PayProjectFundModal';
 import {ViewProjectFundModal} from '@/components/modals/project-fund/ViewProjectFundModal.tsx';
+import {ProjectFundDocumentsModal} from '@/components/modals/project-fund/ProjectFundDocumentsModal';
 import projectFundService from '@/services/project-fund.service';
 import showToast from '@/components/ui/Toast';
 import {useConfirmDialog} from "@/components/ui/ConfirmDialog";
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
 import {t} from 'i18next';
 import {Card} from '@/components/ui/Card';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ProjectFundListProps {
     project: string;
@@ -33,11 +36,15 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                                                                     entities,
                                                                 }) => {
     const confirm = useConfirmDialog();
+    const { hasAnyUserGroup } = useAuth();
     const [selectedFund, setSelectedFund] = useState<ProjectFund | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isPayModalOpen, setIsPayModalOpen] = useState(false);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [isDocumentsModalOpen, setIsDocumentsModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
+    
+    const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
     const [totalPlannedFunds, setTotalPlannedFunds] = useState<number>(0);
     const [totalPaidFunds, setTotalPaidFunds] = useState<number>(0);
@@ -63,6 +70,11 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
     const handlePay = (fund: ProjectFund) => {
         setSelectedFund(fund);
         setIsPayModalOpen(true);
+    };
+
+    const handleDocuments = (fund: ProjectFund) => {
+        setSelectedFund(fund);
+        setIsDocumentsModalOpen(true);
     };
 
     const handleCancel = async (fund: ProjectFund) => {
@@ -241,6 +253,32 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                 );
             }
         },
+        {
+            key: 'documentsCount',
+            label: t('label.project_fund.documents'),
+            sortable: false,
+            size: 'sm',
+            render: (_: unknown, row: ProjectFund) => {
+                const count = row.documentsCount || 0;
+                return (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleDocuments(row);
+                        }}
+                        className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                            count > 0
+                                ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                        title={t('label.project_fund.view_documents')}
+                    >
+                        <DocumentTextIcon className="w-4 h-4" />
+                        <span>{count}</span>
+                    </button>
+                );
+            }
+        },
     ];
 
     const getActions = (): TableAction<ProjectFund>[] => [
@@ -263,7 +301,7 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
             variant: 'danger',
             onClick: handleDelete,
             icon: <ActionIcons.Delete />,
-            show: (fund: ProjectFund) => fund.status === ProjectFundStatus.PLANNED
+            show: () => isOrgAdmin
         }
     ];
 
@@ -277,6 +315,9 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                     <div className="text-2xl font-bold text-yellow-600">
                         {loadingStats ? '...' : `${totalPlannedFunds.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${projectCurrency}`}
                     </div>
+                    <div className="text-xs text-gray-400 mt-1">
+                        {t('label.project_fund.total_planned_funds_desc')}
+                    </div>
                 </Card>
 
                 <Card className="text-center">
@@ -285,6 +326,9 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                     </div>
                     <div className="text-2xl font-bold text-blue-600">
                         {loadingStats ? '...' : `${totalPaidFunds.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} ${projectCurrency}`}
+                    </div>
+                    <div className="text-xs text-gray-400 mt-1">
+                        {t('label.project_fund.total_received_funds_desc')}
                     </div>
                 </Card>
 
@@ -298,6 +342,9 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                                 <div>{totalRemainingFunds.toLocaleString('ro-RO', { minimumFractionDigits: 2 })} {projectCurrency}</div>
                             </>
                         )}
+                    </div>
+                    <div className="text-xs text-gray-400 mt-1">
+                        {t('label.project_fund.available_remaining_desc')}
                     </div>
                 </Card>
             </div>
@@ -351,6 +398,20 @@ export const ProjectFundList: React.FC<ProjectFundListProps> = ({
                     }}
                     onCancel={handleCancel}
                     fund={selectedFund}
+                />
+            )}
+
+            {isDocumentsModalOpen && selectedFund && (
+                <ProjectFundDocumentsModal
+                    isOpen={isDocumentsModalOpen}
+                    onClose={() => {
+                        setIsDocumentsModalOpen(false);
+                        setSelectedFund(null);
+                    }}
+                    projectFundId={selectedFund.id}
+                    projectId={selectedFund.project}
+                    fundSourceName={selectedFund.sourceName}
+                    onDocumentsChange={() => setLocalRefresh(prev => prev + 1)}
                 />
             )}
         </>

@@ -21,11 +21,15 @@ const SettingsPage = lazy(() => import('@/pages/Settings.page'));
 const EntitiesPage = lazy(() => import('@/pages/crm/Entities.page'));
 const OrganizationDonationsPage = lazy(() => import('@/pages/crm/OrganizationDonations.page'));
 const CommunicationsPage = lazy(() => import('@/pages/crm/Communications.page'));
+const VotingSessionsPage = lazy(() => import('@/pages/crm/VotingSessions.page'));
+const GeneralAssemblyPage = lazy(() => import('@/pages/crm/GeneralAssembly.page'));
+const GeneralAssemblyMemberVotePage = lazy(() => import('@/pages/crm/GeneralAssemblyMemberVote.page'));
 const ProjectPage = lazy(() => import("@/pages/project/Project.page.tsx"));
 const MembershipFeesPage = lazy(() => import("@/pages/MembershipFees.page"));
 const TeamManagementPage = lazy(() => import("@/pages/organization/TeamManagement.page"));
 const Vats = lazy(() => import("@/pages/vat/Vats.page"));
 const SondajePage = lazy(() => import('./pages/Surveys.page'));
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 const LoadingFallback = () => (
     <div className="flex items-center justify-center h-screen">
@@ -198,6 +202,30 @@ function App() {
                                             }
                                         />
                                         <Route
+                                            path={ROUTES.CRM_VOTING_SESSIONS}
+                                            element={
+                                                <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN, UserGroup.MEMBER]} requireModule="CRM">
+                                                    <VotingSessionsPage />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path={ROUTES.CRM_GENERAL_ASSEMBLY}
+                                            element={
+                                                <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN, UserGroup.MEMBER]} requireModule="CRM">
+                                                    <GeneralAssemblyPage />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path={ROUTES.CRM_GENERAL_ASSEMBLY_MEMBER_VIEW}
+                                            element={
+                                                <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN, UserGroup.MEMBER]} requireModule="CRM">
+                                                    <GeneralAssemblyMemberVotePage />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
                                             path={ROUTES.CRM_ORGANIZATION_TEAM_MANAGEMENT}
                                             element={
                                                 <ProtectedRoute allowedRoles={[UserGroup.ORGANIZATION_ADMIN]} requireModule="CRM">
@@ -222,7 +250,7 @@ function App() {
                                         <Route path={ROUTES.ORGANIZATION_DETAILS} element={<Navigate to={ROUTES.CRM_ORGANIZATION_DETAILS} replace />} />
 
                                         {/* Error Routes */}
-                                        <Route path={ROUTES.NOT_FOUND} element={<div>Page Not Found</div>} />
+                                        <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
                                         <Route path="*" element={<Navigate to={ROUTES.NOT_FOUND} replace />} />
                                     </Routes>
                                 </Suspense>

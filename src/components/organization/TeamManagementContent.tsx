@@ -156,7 +156,8 @@ export const TeamManagementContent: React.FC<TeamManagementContentProps> = ({ or
                 registrationDate: fullUserData.registrationDate,
                 isActive: fullUserData.isActive,
                 profession: fullUserData.profession,
-                bio: fullUserData.bio
+                bio: fullUserData.bio,
+                branch: fullUserData.branch
             };
             setSelectedUser(userMeResponse);
             setSelectedMemberId(member.member);
@@ -389,13 +390,15 @@ export const TeamManagementContent: React.FC<TeamManagementContentProps> = ({ or
                             <Button 
                                 onClick={handleImportUsers}
                                 disabled={isImporting}
-                                className="border-0 text-green-600 bg-transparent hover:bg-green-600 hover:text-white transition-colors"
+                                variant="primary"
+                                className="bg-green-100 border-green-500 text-green-700 hover:bg-green-500"
                             >
                                 {isImporting ? 'Importare în curs...' : 'Importă Utilizatori'}
                             </Button>
                             <Button 
                                 onClick={handleExportUsers}
-                                className="border-0 text-blue-600 bg-transparent hover:bg-blue-600 hover:text-white transition-colors"
+                                variant="primary"
+                                className="bg-blue-100 border-blue-500 text-blue-700 hover:bg-blue-500"
                             >
                                 Exportă Utilizatori
                             </Button>
@@ -403,7 +406,8 @@ export const TeamManagementContent: React.FC<TeamManagementContentProps> = ({ or
                     )}
                     <Button 
                         onClick={handleOpenCreateUser}
-                        className="border-0 text-orange-600 bg-transparent hover:bg-orange-600 hover:text-white transition-colors"
+                        variant="primary"
+                        className="bg-orange-100 border-orange-500 text-orange-700 hover:bg-orange-500"
                     >
                         {t('label.organization_member.add_member')}
                     </Button>

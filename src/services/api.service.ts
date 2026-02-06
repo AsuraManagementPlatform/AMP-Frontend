@@ -43,7 +43,7 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
     (response: AxiosResponse) => {
-        if (response.data) {
+        if (response.data && response.config.responseType !== 'blob') {
             response.data = convertKeysToCamelCase(response.data);
         }
         return response;
@@ -82,6 +82,20 @@ export class ApiService {
 
     async delete<T>(url: string): Promise<T> {
         const response: AxiosResponse<T> = await apiClient.delete(url);
+        return response.data;
+    }
+
+    async postFormData<T>(url: string, formData: FormData): Promise<T> {
+        const response: AxiosResponse<T> = await apiClient.post(url, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    }
+
+    async getBlob(url: string): Promise<Blob> {
+        const response: AxiosResponse<Blob> = await apiClient.get(url, { responseType: 'blob' });
         return response.data;
     }
 

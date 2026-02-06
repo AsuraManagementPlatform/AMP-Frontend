@@ -33,7 +33,8 @@ export const UpdateProjectPartnerModal: React.FC<UpdateProjectPartnerModalProps>
             setIsSubmitting(true);
             await projectPartnerService.update({
                 id: partner.id,
-                engagementLevel: data.engagementLevel
+                engagementLevel: data.engagementLevel,
+                budget: data.budget
             });
             showToast.success(t('toast.project_partner.updated'));
             onSuccess();

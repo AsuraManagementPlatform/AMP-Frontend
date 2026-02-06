@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { t } from 'i18next';
 import { UserStatus } from "@/types/user.types.ts";
 import {UserGroup} from "@/types/auth.types.ts";
 
@@ -53,10 +54,10 @@ const validateCNP = (cnp: string): boolean => {
 export const createUserSchema = z.object({
     full_name: z
         .string()
-        .min(1, 'Numele complet este obligatoriu')
-        .min(2, 'Numele complet trebuie să aibă cel puțin 2 caractere')
-        .max(255, 'Numele complet nu poate avea mai mult de 255 caractere')
-        .regex(NAME_REGEX, 'Numele poate conține doar litere, spații, apostrofuri și cratime'),
+        .min(1, t('schema.user.full_name_required'))
+        .min(2, t('schema.user.full_name_min'))
+        .max(255, t('schema.user.full_name_max'))
+        .regex(NAME_REGEX, t('schema.user.full_name_regex')),
 
     first_name: z
         .string()
@@ -64,7 +65,7 @@ export const createUserSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 100,
-            { message: 'Prenumele nu poate avea mai mult de 100 caractere' }
+            { message: t('schema.user.first_name_max') }
         ),
 
     last_name: z
@@ -73,14 +74,14 @@ export const createUserSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 100,
-            { message: 'Numele de familie nu poate avea mai mult de 100 caractere' }
+            { message: t('schema.user.last_name_max') }
         ),
 
     email: z
         .string()
-        .min(1, 'Email-ul este obligatoriu')
-        .email('Adresa de email nu este validă')
-        .max(255, 'Email-ul nu poate avea mai mult de 255 caractere'),
+        .min(1, t('schema.user.email_required'))
+        .email(t('schema.user.email_invalid'))
+        .max(255, t('schema.user.email_max')),
     cnp: z
         .string()
         .optional()
@@ -90,16 +91,16 @@ export const createUserSchema = z.object({
                 if (!value || value.trim() === '') return true;
                 return validateCNP(value);
             },
-            { message: 'CNP-ul introdus nu este valid conform standardelor românești' }
+            { message: t('schema.user.cnp_invalid') }
         ),
 
     personal_numerical_number: z
         .string()
-        .min(1, 'CNP-ul este obligatoriu')
-        .length(13, 'CNP-ul trebuie să aibă exact 13 cifre')
-        .regex(/^\d+$/, 'CNP-ul poate conține doar cifre')
+        .min(1, t('schema.user.cnp_required'))
+        .length(13, t('schema.user.cnp_length'))
+        .regex(/^\d+$/, t('schema.user.cnp_digits_only'))
         .refine(validateCNP, {
-            message: 'CNP-ul introdus nu este valid conform standardelor românești'
+            message: t('schema.user.cnp_invalid')
         }),
     phone_number: z
         .string()
@@ -111,7 +112,7 @@ export const createUserSchema = z.object({
                 return ROMANIAN_PHONE_REGEX.test(value.replace(/[\s\-\(\)]/g, ''));
             },
             {
-                message: 'Numărul de telefon trebuie să fie în format românesc (ex: +40712345678, 0712345678)'
+                message: t('schema.user.phone_format')
             }
         ),
 
@@ -124,7 +125,7 @@ export const createUserSchema = z.object({
                 if (!value || value.trim() === '') return true;
                 return ROMANIAN_PHONE_REGEX.test(value.replace(/[\s\-\(\)]/g, ''));
             },
-            { message: 'Numărul secundar de telefon trebuie să fie în format românesc' }
+            { message: t('schema.user.secondary_phone_format') }
         ),
     address: z
         .string()
@@ -132,7 +133,7 @@ export const createUserSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 500,
-            { message: 'Adresa nu poate avea mai mult de 500 caractere' }
+            { message: t('schema.user.address_max') }
         ),
 
     city: z
@@ -141,7 +142,7 @@ export const createUserSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 100,
-            { message: 'Orașul nu poate avea mai mult de 100 caractere' }
+            { message: t('schema.user.city_max') }
         ),
 
     county: z
@@ -150,7 +151,7 @@ export const createUserSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 100,
-            { message: 'Județul nu poate avea mai mult de 100 caractere' }
+            { message: t('schema.user.county_max') }
         ),
 
     postal_code: z
@@ -162,7 +163,7 @@ export const createUserSchema = z.object({
                 if (!value || value.trim() === '') return true;
                 return POSTAL_CODE_REGEX.test(value);
             },
-            { message: 'Codul poștal trebuie să fie format din 6 cifre' }
+            { message: t('schema.user.postal_code_format') }
         ),
 
     country: z
@@ -191,7 +192,7 @@ export const createUserSchema = z.object({
                 if (!value || value.trim() === '') return true;
                 return CUI_REGEX.test(value);
             },
-            { message: 'CUI-ul trebuie să fie în format valid (ex: RO12345678 sau 12345678)' }
+            { message: t('schema.user.cui_format') }
         ),
     profession: z
         .string()
@@ -199,7 +200,7 @@ export const createUserSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 200,
-            { message: 'Profesia nu poate avea mai mult de 200 caractere' }
+            { message: t('schema.user.profession_max') }
         ),
 
     bio: z
@@ -208,10 +209,26 @@ export const createUserSchema = z.object({
         .or(z.literal(''))
         .refine(
             (value) => !value || value.length <= 1000,
-            { message: 'Biografia nu poate avea mai mult de 1000 caractere' }
+            { message: t('schema.user.bio_max') }
         ),
-    group: z.string().min(1, 'Grupul utilizator este obligatoriu'),
-    status: z.string().min(1, 'Statusul este obligatoriu'),
+    branch: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => !value || value.length <= 100,
+            { message: t('schema.user.branch_max') }
+        ),
+    registration_number: z
+        .string()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => !value || value.length <= 50,
+            { message: t('schema.user.registration_number_max') }
+        ),
+    group: z.string().min(1, t('schema.user.group_required')),
+    status: z.string().min(1, t('schema.user.status_required')),
     is_active: z.boolean().default(true),
     is_contributor: z.boolean().default(false),
     auto_generate_fees: z.boolean().default(true),

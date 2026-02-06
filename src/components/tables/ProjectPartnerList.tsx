@@ -86,6 +86,18 @@ export const ProjectPartnerList: React.FC<ProjectPartnerListProps> = ({
             size: 'lg',
         },
         {
+            key: 'budget',
+            label: t('label.project_partner.budget'),
+            sortable: true,
+            filterable: false,
+            size: 'md',
+            render: (value: number, row: ProjectPartner) => (
+                <span className="font-medium">
+                    {value?.toLocaleString('ro-RO') || '0'} {row.projectCurrency || 'RON'}
+                </span>
+            )
+        },
+        {
             key: 'engagementLevel',
             label: t('label.project_partner.engagement_level'),
             sortable: true,

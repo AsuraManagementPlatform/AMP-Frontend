@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { DynamicForm } from '@/components/forms/DynamicForm.tsx';
 import { createUserFormConfig } from '@/config/user.form.config.ts';
@@ -23,6 +24,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                                                                     isAdmin = false,
                                                                     isOrgAdmin = false
                                                                 }) => {
+    const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [key, setKey] = useState(0);
 
@@ -48,7 +50,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
             }
 
             if (!data.group || !data.status) {
-                showToast.error('Câmpurile grup și status sunt obligatorii');
+                showToast.error(t('toast.user.group_status_required'));
             }
 
             await onSubmit(data);
@@ -107,7 +109,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
         <Modal
             isOpen={isOpen}
             onClose={handleClose}
-            title="Creează utilizator nou"
+            title={t('label.user.create_title')}
             size="md"
             showResetButton={true}
             onReset={handleReset}

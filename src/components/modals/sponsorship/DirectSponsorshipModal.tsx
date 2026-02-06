@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import showToast from '@/components/ui/Toast';
@@ -17,6 +18,7 @@ export const DirectSponsorshipModal: React.FC<DirectSponsorshipModalProps> = ({
     onSuccess,
     organizationId
 }) => {
+    const { t } = useTranslation();
     const [amount, setAmount] = useState('');
     const [proofDocument, setProofDocument] = useState('');
     const [notes, setNotes] = useState('');
@@ -26,7 +28,7 @@ export const DirectSponsorshipModal: React.FC<DirectSponsorshipModalProps> = ({
         e.preventDefault();
 
         if (!amount || parseFloat(amount) <= 0) {
-            showToast.error('Te rog introdu o sumă validă');
+            showToast.error(t('label.sponsorship.invalid_amount'));
             return;
         }
 
@@ -43,14 +45,14 @@ export const DirectSponsorshipModal: React.FC<DirectSponsorshipModalProps> = ({
                 proof_document: proofDocument
             });
 
-            showToast.success('Sponsorizarea a fost trimisă! Adminul va verifica și confirma suma.');
+            showToast.success(t('toast.sponsorship.sent'));
             setAmount('');
             setProofDocument('');
             setNotes('');
             onSuccess();
             onClose();
         } catch (error: any) {
-            showToast.error(error.message || 'Nu s-a putut trimite sponsorizarea');
+            showToast.error(error.message || t('label.sponsorship.send_error'));
         } finally {
             setIsSubmitting(false);
         }
@@ -69,25 +71,25 @@ export const DirectSponsorshipModal: React.FC<DirectSponsorshipModalProps> = ({
         <Modal
             isOpen={isOpen}
             onClose={handleClose}
-            title="Sponsorizare Directă"
+            title={t('label.sponsorship.title')}
             size="md"
         >
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="bg-gradient-to-br from-orange-50 to-yellow-50 p-4 rounded-lg border border-orange-200">
                     <div className="text-center mb-3">
-                        <p className="text-sm text-gray-700 font-medium">Mulțumim pentru susținere!</p>
+                        <p className="text-sm text-gray-700 font-medium">{t('label.sponsorship.thanks_message')}</p>
                     </div>
                 </div>
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Sumă (RON) <span className="text-red-500">*</span>
+                        {t('label.sponsorship.amount')} <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="number"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
-                        placeholder="100"
+                        placeholder={t('label.sponsorship.amount_placeholder')}
                         min="1"
                         step="0.01"
                         required
@@ -97,28 +99,28 @@ export const DirectSponsorshipModal: React.FC<DirectSponsorshipModalProps> = ({
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Link Dovadă Plată
+                        {t('label.sponsorship.proof_document')}
                     </label>
                     <input
                         type="url"
                         value={proofDocument}
                         onChange={(e) => setProofDocument(e.target.value)}
-                        placeholder="https://example.com/proof.pdf"
+                        placeholder={t('label.sponsorship.proof_document_placeholder')}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                        Link către dovada plății (screenshot, PDF cu extras bancar, etc.)
+                        {t('label.sponsorship.proof_document_helper')}
                     </p>
                 </div>
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Note / Mesaj
+                        {t('label.sponsorship.notes')}
                     </label>
                     <textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
-                        placeholder="Mesaj pentru organizație (opțional)"
+                        placeholder={t('label.sponsorship.notes_placeholder')}
                         rows={3}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
@@ -131,7 +133,7 @@ export const DirectSponsorshipModal: React.FC<DirectSponsorshipModalProps> = ({
                         disabled={isSubmitting}
                         fullWidth
                     >
-                        {isSubmitting ? 'Se trimite...' : 'Confirmă Sponsorizarea'}
+                        {isSubmitting ? t('label.sponsorship.submitting') : t('label.sponsorship.confirm_button')}
                     </Button>
                     <Button
                         type="button"
@@ -140,7 +142,7 @@ export const DirectSponsorshipModal: React.FC<DirectSponsorshipModalProps> = ({
                         disabled={isSubmitting}
                         fullWidth
                     >
-                        Anulează
+                        {t('label.button.cancel')}
                     </Button>
                 </div>
             </form>

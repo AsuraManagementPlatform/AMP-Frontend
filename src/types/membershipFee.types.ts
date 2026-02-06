@@ -243,4 +243,32 @@ export interface MemberContributor {
     fees: MembershipFee[];
 }
 
+export const MemberType = {
+    EMPLOYEE: 'EMPLOYEE',
+    VOLUNTEER: 'VOLUNTEER',
+    MEMBER: 'MEMBER'
+} as const;
+
+export type MemberType = typeof MemberType[keyof typeof MemberType];
+
+export interface MembershipFeeConfig {
+    id: string;
+    memberType: MemberType;
+    renewPeriod: RenewPeriod;
+    amount: number;
+    isEnabled: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface MembershipFeeConfigUpdateItem {
+    id: string;
+    amount?: number;
+    isEnabled?: boolean;
+}
+
+export interface MembershipFeeConfigUpdateRequest {
+    configs: MembershipFeeConfigUpdateItem[];
+}
+
 import { PaginatedResponse } from "@/types/index.types";

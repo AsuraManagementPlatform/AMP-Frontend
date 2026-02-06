@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import Layout from "@/components/layout/Layout";
 import { Card } from "@/components/ui/Card";
@@ -14,6 +15,7 @@ import IconWallet from "@/assets/icons/iconmonstr-wallet.svg?react";
 import IconWarning from "@/assets/icons/iconmonstr-warning.svg?react";
 
 const MembershipFeesPage: React.FC = () => {
+    const { t } = useTranslation();
     const { user, hasAnyUserGroup } = useAuth();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [contributors, setContributors] = useState<MemberContributor[]>([]);
@@ -43,7 +45,7 @@ const MembershipFeesPage: React.FC = () => {
             setContributors(aggregated);
             return aggregated;
         } catch (error) {
-            showToast.error("Eroare la încărcarea datelor cotizanților");
+            showToast.error(t('toast.membership_fee.load_error'));
             return [];
         } finally {
             setLoading(false);

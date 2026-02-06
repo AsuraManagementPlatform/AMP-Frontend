@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/Card';
 import { membershipFeeService } from '@/services/membershipFee.service';
 import { MembershipFee, MembershipFeeStatus } from '@/types/membershipFee.types';
@@ -8,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { UserGroup } from '@/types/index.types';
 
 export const MyCotizatii: React.FC = () => {
+    const { t } = useTranslation();
     const { user, hasAnyUserGroup } = useAuth();
     const [fees, setFees] = useState<MembershipFee[]>([]);
     const [loading, setLoading] = useState(true);
@@ -36,7 +38,7 @@ export const MyCotizatii: React.FC = () => {
             );
             setFees(myFees);
         } catch (error) {
-            showToast.error('Eroare la încărcarea cotizațiilor');
+            showToast.error(t('toast.membership_fee.load_error'));
         } finally {
             setLoading(false);
         }
@@ -59,13 +61,13 @@ export const MyCotizatii: React.FC = () => {
         try {
             setIsGeneratingAdvance(true);
             await membershipFeeService.generateNext(user.id);
-            showToast.success('Cotizația în avans a fost adăugată cu succes');
+            showToast.success(t('toast.membership_fee.advance_generated'));
             loadMyFees();
         } catch (error: any) {
             if (error.status === 400) {
-                showToast.info('Nici o cotizație înregistrată, te rugăm să contactezi administratorul organizației');
+                showToast.info(t('toast.membership_fee.advance_no_fees'));
             } else {
-                showToast.error('Eroare la generarea cotizației în avans');
+                showToast.error(t('toast.membership_fee.advance_error'));
             }
         } finally {
             setIsGeneratingAdvance(false);
@@ -153,7 +155,7 @@ export const MyCotizatii: React.FC = () => {
         <>
             <Card title="Cotizațiile mele">
                 <div className="space-y-6">
-                    <div className={`grid ${isOrgAdmin ? 'grid-cols-3' : 'grid-cols-4'} gap-4`}>
+                    <div className={`grid grid-cols-2 ${isOrgAdmin ? 'md:grid-cols-3' : 'md:grid-cols-4'} gap-4`}>
                         <div className="bg-green-50 p-4 rounded-lg">
                             <div className="text-sm text-gray-600 mb-1">Total plătit</div>
                             <div className="text-2xl font-bold text-green-900">

@@ -14,6 +14,9 @@ import { membershipFeeService } from '@/services/membershipFee.service';
 import showToast from '@/components/ui/Toast';
 import { MembershipFeePaymentCreateRequest } from '@/types/membershipFee.types';
 import { useAuth } from '@/hooks/useAuth';
+import { UserGroup } from '@/types/auth.types';
+import { documentService } from '@/services/document.service';
+import { DocumentCategoryEnum } from '@/types/document.types';
 
 interface ProcessPaymentModalProps {
     isOpen: boolean;
@@ -45,6 +48,10 @@ export const ProcessPaymentModal: React.FC<ProcessPaymentModalProps> = ({
         return user?.id === memberId;
     }, [user?.id, memberId]);
 
+    const isAdmin = useMemo(() => {
+        return user?.groups?.includes(UserGroup.ADMIN) || user?.groups?.includes(UserGroup.ORGANIZATION_ADMIN);
+    }, [user?.groups]);
+
     const handleSubmit = async (data: ProcessPaymentData | ProcessPaymentSelfData) => {
         try {
             setIsSubmitting(true);
@@ -54,8 +61,27 @@ export const ProcessPaymentModal: React.FC<ProcessPaymentModalProps> = ({
             if (isOwnFee) {
                 const selfData = data as ProcessPaymentSelfData;
                 
-                const notesWithProof = selfData.documentReference 
-                    ? `${selfData.notes || ''}\n\nDovadă plată: ${selfData.documentReference}`.trim()
+                const documentUrls: string[] = [];
+                
+                if (selfData.paymentProof) {
+                    const files = selfData.paymentProof instanceof FileList 
+                        ? Array.from(selfData.paymentProof) 
+                        : selfData.paymentProof;
+                    
+                    for (const file of files) {
+                        const uploadedDocument = await documentService.upload({
+                            file: file,
+                            category: DocumentCategoryEnum.COTIZATII,
+                            subcategory: 'dovada_plata',
+                            description: `Dovadă plată cotizație ${selfData.amount} ${currency} - ${file.name}`,
+                            membershipFeeId: membershipFeeId
+                        });
+                        documentUrls.push(uploadedDocument.downloadUrl);
+                    }
+                }
+                
+                const notesWithProof = documentUrls.length > 0
+                    ? `${selfData.notes || ''}\n\nDovezi plată:\n${documentUrls.map((url, i) => `${i + 1}. ${url}`).join('\n')}`.trim()
                     : selfData.notes;
                 
                 const paymentRequest: MembershipFeePaymentCreateRequest = {
@@ -66,7 +92,12 @@ export const ProcessPaymentModal: React.FC<ProcessPaymentModalProps> = ({
                 };
 
                 await membershipFeeService.createPayment(membershipFeeId, paymentRequest);
-                showToast.success(`Plata ta de ${selfData.amount} ${currency} a fost trimisă pentru validare! Vei fi notificat când este confirmată.`);
+                
+                if (isAdmin) {
+                    showToast.success(`Plata ta de ${selfData.amount} ${currency} a fost confirmată automat!`);
+                } else {
+                    showToast.success(`Plata ta de ${selfData.amount} ${currency} a fost trimisă pentru validare! Vei fi notificat când este confirmată.`);
+                }
             } else {
                 const adminData = data as ProcessPaymentData;
                 
@@ -109,10 +140,17 @@ export const ProcessPaymentModal: React.FC<ProcessPaymentModalProps> = ({
                 <div className="text-2xl font-bold text-gray-900">{Number(amount).toFixed(2)} {currency}</div>
                 <div className="mt-2 text-sm text-gray-600">Rest de plată</div>
                 <div className="text-2xl font-bold text-primary-600">{Number(remainingAmount).toFixed(2)} {currency}</div>
-                {isOwnFee && (
+                {isOwnFee && !isAdmin && (
                     <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded">
                         <p className="text-xs text-blue-800">
-                            Pentru plata personală, te rugăm să completezi toate câmpurile și să adaugi un link către dovada plății.
+                            Te rugăm să completezi toate câmpurile și să încarci dovada plății (chitanță/bon fiscal).
+                        </p>
+                    </div>
+                )}
+                {isOwnFee && isAdmin && (
+                    <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded">
+                        <p className="text-xs text-green-800">
+                            Te rugăm să completezi toate câmpurile și să încarci dovada plății. Ca administrator, plata ta va fi confirmată automat.
                         </p>
                     </div>
                 )}

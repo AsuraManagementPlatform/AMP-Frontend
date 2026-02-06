@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { DynamicForm } from '@/components/forms/DynamicForm';
 import projectExpenseService from '@/services/project-expense.service';
@@ -20,6 +20,8 @@ import {
 } from "@/schemas/project-expense.schema.ts";
 import { executeProjectExpenseFormConfig } from "@/config/project-expense.form.config.ts";
 import {FundAllocationSection} from "@/components/modals/project-expense/FundAllocationSection.tsx";
+import { documentService } from '@/services/document.service';
+import { DocumentCategoryEnum } from '@/types/document.types';
 
 interface ExecuteProjectExpenseModalProps {
     isOpen: boolean;
@@ -46,6 +48,15 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
     const [loadingFunds, setLoadingFunds] = useState(true);
     const [formValues, setFormValues] = useState<ExecuteProjectExpenseData | null>(null);
     const [fundAllocations, setFundAllocations] = useState<Record<string, number>>({});
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+        }
+    };
 
     useEffect(() => {
         const loadData = async () => {
@@ -165,6 +176,11 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
         try {
             setIsSubmitting(true);
 
+            if (!selectedFile) {
+                showToast.error(t('toast.document.document_required'));
+                return;
+            }
+
             // Validare 1: Verifică cantitatea rămasă
             const remainingQuantity = expense.quantity - (expense.executedQuantity || 0);
             if (data.quantity > remainingQuantity) {
@@ -248,10 +264,26 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
                 fundAllocations: allocations
             };
 
-            await projectExpenseService.execute(expense.id, executeRequest);
-            showToast.success(t('toast.project_expense.executed'));
-            onSuccess();
-            onClose();
+            const uploadedDocument = await documentService.upload({
+                file: selectedFile,
+                category: DocumentCategoryEnum.FINANCIAR,
+                projectExpenseId: expense.id
+            });
+
+            executeRequest.documentId = uploadedDocument.id;
+
+            try {
+                await projectExpenseService.execute(expense.id, executeRequest);
+                showToast.success(t('toast.project_expense.executed'));
+                onSuccess();
+                onClose();
+            } catch (executeError: any) {
+                try {
+                    await documentService.delete(uploadedDocument.id);
+                } catch (deleteError) {
+                }
+                throw executeError;
+            }
         } catch (error: any) {
             const errorMessage = error?.message || t('toast.project_expense.execute_error');
             showToast.error(errorMessage);
@@ -365,6 +397,28 @@ export const ExecuteProjectExpenseModal: React.FC<ExecuteProjectExpenseModalProp
                     </p>
                 </div>
             )}
+
+            <div className="mb-4 p-4 bg-white border border-gray-200 rounded-lg">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('label.document.upload_proof')} <span className="text-red-500">*</span>
+                </label>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    onChange={handleFileChange}
+                    className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                />
+                {selectedFile && (
+                    <p className="mt-2 text-sm text-green-600">
+                        {t('label.document.selected')}: {selectedFile.name}
+                    </p>
+                )}
+                {!selectedFile && (
+                    <p className="mt-1 text-xs text-gray-500">
+                        {t('label.document.upload_required')}
+                    </p>
+                )}
+            </div>
 
             <DynamicForm<ExecuteProjectExpenseData>
                 config={formConfig}

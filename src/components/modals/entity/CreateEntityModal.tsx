@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { DynamicForm } from '@/components/forms/DynamicForm';
 import { createEntityFormConfig } from '@/config/entity.form.config';
@@ -21,6 +22,7 @@ export const CreateEntityModal: React.FC<CreateEntityModalProps> = ({
     onSuccess,
     organization: organization
 }) => {
+    const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     useEffect(() => {
         if (!isOpen) {
@@ -56,14 +58,14 @@ export const CreateEntityModal: React.FC<CreateEntityModalProps> = ({
             if (loadingToastId) {
                 toast.dismiss(loadingToastId);
             }
-            showToast.success('Entitatea a fost creată cu succes!');
+            showToast.success(t('toast.entity.created'));
             onSuccess?.(entity);
             onClose();
         } catch (error: any) {
             if (loadingToastId) {
                 toast.dismiss(loadingToastId);
             }
-            showToast.error('Crearea entității a eșuat');
+            showToast.error(t('toast.entity.create_error'));
         } finally {
             setIsSubmitting(false);
         }

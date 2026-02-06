@@ -22,6 +22,7 @@ export * from './organization-member.types.ts'
 export * from './communication.types.ts'
 export * from './activity-proposal.types.ts'
 export * from './report.types.ts'
+export * from './document.types.ts'
 
 export const Currency = {
     RON: 'RON',

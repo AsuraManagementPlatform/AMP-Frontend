@@ -1,5 +1,6 @@
 import { TableColumn } from '@/types/index.types';
 import React, { useState } from "react";
+import { useTranslation } from 'react-i18next';
 import Table from "@/components/ui/Table.tsx";
 import { ActionIcons } from '@/components/ui/ActionIcons';
 import IconMoneyBag from "@/assets/icons/iconmonstr-money-bag.svg?react";
@@ -28,6 +29,7 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
     refreshTrigger = 0,
     pageSize = 10
 }) => {
+    const { t } = useTranslation();
     const confirm = useConfirmDialog();
     const { user, hasAnyUserGroup } = useAuth();
     const [selectedFee, setSelectedFee] = useState<MembershipFee | null>(null);
@@ -74,10 +76,10 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
 
         try {
             await membershipFeeService.delete(fee.id);
-            showToast.success('Cotizația a fost ștearsă cu succes!');
+            showToast.success(t('toast.membership_fee.delete_success'));
             setLocalRefresh(prev => prev + 1);
         } catch (error: any) {
-            const errorMessage = error?.message || 'Eroare la ștergerea cotizației';
+            const errorMessage = error?.message || t('toast.membership_fee.delete_error');
             showToast.error(errorMessage);
         }
     };
@@ -259,13 +261,15 @@ export const MembershipFeeList: React.FC<MembershipFeeListProps> = ({
                 label: 'Editează',
                 icon: <ActionIcons.Edit className="w-4 h-4" />,
                 onClick: handleEdit,
-                className: 'text-gray-600 hover:bg-gray-100'
+                className: 'text-gray-600 hover:bg-gray-100',
+                show: () => isOrgAdmin
             },
             {
                 label: 'Șterge',
                 icon: <ActionIcons.Delete className="w-4 h-4" />,
                 onClick: handleDelete,
-                className: 'text-gray-600 hover:bg-gray-100'
+                className: 'text-gray-600 hover:bg-gray-100',
+                show: () => isOrgAdmin
             }
         ];
     };

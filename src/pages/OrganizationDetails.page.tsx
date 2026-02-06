@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import Layout from "@/components/layout/Layout";
 import { Card } from "@/components/ui/Card";
@@ -9,20 +10,23 @@ import { UserGroup } from "@/types/index.types";
 import { Organization } from "@/types/organization.types";
 import { UpdateOrganizationData } from "@/schemas/organization.schema";
 import { organizationService } from "@/services/organization.service";
+import { membershipFeeService } from "@/services/membershipFee.service";
+import { MembershipFeeConfig } from "@/types/membershipFee.types";
 import { OrganizationEditForm } from "@/components/forms/OrganizationEditForm";
-import { OrganizationDocumentList } from "@/components/tables/OrganizationDocumentList";
-import { CreateOrganizationDocumentModal } from "@/components/modals/organization/CreateOrganizationDocumentModal";
+import { DocumentList } from "@/components/tables/DocumentList";
+import { UploadOrganizationDocumentModal } from "@/components/modals/organization/UploadOrganizationDocumentModal";
 import { TeamManagementContent } from "@/components/organization/TeamManagementContent";
 import { ReportsHub } from "@/components/organization/ReportsHub";
+import { DocumentCategoryEnum } from "@/types/document.types";
 
 const OrganizationDetailsPage: React.FC = () => {
+    const { t } = useTranslation();
     const { user, hasAnyUserGroup } = useAuth();
     const [editMode, setEditMode] = useState(false);
     const [selectedTab, setSelectedTab] = useState('profile');
     const [loading, setLoading] = useState(true);
     const [organization, setOrganization] = useState<Organization | null>(null);
     const [isCreateDocumentModalOpen, setIsCreateDocumentModalOpen] = useState(false);
-    const [documentRefreshTrigger, setDocumentRefreshTrigger] = useState(0);
 
     const [vatSettings, setVatSettings] = useState({
         standardRate: 19,
@@ -30,13 +34,10 @@ const OrganizationDetailsPage: React.FC = () => {
         superReducedRate: 5
     });
 
-    const [membershipFees, setMembershipFees] = useState({
-        employee: 0,
-        volunteer: 0,
-        member: 50
-    });
-
     const [gracePeriodDays, setGracePeriodDays] = useState(30);
+    const [defaultRenewPeriod, setDefaultRenewPeriod] = useState('ANNUAL');
+    const [feeConfigs, setFeeConfigs] = useState<MembershipFeeConfig[]>([]);
+    const [feeConfigsLoading, setFeeConfigsLoading] = useState(false);
 
     const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
@@ -54,16 +55,19 @@ const OrganizationDetailsPage: React.FC = () => {
                 const organization = (orgData as any).organization || orgData;
                 setOrganization(organization);
                 
-                if (organization.membershipFeeEmployee !== undefined) {
-                    setMembershipFees({
-                        employee: organization.membershipFeeEmployee || 0,
-                        volunteer: organization.membershipFeeVolunteer || 0,
-                        member: organization.membershipFeeMember || 50
-                    });
-                }
-                
                 if (organization.feeGracePeriodDays !== undefined) {
                     setGracePeriodDays(organization.feeGracePeriodDays);
+                }
+                
+                if (organization.defaultRenewPeriod !== undefined) {
+                    setDefaultRenewPeriod(organization.defaultRenewPeriod);
+                }
+                
+                try {
+                    const configs = await membershipFeeService.getConfigs();
+                    setFeeConfigs(configs);
+                } catch {
+                    // Ignore - configs will be created on first access
                 }
             } catch (error) {
                 const errorMenssage = error instanceof Error ? error.message : 'Nu s-au putut încărca datele organizației';
@@ -118,16 +122,16 @@ const OrganizationDetailsPage: React.FC = () => {
     }
 
     const tabs = [
-        { id: 'profile', name: 'Profil organizațional', icon: '' },
-        { id: 'team', name: 'Management echipă', icon: '' },
-        { id: 'documents', name: 'Documente oficiale', icon: '' },
-        { id: 'financial', name: 'Configurări financiare', icon: '' },
-        { id: 'reports', name: 'Statistici și Rapoarte', icon: '' }
+        { id: 'profile', name: t('label.organization_page.tab_profile'), icon: '' },
+        { id: 'team', name: t('label.organization_page.tab_team'), icon: '' },
+        { id: 'documents', name: t('label.organization_page.tab_documents'), icon: '' },
+        { id: 'financial', name: t('label.organization_page.tab_financial'), icon: '' },
+        { id: 'reports', name: t('label.organization_page.tab_reports'), icon: '' }
     ];
 
     const handleSave = async (formData: UpdateOrganizationData) => {
         if (!user?.organizationId) {
-            showToast.error("Nu aveți o organizație asociată");
+            showToast.error(t('toast.organization.no_organization'));
             return;
         }
 
@@ -157,22 +161,22 @@ const OrganizationDetailsPage: React.FC = () => {
             }, 500);
             
             setEditMode(false);
-            showToast.success("Modificările au fost salvate cu succes!");
+            showToast.success(t('toast.organization.updated'));
         } catch (error) {
             
             if (error && typeof error === 'object' && 'response' in error) {
                 const apiError = error as any;
                 if (apiError.response?.status === 400) {
-                    showToast.error("Datele introduse nu sunt valide. Verificați câmpurile obligatorii.");
+                    showToast.error(t('toast.organization.invalid_data'));
                 } else if (apiError.response?.status === 403) {
-                    showToast.error("Nu aveți permisiunea să modificați această organizație.");
+                    showToast.error(t('toast.organization.forbidden'));
                 } else if (apiError.response?.status === 404) {
-                    showToast.error("Organizația nu a fost găsită.");
+                    showToast.error(t('toast.organization.not_found'));
                 } else {
-                    showToast.error("A apărut o eroare la salvare. Încercați din nou.");
+                    showToast.error(t('toast.organization.update_error'));
                 }
             } else {
-                showToast.error("A apărut o eroare la salvare. Încercați din nou.");
+                showToast.error(t('toast.organization.update_error'));
             }
             throw error;
         }
@@ -388,7 +392,7 @@ const OrganizationDetailsPage: React.FC = () => {
 
     const renderDocumentsContent = () => {
         const handleDocumentSuccess = () => {
-            setDocumentRefreshTrigger(prev => prev + 1);
+            setIsCreateDocumentModalOpen(false);
         };
 
         return (
@@ -400,18 +404,15 @@ const OrganizationDetailsPage: React.FC = () => {
                     </PrimaryActionButton>
                 </div>
                 <Card>
-                    <OrganizationDocumentList 
-                        organization={organization!.id} 
-                        refreshTrigger={documentRefreshTrigger}
-                        pageSize={10}
+                    <DocumentList 
+                        filters={{ category: DocumentCategoryEnum.ORGANIZATIE }}
                     />
                 </Card>
 
-                <CreateOrganizationDocumentModal
+                <UploadOrganizationDocumentModal
                     isOpen={isCreateDocumentModalOpen}
                     onClose={() => setIsCreateDocumentModalOpen(false)}
                     onSuccess={handleDocumentSuccess}
-                    organization={organization!.id}
                 />
             </div>
         );
@@ -424,10 +425,10 @@ const OrganizationDetailsPage: React.FC = () => {
             await organizationService.update(organization.id, {
                 taxExemptStatus: false
             });
-            showToast.success("Configurările TVA au fost salvate");
+            showToast.success(t('toast.organization.vat_saved'));
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Eroare la salvarea configurărilor TVA'
-            showToast.error(errorMessage);
+            const errorMessage = error instanceof Error ? error.message : t('toast.organization.vat_save_error');
+            showToast.error(errorMessage.includes('.') ? t(errorMessage) : errorMessage);
         }
     };
 
@@ -435,16 +436,47 @@ const OrganizationDetailsPage: React.FC = () => {
         if (!organization) return;
         
         try {
+            setFeeConfigsLoading(true);
+            
             await organizationService.update(organization.id, {
-                membershipFeeEmployee: membershipFees.employee,
-                membershipFeeVolunteer: membershipFees.volunteer,
-                membershipFeeMember: membershipFees.member,
-                feeGracePeriodDays: gracePeriodDays
+                feeGracePeriodDays: gracePeriodDays,
+                defaultRenewPeriod: defaultRenewPeriod
             });
-            showToast.success("Cotizațiile membrilor au fost salvate");
+            
+            if (feeConfigs.length > 0) {
+                const configUpdates = feeConfigs.map(config => ({
+                    id: config.id,
+                    amount: config.amount,
+                    isEnabled: config.isEnabled
+                }));
+                
+                const result = await membershipFeeService.updateConfigs({ configs: configUpdates });
+                setFeeConfigs(result.configs);
+            }
+            
+            showToast.success(t('toast.organization.membership_fees_saved'));
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Eroare la salvarea cotizațiilor'
-            showToast.error(errorMessage);
+            const errorMessage = error instanceof Error ? error.message : t('toast.organization.membership_fees_save_error');
+            showToast.error(errorMessage.includes('.') ? t(errorMessage) : errorMessage);
+        } finally {
+            setFeeConfigsLoading(false);
+        }
+    };
+
+    const updateFeeConfig = (configId: string, field: 'amount' | 'isEnabled', value: number | boolean) => {
+        setFeeConfigs(prev => prev.map(config => 
+            config.id === configId 
+                ? { ...config, [field]: value }
+                : config
+        ));
+    };
+
+    const getMemberTypeLabel = (type: string) => {
+        switch (type) {
+            case 'EMPLOYEE': return 'Angajat';
+            case 'VOLUNTEER': return 'Voluntar';
+            case 'MEMBER': return 'Membru';
+            default: return type;
         }
     };
 
@@ -524,126 +556,132 @@ const OrganizationDetailsPage: React.FC = () => {
                 <Card title="Cotizații Membri Organizație">
                     <div className="space-y-6">
                         <p className="text-sm text-gray-600 mb-4">
-                            Configurează cotizațiile anuale pentru fiecare tip de utilizator din organizație. Aceste valori vor fi folosite pentru facturare și raportare.
+                            Configurează cotizațiile pentru fiecare tip de utilizator și perioadă de plată. Dezactivează perioadele care nu sunt disponibile pentru anumiți membri.
                         </p>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <label className="block text-sm font-medium text-blue-900 mb-2">
-                                    Angajat
+                        {feeConfigs.length > 0 ? (
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Tip Membru
+                                            </th>
+                                            <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Lunar
+                                            </th>
+                                            <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Trimestrial
+                                            </th>
+                                            <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Semestrial
+                                            </th>
+                                            <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Anual
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {['EMPLOYEE', 'VOLUNTEER', 'MEMBER'].map((memberType) => (
+                                            <tr key={memberType} className="hover:bg-gray-50">
+                                                <td className="px-4 py-4 whitespace-nowrap">
+                                                    <span className="font-medium text-gray-900">
+                                                        {getMemberTypeLabel(memberType)}
+                                                    </span>
+                                                </td>
+                                                {['MONTHLY', 'QUARTERLY', 'SEMI_ANNUAL', 'ANNUAL'].map((period) => {
+                                                    const config = feeConfigs.find(
+                                                        c => c.memberType === memberType && c.renewPeriod === period
+                                                    );
+                                                    return (
+                                                        <td key={period} className="px-4 py-4 whitespace-nowrap text-center">
+                                                            {config && (
+                                                                <div className="flex flex-col items-center gap-2">
+                                                                    <div className="flex items-center gap-1">
+                                                                        <input
+                                                                            type="number"
+                                                                            min="0"
+                                                                            step="0.01"
+                                                                            value={config.amount}
+                                                                            onChange={(e) => updateFeeConfig(config.id, 'amount', parseFloat(e.target.value) || 0)}
+                                                                            disabled={!config.isEnabled || feeConfigsLoading}
+                                                                            className={`w-24 px-2 py-1 text-sm border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                                                                                !config.isEnabled ? 'bg-gray-100 text-gray-400' : 'border-gray-300'
+                                                                            }`}
+                                                                        />
+                                                                        <span className="text-xs text-gray-500">RON</span>
+                                                                    </div>
+                                                                    <label className="flex items-center gap-1 text-xs text-gray-500">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={config.isEnabled}
+                                                                            onChange={(e) => updateFeeConfig(config.id, 'isEnabled', e.target.checked)}
+                                                                            disabled={feeConfigsLoading}
+                                                                            className="w-3 h-3 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                                                                        />
+                                                                        Activ
+                                                                    </label>
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                    );
+                                                })}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="text-center py-8 text-gray-500">
+                                Configurările cotizațiilor se vor genera automat la prima accesare.
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                                <label className="block text-sm font-medium text-orange-900 mb-2">
+                                    Perioadă de grație pentru cotizații restante
                                 </label>
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="number"
                                         min="0"
-                                        step="0.01"
-                                        value={membershipFees.employee}
-                                        onChange={(e) => setMembershipFees({...membershipFees, employee: parseFloat(e.target.value)})}
-                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        max="365"
+                                        step="1"
+                                        value={gracePeriodDays}
+                                        onChange={(e) => setGracePeriodDays(parseInt(e.target.value))}
+                                        className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                                     />
-                                    <span className="text-gray-700 font-medium">RON/an</span>
+                                    <span className="text-gray-700 font-medium">zile</span>
                                 </div>
                                 <p className="text-xs text-gray-600 mt-2">
-                                    Cotizație pentru angajații organizației
+                                    Numărul de zile după care contul unui membru cu cotizație neplătită va fi dezactivat automat.
                                 </p>
                             </div>
 
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                                <label className="block text-sm font-medium text-green-900 mb-2">
-                                    Voluntar
+                            <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                                <label className="block text-sm font-medium text-teal-900 mb-2">
+                                    Perioada implicită de plată
                                 </label>
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        value={membershipFees.volunteer}
-                                        onChange={(e) => setMembershipFees({...membershipFees, volunteer: parseFloat(e.target.value)})}
-                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    />
-                                    <span className="text-gray-700 font-medium">RON/an</span>
-                                </div>
+                                <select
+                                    value={defaultRenewPeriod}
+                                    onChange={(e) => setDefaultRenewPeriod(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                >
+                                    <option value="MONTHLY">Lunar</option>
+                                    <option value="QUARTERLY">Trimestrial</option>
+                                    <option value="SEMI_ANNUAL">Semestrial</option>
+                                    <option value="ANNUAL">Anual</option>
+                                </select>
                                 <p className="text-xs text-gray-600 mt-2">
-                                    Cotizație pentru voluntarii organizației
+                                    Perioada implicită pentru cotizațiile noi. Poate fi modificată individual.
                                 </p>
-                            </div>
-
-                            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                                <label className="block text-sm font-medium text-purple-900 mb-2">
-                                    Membru
-                                </label>
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        value={membershipFees.member}
-                                        onChange={(e) => setMembershipFees({...membershipFees, member: parseFloat(e.target.value)})}
-                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    />
-                                    <span className="text-gray-700 font-medium">RON/an</span>
-                                </div>
-                                <p className="text-xs text-gray-600 mt-2">
-                                    Cotizație pentru membrii organizației
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                            <label className="block text-sm font-medium text-orange-900 mb-2">
-                                Perioadă de grație pentru cotizații restante
-                            </label>
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max="365"
-                                    step="1"
-                                    value={gracePeriodDays}
-                                    onChange={(e) => setGracePeriodDays(parseInt(e.target.value))}
-                                    className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                />
-                                <span className="text-gray-700 font-medium">zile</span>
-                            </div>
-                            <p className="text-xs text-gray-600 mt-2">
-                                Numărul de zile după care contul unui membru cu cotizație neplătită va fi dezactivat automat. Valoarea implicită este 30 zile.
-                            </p>
-                        </div>
-
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <h4 className="font-semibold text-yellow-900 mb-3">Estimare venituri anuale din cotizații</h4>
-                            <p className="text-sm text-gray-600 mb-4">
-                                Exemplu de calcul bazat pe 20 angajați, 15 voluntari și 30 membri:
-                            </p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <p className="text-gray-600">20 angajați × {membershipFees.employee} RON:</p>
-                                    <p className="font-semibold text-blue-900">{(membershipFees.employee * 20).toFixed(2)} RON</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-600">15 voluntari × {membershipFees.volunteer} RON:</p>
-                                    <p className="font-semibold text-green-900">{(membershipFees.volunteer * 15).toFixed(2)} RON</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-600">30 membri × {membershipFees.member} RON:</p>
-                                    <p className="font-semibold text-purple-900">{(membershipFees.member * 30).toFixed(2)} RON</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-600 font-semibold">Total estimat anual:</p>
-                                    <p className="text-lg font-bold text-yellow-900">
-                                        {(
-                                            membershipFees.employee * 20 + 
-                                            membershipFees.volunteer * 15 + 
-                                            membershipFees.member * 30
-                                        ).toFixed(2)} RON
-                                    </p>
-                                </div>
                             </div>
                         </div>
 
                         <div className="flex justify-end">
-                            <PrimaryActionButton onClick={handleMembershipFeesSave}>
-                                Confirmă configurări
+                            <PrimaryActionButton onClick={handleMembershipFeesSave} disabled={feeConfigsLoading}>
+                                {feeConfigsLoading ? 'Se salvează...' : 'Salvează configurări cotizații'}
                             </PrimaryActionButton>
                         </div>
                     </div>

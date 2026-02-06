@@ -80,6 +80,7 @@ export interface Organization {
     membershipFeeVolunteer?: number;
     membershipFeeMember?: number;
     feeGracePeriodDays?: number;
+    defaultRenewPeriod?: string;
     employeeCount?: number;
     volunteerCount?: number;
     memberCount?: number;

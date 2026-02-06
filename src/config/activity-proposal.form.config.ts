@@ -1,7 +1,8 @@
 import { DynamicFormConfig, FieldType, SelectOption } from '@/types/index.types';
 
 export const createActivityProposalFormConfig = (
-    projects: SelectOption[] = []
+    projects: SelectOption[] = [],
+    activities: SelectOption[] = []
 ): DynamicFormConfig => ({
     sections: [
         {
@@ -22,6 +23,15 @@ export const createActivityProposalFormConfig = (
                     label: 'Organizație',
                     type: FieldType.HIDDEN,
                     required: true,
+                },
+                {
+                    name: 'parentActivity',
+                    label: 'Activitate părinte (opțional)',
+                    type: FieldType.SELECT,
+                    required: false,
+                    placeholder: 'Selectează activitatea părinte',
+                    options: activities,
+                    helperText: 'Dacă propui o subactivitate, selectează activitatea principală'
                 }
             ]
         },

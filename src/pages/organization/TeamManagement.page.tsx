@@ -116,7 +116,7 @@ const TeamManagementPage: React.FC = () => {
     const handleCreateUser = async (data: any): Promise<void> => {
         try {
             await userService.create(data);
-            showToast.success('Utilizator creat cu succes!');
+            showToast.success(t('toast.user.created'));
             loadTeamMembers();
         } catch (error) {
             throw error;
@@ -160,7 +160,7 @@ const TeamManagementPage: React.FC = () => {
             setSelectedMemberId(member.member);
             setIsEditUserModalOpen(true);
         } catch (error: any) {
-            const message = error?.message || 'Eroare la încărcarea datelor utilizatorului';
+            const message = error?.message || t('toast.user.load_error');
             showToast.error(message);
         }
     };
@@ -178,24 +178,24 @@ const TeamManagementPage: React.FC = () => {
 
         try {
             await userService.update(selectedMemberId, data);
-            showToast.success('Utilizator actualizat cu succes!');
+            showToast.success(t('toast.user.updated'));
             
             const shouldResetPassword = oldEmail !== data.email;
             
             if (shouldResetPassword) {
                 const confirmed = await confirm({
-                    message: 'Email-ul a fost modificat. Doriți să trimiteți email cu parola nouă?',
-                    title: 'Resetare parolă',
-                    confirmText: 'Da, trimite email',
-                    cancelText: 'Nu acum'
+                    message: t('toast.user.password_reset_confirm'),
+                    title: t('toast.user.password_reset_title'),
+                    confirmText: t('toast.user.password_reset_confirm_button'),
+                    cancelText: t('toast.user.password_reset_cancel_button')
                 });
 
                 if (confirmed) {
                     try {
                         const result = await userService.resetPassword(selectedMemberId);
-                        showToast.success(`Email cu parola nouă trimis la ${result.email}`);
+                        showToast.success(t('toast.user.email_changed_password_sent', { email: result.email }));
                     } catch (error: any) {
-                        const message = error?.message || 'Eroare la trimiterea email-ului cu parola';
+                        const message = error?.message || t('toast.user.email_changed_password_error');
                         showToast.error(message);
                     }
                 }

@@ -1,4 +1,4 @@
-import {ActivityChangeStatusRequest, TableAction, TableColumn} from '@/types/index.types';
+import {ActivityChangeStatusRequest, TableAction, TableColumn, UserGroup} from '@/types/index.types';
 import React, {useState} from "react";
 import Table from "@/components/ui/Table.tsx";
 import { ActionIcons } from '@/components/ui/ActionIcons';
@@ -12,6 +12,7 @@ import showToast from '@/components/ui/Toast';
 import {useConfirmDialog} from '@/components/ui/ConfirmDialog';
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
 import {t} from "i18next";
+import { useAuth } from '@/hooks/useAuth';
 
 interface ActivityListProps {
     project: string;
@@ -27,11 +28,14 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                                                               canManageActivities = false,
                                                           }) => {
     const confirm = useConfirmDialog();
+    const { hasAnyUserGroup } = useAuth();
     const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [localRefresh, setLocalRefresh] = useState(0);
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
     const [subActivities, setSubActivities] = useState<Map<string, Activity[]>>(new Map());
+    
+    const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
     const toggleRow = async (activityId: string, hasSubActivities: boolean) => {
         if (!hasSubActivities) return;
@@ -286,7 +290,7 @@ export const ActivityList: React.FC<ActivityListProps> = ({
                     variant: 'danger',
                     onClick: handleDelete,
                     icon: <ActionIcons.Delete />,
-                    show: (activity: Activity) => activity.status === ActivityStatus.PLANNED
+                    show: () => isOrgAdmin
                 },
                 {
                     label: t('action.activate'),

@@ -34,6 +34,8 @@ export interface UserMeResponse {
     isActive: boolean;
     profession?: string;
     bio?: string;
+    interestArea?: string;
+    branch?: string;
 }
 
 export interface User {
@@ -66,6 +68,8 @@ export interface User {
     autoGenerateFees?: boolean;
     profession?: string;
     bio?: string;
+    interestArea?: string;
+    branch?: string;
     createdAt?: string;
     updatedAt?: string;
 }

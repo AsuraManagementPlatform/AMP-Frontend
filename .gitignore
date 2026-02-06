@@ -29,4 +29,19 @@ dist-ssr
 *.sln
 *.sw?
 AGENTS.md
-docs/requirements.md
+
+# Documentation (internal only)
+docs/
+README.md
+
+# Development files (not needed in production)
+Asura - CRM.csv
+Asura - ERP.csv
+.husky/
+.nmvrc
+
+# Temporary logs
+logs.*.log
+
+# Accessibility widget (temporary)
+public/js/accessibility-widget.js

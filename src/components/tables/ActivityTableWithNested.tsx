@@ -8,7 +8,6 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { t } from 'i18next';
 import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
 import IconDone from '@/assets/icons/iconmonstr-done.svg?react';
-import IconArrowDown from '@/assets/icons/iconmonstr-arrow-down.svg?react';
 import { ActivityDetailsModal } from '@/components/modals/activity/ActivityDetailsModal';
 import { ActionIcons } from '@/components/ui/ActionIcons';
 
@@ -210,7 +209,6 @@ export const ActivityTableWithNested: React.FC<ActivityTableWithNestedProps> = (
 
     const renderRow = (activity: Activity, isSubActivity: boolean = false, depth: number = 0) => {
         if (depth > 2) {
-            console.error('Maximum nesting depth exceeded for activity:', activity.id);
             return null;
         }
 
@@ -220,34 +218,45 @@ export const ActivityTableWithNested: React.FC<ActivityTableWithNestedProps> = (
 
         return (
             <React.Fragment key={activity.id}>
-                <tr className={`${isSubActivity ? 'bg-gray-50' : 'bg-white'} hover:bg-blue-50 transition-colors`}>
+                <tr className={`${isSubActivity ? 'bg-slate-50' : 'bg-white'} hover:bg-blue-50/50 transition-colors`}>
                     {/* Title with expand/collapse */}
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                        <div className="flex items-center gap-2" style={{ paddingLeft: isSubActivity ? '2rem' : '0' }}>
-                            {!isSubActivity && hasSubActivities && (
-                                <button
-                                    onClick={() => toggleRow(activity.id, hasSubActivities)}
-                                    className="flex-shrink-0 p-1 hover:bg-gray-200 rounded transition-colors"
-                                    title="Expandează/Restrânge subactivitățile"
-                                >
-                                    {isExpanded ? (
-                                        <IconArrowDown className="w-4 h-4 text-gray-600" />
+                    <td className={`px-6 ${isSubActivity ? 'py-2.5' : 'py-4'} ${isSubActivity ? 'text-xs' : 'text-sm'} text-gray-900`}>
+                        <div className="flex items-center" style={{ paddingLeft: isSubActivity ? '32px' : '0' }}>
+                            {/* Parent activity - expand button or spacer */}
+                            {!isSubActivity && (
+                                <>
+                                    {hasSubActivities ? (
+                                        <button
+                                            onClick={() => toggleRow(activity.id, hasSubActivities)}
+                                            className="flex-shrink-0 w-6 h-6 flex items-center justify-center hover:bg-gray-200 rounded transition-colors mr-2"
+                                            title="Expandează/Restrânge subactivitățile"
+                                        >
+                                            <svg 
+                                                className={`w-4 h-4 text-gray-600 transition-transform duration-200 ${isExpanded ? 'rotate-0' : '-rotate-90'}`}
+                                                fill="none" 
+                                                viewBox="0 0 24 24" 
+                                                stroke="currentColor"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
                                     ) : (
-                                        <span className="inline-block w-4 h-4 text-gray-600 transform -rotate-90">
-                                            <IconArrowDown className="w-4 h-4" />
-                                        </span>
+                                        <div className="w-8 flex-shrink-0" />
                                     )}
-                                </button>
+                                </>
                             )}
-                            {!isSubActivity && !hasSubActivities && (
-                                <div className="w-6 flex-shrink-0" />
-                            )}
+                            
+                            {/* Sub-activity indicator */}
                             {isSubActivity && (
-                                <span className="text-gray-400 flex-shrink-0">└─</span>
+                                <div className="flex items-center flex-shrink-0 mr-2">
+                                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full" />
+                                </div>
                             )}
-                            <span className="truncate">{activity.title}</span>
+                            
+                            <span className={`truncate ${isSubActivity ? 'text-gray-700' : 'font-medium'}`}>{activity.title}</span>
+                            
                             {hasSubActivities && (
-                                <span className="flex-shrink-0 text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
+                                <span className="flex-shrink-0 ml-2 text-xs font-medium text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
                                     {activity.completedSubActivitiesCount}/{activity.subActivitiesCount}
                                 </span>
                             )}
@@ -255,17 +264,17 @@ export const ActivityTableWithNested: React.FC<ActivityTableWithNestedProps> = (
                     </td>
 
                     {/* Starting Date */}
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className={`px-6 ${isSubActivity ? 'py-2.5 text-xs' : 'py-4 text-sm'} text-gray-${isSubActivity ? '600' : '900'}`}>
                         {activity.startingDate ? new Date(activity.startingDate).toLocaleDateString('ro-RO') : '-'}
                     </td>
 
                     {/* Estimated Ending Date */}
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className={`px-6 ${isSubActivity ? 'py-2.5 text-xs' : 'py-4 text-sm'} text-gray-${isSubActivity ? '600' : '900'}`}>
                         {activity.estimatedEndingDate ? new Date(activity.estimatedEndingDate).toLocaleDateString('ro-RO') : '-'}
                     </td>
 
                     {/* Completed At */}
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className={`px-6 ${isSubActivity ? 'py-2.5 text-xs' : 'py-4 text-sm'} text-gray-${isSubActivity ? '600' : '900'}`}>
                         {activity.status === ActivityStatus.COMPLETED && activity.completedAt
                             ? new Date(activity.completedAt).toLocaleDateString('ro-RO', {
                                 year: 'numeric',
@@ -279,7 +288,7 @@ export const ActivityTableWithNested: React.FC<ActivityTableWithNestedProps> = (
                     </td>
 
                     {/* Status with Progress Bar */}
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className={`px-6 ${isSubActivity ? 'py-2.5' : 'py-4'} text-sm text-gray-900`}>
                         <div className="flex flex-col gap-1">
                             {renderStatusBadge(activity.status)}
                             {hasSubActivities && (
@@ -299,18 +308,18 @@ export const ActivityTableWithNested: React.FC<ActivityTableWithNestedProps> = (
                     </td>
 
                     {/* Total Expenses */}
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className={`px-6 ${isSubActivity ? 'py-2.5 text-xs' : 'py-4 text-sm'} text-gray-${isSubActivity ? '600' : '900'}`}>
                         {activity.totalActivityExpensesAmount ? `${activity.totalActivityExpensesAmount.toLocaleString('ro-RO')} RON` : '0 RON'}
                     </td>
 
                     {/* Actions */}
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className={`px-6 ${isSubActivity ? 'py-2.5' : 'py-4'} text-sm text-gray-900`}>
                         {renderActions(activity)}
                     </td>
                 </tr>
 
                 {/* Render subactivities if expanded */}
-                {isExpanded && childActivities.length > 0 && childActivities.map(subActivity => 
+                {isExpanded && childActivities.length > 0 && childActivities.map((subActivity) => 
                     renderRow(subActivity, true, depth + 1)
                 )}
             </React.Fragment>

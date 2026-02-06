@@ -4,7 +4,7 @@ import Layout from '@/components/layout/Layout';
 import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import showToast from '@/components/ui/Toast';
 import projectService from '@/services/project.service';
-import { Project } from '@/types/project.types';
+import { Project, ProjectStatus, ProjectDeletionPreview } from '@/types/project.types';
 import { UpdateProjectModal } from '@/components/modals/project/UpdateProjectModal';
 import { ROUTES } from '@/utils/constants.utils';
 import { ProjectDetailsTab } from '@/components/project-tabs/ProjectDetailsTab';
@@ -18,6 +18,7 @@ import {useAuth} from "@/hooks/useAuth.ts";
 import {UserGroup} from "@/types/auth.types.ts";
 import {ProjectPartnersTab} from "@/components/project-tabs/ProjectPartnerTab.tsx";
 import {ProjectReportsTab} from "@/components/project-tabs/ProjectReportsTab";
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 type TabType = 'details' | 'activities' | 'funds' | 'expenses' | 'members' | 'partners' | 'reports';
 
@@ -29,6 +30,9 @@ const ProjectPage: React.FC = () => {
     const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deletionPreview, setDeletionPreview] = useState<ProjectDeletionPreview | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [activeTab, setActiveTab] = useState<TabType>(() => {
         const tabFromUrl = searchParams.get('tab') as TabType;
         return tabFromUrl && ['details', 'activities', 'funds', 'expenses', 'members', 'partners', 'reports'].includes(tabFromUrl) 
@@ -37,10 +41,13 @@ const ProjectPage: React.FC = () => {
     });
     const [isProjectResponsible, setIsProjectResponsible] = useState<boolean>(false);
 
+    const canDeleteProject = project?.status === ProjectStatus.DRAFT && 
+        (authContext.hasAllUserGroups([UserGroup.ORGANIZATION_ADMIN]) || isProjectResponsible);
+
     useEffect(() => {
         const loadProject = async () => {
             if (!projectId) {
-                showToast.error('ID proiect lipsă');
+                showToast.error(t('toast.project.missing_id'));
                 navigate(ROUTES.ERP_PROJECTS);
                 return;
             }
@@ -68,6 +75,36 @@ const ProjectPage: React.FC = () => {
         setIsEditModalOpen(true);
     };
 
+    const handleDeleteClick = async () => {
+        if (!projectId) return;
+        
+        try {
+            const preview = await projectService.getDeletionPreview(projectId);
+            setDeletionPreview(preview);
+            setIsDeleteModalOpen(true);
+        } catch (error: any) {
+            const message = error?.message || t('toast.project.preview_error');
+            showToast.error(message.includes('.') ? t(message) : message);
+        }
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!projectId) return;
+        
+        setIsDeleting(true);
+        try {
+            await projectService.delete(projectId);
+            showToast.success(t('toast.project.deleted_successfully'));
+            navigate(ROUTES.ERP_PROJECTS);
+        } catch (error: any) {
+            const message = error?.message || t('toast.project.delete_failed');
+            showToast.error(message.includes('.') ? t(message) : message);
+        } finally {
+            setIsDeleting(false);
+            setIsDeleteModalOpen(false);
+        }
+    };
+
     const handleTabChange = (tab: TabType) => {
         setActiveTab(tab);
         setSearchParams({ tab });
@@ -79,11 +116,33 @@ const ProjectPage: React.FC = () => {
         try {
             const updatedProject = await projectService.getById(projectId);
             setProject(updatedProject);
-            showToast.success('Proiectul a fost actualizat cu succes!');
+            showToast.success(t('toast.project.updated'));
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Eroare la reîncărcarea proiectului';
-            showToast.error(errorMessage);
+            const errorMessage = error instanceof Error ? error.message : t('toast.project.reload_error');
+            showToast.error(errorMessage.includes('.') ? t(errorMessage) : errorMessage);
         }
+    };
+
+    const buildDeleteMessage = () => {
+        if (!deletionPreview) return t('label.project.confirm_delete_message');
+        
+        const items = deletionPreview.itemsToDelete;
+        const parts: string[] = [];
+        
+        if (items.activities > 0) parts.push(`${items.activities} ${t('label.project.activities')}`);
+        if (items.projectExpenses > 0) parts.push(`${items.projectExpenses} ${t('label.project.expenses')}`);
+        if (items.projectFunds > 0) parts.push(`${items.projectFunds} ${t('label.project.funds')}`);
+        if (items.projectMembers > 0) parts.push(`${items.projectMembers} ${t('label.project.members')}`);
+        if (items.projectPartners > 0) parts.push(`${items.projectPartners} ${t('label.project.partners')}`);
+        if (items.projectDocuments + items.activityDocuments > 0) {
+            parts.push(`${items.projectDocuments + items.activityDocuments} ${t('label.project.documents')}`);
+        }
+        
+        if (parts.length === 0) {
+            return t('label.project.confirm_delete_empty');
+        }
+        
+        return `${t('label.project.confirm_delete_with_items')}: ${parts.join(', ')}`;
     };
 
     if (loading) {
@@ -130,9 +189,20 @@ const ProjectPage: React.FC = () => {
                         <h1 className="text-3xl font-bold mb-2">{project.name}</h1>
                     </div>
                     {activeTab === 'details' && (authContext.hasAllUserGroups([UserGroup.ORGANIZATION_ADMIN]) || isProjectResponsible) && (
-                        <PrimaryActionButton onClick={handleEdit}>
-                            Editează proiect
-                        </PrimaryActionButton>
+                        <div className="flex gap-2">
+                            {canDeleteProject && (
+                                <PrimaryActionButton 
+                                    variant="danger" 
+                                    onClick={handleDeleteClick}
+                                    title={t('label.project.delete_draft_tooltip')}
+                                >
+                                    {t('label.project.delete')}
+                                </PrimaryActionButton>
+                            )}
+                            <PrimaryActionButton onClick={handleEdit}>
+                                Editează proiect
+                            </PrimaryActionButton>
+                        </div>
                     )}
                 </div>
 
@@ -232,6 +302,7 @@ const ProjectPage: React.FC = () => {
                 {activeTab === 'partners' && (
                     <ProjectPartnersTab
                         projectId={project.id}
+                        project={project}
                     />
                 )}
                 {activeTab === 'reports' && (
@@ -253,6 +324,18 @@ const ProjectPage: React.FC = () => {
                         organizationId={project.organization}
                     />
                 )}
+
+                <ConfirmDialog
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={handleConfirmDelete}
+                    title={t('label.project.delete_confirm_title')}
+                    message={buildDeleteMessage()}
+                    confirmText={isDeleting ? t('label.common.deleting') : t('label.common.delete')}
+                    cancelText={t('label.common.cancel')}
+                    confirmButtonVariant="danger"
+                    isLoading={isDeleting}
+                />
             </div>
         </Layout>
     );

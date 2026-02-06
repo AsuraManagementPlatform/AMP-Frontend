@@ -5,6 +5,7 @@ export const FieldType = {
     TEL: 'tel',
     NUMBER: 'number',
     SELECT: 'select',
+    SEARCHABLE_SELECT: 'searchable_select',
     TEXTAREA: 'textarea',
     CHECKBOX: 'checkbox',
     RADIO: 'radio',
@@ -68,6 +69,8 @@ export interface TextareaFieldConfig extends BaseFieldConfig {
 
 export interface FileFieldConfig extends BaseFieldConfig {
     type: typeof FieldType.FILE;
+    accept?: string;
+    multiple?: boolean;
 }
 
 export interface HiddenFieldConfig extends BaseFieldConfig {
@@ -79,10 +82,16 @@ export interface ComboFieldConfig extends BaseFieldConfig {
     suggestions?: string[];
 }
 
+export interface SearchableSelectFieldConfig extends BaseFieldConfig {
+    type: typeof FieldType.SEARCHABLE_SELECT;
+    options: SelectOption[] | (() => SelectOption[]);
+}
+
 export type FieldConfig =
     | TextFieldConfig
     | NumberFieldConfig
     | SelectFieldConfig
+    | SearchableSelectFieldConfig
     | CheckboxFieldConfig
     | TextareaFieldConfig
     | FileFieldConfig

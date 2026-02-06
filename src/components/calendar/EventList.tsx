@@ -1,6 +1,8 @@
 import React from 'react';
 import { CalendarEvent, EventPriorityOptions, EventTypeOptions } from '@/types/calendar.types';
 import { Button } from '@/components/ui/Button';
+import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useTranslation } from 'react-i18next';
 
 interface EventListProps {
     events: CalendarEvent[];
@@ -13,6 +15,23 @@ export const EventList: React.FC<EventListProps> = ({
     onEventClick,
     onDeleteEvent
 }) => {
+    const { t } = useTranslation();
+    const confirm = useConfirmDialog();
+
+    const handleDeleteClick = async (e: React.MouseEvent, eventId: string) => {
+        e.stopPropagation();
+        const confirmed = await confirm({
+            title: t('label.calendar.delete_event_title'),
+            message: t('label.calendar.delete_event_confirm'),
+            confirmText: t('button.confirm'),
+            cancelText: t('button.cancel'),
+            confirmButtonVariant: 'danger'
+        });
+        if (confirmed) {
+            onDeleteEvent(eventId);
+        }
+    };
+
     const formatDate = (dateString: string): string => {
         if (!dateString) return 'Data invalidă';
         const date = new Date(dateString);
@@ -110,14 +129,9 @@ export const EventList: React.FC<EventListProps> = ({
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (window.confirm('Sigur doriți să ștergeți acest eveniment?')) {
-                                            onDeleteEvent(event.id);
-                                        }
-                                    }}
+                                    onClick={(e) => handleDeleteClick(e, event.id)}
                                 >
-                                    Șterge
+                                    {t('button.delete')}
                                 </Button>
                             )}
                         </div>

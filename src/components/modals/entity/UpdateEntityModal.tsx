@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import { useTranslation } from 'react-i18next';
 import {Modal} from '@/components/ui/Modal';
 import {DynamicForm} from '@/components/forms/DynamicForm';
 import {updateEntityFormConfig} from '@/config/entity.form.config';
@@ -20,6 +21,7 @@ export const UpdateEntityModal: React.FC<UpdateEntityModalProps> = ({
     onSuccess,
     entity
 }) => {
+    const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (data: UpdateEntityData) => {
@@ -43,11 +45,11 @@ export const UpdateEntityModal: React.FC<UpdateEntityModalProps> = ({
 
             await entityService.update(updateRequest);
 
-            showToast.success('Entitatea a fost actualizată cu succes!');
+            showToast.success(t('toast.entity.updated'));
             onSuccess?.();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.message || 'Eroare la actualizarea entității';
+            const errorMessage = error?.message || t('toast.entity.update_error');
             showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);

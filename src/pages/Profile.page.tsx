@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
+import Layout from '@/components/layout/Layout';
 import { User } from '@/types/index.types';
 import { userService } from '@/services/user.service';
 import { organizationMemberService } from '@/services/organization-member.service';
@@ -9,6 +10,9 @@ import { getUserRoleLabel } from '@/utils/dashboardUtils';
 import { ROUTES } from '@/utils/constants.utils';
 import { useAuth } from '@/context/Auth.context';
 import { ActionIcons } from '@/components/ui/ActionIcons';
+import { DocumentList } from '@/components/tables/DocumentList';
+import { DocumentCategoryEnum } from '@/types/document.types';
+import { UploadMemberDocumentModal } from '@/components/modals/member/UploadMemberDocumentModal';
 
 export const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
@@ -20,6 +24,8 @@ export const ProfilePage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState<Partial<User>>({});
+    const [isUploadDocumentModalOpen, setIsUploadDocumentModalOpen] = useState(false);
+    const [documentRefreshKey, setDocumentRefreshKey] = useState(0);
     
     const isViewingOtherUser = !!userId;
 
@@ -98,81 +104,71 @@ export const ProfilePage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-pulse text-gray-500">Încărcare profil...</div>
-            </div>
+            <Layout showNavigation={true}>
+                <div className="flex items-center justify-center min-h-[60vh]">
+                    <div className="animate-pulse text-gray-500">Încărcare profil...</div>
+                </div>
+            </Layout>
         );
     }
 
     if (!user) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-red-500">Nu s-au putut încărca datele profilului</div>
-            </div>
+            <Layout showNavigation={true}>
+                <div className="flex items-center justify-center min-h-[60vh]">
+                    <div className="text-red-500">Nu s-au putut încărca datele profilului</div>
+                </div>
+            </Layout>
         );
     }
 
     return (
-        <div className="max-w-5xl mx-auto">
-            <div className="mb-4">
-                <button
-                    onClick={() => {
-                        if (organizationId) {
-                            navigate(ROUTES.CRM_ORGANIZATION_TEAM_MANAGEMENT.replace(':organizationId', organizationId));
-                        } else {
-                            navigate(-1);
-                        }
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-orange-500 transition-colors"
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                    {isViewingOtherUser ? 'Înapoi la echipă' : 'Înapoi la pagina principală'}
-                </button>
-            </div>
-
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">
-                    {isViewingOtherUser ? `Profil Membru: ${user.fullName}` : 'Profilul Meu'}
-                </h1>
-                {isViewingOtherUser ? (
-                    <div className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg">
-                        Vizualizare Read-Only
+        <Layout showNavigation={true}>
+            <div className="container mx-auto">
+                <div className="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-800">
+                            {isViewingOtherUser ? `Profil Membru: ${user.fullName}` : 'Profilul Meu'}
+                        </h1>
+                        <p className="text-gray-600">Informații personale și proiecte</p>
                     </div>
-                ) : !isEditing ? (
-                    <button
-                        onClick={() => setIsEditing(true)}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                    >
-                        <ActionIcons.Edit />
-                        <span>Editează Profilul</span>
-                    </button>
-                ) : (
-                    <div className="flex gap-2">
+                    {isViewingOtherUser ? (
+                        <div className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg">
+                            Vizualizare Read-Only
+                        </div>
+                    ) : !isEditing ? (
                         <button
-                            onClick={handleCancel}
-                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-                            disabled={saving}
+                            onClick={() => setIsEditing(true)}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                         >
-                            Anulează
+                            <ActionIcons.Edit />
+                            <span>Editează Profilul</span>
                         </button>
-                        <button
-                            onClick={handleSave}
-                            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                            disabled={saving}
-                        >
-                            {saving ? 'Se salvează...' : 'Salvează'}
-                        </button>
-                    </div>
-                )}
-            </div>
+                    ) : (
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleCancel}
+                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                                disabled={saving}
+                            >
+                                Anulează
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                                disabled={saving}
+                            >
+                                {saving ? 'Se salvează...' : 'Salvează'}
+                            </button>
+                        </div>
+                    )}
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <Card className="col-span-1 bg-gradient-to-br from-orange-50 to-white">
-                    <div className="flex flex-col items-center text-center p-6">
-                        <div className="w-32 h-32 bg-orange-500 rounded-full flex items-center justify-center text-white text-4xl font-bold mb-4">
-                            {user.fullName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <Card className="col-span-1 bg-gradient-to-br from-orange-50 to-white">
+                        <div className="flex flex-col items-center text-center p-6">
+                            <div className="w-32 h-32 bg-orange-500 rounded-full flex items-center justify-center text-white text-4xl font-bold mb-4">
+                                {user.fullName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
                         </div>
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">{user.fullName}</h2>
                         <p className="text-gray-600 mb-4">{user.email}</p>
@@ -328,6 +324,22 @@ export const ProfilePage: React.FC = () => {
                             <p className="text-gray-900 py-2">{user.bio || 'Nu ați adăugat încă o descriere'}</p>
                         )}
                     </div>
+
+                    <div className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Zonă de interes</label>
+                        {isEditing ? (
+                            <input
+                                type="text"
+                                value={formData.interestArea || ''}
+                                onChange={(e) => handleInputChange('interestArea', e.target.value)}
+                                maxLength={255}
+                                placeholder="Ex: IT, Marketing, Juridic, HR, Financiar..."
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            />
+                        ) : (
+                            <p className="text-gray-900 py-2">{user.interestArea || 'Nu ați specificat o zonă de interes'}</p>
+                        )}
+                    </div>
                 </Card>
             </div>
 
@@ -405,6 +417,44 @@ export const ProfilePage: React.FC = () => {
                 </div>
             </Card>
 
+            {user.id && (
+                <Card title="Documente Membru" className="mb-6">
+                    {!isViewingOtherUser && (
+                        <div className="mb-4">
+                            <button
+                                onClick={() => setIsUploadDocumentModalOpen(true)}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Încarcă document</span>
+                            </button>
+                        </div>
+                    )}
+                    <DocumentList 
+                        key={documentRefreshKey}
+                        filters={{ 
+                            category: DocumentCategoryEnum.MEMBRI,
+                            userId: user.id
+                        }}
+                        showActions={true}
+                    />
+                </Card>
+            )}
+
+            {!isViewingOtherUser && (
+                <UploadMemberDocumentModal
+                    isOpen={isUploadDocumentModalOpen}
+                    onClose={() => setIsUploadDocumentModalOpen(false)}
+                    onSuccess={() => {
+                        setDocumentRefreshKey(prev => prev + 1);
+                        setIsUploadDocumentModalOpen(false);
+                    }}
+                    userId={user.id!}
+                />
+            )}
+
             {userProjects.length > 0 && (
                 <Card title="Proiecte" className="mb-6">
                     <div className="space-y-2">
@@ -468,7 +518,8 @@ export const ProfilePage: React.FC = () => {
                     </div>
                 </Card>
             )}
-        </div>
+            </div>
+        </Layout>
     );
 };
 

@@ -38,7 +38,7 @@ export const createActivityFormConfig = (parentActivityOptions: SelectOption[] =
                 {
                     name: 'parentActivity',
                     label: t('label.activity.parent_activity'),
-                    type: FieldType.SELECT,
+                    type: FieldType.SEARCHABLE_SELECT,
                     required: false,
                     placeholder: t('label.activity.parent_activity_placeholder'),
                     options: parentActivityOptions,

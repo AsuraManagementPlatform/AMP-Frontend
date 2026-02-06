@@ -1,5 +1,6 @@
 import { TableAction, TableColumn } from '@/types/index.types';
 import React, { useState } from "react";
+import { useTranslation } from 'react-i18next';
 import Table from "@/components/ui/Table.tsx";
 import { ActionIcons } from '@/components/ui/ActionIcons';
 import { ProjectMember, ProjectMemberStatus, ProjectMemberType } from '@/types/project-member.types';
@@ -22,6 +23,7 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
                                                                         refreshTrigger = 0,
                                                                         pageSize = 10
                                                                     }) => {
+    const { t } = useTranslation();
     const confirm = useConfirmDialog();
     const [selectedMember, setSelectedMember] = useState<ProjectMember | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -48,10 +50,10 @@ export const ProjectMemberList: React.FC<ProjectMemberListProps> = ({
 
         try {
             await projectMemberService.delete(member.id);
-            showToast.success('Membrul a fost eliminat cu succes!');
+            showToast.success(t('toast.project_member.delete_success'));
             setLocalRefresh(prev => prev + 1);
         } catch (error: any) {
-            const errorMessage = error?.message || 'Eroare la eliminarea membrului';
+            const errorMessage = error?.message || t('toast.project_member.delete_error');
             showToast.error(errorMessage);
         }
     };

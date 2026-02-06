@@ -1,4 +1,4 @@
-import {ProjectExpenseStatus, TableAction, TableColumn} from '@/types/index.types';
+import {ProjectExpenseStatus, TableAction, TableColumn, UserGroup} from '@/types/index.types';
 import React, {useEffect, useState} from "react";
 import Table from "@/components/ui/Table.tsx";
 import { ActionIcons } from '@/components/ui/ActionIcons';
@@ -7,6 +7,7 @@ import {ProjectExpense} from '@/types/project-expense.types';
 import {UpdateProjectExpenseModal} from '@/components/modals/project-expense/UpdateProjectExpenseModal';
 import {ExecuteProjectExpenseModal} from '@/components/modals/project-expense/ExecuteProjectExpenseModal';
 import {ProjectExpenseDetailsModal} from '@/components/modals/project-expense/ProjectExpenseDetailsModal.tsx';
+import {ProjectExpenseDocumentsModal} from '@/components/modals/project-expense/ProjectExpenseDocumentsModal.tsx';
 import projectExpenseService from '@/services/project-expense.service';
 import showToast from '@/components/ui/Toast';
 import {useConfirmDialog} from "@/components/ui/ConfirmDialog";
@@ -14,6 +15,8 @@ import IconWarning from '@/assets/icons/iconmonstr-warning.svg?react';
 import {t} from 'i18next';
 import projectFundService from "@/services/project-fund.service.ts";
 import {Card} from '@/components/ui/Card';
+import { DocumentTextIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ProjectExpenseListProps {
     project: string;
@@ -28,15 +31,20 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                                                                           projectBudget = 0,
                                                                           projectCurrency = 'RON',
                                                                           refreshTrigger = 0,
-                                                                          pageSize = 10
+                                                                          pageSize = 20
                                                                       }) => {
     const confirm = useConfirmDialog();
+    const { hasAnyUserGroup } = useAuth();
     const [selectedExpense, setSelectedExpense] = useState<ProjectExpense | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isExecuteModalOpen, setIsExecuteModalOpen] = useState(false);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [isDocumentsModalOpen, setIsDocumentsModalOpen] = useState(false);
+    const [selectedExpenseForDocuments, setSelectedExpenseForDocuments] = useState<ProjectExpense | null>(null);
     const [localRefresh, setLocalRefresh] = useState(0);
     const [hasPaidFunds, setHasPaidFunds] = useState<boolean>(true);
+    
+    const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
     const [totalPlannedExpenses, setTotalPlannedExpenses] = useState<number>(0);
     const [totalPaidExpenses, setTotalPaidExpenses] = useState<number>(0);
@@ -99,6 +107,11 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             const errorMessage = error?.message || t('toast.project_expense.cancel_error');
             showToast.error(errorMessage);
         }
+    };
+
+    const handleDocuments = (expense: ProjectExpense) => {
+        setSelectedExpenseForDocuments(expense);
+        setIsDocumentsModalOpen(true);
     };
 
     useEffect(() => {
@@ -342,6 +355,32 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             }
         },
         {
+            key: 'documentsCount',
+            label: t('label.project_expense.documents'),
+            sortable: false,
+            size: 'sm',
+            render: (_: unknown, row: ProjectExpense) => {
+                const count = row.documentsCount || 0;
+                return (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleDocuments(row);
+                        }}
+                        className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                            count > 0
+                                ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                        title={t('label.project_expense.view_documents')}
+                    >
+                        <DocumentTextIcon className="w-4 h-4" />
+                        <span>{count}</span>
+                    </button>
+                );
+            }
+        },
+        {
             key: 'status',
             label: t('label.project_expense.status'),
             sortable: true,
@@ -397,7 +436,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             variant: 'danger',
             onClick: handleDelete,
             icon: <ActionIcons.Delete />,
-            show: (expense: ProjectExpense) => expense.status === ProjectExpenseStatus.PLANNED
+            show: () => isOrgAdmin
         }
     ];
 
@@ -555,6 +594,20 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                     }}
                     onCancel={handleCancel}
                     expense={selectedExpense}
+                />
+            )}
+
+            {isDocumentsModalOpen && selectedExpenseForDocuments && (
+                <ProjectExpenseDocumentsModal
+                    isOpen={isDocumentsModalOpen}
+                    onClose={() => {
+                        setIsDocumentsModalOpen(false);
+                        setSelectedExpenseForDocuments(null);
+                    }}
+                    projectExpenseId={selectedExpenseForDocuments.id}
+                    projectId={project}
+                    expenseName={selectedExpenseForDocuments.name}
+                    onDocumentsChange={() => setLocalRefresh(prev => prev + 1)}
                 />
             )}
         </>

@@ -26,6 +26,9 @@ export const ROUTES = {
     CRM_ENTITY_DETAILS: '/crm/entity/:entityId',
     CRM_DONATIONS: '/crm/donations',
     CRM_COMMUNICATIONS: '/crm/communications',
+    CRM_VOTING_SESSIONS: '/crm/voting-sessions',
+    CRM_GENERAL_ASSEMBLY: '/crm/general-assembly',
+    CRM_GENERAL_ASSEMBLY_MEMBER_VIEW: '/crm/general-assembly/:id/vote',
 
     // Calendar (Standalone)
     CALENDAR: '/calendar',

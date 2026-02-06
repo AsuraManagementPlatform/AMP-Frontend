@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import {Modal} from '@/components/ui/Modal';
 import {DynamicForm} from '@/components/forms/DynamicForm';
 import projectExpenseService from '@/services/project-expense.service.ts';
@@ -30,6 +31,7 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
                                                                                         onSuccess,
                                                                                         project
                                                                                     }) => {
+    const {t} = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [activities, setActivities] = useState<Activity[]>([]);
     const [loadingActivities, setLoadingActivities] = useState(true);
@@ -77,7 +79,7 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
                 if (error instanceof Error) {
                     showToast.error(error.message);
                 } else {
-                    showToast.error('Eroare la încărcarea activităților');
+                    showToast.error(t('label.project_expense.load_activities_error'));
                 }
             } finally {
                 setLoadingActivities(false);
@@ -95,7 +97,7 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
                 if (error instanceof Error) {
                     showToast.error(error.message);
                 } else {
-                    showToast.error('Eroare la încărcarea TVA-urilor');
+                    showToast.error(t('label.project_expense.load_vats_error'));
                 }
             } finally {
                 setLoadingVats(false);
@@ -126,11 +128,11 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
             }
 
             await projectExpenseService.create(projectExpenseCreateRequest);
-            showToast.success('Cheltuiala a fost adăugată cu succes!');
+            showToast.success(t('toast.project_expense.create_success'));
             onSuccess();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.message || 'Eroare la adăugarea cheltuielii';
+            const errorMessage = error?.message || t('toast.project_expense.create_error');
             showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
@@ -143,9 +145,9 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
 
     if (loadingActivities || loadingVats) {
         return (
-            <Modal isOpen={isOpen} onClose={onClose} title="Adaugă cheltuială" size="md">
+            <Modal isOpen={isOpen} onClose={onClose} title={t('label.project_expense.create_title')} size="md">
                 <div className="flex justify-center items-center py-8">
-                    <div className="text-gray-600">Se încarcă...</div>
+                    <div className="text-gray-600">{t('label.project_expense.loading')}</div>
                 </div>
             </Modal>
         );
@@ -155,7 +157,7 @@ export const CreateProjectExpenseModal: React.FC<CreateProjectExpenseModalProps>
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Adaugă cheltuială"
+            title={t('label.project_expense.create_title')}
             size="lg"
         >
             <DynamicForm<CreateProjectExpenseData>

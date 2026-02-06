@@ -8,7 +8,9 @@ import {
     MembershipFeeFilter,
     MembershipFeePayment,
     MembershipFeePaymentCreateRequest,
-    MembershipFeePaymentApprovalRequest
+    MembershipFeePaymentApprovalRequest,
+    MembershipFeeConfig,
+    MembershipFeeConfigUpdateRequest
 } from '@/types/membershipFee.types';
 
 export const membershipFeeService = {
@@ -77,5 +79,13 @@ export const membershipFeeService = {
 
     rejectPayment: async (paymentId: string, data: MembershipFeePaymentApprovalRequest): Promise<MembershipFeePayment> => {
         return apiService.post<MembershipFeePayment>(`membership_fee/payments/${paymentId}/reject`, data);
+    },
+
+    getConfigs: async (): Promise<MembershipFeeConfig[]> => {
+        return apiService.get<MembershipFeeConfig[]>('membership_fee/config');
+    },
+
+    updateConfigs: async (data: MembershipFeeConfigUpdateRequest): Promise<{ message: string; configs: MembershipFeeConfig[] }> => {
+        return apiService.put<{ message: string; configs: MembershipFeeConfig[] }>('membership_fee/config/bulk-update', data);
     },
 };

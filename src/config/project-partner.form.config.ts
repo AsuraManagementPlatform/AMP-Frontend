@@ -41,6 +41,14 @@ export const createProjectPartnerFormConfig = (entities: Entity[] = []): Dynamic
                     required: false,
                     options: getEngagementOptions()
                 },
+                {
+                    name: 'budget',
+                    label: i18next.t('label.project_partner.budget'),
+                    type: FieldType.NUMBER,
+                    required: false,
+                    placeholder: i18next.t('label.project_partner.budget_placeholder'),
+                    min: 0
+                },
             ]
         },
     ],
@@ -60,6 +68,14 @@ export const updateProjectPartnerFormConfig = (): DynamicFormConfig => ({
                     type: FieldType.SELECT,
                     required: false,
                     options: getEngagementOptions()
+                },
+                {
+                    name: 'budget',
+                    label: i18next.t('label.project_partner.budget'),
+                    type: FieldType.NUMBER,
+                    required: false,
+                    placeholder: i18next.t('label.project_partner.budget_placeholder'),
+                    min: 0
                 },
             ]
         },

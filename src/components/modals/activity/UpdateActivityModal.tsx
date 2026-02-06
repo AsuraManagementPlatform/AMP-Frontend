@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { DynamicForm } from '@/components/forms/DynamicForm';
 import { updateActivityFormConfig } from '@/config/activity.form.config';
-import { updateActivitySchema, UpdateActivityData } from '@/schemas/activity.schema';
+import { updateActivitySchemaWithProjectDates, UpdateActivityData } from '@/schemas/activity.schema';
 import activityService from '@/services/activity.service';
+import projectService from '@/services/project.service';
 import showToast from '@/components/ui/Toast';
 import { Activity, ActivityStatus } from '@/types/activity.types';
 import { SelectOption } from '@/types/form.types';
+import { Project } from '@/types/project.types';
 
 interface UpdateActivityModalProps {
     isOpen: boolean;
@@ -23,13 +26,18 @@ export const UpdateActivityModal: React.FC<UpdateActivityModalProps> = ({
                                                                             activity,
                                                                             project
                                                                         }) => {
+    const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [availableParentActivities, setAvailableParentActivities] = useState<SelectOption[]>([]);
+    const [projectData, setProjectData] = useState<Project | null>(null);
 
     useEffect(() => {
         if (isOpen && project) {
-            const loadParentActivities = async () => {
+            const loadProjectAndActivities = async () => {
                 try {
+                    const projectResponse = await projectService.getById(project);
+                    setProjectData(projectResponse);
+                    
                     const response = await activityService.getList({ filters: { project } });
                     const parentOptions: SelectOption[] = response.results
                         .filter((act: Activity) => 
@@ -45,9 +53,10 @@ export const UpdateActivityModal: React.FC<UpdateActivityModalProps> = ({
                     setAvailableParentActivities(parentOptions);
                 } catch (error) {
                     setAvailableParentActivities([]);
+                    setProjectData(null);
                 }
             };
-            loadParentActivities();
+            loadProjectAndActivities();
         }
     }, [isOpen, project, activity.id]);
 
@@ -55,11 +64,11 @@ export const UpdateActivityModal: React.FC<UpdateActivityModalProps> = ({
         try {
             setIsSubmitting(true);
             await activityService.update(activity.id, data);
-            showToast.success('Activitatea a fost actualizată cu succes!');
+            showToast.success(t('toast.activity.updated'));
             onSuccess();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.message || 'Eroare la actualizarea activității';
+            const errorMessage = error?.message || t('toast.activity.update_error');
             showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
@@ -67,6 +76,11 @@ export const UpdateActivityModal: React.FC<UpdateActivityModalProps> = ({
     };
 
     const formConfig = updateActivityFormConfig(availableParentActivities);
+    
+    const schema = updateActivitySchemaWithProjectDates(
+        projectData?.startingDate,
+        projectData?.endingDate
+    );
 
     const defaultValues: UpdateActivityData = {
         id: activity.id,
@@ -94,7 +108,7 @@ export const UpdateActivityModal: React.FC<UpdateActivityModalProps> = ({
         >
             <DynamicForm<UpdateActivityData>
                 config={formConfig}
-                schema={updateActivitySchema}
+                schema={schema}
                 onSubmit={handleSubmit}
                 onCancel={onClose}
                 defaultValues={defaultValues}

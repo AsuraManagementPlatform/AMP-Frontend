@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { t } from 'i18next';
 import { apiService } from '@/services/api.service';
@@ -7,9 +7,10 @@ import { Card } from '@/components/ui/Card';
 import showToast from '@/components/ui/Toast';
 import { CreateSurveyModal } from '@/components/modals/survey/CreateSurveyModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { AuthContext } from '@/context/Auth.context';
 import SurveyDetailModal from './SurveyDetailModal';
 import { ActionIcons } from '@/components/ui/ActionIcons';
+import { useAuth } from '@/hooks/useAuth';
+import { UserGroup } from '@/types/index.types';
 
 export function SurveyList() {
   const [surveys, setSurveys] = useState<SurveyQuestion[]>([]);
@@ -18,9 +19,8 @@ export function SurveyList() {
   const [surveyToDelete, setSurveyToDelete] = useState<string | null>(null);
   const [selectedSurveyId, setSelectedSurveyId] = useState<string | null>(null);
   const navigate = useNavigate();
-  const authContext = useContext(AuthContext);
-  const isAdmin = authContext?.user?.groups?.includes('admin') || 
-                  authContext?.user?.groups?.includes('organization_admin') || false;
+  const { hasAnyUserGroup } = useAuth();
+  const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
   useEffect(() => {
     loadSurveys();
@@ -29,7 +29,7 @@ export function SurveyList() {
   const loadSurveys = async () => {
     try {
       setLoading(true);
-      const data = isAdmin 
+      const data = isOrgAdmin 
         ? await apiService.getActiveSurveyQuestions()
         : await apiService.getMySurveys();
       setSurveys(data);
@@ -128,7 +128,7 @@ export function SurveyList() {
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">{t('label.survey.active_surveys')}</h2>
-        {isAdmin && (
+        {isOrgAdmin && (
           <button
             onClick={() => setShowCreateModal(true)}
             className="relative inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2.5 text-base bg-transparent text-orange-500 hover:bg-orange-500 hover:text-white shadow-sm hover:shadow-md font-semibold"
@@ -201,7 +201,7 @@ export function SurveyList() {
                               <span>Răspunde la sondaj</span>
                             </button>
                           )}
-                          {isAdmin && (
+                          {isOrgAdmin && (
                             <>
                               <button
                                 onClick={() => handleSendReminder(survey.id)}

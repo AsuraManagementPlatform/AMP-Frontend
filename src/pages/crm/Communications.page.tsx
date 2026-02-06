@@ -1,4 +1,5 @@
 import React, { useState, useContext, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Layout from '@/components/layout/Layout';
 import { Card } from '@/components/ui/Card';
@@ -17,6 +18,7 @@ import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import showToast from '@/components/ui/Toast';
 
 const CommunicationsPage: React.FC = () => {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'messages' | 'proposals' | 'leave-requests'>('messages');
     const [showCreateMessageModal, setShowCreateMessageModal] = useState(false);
     const [showCreateProposalModal, setShowCreateProposalModal] = useState(false);
@@ -131,7 +133,7 @@ const CommunicationsPage: React.FC = () => {
 
     const handleDeleteMultiple = async () => {
         if (selectedMessages.size === 0) {
-            showToast.error('Te rog selectează cel puțin un mesaj');
+            showToast.error(t('toast.communication.select_at_least_one'));
             return;
         }
 
@@ -154,12 +156,14 @@ const CommunicationsPage: React.FC = () => {
                 )
             );
 
-            showToast.success(`${selectedMessages.size} mesaj${selectedMessages.size > 1 ? 'e au' : ' a'} fost șters${selectedMessages.size > 1 ? 'e' : ''} cu succes`);
+            showToast.success(selectedMessages.size > 1 
+                ? t('toast.communication.deleted_multiple', { count: selectedMessages.size })
+                : t('toast.communication.deleted_single'));
             setIsDeleteMode(false);
             setSelectedMessages(new Set());
             handleCommunicationUpdate();
         } catch (error: any) {
-            showToast.error(error.message || 'Nu s-au putut șterge mesajele');
+            showToast.error(error.message || t('toast.default_error_message'));
         } finally {
             setIsDeletingMultiple(false);
         }

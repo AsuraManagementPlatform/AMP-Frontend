@@ -1,6 +1,10 @@
-import React from 'react';
-import {Project} from '@/types/index.types';
+import React, { useState } from 'react';
+import {Project, UserGroup} from '@/types/index.types';
 import {useTableData} from "@/hooks/useTableData";
+import { Trash2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { ConfirmationModal } from '@/components/ui/Modal';
+import { useTranslation } from 'react-i18next';
 
 interface ProjectListProps {
     onEdit?: (project: Project) => void;
@@ -15,9 +19,15 @@ interface ProjectListProps {
 
 const ProjectList: React.FC<ProjectListProps> = ({
                                                      onRowClick,
+                                                     onDelete,
                                                      className = '',
                                                      refreshTrigger = 0,
 }) => {
+    const { t } = useTranslation();
+    const { hasAnyUserGroup } = useAuth();
+    const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+    const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
+    
     const {data: projects = [], loading, error } = useTableData<Project>({
         endpoint: "project/list",
         initialPageSize: 20,
@@ -46,6 +56,18 @@ const ProjectList: React.FC<ProjectListProps> = ({
         );
     }
 
+    const handleDeleteClick = (e: React.MouseEvent, project: Project) => {
+        e.stopPropagation();
+        setProjectToDelete(project);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (projectToDelete && onDelete) {
+            await onDelete(projectToDelete);
+            setProjectToDelete(null);
+        }
+    };
+
     return (
         <div className={`space-y-4 ${className}`}>
             {projects.map((project) => (
@@ -69,9 +91,29 @@ const ProjectList: React.FC<ProjectListProps> = ({
                                 )}
                             </div>
                         </div>
+                        {isOrgAdmin && onDelete && (
+                            <button
+                                onClick={(e) => handleDeleteClick(e, project)}
+                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                title={t('label.project.delete')}
+                            >
+                                <Trash2 size={18} />
+                            </button>
+                        )}
                     </div>
                 </div>
             ))}
+
+            <ConfirmationModal
+                isOpen={!!projectToDelete}
+                onClose={() => setProjectToDelete(null)}
+                onConfirm={handleConfirmDelete}
+                title={t('label.project.delete_confirmation_title')}
+                message={t('label.project.delete_confirmation_message', { name: projectToDelete?.name })}
+                confirmText={t('label.common.delete')}
+                cancelText={t('label.common.cancel')}
+                variant="danger"
+            />
         </div>
     );
 };

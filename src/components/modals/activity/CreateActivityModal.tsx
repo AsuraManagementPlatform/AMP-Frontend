@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import { useTranslation } from 'react-i18next';
 import {Modal} from '@/components/ui/Modal';
 import {DynamicForm} from '@/components/forms/DynamicForm';
 import {createActivityFormConfig} from '@/config/activity.form.config';
@@ -23,6 +24,7 @@ export const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
                                                                             onSuccess,
                                                                             project
                                                                         }) => {
+    const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [availableParentActivities, setAvailableParentActivities] = useState<SelectOption[]>([]);
     const [projectData, setProjectData] = useState<Project | null>(null);
@@ -77,11 +79,11 @@ export const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
             };
 
             await activityService.create(activityCreateRequest);
-            showToast.success('Activitatea a fost creată cu succes!');
+            showToast.success(t('toast.activity.created'));
             onSuccess();
             onClose();
         } catch (error: any) {
-            const errorMessage = error?.message || 'Eroare la crearea activității';
+            const errorMessage = error?.message || t('toast.activity.create_error');
             showToast.error(errorMessage);
         } finally {
             setIsSubmitting(false);

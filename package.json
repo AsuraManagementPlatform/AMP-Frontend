@@ -23,6 +23,7 @@
     "compression": "^1.8.1",
     "i18next": "^25.5.2",
     "keycloak-js": "^26.2.0",
+    "lucide-react": "^0.562.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.62.0",

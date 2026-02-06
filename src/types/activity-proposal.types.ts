@@ -17,6 +17,8 @@ export interface ActivityProposal extends BaseEntity {
     projectName: string;
     organization: string;
     organizationName: string;
+    parentActivity?: string;
+    parentActivityName?: string;
     activityTitle: string;
     description: string;
     startDate: string;
@@ -36,6 +38,7 @@ export interface ActivityProposal extends BaseEntity {
 export interface ActivityProposalCreateRequest {
     project: string;
     organization: string;
+    parentActivity?: string;
     activityTitle: string;
     description: string;
     startDate: string;

@@ -18,6 +18,8 @@ import userService from '@/services/user.service';
 import communicationService from '@/services/communication.service';
 import { Communication } from '@/types/communication.types';
 import { apiService } from '@/services/api.service';
+import generalAssemblyService from '@/services/general-assembly.service';
+import { GeneralAssemblyListItem } from '@/types/general-assembly.types';
 
 interface MemberDashboardProps {
     user: User | null;
@@ -55,6 +57,12 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
         queryKey: ['communications-unread-count'],
         queryFn: () => communicationService.getUnreadCount(),
         refetchInterval: 30000
+    });
+
+    const { data: myAssemblies = [] } = useQuery({
+        queryKey: ['my-assemblies'],
+        queryFn: () => generalAssemblyService.getMyAssemblies(),
+        refetchInterval: 60000
     });
 
     const communications = communicationsData?.results || [];
@@ -303,6 +311,66 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     </div>
                 </Card>
 
+                {/* 3. Meetings/Assemblies */}
+                <Card title={t('label.dashboard.meetings')} className="hover:shadow-lg transition-shadow">
+                    <div className="space-y-3">
+                        <p className="text-sm text-gray-600">{t('label.dashboard.meetings_description')}</p>
+                        <div className="bg-indigo-50 p-3 rounded-lg">
+                            <div className="text-2xl font-bold text-indigo-600">
+                                {myAssemblies.filter((a: GeneralAssemblyListItem) => 
+                                    a.status === 'SCHEDULED' || a.status === 'IN_PROGRESS'
+                                ).length}
+                            </div>
+                            <div className="text-xs text-gray-600">{t('label.dashboard.active_meetings')}</div>
+                        </div>
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                            {myAssemblies
+                                .filter((a: GeneralAssemblyListItem) => 
+                                    a.status === 'SCHEDULED' || a.status === 'IN_PROGRESS'
+                                )
+                                .slice(0, 2)
+                                .map((assembly: GeneralAssemblyListItem) => (
+                                    <div 
+                                        key={assembly.id} 
+                                        className={`text-sm p-2 rounded cursor-pointer transition-colors ${
+                                            assembly.status === 'IN_PROGRESS' 
+                                                ? 'bg-green-50 border border-green-200 hover:bg-green-100' 
+                                                : 'bg-gray-50 hover:bg-gray-100'
+                                        }`}
+                                        onClick={() => navigate(`/sedinte/${assembly.id}/member`)}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div className="font-medium">{assembly.title}</div>
+                                            {assembly.status === 'IN_PROGRESS' && (
+                                                <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded">
+                                                    {t('label.general_assembly.status.in_progress')}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="text-xs text-gray-600">
+                                            {new Date(assembly.startDate).toLocaleDateString('ro-RO')} {new Date(assembly.startDate).toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
+                                        </div>
+                                    </div>
+                                ))
+                            }
+                            {myAssemblies.filter((a: GeneralAssemblyListItem) => 
+                                a.status === 'SCHEDULED' || a.status === 'IN_PROGRESS'
+                            ).length === 0 && (
+                                <div className="text-center py-4 text-gray-400 text-sm">
+                                    {t('label.dashboard.no_meetings')}
+                                </div>
+                            )}
+                        </div>
+                        <Button 
+                            onClick={() => navigate('/sedinte')}
+                            className="w-full border-indigo-500 text-indigo-500 hover:bg-indigo-500 hover:text-white hover:border-indigo-500"
+                            size="sm"
+                        >
+                            {t('label.dashboard.view_all_meetings')}
+                        </Button>
+                    </div>
+                </Card>
+
                 {/* 5. Messages/Requests */}
                 <Card title="Mesaje" className="hover:shadow-lg transition-shadow">
                     <div className="space-y-3">
@@ -380,7 +448,6 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                 onClose={() => setShowProposalModal(false)}
                 onSuccess={handleProposalSuccess}
                 organizationId={authContext?.user?.organizationId || ''}
-                projects={projects.map(p => ({ value: p.id, label: p.name }))}
             />
 
             {/* Message Modal */}
