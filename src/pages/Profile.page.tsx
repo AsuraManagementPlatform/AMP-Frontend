@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import Layout from '@/components/layout/Layout';
 import { User } from '@/types/index.types';
@@ -7,7 +7,6 @@ import { userService } from '@/services/user.service';
 import { organizationMemberService } from '@/services/organization-member.service';
 import { toast } from 'react-hot-toast';
 import { getUserRoleLabel } from '@/utils/dashboardUtils';
-import { ROUTES } from '@/utils/constants.utils';
 import { useAuth } from '@/context/Auth.context';
 import { ActionIcons } from '@/components/ui/ActionIcons';
 import { DocumentList } from '@/components/tables/DocumentList';
@@ -15,8 +14,7 @@ import { DocumentCategoryEnum } from '@/types/document.types';
 import { UploadMemberDocumentModal } from '@/components/modals/member/UploadMemberDocumentModal';
 
 export const ProfilePage: React.FC = () => {
-    const navigate = useNavigate();
-    const { userId, organizationId } = useParams<{ userId: string; organizationId: string }>();
+    const { userId } = useParams<{ userId: string }>();
     const { user: currentUser, fetchUserData } = useAuth();
     const [user, setUser] = useState<User | null>(null);
     const [userProjects, setUserProjects] = useState<any[]>([]);
