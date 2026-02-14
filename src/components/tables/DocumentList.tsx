@@ -31,8 +31,6 @@ export const DocumentList: React.FC<DocumentListProps> = ({
       const docs = await documentService.list(filters);
       setDocuments(docs);
     } catch (error: any) {
-      const message = error?.message || t('toast.document.load_error');
-      const translatedMessage = message.includes('.') ? t(message) : message;
     } finally {
       setLoading(false);
     }
@@ -50,8 +48,6 @@ export const DocumentList: React.FC<DocumentListProps> = ({
     try {
       await documentService.download(doc.id);
     } catch (error: any) {
-      const message = error?.message || t('toast.document.download_error');
-      const translatedMessage = message.includes('.') ? t(message) : message;
     }
   };
 
@@ -70,8 +66,6 @@ export const DocumentList: React.FC<DocumentListProps> = ({
       loadDocuments();
       if (onRefresh) onRefresh();
     } catch (error: any) {
-      const message = error?.message || t('toast.document.delete_error');
-      const translatedMessage = message.includes('.') ? t(message) : message;
     }
   };
 
