@@ -48,7 +48,40 @@ export const useDashboardData = ({
                 let dashboardStats: GlobalDashboardStats;
                 
                 if (isAdmin) {
-                    dashboardStats = await dashboardService.getGlobalStats();
+                    setMembersLoading(true);
+                    setOrganizationsLoading(true);
+                    
+                    try {
+                        const [stats, usersResponse, organizationsResponse] = await Promise.all([
+                            dashboardService.getGlobalStats(),
+                            userService.getList({ page: 1, pageSize: 50 }),
+                            organizationService.getList({ page: 1, pageSize: 50 })
+                        ]);
+                        
+                        dashboardStats = stats;
+                        
+                        const organizationAdmins = usersResponse.results?.filter(user => 
+                            user.groups?.some(group => group.toLowerCase() === 'organization_admin')
+                        ) || [];
+                        
+                        const organizations = (organizationsResponse as any).organizations || organizationsResponse.results || [];
+                        setMembers(organizationAdmins);
+                        setOrganizations(organizations);
+                    } catch (error) {
+                        dashboardStats = {
+                            totalActivities: 0,
+                            totalProjects: 0,
+                            totalOrganizations: 0,
+                            activeProjects: 0,
+                            completedActivities: 0,
+                            activeOrganizations: 0
+                        };
+                        setMembers([]);
+                        setOrganizations([]);
+                    } finally {
+                        setMembersLoading(false);
+                        setOrganizationsLoading(false);
+                    }
                 } else if (isOrgAdmin && organizationId) {
                     dashboardStats = await dashboardService.getOrganizationStats(organizationId);
                 } else {
@@ -66,36 +99,21 @@ export const useDashboardData = ({
                 setProjects([]);
                 setActivities([]);
                 
-                if (isAdmin) {
+                if (isOrgAdmin && !isAdmin) {
                     try {
                         setMembersLoading(true);
-                        setOrganizationsLoading(true);
+                        setProjectsLoading(true);
+                        setActivitiesLoading(true);
                         
-                        const [usersResponse, organizationsResponse] = await Promise.all([
-                            userService.getList({ page: 1, pageSize: 50 }),
-                            organizationService.getList({ page: 1, pageSize: 50 })
+                        const [usersResponse, projectsResponse, activitiesResponse] = await Promise.all([
+                            userService.getList({ page: 1, pageSize: 100 }),
+                            projectService.getList({ page: 1, pageSize: 50 }),
+                            activityService.getList({ page: 1, pageSize: 100 })
                         ]);
                         
-                        const organizationAdmins = usersResponse.results?.filter(user => 
-                            user.groups?.some(group => group.toLowerCase() === 'organization_admin')
-                        ) || [];
-                        
-                        const organizations = (organizationsResponse as any).organizations || organizationsResponse.results || [];
-                        setMembers(organizationAdmins);
-                        setOrganizations(organizations);
-                    } catch (error) {
-                        setMembers([]);
-                        setOrganizations([]);
-                    } finally {
-                        setMembersLoading(false);
-                        setOrganizationsLoading(false);
-                    }
-                } else if (isOrgAdmin) {
-                    try {
-                        setMembersLoading(true);
-                        
-                        const usersResponse = await userService.getList({ page: 1, pageSize: 100 });
                         const allMembers = usersResponse.results || [];
+                        setProjects(projectsResponse.results || []);
+                        setActivities(activitiesResponse.results || []);
                         
                         const countByGroup = (groupName: string) => {
                             return allMembers.filter(user => {
@@ -128,8 +146,12 @@ export const useDashboardData = ({
                         });
                     } catch (error) {
                         setMembers([]);
+                        setProjects([]);
+                        setActivities([]);
                     } finally {
                         setMembersLoading(false);
+                        setProjectsLoading(false);
+                        setActivitiesLoading(false);
                     }
                 } else if (isMember) {
                     try {
