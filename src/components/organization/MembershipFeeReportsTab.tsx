@@ -123,14 +123,6 @@ export const MembershipFeeReportsTab: React.FC<OrganizationReportsTabProps> = ()
       {/* Report Dashboard */}
       {reportGenerated && reportData && (
         <>
-          {(() => {
-            console.error('[FE DISPLAY]', {
-              collected: reportData.summary.totalFeesCollected,
-              pending: reportData.summary.totalPending,
-              overdue: reportData.summary.totalOverdue
-            });
-            return null;
-          })()}
           <div className="space-y-6">
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">

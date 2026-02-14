@@ -21,10 +21,6 @@ export const DonationReportsTab: React.FC<DonationReportsTabProps> = ({
   
   const { reportData, loading, reportGenerated, generateReport, downloadExcel, downloadPDF } = useDonationReport();
 
-  console.log('DEBUG DonationReportsTab - reportGenerated:', reportGenerated);
-  console.log('DEBUG DonationReportsTab - reportData:', reportData);
-  console.log('DEBUG DonationReportsTab - loading:', loading);
-
   const handleGenerateReport = async () => {
     if (yearFrom > yearTo) {
       showToast.error(t('toast.donation_report.invalid_years'));

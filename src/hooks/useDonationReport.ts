@@ -15,13 +15,9 @@ export const useDonationReport = () => {
 
     try {
       const data = await donationReportService.generateReport(request);
-      console.log('DEBUG: Received report data:', data);
-      console.log('DEBUG: Setting reportData and reportGenerated to true');
       setReportData(data);
       setReportGenerated(true);
-      console.log('DEBUG: State updated successfully');
     } catch (error: any) {
-      console.error('DEBUG: Error generating report:', error);
       const message = error?.message || t('toast.donation_report.download_error');
       const translatedMessage = message.includes('.') ? t(message) : message;
       showToast.error(translatedMessage);

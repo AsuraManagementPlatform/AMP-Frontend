@@ -33,7 +33,6 @@ export const DocumentList: React.FC<DocumentListProps> = ({
     } catch (error: any) {
       const message = error?.message || t('toast.document.load_error');
       const translatedMessage = message.includes('.') ? t(message) : message;
-      console.error(translatedMessage);
     } finally {
       setLoading(false);
     }
@@ -53,7 +52,6 @@ export const DocumentList: React.FC<DocumentListProps> = ({
     } catch (error: any) {
       const message = error?.message || t('toast.document.download_error');
       const translatedMessage = message.includes('.') ? t(message) : message;
-      console.error(translatedMessage);
     }
   };
 
@@ -74,7 +72,6 @@ export const DocumentList: React.FC<DocumentListProps> = ({
     } catch (error: any) {
       const message = error?.message || t('toast.document.delete_error');
       const translatedMessage = message.includes('.') ? t(message) : message;
-      console.error(translatedMessage);
     }
   };
 

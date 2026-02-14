@@ -245,8 +245,6 @@ const TeamManagementPage: React.FC = () => {
         const file = event.target.files?.[0];
         if (!file) return;
 
-        console.log('[Import Debug] File selected:', file.name);
-
         if (!file.name.endsWith('.csv')) {
             showToast.error(t('toast.import.invalid_file_type'));
             return;
@@ -254,14 +252,10 @@ const TeamManagementPage: React.FC = () => {
 
         try {
             setIsImporting(true);
-            console.log('[Import Debug] Starting import...');
             const result = await organizationMemberService.importUsers(file);
-            console.log('[Import Debug] Import response:', result);
             setImportJobId(result.jobId);
-            console.log('[Import Debug] Set importJobId to:', result.jobId);
             showToast.info(t('toast.import.started', { count: result.totalRows }));
         } catch (error: any) {
-            console.error('[Import Debug] Import error:', error);
             const message = error?.message || t('toast.import.upload_failed');
             const translatedMessage = message.includes('.') ? t(message) : message;
             showToast.error(translatedMessage);
@@ -276,17 +270,12 @@ const TeamManagementPage: React.FC = () => {
     useEffect(() => {
         if (!importJobId) return;
 
-        console.log('[Import Debug] Starting polling for job:', importJobId);
-
         const pollInterval = setInterval(async () => {
             try {
-                console.log('[Import Debug] Polling status...');
                 const status = await organizationMemberService.getImportStatus(importJobId);
-                console.log('[Import Debug] Status received:', status);
                 setImportStatus(status);
 
                 if (status.status === 'COMPLETED') {
-                    console.log('[Import Debug] Import COMPLETED');
                     clearInterval(pollInterval);
                     showToast.success(
                         t('toast.import.success', { count: status.successCount })
@@ -295,7 +284,6 @@ const TeamManagementPage: React.FC = () => {
                     setImportJobId(null);
                     setIsImporting(false);
                 } else if (status.status === 'FAILED') {
-                    console.log('[Import Debug] Import FAILED:', status.errorReport);
                     clearInterval(pollInterval);
                     showToast.error(t('toast.import.failed'));
                     setShowErrorReport(status.errorReport);
@@ -303,7 +291,6 @@ const TeamManagementPage: React.FC = () => {
                     setIsImporting(false);
                 }
             } catch (error) {
-                console.error('[Import Debug] Error polling status:', error);
                 clearInterval(pollInterval);
                 showToast.error(t('toast.import.status_error'));
                 setImportJobId(null);

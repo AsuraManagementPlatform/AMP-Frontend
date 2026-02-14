@@ -19,11 +19,6 @@ export const useMembershipFeeReport = () => {
 
     try {
       const data = await membershipFeeReportService.generateReport(params);
-      console.error('[FE RECEIVED]', {
-        collected: data.summary?.totalFeesCollected,
-        pending: data.summary?.totalPending,
-        overdue: data.summary?.totalOverdue
-      });
       setReportData(data);
       return data;
     } catch (err: any) {

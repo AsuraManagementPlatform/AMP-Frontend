@@ -51,7 +51,6 @@ export const useProjectReport = () => {
       
       showToast.success(t('toast.report.download_excel_success'));
     } catch (error: any) {
-      console.error('Download Excel error:', error);
       const message = error?.message || t('toast.report.download_error');
       const translatedMessage = message.includes('.') ? t(message) : message;
       showToast.error(translatedMessage);
@@ -83,7 +82,6 @@ export const useProjectReport = () => {
       
       showToast.success(t('toast.report.download_pdf_success'));
     } catch (error: any) {
-      console.error('Download PDF error:', error);
       const message = error?.message || t('toast.report.download_error');
       const translatedMessage = message.includes('.') ? t(message) : message;
       showToast.error(translatedMessage);
