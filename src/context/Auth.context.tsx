@@ -16,6 +16,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     const [authState, setAuthState] = useState<AuthState>(AuthState.LOADING);
     const [user, setUser] = useState<User | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [userNotFoundInDatabase, setUserNotFoundInDatabase] = useState<boolean>(false);
     const [organizationModules, setOrganizationModules] = useState<string[]>([]);
 
     const initializingRef = useRef<boolean>(false);
@@ -108,6 +109,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             }
         } catch (error: any) {
             clearCachedUser();
+            if (error?.message && error.message.includes('user_not_found_in_database')) {
+                setUserNotFoundInDatabase(true);
+                setError('toast.auth.user_not_found_in_database');
+                setAuthState(AuthState.ERROR);
+                setUser(null);
+                throw error;
+            }
             if (error?.response?.status === 401 || 
                 (error?.message && error.message.includes('Utilizatorul este dezactivat'))) {
                 setError('Contul dvs. a fost dezactivat. Contactați administratorul pentru mai multe informații.');
@@ -137,6 +145,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             const authenticated = await keycloakService.init(keycloakInitOptions);
 
             if (authenticated) {
+                try {
+                    await keycloakService.updateToken(-1);
+                } catch {
+                    clearCachedUser();
+                    await keycloakService.logout({ 
+                        redirectUri: window.location.origin + '/' 
+                    });
+                    return;
+                }
+                
                 await fetchUserData();
                 setAuthState(AuthState.AUTHENTICATED);
                 setupTokenRefresh();
@@ -154,7 +172,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         } finally {
             initializingRef.current = false;
         }
-    }, [fetchUserData]);
+    }, [fetchUserData, clearCachedUser]);
 
     const setupTokenRefresh = useCallback((): void => {
         if (tokenRefreshIntervalRef.current) {
@@ -265,6 +283,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         authState,
         user,
         error,
+        userNotFoundInDatabase,
         login,
         logout,
         refreshToken,

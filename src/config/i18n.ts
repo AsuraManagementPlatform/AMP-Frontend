@@ -5,6 +5,7 @@ const resources = {
     en: {
         translation: {
             label: {
+                back_to_login: "Back to Login",
                 quick_actions: "Quick actions",
                 user_create: "Create User",
                 organisation_create: "Create Organisation",
@@ -30,6 +31,7 @@ const resources = {
                     reject: "Reject",
                     submitting: "Submitting...",
                     remove: "Remove",
+                    retry: "Retry",
                 },
                 project: {
                     planned_budget: "Planned budget",
@@ -1865,6 +1867,11 @@ const resources = {
                 auth: {
                     authentication_required: "Authentication required",
                     permission_denied: "Permission denied",
+                    user_not_found_in_database: "User does not exist in the system. Please contact the administrator.",
+                    user_not_found_title: "Account Not Found",
+                    redirect_countdown: "You will be redirected to login in {{seconds}} seconds...",
+                    authentication_error: "Authentication Error",
+                    authentication_failed: "Authentication could not be initialized",
                 },
                 common: {
                     access_denied: "Access denied",
@@ -1970,6 +1977,7 @@ const resources = {
     ro: {
         translation: {
             label: {
+                back_to_login: "Înapoi la autentificare",
                 quick_actions: "Acțiuni rapide",
                 user_create: "Creează utilizator nou",
                 organisation_create: "Creează organizație nouă",
@@ -1995,6 +2003,7 @@ const resources = {
                     reject: "Respinge",
                     submitting: "Se trimite...",
                     remove: "Elimină",
+                    retry: "Reîncearcă",
                 },
                 project: {
                     planned_budget: "Buget planificat",
@@ -3924,6 +3933,11 @@ const resources = {
                 auth: {
                     authentication_required: "Autentificare necesară",
                     permission_denied: "Permisiune refuzată",
+                    user_not_found_in_database: "Utilizatorul nu există în sistem. Vă rugăm să contactați administratorul.",
+                    user_not_found_title: "Cont negăsit",
+                    redirect_countdown: "Vei fi redirecționat către login în {{seconds}} secunde...",
+                    authentication_error: "Eroare de autentificare",
+                    authentication_failed: "Autentificarea nu a putut fi inițializată",
                 },
                 common: {
                     access_denied: "Acces refuzat",

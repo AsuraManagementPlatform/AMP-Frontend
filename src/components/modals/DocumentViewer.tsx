@@ -62,6 +62,8 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({ document, onClos
     try {
       await documentService.download(document.id);
     } catch (err: any) {
+      const message = err?.message || t('toast.document.download_error');
+      const translatedMessage = message.includes('.') ? t(message) : message;
     }
   };
 

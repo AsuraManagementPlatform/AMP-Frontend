@@ -24,6 +24,7 @@ export interface AuthContextType {
     authState: AuthState;
     user: User | null;
     error: string | null;
+    userNotFoundInDatabase: boolean;
 
     login: (redirectUri?: string) => void;
     logout: () => Promise<void>;

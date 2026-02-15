@@ -175,7 +175,7 @@ export const useDashboardData = ({
                     
                     setMembers([]);
                     setOrganizations([]);
-                } else {
+                } else if (!isAdmin) {
                     setMembers([]);
                     setOrganizations([]);
                 }
