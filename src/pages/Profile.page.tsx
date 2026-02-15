@@ -415,7 +415,7 @@ export const ProfilePage: React.FC = () => {
                 </div>
             </Card>
 
-            {user.id && (
+            {user.id && user.organizationId && (
                 <Card title="Documente Membru" className="mb-6">
                     {!isViewingOtherUser && (
                         <div className="mb-4">
