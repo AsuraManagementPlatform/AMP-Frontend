@@ -7,6 +7,7 @@ import { ActionButtonGroup } from '@/components/ui/ActionButtonGroup';
 import { EyeIcon, ArrowDownTrayIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
+import showToast from '@/components/ui/Toast';
 
 interface DocumentListProps {
   filters?: DocumentListParams;
@@ -33,6 +34,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
     } catch (error: any) {
       const message = error?.message || t('toast.document.load_error');
       const translatedMessage = message.includes('.') ? t(message) : message;
+      showToast.error(translatedMessage);
     } finally {
       setLoading(false);
     }
@@ -52,6 +54,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
     } catch (error: any) {
       const message = error?.message || t('toast.document.download_error');
       const translatedMessage = message.includes('.') ? t(message) : message;
+      showToast.error(translatedMessage);
     }
   };
 
@@ -72,6 +75,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
     } catch (error: any) {
       const message = error?.message || t('toast.document.delete_error');
       const translatedMessage = message.includes('.') ? t(message) : message;
+      showToast.error(translatedMessage);
     }
   };
 

@@ -5,6 +5,7 @@ import { ActionButton } from '@/components/ui/ActionButton';
 import { ActionButtonGroup } from '@/components/ui/ActionButtonGroup';
 import { ArrowDownTrayIcon, XMarkIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
+import showToast from '@/components/ui/Toast';
 
 interface DocumentViewerProps {
   document: Document;
@@ -64,6 +65,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({ document, onClos
     } catch (err: any) {
       const message = err?.message || t('toast.document.download_error');
       const translatedMessage = message.includes('.') ? t(message) : message;
+      showToast.error(translatedMessage);
     }
   };
 
