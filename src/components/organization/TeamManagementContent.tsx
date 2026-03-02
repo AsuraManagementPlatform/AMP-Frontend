@@ -244,6 +244,25 @@ export const TeamManagementContent: React.FC<TeamManagementContentProps> = ({ or
         fileInputRef.current?.click();
     };
 
+    const handleDownloadDraft = async () => {
+        try {
+            const blob = await organizationMemberService.downloadDraftTemplate();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'import_template.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            showToast.success(t('toast.export.template_downloaded'));
+        } catch (error: any) {
+            const message = error?.message || t('toast.export.failed');
+            const translatedMessage = message.includes('.') ? t(message) : message;
+            showToast.error(translatedMessage);
+        }
+    };
+
     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
@@ -404,6 +423,13 @@ export const TeamManagementContent: React.FC<TeamManagementContentProps> = ({ or
                             </Button>
                         </>
                     )}
+                    <Button 
+                        onClick={handleDownloadDraft}
+                        variant="secondary"
+                        className="bg-gray-100 border-gray-500 text-gray-700 hover:bg-gray-500 text-xs px-3"
+                    >
+                        Download Draft
+                    </Button>
                     <Button 
                         onClick={handleOpenCreateUser}
                         variant="primary"

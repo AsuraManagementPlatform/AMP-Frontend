@@ -50,6 +50,23 @@ export const organizationMemberService = {
         return response.blob();
     },
 
+    downloadDraftTemplate: async (): Promise<Blob> => {
+        const authHeader = await import('@/services/keycloak.service').then(m => m.getAuthHeader());
+        const baseURL = API_CONFIG.baseURL.endsWith('/') ? API_CONFIG.baseURL : `${API_CONFIG.baseURL}/`;
+        const response = await fetch(`${baseURL}organization-members/draft-template/`, {
+            method: 'GET',
+            headers: {
+                ...authHeader,
+            },
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to download draft template');
+        }
+        
+        return response.blob();
+    },
+
     importUsers: async (file: File): Promise<{ jobId: string; totalRows: number }> => {
         const formData = new FormData();
         formData.append('file', file);

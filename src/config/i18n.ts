@@ -1933,6 +1933,47 @@ const resources = {
                 },
                 organization_member: {
                     not_found: "Member not found",
+                    load_error: "Error loading team members",
+                    activated: "Member successfully activated",
+                    deactivated: "Member successfully deactivated",
+                    activate_error: "Could not activate member",
+                    deactivate_error: "Could not deactivate member",
+                    user_created: "User created successfully!",
+                    user_updated: "User updated successfully!",
+                    cannot_deactivate_self: "You cannot deactivate your own account",
+                    password_reset_sent: "New password email sent to {{email}}",
+                    password_reset_error: "Error sending password email",
+                },
+                export: {
+                    success: "Users exported successfully!",
+                    failed: "Error exporting users",
+                    no_organization: "You are not assigned to an organization",
+                    template_downloaded: "Import template downloaded successfully!",
+                    template_not_found: "Import template file not found",
+                },
+                import: {
+                    started: "Import in progress - {{count}} users will be processed",
+                    success: "{{count}} users created successfully!",
+                    failed: "User import failed",
+                    upload_failed: "Error uploading file",
+                    no_file: "No file selected",
+                    invalid_format: "Invalid CSV file format",
+                    invalid_file_type: "Please select a CSV file",
+                    no_organization: "You are not assigned to an organization",
+                    unauthorized: "You do not have permission to perform this action",
+                    job_not_found: "Import job not found",
+                    status_error: "Error checking import status",
+                    error: {
+                        full_name_required: "Full name is required",
+                        email_required: "Email is required",
+                        email_invalid_domain: "Invalid email: domain '{{domain}}' has no mail servers configured",
+                        email_exists: "Email {{email}} already exists in database",
+                        email_duplicate: "Email {{email}} is duplicated in CSV",
+                        group_required: "Group is required",
+                        group_invalid: "Invalid group: {{group}}. Must be one of: {{valid_groups}}",
+                        is_contributor_invalid: "Field 'is_contributor' must be 'true' or 'false'",
+                        auto_generate_fees_invalid: "Field 'auto_generate_fees' must be 'true' or 'false'"
+                    }
                 },
                 organization_note: {
                     not_found: "Note not found",
@@ -3774,7 +3815,9 @@ const resources = {
                 export: {
                     success: "Utilizatorii au fost exportați cu succes!",
                     failed: "Eroare la exportarea utilizatorilor",
-                    no_organization: "Nu sunteți asignat unei organizații"
+                    no_organization: "Nu sunteți asignat unei organizații",
+                    template_downloaded: "Template-ul de import a fost descărcat cu succes!",
+                    template_not_found: "Fișierul template de import nu a fost găsit",
                 },
                 import: {
                     started: "Import în curs - {{count}} utilizatori vor fi procesați",
