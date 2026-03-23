@@ -17,7 +17,6 @@ import { getUserDisplayName, getProjectStatusColor, getActivityStatusColor, getP
 const DashboardPage: React.FC = () => {
     const organization = useOrganizationCreation();
     const state = useDashboardState();
-    
     const dataHooks = useDashboardData({
         isAdmin: state.isAdmin,
         isOrgAdmin: state.isOrgAdmin,
@@ -235,6 +234,7 @@ const DashboardPage: React.FC = () => {
                     isOpen={state.isGlobalBroadcastModalOpen}
                     onClose={() => state.setIsGlobalBroadcastModalOpen(false)}
                 />
+
             </div>
         </Layout>
     );

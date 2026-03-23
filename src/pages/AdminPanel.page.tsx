@@ -20,7 +20,6 @@ import {CreateOrganizationData} from "@/schemas/organization.schema.ts";
 import showToast from "@/components/ui/Toast.tsx";
 import IconEdit from "@/assets/icons/iconmonstr-edit.svg?react";
 import {t} from "i18next";
-
 const AdminPanel: React.FC = () => {
     const { user } = useAuth();
     const confirm = useConfirmDialog();
@@ -35,7 +34,6 @@ const AdminPanel: React.FC = () => {
     const [createdUser, setCreatedUser] = useState<UserMeResponse | null>(null);
     const [selectedUser, setSelectedUser] = useState<UserMeResponse | null>(null);
     const [isSubmittingOrg, setIsSubmittingOrg] = useState(false);
-
     useEffect(() => {
         fetchUsers();
     }, []);
@@ -275,7 +273,7 @@ const AdminPanel: React.FC = () => {
                     />
                 </Card>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
                     <Card title="Total Users" className="text-center">
                         <div className="text-3xl font-bold text-blue-600">{users?.count}</div>
                     </Card>
@@ -291,6 +289,7 @@ const AdminPanel: React.FC = () => {
                             {users?.results.filter(u => u.groups.includes('organization_admin')).length}
                         </div>
                     </Card>
+
                 </div>
 
                 <CreateUserModal

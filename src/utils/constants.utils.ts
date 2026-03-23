@@ -11,6 +11,7 @@ export const ROUTES = {
     ERP_ACTIVITIES: '/erp/activities',
     ERP_MEMBERSHIP_FEES: '/erp/membership-fees',
     ERP_VATS: '/erp/vats',
+    SMART_DEVICES: '/smart-devices',
 
     // CRM Module (Users & Organization Management)
     CRM_ADMIN_PANEL: '/crm/admin',

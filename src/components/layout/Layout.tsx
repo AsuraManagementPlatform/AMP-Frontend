@@ -160,6 +160,34 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                         </li>
                                     )}
 
+                                    {isAuthenticated && hasAnyUserGroup([UserGroup.ADMIN]) && (
+                                        <li className="relative">
+                                            <Link
+                                                to={ROUTES.SMART_DEVICES}
+                                                className={`relative px-3 py-2 text-sm transition-all duration-300 inline-block ${
+                                                    location.pathname === ROUTES.SMART_DEVICES
+                                                    ? 'font-semibold text-orange-600'
+                                                        : 'text-gray-700 hover:text-orange-500'
+                                                }`}
+                                                style={{
+                                                    textShadow: location.pathname === ROUTES.SMART_DEVICES
+                                                        ? '0 0 8px rgba(249, 115, 22, 0.4)'
+                                                        : undefined
+                                                }}
+                                                onMouseEnter={(e) => e.currentTarget.style.textShadow = '0 0 12px rgba(249, 115, 22, 0.5)'}
+                                                onMouseLeave={(e) => {
+                                                    if (location.pathname !== ROUTES.SMART_DEVICES) {
+                                                        e.currentTarget.style.textShadow = '';
+                                                    } else {
+                                                        e.currentTarget.style.textShadow = '0 0 8px rgba(249, 115, 22, 0.4)';
+                                                    }
+                                                }}
+                                            >
+                                                {t('nav.smart_devices')}
+                                            </Link>
+                                        </li>
+                                    )}
+
                                     {isAuthenticated && hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]) && hasERP && (
                                         <li className="relative flex items-center">
                                             <button
@@ -449,6 +477,20 @@ const Layout: React.FC<LayoutProps> = ({children, className = '', showNavigation
                                     }`}
                                 >
                                     {t('nav.vats')}
+                                </Link>
+                            )}
+
+                            {hasAnyUserGroup([UserGroup.ADMIN]) && (
+                                <Link
+                                    to={ROUTES.SMART_DEVICES}
+                                    onClick={closeMobileMenu}
+                                    className={`block px-6 py-3 text-base ${
+                                        location.pathname === ROUTES.SMART_DEVICES
+                                            ? 'text-orange-600 font-semibold bg-orange-50'
+                                            : 'text-gray-700 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {t('nav.smart_devices')}
                                 </Link>
                             )}
 

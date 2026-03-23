@@ -264,7 +264,8 @@ const TeamManagementPage: React.FC = () => {
         const file = event.target.files?.[0];
         if (!file) return;
 
-        if (!file.name.endsWith('.csv')) {
+        const fileName = file.name.toLowerCase();
+        if (!fileName.endsWith('.csv') && !fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
             showToast.error(t('toast.import.invalid_file_type'));
             return;
         }
@@ -406,7 +407,7 @@ const TeamManagementPage: React.FC = () => {
                                         type="file"
                                         ref={fileInputRef}
                                         onChange={handleFileSelect}
-                                        accept=".csv"
+                                        accept=".csv,.xlsx,.xls"
                                         className="hidden"
                                     />
                                     <Button 

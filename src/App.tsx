@@ -28,6 +28,7 @@ const ProjectPage = lazy(() => import("@/pages/project/Project.page.tsx"));
 const MembershipFeesPage = lazy(() => import("@/pages/MembershipFees.page"));
 const TeamManagementPage = lazy(() => import("@/pages/organization/TeamManagement.page"));
 const Vats = lazy(() => import("@/pages/vat/Vats.page"));
+const SmartDevicesPage = lazy(() => import('@/pages/SmartDevices.page'));
 const SondajePage = lazy(() => import('./pages/Surveys.page'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
@@ -136,6 +137,14 @@ function App() {
                                             element={
                                                 <ProtectedRoute allowedRoles={[UserGroup.ADMIN]}>
                                                     <Vats />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path={ROUTES.SMART_DEVICES}
+                                            element={
+                                                <ProtectedRoute allowedRoles={[UserGroup.ADMIN]}>
+                                                    <SmartDevicesPage />
                                                 </ProtectedRoute>
                                             }
                                         />

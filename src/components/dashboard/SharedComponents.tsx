@@ -8,8 +8,9 @@ interface StatsSectionProps {
     isAdmin: boolean;
 }
 
-export const StatsSection: React.FC<StatsSectionProps> = ({ stats, loading, isAdmin }) => (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+export const StatsSection: React.FC<StatsSectionProps> = ({ stats, loading, isAdmin }) => {
+    return (
+    <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-3">
         <Card 
             title={isAdmin ? "Activități globale" : "Activități recente"} 
             subtitle={isAdmin ? "Total activități din toate organizațiile" : "Ultimele noutăți din proiectele tale"}
@@ -92,5 +93,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ stats, loading, isAd
                 </div>
             )}
         </Card>
+
     </div>
-);
+    );
+};
