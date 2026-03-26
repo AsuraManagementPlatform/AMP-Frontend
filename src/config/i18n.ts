@@ -155,7 +155,9 @@ const resources = {
                     entity_helper: "Optional - select the entity/donor providing this funding",
                     date: "Date",
                     documents: "Documents",
-                    view_documents: "View documents"
+                    view_documents: "View documents",
+                    payment_proof: "Payment Proof",
+                    payment_proof_description: "Upload a document proving payment (invoice, receipt, bank statement)"
                 },
                 project_expense: {
                     create_title: "Add Expense",
@@ -2252,7 +2254,9 @@ const resources = {
                     entity_helper: "Opțional - selectează entitatea/donatorul care oferă această finanțare",
                     date: "Data",
                     documents: "Documente",
-                    view_documents: "Vizualizează documentele"
+                    view_documents: "Vizualizează documentele",
+                    payment_proof: "Dovadă plată",
+                    payment_proof_description: "Încarcă un document care dovedește plata (factură, chitanță, extras de cont)"
                 },
                 project_expense: {
                     create_title: "Adaugă cheltuială",
