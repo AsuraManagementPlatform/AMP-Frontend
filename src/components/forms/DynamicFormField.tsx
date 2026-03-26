@@ -76,7 +76,7 @@ export const DynamicFormField: React.FC<DynamicFormFieldProps> = ({
                         maxLength={field.type === FieldType.TEXT && 'maxLength' in field ? field.maxLength : undefined}
                         min={field.type === FieldType.NUMBER && 'min' in field ? field.min : undefined}
                         max={field.type === FieldType.NUMBER && 'max' in field ? field.max : undefined}
-                        step={field.type === FieldType.NUMBER && 'step' in field ? field.step : undefined}
+                        step={field.type === FieldType.NUMBER ? (('step' in field && field.step !== undefined) ? field.step : 'any') : undefined}
                         disabled={field.disabled}
                         className={`${baseInputClasses} ${field.className || ''}`}
                     />

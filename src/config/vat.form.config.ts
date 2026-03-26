@@ -18,6 +18,8 @@ export const createVatFormConfig = (): DynamicFormConfig => ({
                     label: `${t('label.vat.value')}`,
                     type: FieldType.NUMBER,
                     required: true,
+                    step: 1,
+                    min: 0,
                 },
             ]
         }
