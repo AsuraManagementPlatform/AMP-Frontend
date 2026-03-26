@@ -81,7 +81,7 @@ export function DynamicForm<TFormData extends FieldValues>({
     };
 
     return (
-        <form onSubmit={handleSubmit(handleFormSubmit)} className={`space-y-6 ${className}`}>
+        <form onSubmit={handleSubmit(handleFormSubmit)} className={`space-y-6 ${className}`} noValidate>
             {config.sections.map((section, sectionIndex) => {
                 const shouldShowSection = !section.hidden && (!section.condition || section.condition(formValues));
                 if (!shouldShowSection) return null;

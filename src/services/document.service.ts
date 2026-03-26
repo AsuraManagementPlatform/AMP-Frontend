@@ -7,7 +7,7 @@ import { convertKeysToCamelCase } from '@/utils/caseConverter';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/';
 
 class DocumentService {
-  private readonly baseUrl = '/document';
+  private readonly baseUrl = 'document';
 
   async upload(params: DocumentUploadParams): Promise<Document> {
     const formData = new FormData();

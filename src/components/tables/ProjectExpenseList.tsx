@@ -42,7 +42,6 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
     const [isDocumentsModalOpen, setIsDocumentsModalOpen] = useState(false);
     const [selectedExpenseForDocuments, setSelectedExpenseForDocuments] = useState<ProjectExpense | null>(null);
     const [localRefresh, setLocalRefresh] = useState(0);
-    const [hasPaidFunds, setHasPaidFunds] = useState<boolean>(true);
     
     const isOrgAdmin = hasAnyUserGroup([UserGroup.ORGANIZATION_ADMIN]);
 
@@ -126,12 +125,6 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
                         status: 'PAID'
                     }
                 });
-
-                const fundsWithRemaining = (fundsResponse.results || []).filter(
-                    fund => fund.remainingAmount && fund.remainingAmount > 0
-                );
-
-                setHasPaidFunds(fundsWithRemaining.length > 0);
 
                 const totalReceived = (fundsResponse.results || [])
                     .reduce((sum, fund) => sum + (fund.amount || 0), 0);
@@ -422,7 +415,7 @@ export const ProjectExpenseList: React.FC<ProjectExpenseListProps> = ({
             onClick: handleExecute,
             icon: <IconCheckList />,
             show: (expense: ProjectExpense) =>
-                (expense.status === ProjectExpenseStatus.PLANNED || expense.status === ProjectExpenseStatus.PARTIALLY_PAID) && hasPaidFunds
+                expense.status === ProjectExpenseStatus.PLANNED || expense.status === ProjectExpenseStatus.PARTIALLY_PAID
         },
         {
             label: t('action.edit'),
