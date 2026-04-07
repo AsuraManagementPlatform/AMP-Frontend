@@ -1526,6 +1526,9 @@ const resources = {
                     delete_success: "User deleted successfully",
                     delete_error: "Error deleting user",
                     update_success: "User updated successfully",
+                    email_not_unique: "This email is already registered in this organisation",
+                    cannot_change_own_role: "You cannot change your own role",
+                    cannot_change_org_admin_role: "You cannot change the role of an organisation admin",
                 },
                 organization: {
                     created: "Organization created successfully!",
@@ -3640,6 +3643,9 @@ const resources = {
                     validation_failed: "Validarea utilizatorului a eșuat",
                     delete_success: "Utilizator șters cu succes",
                     delete_error: "Eroare la ștergerea utilizatorului",
+                    email_not_unique: "Acest email este deja înregistrat în această organizație",
+                    cannot_change_own_role: "Nu îți poți schimba propriul rol",
+                    cannot_change_org_admin_role: "Nu poți schimba rolul unui administrator de organizație",
                 },
                 organization: {
                     created: "Organizație creată cu succes!",
