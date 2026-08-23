@@ -4172,6 +4172,7 @@ const resources = {
                     }
                 },
                 survey: {
+                    no_permission: "Nu aveți permisiunea de a gestiona sondaje",
                     load_error: "Eroare la încărcarea sondajelor",
                     submit_success: "Răspuns trimis cu succes!",
                     submit_error: "Eroare la trimiterea răspunsului",
@@ -4453,6 +4454,7 @@ const resources = {
                     summary_error: "Eroare la încărcarea sumarului financiar",
                 },
                 donation_report: {
+                    no_permission: "Nu aveți permisiunea de a accesa acest raport",
                     invalid_years: "Interval de ani invalid",
                     invalid_year_range: "Anul de început trebuie să fie înainte sau egal cu anul de final",
                     no_organization: "Nicio organizație selectată",
