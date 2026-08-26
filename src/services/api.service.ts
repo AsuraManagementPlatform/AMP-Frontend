@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import i18next from 'i18next';
 import {ApiError, ApiConfig, PaginatedResponse, ListParams} from '@/types/index.types';
 import {getAuthHeader} from "@/services/keycloak.service";
 import { convertKeysToSnakeCase, convertKeysToCamelCase } from '@/utils/caseConverter';
@@ -50,7 +51,7 @@ apiClient.interceptors.response.use(
     },
     (error) => {
         const apiError: ApiError = {
-            message: error.response?.data?.message || error.message || 'An error occurred',
+            message: resolveErrorMessage(error),
             status: error.response?.status || 0,
             details: error.response?.data?.details || error.response?.data?.errors || []
         };
@@ -58,6 +59,28 @@ apiClient.interceptors.response.use(
         return Promise.reject(apiError);
     }
 );
+
+/**
+ * Turn a backend error payload into text the user can read.
+ * The backend answers with translation keys, so they are resolved here, once,
+ * instead of in every component that displays an error.
+ */
+function resolveErrorMessage(error: any): string {
+    const payload = error.response?.data;
+    const backendMessage = typeof payload?.message === 'string'
+        ? payload.message
+        : (typeof payload?.detail === 'string' ? payload.detail : null);
+
+    if (backendMessage) {
+        return i18next.t(backendMessage);
+    }
+
+    if (error.response?.status) {
+        return i18next.t('toast.default_error_message');
+    }
+
+    return error.message || i18next.t('toast.default_error_message');
+}
 
 export class ApiService {
     async get<T>(url: string): Promise<T> {
