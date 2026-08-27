@@ -3942,6 +3942,7 @@ const resources = {
                     delete_error: "Eroare la ștergerea documentului",
                     document_required: "Încărcarea documentului este obligatorie",
                     not_found: "Documentul nu a fost găsit",
+                    no_access: "Nu aveți acces la acest document",
                     no_file: "Niciun fișier furnizat",
                     invalid_data: "Date invalide",
                     deleted: "Documentul a fost șters cu succes",
