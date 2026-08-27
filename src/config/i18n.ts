@@ -4027,6 +4027,7 @@ const resources = {
                     load_managers_error: "Eroare la încărcarea managerilor",
                     project_not_found: "Proiectul nu a fost găsit",
                     no_permission: "Nu aveți permisiunea să vizualizați acest raport",
+                    manage_no_permission: "Nu aveți permisiunea de a gestiona acest proiect",
                     budget_critical: "Bugetul proiectului este aproape epuizat ({{value}}%)",
                     budget_warning: "Utilizarea bugetului depășește 75% ({{value}}%)",
                     deficit_warning: "Proiectul are un deficit de {{value}} RON",
