@@ -9,6 +9,12 @@ import { AuthProvider } from "@/context/Auth.context.tsx";
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { UserGroup } from '@/types/index.types';
 import { ConfirmDialogProvider } from "@/components/ui/ConfirmDialog.tsx";
+import { useRealtimeInvalidation } from "@/hooks/useRealtimeInvalidation";
+
+const RealtimeUpdates = () => {
+    useRealtimeInvalidation();
+    return null;
+};
 
 const EntityPage = lazy(() => import('@/pages/entity/Entity.page.tsx'));
 const Home = lazy(() => import('@/pages/Home.page'));
@@ -57,6 +63,7 @@ function App() {
             <ErrorBoundary>
                 <QueryClientProvider client={queryClient}>
                     <AuthProvider>
+                        <RealtimeUpdates />
                         <Router>
                             <div className="App">
                                 <Suspense fallback={<LoadingFallback />}>

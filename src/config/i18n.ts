@@ -4291,7 +4291,6 @@ const resources = {
                     update_success: "Ședința a fost actualizată cu succes",
                     update_error: "Eroare la actualizarea ședinței",
                     cannot_edit: "Nu se poate edita ședința în acest status",
-                    no_permission: "Nu ai permisiunea să administrezi această ședință",
                     title_required: "Titlul este obligatoriu",
                     agenda_required: "Este necesar cel puțin un punct pe ordinea de zi",
                     end_date_must_be_future: "Data de sfârșit trebuie să fie în viitor",
