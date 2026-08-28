@@ -1529,6 +1529,7 @@ const resources = {
                     email_not_unique: "This email is already registered in this organisation",
                     cannot_change_own_role: "You cannot change your own role",
                     cannot_change_org_admin_role: "You cannot change the role of an organisation admin",
+                    cannot_assign_admin_role: "Only a platform administrator can assign the administrator role",
                 },
                 organization: {
                     created: "Organization created successfully!",
@@ -3651,6 +3652,7 @@ const resources = {
                     email_not_unique: "Acest email este deja înregistrat în această organizație",
                     cannot_change_own_role: "Nu îți poți schimba propriul rol",
                     cannot_change_org_admin_role: "Nu poți schimba rolul unui administrator de organizație",
+                    cannot_assign_admin_role: "Doar un administrator de platformă poate atribui rolul de administrator",
                     organization_members_load_error: "Eroare la încărcarea membrilor organizației",
                     password_reset_sent_success: "Emailul de resetare a parolei a fost trimis cu succes",
                     group_required: "Grupul este obligatoriu",
