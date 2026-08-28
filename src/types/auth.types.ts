@@ -42,6 +42,7 @@ export interface AuthContextType {
 
     hasERP: boolean;
     hasCRM: boolean;
+    modulesLoaded: boolean;
     refreshOrganizationModules: () => Promise<void>;
 }
 

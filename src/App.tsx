@@ -9,8 +9,8 @@ import { AuthProvider } from "@/context/Auth.context.tsx";
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { UserGroup } from '@/types/index.types';
 import { ConfirmDialogProvider } from "@/components/ui/ConfirmDialog.tsx";
-import EntityPage from "@/pages/entity/Entity.page.tsx";
 
+const EntityPage = lazy(() => import('@/pages/entity/Entity.page.tsx'));
 const Home = lazy(() => import('@/pages/Home.page'));
 const AdminPanel = lazy(() => import('@/pages/AdminPanel.page'));
 const Projects = lazy(() => import('@/pages/Projects.page'));

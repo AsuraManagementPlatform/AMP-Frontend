@@ -18,6 +18,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     const [error, setError] = useState<string | null>(null);
     const [userNotFoundInDatabase, setUserNotFoundInDatabase] = useState<boolean>(false);
     const [organizationModules, setOrganizationModules] = useState<string[]>([]);
+    const [modulesLoaded, setModulesLoaded] = useState<boolean>(false);
 
     const initializingRef = useRef<boolean>(false);
     const tokenRefreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -59,22 +60,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         localStorage.removeItem(USER_CACHE_EXPIRY);
     }, []);
 
+    const loadOrganizationModules = useCallback(async (organizationId?: string | null): Promise<void> => {
+        if (!organizationId) {
+            setOrganizationModules([]);
+            setModulesLoaded(true);
+            return;
+        }
+
+        try {
+            const response = await organizationService.getById(organizationId);
+            const organization = (response as any).organization || response;
+            setOrganizationModules(organization.activeModules || []);
+        } catch {
+            setOrganizationModules([]);
+        } finally {
+            setModulesLoaded(true);
+        }
+    }, []);
+
     const fetchUserData = useCallback(async (useCache: boolean = true): Promise<void> => {
         try {
             if (useCache) {
                 const cachedUser = getCachedUser();
                 if (cachedUser) {
                     setUser(cachedUser);
-                    
-                    if (cachedUser.organizationId) {
-                        try {
-                            const response = await organizationService.getById(cachedUser.organizationId);
-                            const organization = (response as any).organization || response;
-                            setOrganizationModules(organization.activeModules || []);
-                        } catch {
-                            setOrganizationModules([]);
-                        }
-                    }
+                    void loadOrganizationModules(cachedUser.organizationId);
                     return;
                 }
             }
@@ -96,17 +106,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             setUser(newUserData);
             setCachedUser(newUserData);
 
-            if (userData.organizationId) {
-                try {
-                    const response = await organizationService.getById(userData.organizationId);
-                    const organization = (response as any).organization || response;
-                    setOrganizationModules(organization.activeModules || []);
-                } catch {
-                    setOrganizationModules([]);
-                }
-            } else {
-                setOrganizationModules([]);
-            }
+            void loadOrganizationModules(userData.organizationId);
         } catch (error: any) {
             clearCachedUser();
             if (error?.message && error.message.includes('user_not_found_in_database')) {
@@ -130,7 +130,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
             }
             throw error;
         }
-    }, [getCachedUser, setCachedUser, clearCachedUser]);
+    }, [getCachedUser, setCachedUser, clearCachedUser, loadOrganizationModules]);
 
     const initializeAuth = useCallback(async (): Promise<void> => {
         if (initializingRef.current || authInitialized) {
@@ -265,19 +265,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
     }, [authState, user]);
 
     const refreshOrganizationModules = useCallback(async (): Promise<void> => {
-        if (!user?.organizationId) {
-            setOrganizationModules([]);
-            return;
-        }
-
-        try {
-            const response = await organizationService.getById(user.organizationId);
-            const organization = (response as any).organization || response;
-            setOrganizationModules(organization.activeModules || []);
-        } catch {
-            setOrganizationModules([]);
-        }
-    }, [user?.organizationId]);
+        await loadOrganizationModules(user?.organizationId);
+    }, [user?.organizationId, loadOrganizationModules]);
 
     const contextValue: AuthContextType = {
         authState,
@@ -296,6 +285,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children } : AuthPro
         getAccessToken,
         hasERP: organizationModules.includes('ERP'),
         hasCRM: organizationModules.includes('CRM'),
+        modulesLoaded,
         refreshOrganizationModules
     };
 

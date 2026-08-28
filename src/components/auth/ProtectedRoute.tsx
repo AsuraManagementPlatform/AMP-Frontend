@@ -16,9 +16,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     requireModule,
     redirectTo = '/dashboard'
 }) => {
-    const { user, isAuthenticated, isLoading, hasERP, hasCRM } = useAuth();
-    
-    if (isLoading) {
+    const { user, isAuthenticated, isLoading, hasERP, hasCRM, modulesLoaded } = useAuth();
+
+    if (isLoading || (requireModule && !modulesLoaded)) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
