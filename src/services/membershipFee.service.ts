@@ -58,13 +58,6 @@ export const membershipFeeService = {
         return membershipFeeService.getList(params);
     },
 
-    autoCheckRenewal: async (memberId: string): Promise<{ shouldRefresh: boolean; renewalsCreated: any[] }> => {
-        return apiService.post<{ shouldRefresh: boolean; renewalsCreated: any[] }>(
-            `membership_fee/auto-check-renewal/${memberId}`,
-            {}
-        );
-    },
-
     getPayments: async (feeId: string): Promise<MembershipFeePayment[]> => {
         return apiService.get<MembershipFeePayment[]>(`membership_fee/${feeId}/payments`);
     },
