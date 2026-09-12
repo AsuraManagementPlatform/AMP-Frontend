@@ -6,18 +6,17 @@ const RECONNECT_BASE_MS = 1000;
 const RECONNECT_MAX_MS = 30000;
 const PING_INTERVAL_MS = 25000;
 
+export const BEARER_SUBPROTOCOL = 'bearer';
+
+/** Only the dedicated realtime service speaks websocket, so an unset URL means the feature is off. */
 function buildUrl(): string | null {
-    const token = keycloakService.token;
-    if (!token) return null;
+    const base = import.meta.env.VITE_REALTIME_URL;
+    if (!base) return null;
 
-    const apiBase = import.meta.env.VITE_REALTIME_URL
-        || import.meta.env.VITE_API_BASE_URL
-        || 'http://localhost:8000/api/';
-
-    const url = new URL(apiBase, window.location.origin);
+    const url = new URL(base, window.location.origin);
     url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
     url.pathname = '/ws/updates';
-    url.search = `token=${encodeURIComponent(token)}`;
+    url.search = '';
     return url.toString();
 }
 
@@ -43,10 +42,12 @@ class RealtimeService {
         if (this.socket && this.socket.readyState <= WebSocket.OPEN) return;
 
         const url = buildUrl();
-        if (!url) return;
+        const token = keycloakService.token;
+        if (!url || !token) return;
 
         try {
-            this.socket = new WebSocket(url);
+            // The token travels as a subprotocol so it never lands in a URL, which servers log.
+            this.socket = new WebSocket(url, [BEARER_SUBPROTOCOL, token]);
         } catch {
             this.scheduleReconnect();
             return;
