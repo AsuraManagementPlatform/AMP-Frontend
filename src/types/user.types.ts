@@ -32,6 +32,8 @@ export interface UserMeResponse {
     lastLogin?: string;
     registrationDate?: string;
     isActive: boolean;
+    isContributor?: boolean;
+    autoGenerateFees?: boolean;
     profession?: string;
     bio?: string;
     interestArea?: string;

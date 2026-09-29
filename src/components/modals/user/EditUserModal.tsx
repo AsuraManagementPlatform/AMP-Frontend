@@ -5,6 +5,7 @@ import { DynamicForm } from '@/components/forms/DynamicForm.tsx';
 import { createUserFormConfig } from '@/config/user.form.config.ts';
 import { createUserSchema, UserCreateRequest } from '@/schemas/user.schema.ts';
 import { UserMeResponse } from '@/types/user.types.ts';
+import { loadedAccountFlags, withoutUnloadedFlags } from '@/utils/accountFlags';
 import showToast from '@/components/ui/Toast.tsx';
 import toast from 'react-hot-toast';
 
@@ -35,7 +36,10 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
         cancelButtonText: t('label.button.cancel')
     };
 
+    const accountFlags = loadedAccountFlags(user);
+
     const defaultValues: Partial<UserCreateRequest> = user ? {
+        ...accountFlags,
         full_name: user.fullName || '',
         email: user.email || '',
         personal_numerical_number: user.personalNumericalNumber || '',
@@ -59,7 +63,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
             setIsSubmitting(true);
             loadingToast = showToast.updatingUser();
 
-            await onSubmit(data);
+            await onSubmit(withoutUnloadedFlags(data, accountFlags));
 
             if (loadingToast) {
                 toast.dismiss(loadingToast);

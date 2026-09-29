@@ -155,6 +155,8 @@ export const TeamManagementContent: React.FC<TeamManagementContentProps> = ({ or
                 lastLogin: fullUserData.lastLogin,
                 registrationDate: fullUserData.registrationDate,
                 isActive: fullUserData.isActive,
+                isContributor: fullUserData.isContributor,
+                autoGenerateFees: fullUserData.autoGenerateFees,
                 profession: fullUserData.profession,
                 bio: fullUserData.bio,
                 branch: fullUserData.branch
