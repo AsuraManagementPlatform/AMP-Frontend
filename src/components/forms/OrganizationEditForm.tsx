@@ -2,7 +2,7 @@ import React from 'react';
 import { useForm, FieldError } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateOrganizationSchema, UpdateOrganizationData } from '@/schemas/organization.schema';
-import { Organization, OrganizationType, OrganizationStatus } from '@/types/organization.types';
+import { Organization, OrganizationType } from '@/types/organization.types';
 import { Card } from '@/components/ui/Card';
 import { PrimaryActionButton } from '@/components/ui/PrimaryActionButton';
 import { SecondaryButton } from '@/components/ui/SecondaryButton';
@@ -161,12 +161,6 @@ export const OrganizationEditForm: React.FC<OrganizationEditFormProps> = ({
         { value: OrganizationType.OTHER, label: 'Altul' }
     ];
 
-    const statusOptions = [
-        { value: OrganizationStatus.ACTIVE, label: 'Activ' },
-        { value: OrganizationStatus.INACTIVE, label: 'Inactiv' },
-        { value: OrganizationStatus.PENDING, label: 'În așteptare' }
-    ];
-
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <Card>
@@ -179,12 +173,11 @@ export const OrganizationEditForm: React.FC<OrganizationEditFormProps> = ({
                     <div className="flex-1 space-y-4">
                         {renderFormField('name', 'Nume organizație', 'text', undefined, 'Numele organizației', true)}
                         
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             {renderFormField('cui', 'CUI', 'text', undefined, 'ex: RO12345678')}
                             {renderFormField('registration_number', 'Nr. înregistrare', 'text', undefined, 'Numărul de înregistrare')}
                             {renderFormField('registration_date', 'Data înregistrării', 'date', undefined, 'YYYY-MM-DD')}
                             {renderFormField('organization_type', 'Tip organizație', 'select', organizationTypeOptions)}
-                            {renderFormField('status', 'Status', 'select', statusOptions)}
                         </div>
                     </div>
                 </div>
