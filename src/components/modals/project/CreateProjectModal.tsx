@@ -75,7 +75,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             priority: data.priority,
             organization: organizationId || data.organization,
             location: data.location,
-            budget: Math.round(data.budget * 100),
+            budget: data.budget,
             currency: data.currency,
             budgetPlanningDate: data.budgetPlanningDate || data.startingDate,
             budgetResponsible: data.budgetResponsible,
